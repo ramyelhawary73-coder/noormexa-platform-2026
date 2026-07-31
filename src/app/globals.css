@@ -1,0 +1,1886 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* هوية NOORMEXA الرسمية: Deep Navy / Champagne Gold / Warm Ivory / Charcoal */
+  --background: #f6f2e9;
+  --foreground: #1c1c1e;
+  --surface: #ffffff;
+  --surface-soft: #fbf8f2;
+  --surface-muted: #f1ead9;
+  --line: rgba(28, 28, 30, 0.12);
+  --line-strong: rgba(28, 28, 30, 0.2);
+  --muted: #5c5a55;
+  --gold: #d4af37;
+  --gold-strong: #a9821f;
+  --gold-soft: #f5e9c6;
+  --navy: #0b1322;
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --safe-shadow: 0 14px 34px rgba(11, 19, 34, 0.1);
+  --soft-shadow: 0 8px 22px rgba(11, 19, 34, 0.07);
+}
+
+.dark {
+  --background: #0b1322;
+  --foreground: #f6f2e9;
+  --surface: #101a2e;
+  --surface-soft: #0f1a2c;
+  --surface-muted: #0a1220;
+  --line: rgba(246, 242, 233, 0.13);
+  --line-strong: rgba(246, 242, 233, 0.2);
+  --muted: #a9adba;
+  --gold: #e6c25f;
+  --gold-strong: #f5d98a;
+  --gold-soft: rgba(230, 194, 95, 0.16);
+  --navy: #0b1322;
+  --safe-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  --soft-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --font-sans: "Montserrat", Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[lang="ar"] body {
+  font-family: "Cairo", Tahoma, Arial, sans-serif;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(circle at 18% 8%, rgba(212, 175, 55, 0.14), transparent 28rem),
+    radial-gradient(circle at 86% 12%, rgba(11, 19, 34, 0.08), transparent 26rem),
+    linear-gradient(180deg, var(--background) 0%, var(--surface-soft) 48%, var(--surface-muted) 100%);
+}
+
+.dark body::before {
+  background:
+    radial-gradient(circle at 18% 8%, rgba(230, 194, 95, 0.16), transparent 28rem),
+    radial-gradient(circle at 86% 12%, rgba(212, 175, 55, 0.08), transparent 26rem),
+    linear-gradient(180deg, var(--background) 0%, #0a101b 52%, #060913 100%);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+svg {
+  flex: 0 0 auto;
+}
+
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.28);
+}
+
+.noormexa-app-shell,
+.noormexa-main,
+main,
+section,
+header,
+footer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.noormexa-app-shell {
+  min-height: 100dvh;
+}
+
+.noormexa-container {
+  width: min(100% - 32px, 1180px);
+  margin-inline: auto;
+}
+
+.noormexa-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--background) 94%, transparent);
+}
+
+.noormexa-header-inner {
+  min-height: 70px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.noormexa-brand {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.noormexa-brand-logo-shell,
+.noormexa-footer-logo-shell {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.noormexa-brand-logo-shell {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+}
+
+.noormexa-brand-logo,
+.noormexa-footer-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noormexa-brand-text {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.noormexa-brand-word {
+  color: var(--foreground);
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+  font-size: 1.02rem;
+  font-weight: 950;
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+
+.noormexa-brand-tag {
+  max-width: 13rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noormexa-nav-links {
+  display: none;
+}
+
+.noormexa-nav-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.noormexa-icon-button,
+.noormexa-pill-button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: var(--soft-shadow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noormexa-icon-button {
+  width: 42px;
+  border-radius: 999px;
+}
+
+.noormexa-pill-button {
+  gap: 7px;
+  border-radius: 999px;
+  padding-inline: 12px;
+  font-size: 0.86rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.noormexa-account-link {
+  display: none;
+}
+
+.noormexa-admin-link {
+  display: none;
+  border-color: var(--gold);
+  color: var(--gold-strong);
+}
+
+.noormexa-mobile-panel {
+  border-top: 1px solid var(--line);
+  background: var(--background);
+}
+
+.noormexa-mobile-panel-card {
+  width: min(100% - 32px, 430px);
+  margin: 0 auto;
+  padding: 10px 0 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.noormexa-mobile-panel-card a {
+  min-height: 46px;
+  border-radius: 16px;
+  padding-inline: 14px;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.noormexa-mobile-panel-card a:hover {
+  color: var(--foreground);
+  background: var(--surface);
+}
+
+.noormexa-hero-section {
+  padding-block: 28px 34px;
+}
+
+.noormexa-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 22px;
+}
+
+.noormexa-hero-copy {
+  min-width: 0;
+  text-align: center;
+}
+
+.noormexa-eyebrow {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--gold-strong);
+  box-shadow: var(--soft-shadow);
+  padding: 8px 13px;
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1.5;
+}
+
+.noormexa-eyebrow svg {
+  color: var(--gold);
+}
+
+.noormexa-hero-copy h1,
+.noormexa-auth-intro h1 {
+  margin: 18px 0 0;
+  color: var(--foreground);
+  font-size: clamp(2.22rem, 10vw, 3.24rem);
+  font-weight: 950;
+  line-height: 1.14;
+  letter-spacing: -0.04em;
+}
+
+.noormexa-hero-copy p,
+.noormexa-auth-intro p,
+.noormexa-market-strip p,
+.noormexa-section-heading p,
+.noormexa-role-card p,
+.noormexa-faq-item p,
+.noormexa-footer-text {
+  color: var(--muted);
+  font-weight: 780;
+  line-height: 1.9;
+}
+
+.noormexa-hero-copy > p {
+  max-width: 38rem;
+  margin: 16px auto 0;
+  font-size: 1rem;
+}
+
+.noormexa-search-box {
+  width: min(100%, 520px);
+  min-height: 54px;
+  margin: 20px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  padding-inline: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-weight: 880;
+  text-align: start;
+}
+
+.noormexa-search-box svg {
+  color: var(--gold);
+}
+
+.noormexa-hero-actions {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.noormexa-primary-button,
+.noormexa-secondary-button {
+  min-height: 52px;
+  border-radius: 999px;
+  padding-inline: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.96rem;
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.noormexa-primary-button {
+  border: 1px solid #111318;
+  background: #111318;
+  color: #ffffff;
+  box-shadow: var(--safe-shadow);
+}
+
+.dark .noormexa-primary-button {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #090b11;
+}
+
+.noormexa-secondary-button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: var(--soft-shadow);
+}
+
+.noormexa-slider-card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: var(--surface);
+  box-shadow: var(--safe-shadow);
+}
+
+.noormexa-slider-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(218px, 58vw, 268px);
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+
+.noormexa-slider-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: noormexa-fade-in 420ms ease both;
+}
+
+.noormexa-slider-content {
+  min-width: 0;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.noormexa-slider-copy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.noormexa-slider-copy strong {
+  color: var(--foreground);
+  font-size: 1.06rem;
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.noormexa-slider-copy span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 780;
+  line-height: 1.7;
+}
+
+.noormexa-slider-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.noormexa-slider-arrow {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noormexa-slider-dots {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.noormexa-slider-dot {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 42%, transparent);
+  padding: 0;
+}
+
+.noormexa-slider-dot.active {
+  width: 24px;
+  background: var(--gold);
+}
+
+.noormexa-market-strip {
+  border-block: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  padding-block: 26px;
+}
+
+.noormexa-market-strip-inner {
+  display: grid;
+  gap: 10px;
+}
+
+.noormexa-market-strip h2,
+.noormexa-section-heading h2,
+.noormexa-faq-title h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(1.72rem, 7vw, 2.62rem);
+  font-weight: 950;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.noormexa-market-strip p,
+.noormexa-section-heading p {
+  margin: 0;
+}
+
+.noormexa-section {
+  padding-block: 34px;
+}
+
+.noormexa-section-soft {
+  border-block: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 64%, transparent);
+}
+
+.noormexa-section-heading {
+  max-width: 42rem;
+  margin: 0 auto 18px;
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.noormexa-roles-grid,
+.noormexa-categories-grid,
+.noormexa-faq-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.noormexa-role-card,
+.noormexa-category-card,
+.noormexa-faq-item,
+.noormexa-auth-card,
+.noormexa-auth-intro,
+.noormexa-footer-brand-card,
+.noormexa-footer-list {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+}
+
+.noormexa-role-card {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.noormexa-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 17px;
+  background: var(--gold-soft);
+  color: var(--gold-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noormexa-role-card h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.noormexa-role-card p {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.noormexa-role-card a {
+  color: var(--gold-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.92rem;
+  font-weight: 950;
+}
+
+.noormexa-category-card {
+  min-height: 108px;
+  padding: 14px;
+  display: grid;
+  align-content: space-between;
+  color: var(--foreground);
+}
+
+.noormexa-category-card svg {
+  color: var(--gold-strong);
+}
+
+.noormexa-category-card span {
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.noormexa-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.noormexa-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.noormexa-stat-card {
+  padding: 20px 14px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  display: grid;
+  gap: 6px;
+}
+
+.noormexa-stat-card strong {
+  font-size: 1.7rem;
+  font-weight: 950;
+  color: var(--gold-strong);
+}
+
+.noormexa-stat-card span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.noormexa-plans-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.noormexa-plan-card {
+  padding: 24px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.noormexa-plan-highlight {
+  border-color: var(--gold);
+  box-shadow: var(--safe-shadow);
+  position: relative;
+}
+
+.noormexa-plan-card h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 950;
+  color: var(--foreground);
+}
+
+.noormexa-plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.noormexa-plan-price strong {
+  font-size: 1.8rem;
+  font-weight: 950;
+  color: var(--gold-strong);
+}
+
+.noormexa-plan-price span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.noormexa-plan-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.noormexa-plan-card li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 780;
+}
+
+.noormexa-plan-card li svg {
+  color: var(--gold-strong);
+  flex: 0 0 auto;
+}
+
+.noormexa-plan-card > a {
+  justify-self: start;
+  color: var(--gold-strong);
+  font-weight: 950;
+  font-size: 0.94rem;
+}
+
+@media (min-width: 700px) {
+  .noormexa-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .noormexa-plans-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.noormexa-faq-title {
+  display: grid;
+  gap: 12px;
+}
+
+.noormexa-faq-item {
+  padding: 16px;
+}
+
+.noormexa-faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--foreground);
+  font-weight: 950;
+}
+
+.noormexa-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.noormexa-faq-item p {
+  margin: 10px 0 0;
+  font-size: 0.94rem;
+}
+
+.noormexa-auth-page {
+  min-height: calc(100dvh - 70px);
+  padding-block: 28px 34px;
+}
+
+.noormexa-auth-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.noormexa-auth-intro,
+.noormexa-auth-card {
+  padding: 18px;
+}
+
+.noormexa-auth-intro h1 {
+  font-size: clamp(2rem, 9vw, 3rem);
+}
+
+.noormexa-auth-intro p {
+  margin: 14px 0 18px;
+}
+
+.noormexa-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  border-radius: 18px;
+  background: var(--surface-muted);
+  padding: 6px;
+}
+
+.noormexa-tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 950;
+}
+
+.noormexa-tab.active {
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: var(--soft-shadow);
+}
+
+.noormexa-role-picker {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.noormexa-role-picker h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.98rem;
+  font-weight: 950;
+}
+
+.noormexa-role-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+
+.noormexa-role-choice {
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: start;
+  font-weight: 920;
+}
+
+.noormexa-role-choice svg {
+  color: var(--gold-strong);
+}
+
+.noormexa-role-choice.active {
+  border-color: color-mix(in srgb, var(--gold) 72%, var(--line));
+  background: var(--gold-soft);
+}
+
+.noormexa-form {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 13px;
+}
+
+.noormexa-field {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.noormexa-field > span:first-child {
+  color: var(--foreground);
+  font-size: 0.84rem;
+  font-weight: 920;
+}
+
+.noormexa-field input,
+.noormexa-field select,
+.noormexa-password-shell {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  outline: 0;
+}
+
+.noormexa-field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  outline: 0;
+  padding: 12px 14px;
+  font-weight: 800;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.noormexa-field input,
+.noormexa-field select {
+  padding: 0 14px;
+  font-weight: 800;
+}
+
+.noormexa-field input:focus,
+.noormexa-field select:focus,
+.noormexa-field textarea:focus,
+.noormexa-password-shell:focus-within {
+  border-color: color-mix(in srgb, var(--gold) 70%, var(--line));
+}
+
+.noormexa-password-shell {
+  display: flex;
+  align-items: center;
+  padding-inline: 0 8px;
+}
+
+html[dir="rtl"] .noormexa-password-shell {
+  padding-inline: 8px 0;
+}
+
+.noormexa-password-shell input {
+  min-height: 50px;
+  border: 0;
+  background: transparent;
+}
+
+.noormexa-password-shell button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noormexa-form-message {
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.7;
+}
+
+.noormexa-form-message.success {
+  border: 1px solid rgba(21, 128, 61, 0.28);
+  background: rgba(22, 163, 74, 0.10);
+  color: #15803d;
+}
+
+.noormexa-form-message.error {
+  border: 1px solid rgba(185, 28, 28, 0.28);
+  background: rgba(220, 38, 38, 0.10);
+  color: #b91c1c;
+}
+
+.dark .noormexa-form-message.success {
+  color: #86efac;
+}
+
+.dark .noormexa-form-message.error {
+  color: #fca5a5;
+}
+
+.noormexa-submit-button {
+  width: 100%;
+  border: 0;
+}
+
+.noormexa-switch-auth {
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--gold-strong);
+  font-weight: 950;
+}
+
+.noormexa-footer {
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 66%, transparent);
+  padding-block: 28px 18px;
+}
+
+.noormexa-footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.noormexa-footer-brand-card,
+.noormexa-footer-list {
+  padding: 16px;
+}
+
+.noormexa-footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.noormexa-footer-logo-shell {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+}
+
+.noormexa-footer-word {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--foreground);
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+}
+
+.noormexa-footer-word-ar {
+  color: var(--gold);
+  font-family: "Cairo", Tahoma, Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: normal;
+}
+
+.noormexa-footer-brand-row p {
+  margin: 4px 0 0;
+  color: var(--gold-strong);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.noormexa-footer-text {
+  margin: 14px 0 0;
+  font-size: 0.92rem;
+}
+
+.noormexa-footer-links {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.noormexa-footer-list h4 {
+  margin: 0 0 10px;
+  color: var(--foreground);
+  font-size: 0.94rem;
+  font-weight: 950;
+}
+
+.noormexa-footer-list ul {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
+.noormexa-footer-list a {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 820;
+}
+
+.noormexa-copy {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 780;
+  text-align: center;
+}
+
+@keyframes noormexa-fade-in {
+  from {
+    opacity: 0.2;
+    transform: scale(1.018);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (min-width: 520px) {
+  .noormexa-hero-actions {
+    width: fit-content;
+    margin-inline: auto;
+    grid-template-columns: auto auto;
+  }
+
+  .noormexa-categories-grid,
+  .noormexa-role-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .noormexa-container {
+    width: min(100% - 48px, 1180px);
+  }
+
+  .noormexa-header-inner {
+    min-height: 78px;
+    grid-template-columns: minmax(210px, auto) minmax(0, 1fr) auto;
+  }
+
+  .noormexa-brand-logo-shell {
+    width: 52px;
+    height: 52px;
+    border-radius: 17px;
+  }
+
+  .noormexa-brand-word {
+    font-size: 1.1rem;
+  }
+
+  .noormexa-brand-tag {
+    max-width: 16rem;
+  }
+
+  .noormexa-nav-links {
+    min-width: 0;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .noormexa-nav-links a {
+    min-height: 40px;
+    border-radius: 999px;
+    padding-inline: 12px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.88rem;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .noormexa-nav-links a:hover {
+    background: var(--surface);
+    color: var(--foreground);
+  }
+
+  .noormexa-mobile-menu-button {
+    display: none;
+  }
+
+  .noormexa-account-link {
+    display: inline-flex;
+  }
+
+  .noormexa-admin-link {
+    display: inline-flex;
+  }
+
+  .noormexa-hero-section {
+    padding-block: 46px 54px;
+  }
+
+  .noormexa-hero-grid {
+    grid-template-columns: minmax(0, 0.95fr) minmax(330px, 1.05fr);
+    gap: 34px;
+  }
+
+  .noormexa-hero-copy {
+    text-align: start;
+  }
+
+  .noormexa-hero-copy h1,
+  .noormexa-auth-intro h1 {
+    font-size: clamp(3rem, 5.1vw, 4.7rem);
+  }
+
+  .noormexa-hero-copy > p,
+  .noormexa-search-box,
+  .noormexa-hero-actions {
+    margin-inline: 0;
+  }
+
+  .noormexa-slider-frame {
+    height: clamp(320px, 32vw, 392px);
+  }
+
+  .noormexa-slider-content {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding: 16px;
+  }
+
+  .noormexa-market-strip-inner {
+    grid-template-columns: 0.82fr 1.18fr;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .noormexa-section {
+    padding-block: 52px;
+  }
+
+  .noormexa-section-heading {
+    margin-bottom: 28px;
+  }
+
+  .noormexa-roles-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .noormexa-categories-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .noormexa-faq-grid {
+    grid-template-columns: 0.65fr 1.35fr;
+    gap: 30px;
+  }
+
+  .noormexa-auth-page {
+    min-height: calc(100dvh - 78px);
+    padding-block: 46px 54px;
+  }
+
+  .noormexa-auth-grid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(340px, 1fr);
+    align-items: start;
+    gap: 22px;
+  }
+
+  .noormexa-auth-intro,
+  .noormexa-auth-card {
+    padding: 24px;
+    border-radius: var(--radius-lg);
+  }
+
+  .noormexa-footer-grid {
+    grid-template-columns: 0.9fr 1.4fr;
+    align-items: start;
+    gap: 16px;
+  }
+
+  .noormexa-footer-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .noormexa-nav-links {
+    gap: 10px;
+  }
+
+  .noormexa-nav-links a {
+    padding-inline: 16px;
+  }
+
+  .noormexa-roles-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .noormexa-categories-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .noormexa-category-card {
+    min-height: 122px;
+  }
+}
+
+@media (max-width: 389px) {
+  .noormexa-container {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .noormexa-header-inner {
+    gap: 8px;
+  }
+
+  .noormexa-brand-logo-shell {
+    width: 42px;
+    height: 42px;
+  }
+
+  .noormexa-brand-tag {
+    display: none;
+  }
+
+  .noormexa-pill-button {
+    min-height: 40px;
+    padding-inline: 10px;
+  }
+
+  .noormexa-icon-button {
+    width: 40px;
+    min-height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   السوق الحقيقي: تصنيفات، متاجر، منتجات، لوحة تحكم البائع
+   ============================================================ */
+
+.noormexa-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+}
+
+.noormexa-empty-state svg {
+  color: var(--gold-strong);
+}
+
+.noormexa-store-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.noormexa-store-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+  font-weight: 950;
+  color: var(--foreground);
+}
+
+.noormexa-store-header p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 780;
+}
+
+.noormexa-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.noormexa-product-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  color: var(--foreground);
+}
+
+.noormexa-product-image {
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--gold-strong);
+}
+
+.noormexa-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noormexa-product-info {
+  display: grid;
+  gap: 4px;
+}
+
+.noormexa-product-info span {
+  font-size: 0.92rem;
+  font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noormexa-product-info strong {
+  color: var(--gold-strong);
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.noormexa-product-card-manage {
+  gap: 8px;
+}
+
+.noormexa-product-manage-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.noormexa-product-manage-actions button {
+  flex: 1;
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: 850;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.noormexa-danger-button {
+  color: #d1483f !important;
+  border-color: color-mix(in srgb, #d1483f 40%, var(--line)) !important;
+}
+
+.noormexa-product-detail {
+  display: grid;
+  gap: 24px;
+}
+
+.noormexa-product-detail-image {
+  aspect-ratio: 1 / 1;
+  max-width: 26rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--gold-strong);
+}
+
+.noormexa-product-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noormexa-product-detail-info {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.noormexa-product-detail-info h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 950;
+  color: var(--foreground);
+}
+
+.noormexa-product-detail-price {
+  font-size: 1.4rem;
+  font-weight: 950;
+  color: var(--gold-strong);
+}
+
+.noormexa-product-detail-info p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 780;
+  line-height: 1.8;
+}
+
+.noormexa-product-detail-stock {
+  font-weight: 850 !important;
+  color: var(--foreground) !important;
+}
+
+.noormexa-dashboard-form-card {
+  padding: 20px;
+  margin-bottom: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+}
+
+.noormexa-form-grid {
+  grid-template-columns: 1fr;
+}
+
+.noormexa-form-full {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .noormexa-product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .noormexa-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .noormexa-product-detail {
+    grid-template-columns: minmax(0, 26rem) 1fr;
+    align-items: start;
+  }
+}
+
+@media (min-width: 980px) {
+  .noormexa-product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ===== لوحة تحكم المالك (Admin) ===== */
+
+.noormexa-admin-stats {
+  margin-bottom: 28px;
+}
+
+.noormexa-admin-table-wrap {
+  overflow-x: auto;
+  margin-top: 14px;
+}
+
+.noormexa-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.noormexa-admin-table th,
+.noormexa-admin-table td {
+  padding: 12px 10px;
+  text-align: start;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.88rem;
+  color: var(--foreground);
+}
+
+.noormexa-admin-table th {
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.noormexa-admin-table select,
+.noormexa-admin-table input {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  padding: 6px 8px;
+  font-size: 0.85rem;
+}
+
+.noormexa-admin-commission-input {
+  width: 70px;
+}
+
+.noormexa-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.noormexa-badge-approved {
+  background: rgba(34, 168, 100, 0.14);
+  color: #1e8a53;
+}
+
+.noormexa-badge-pending {
+  background: var(--gold-soft);
+  color: var(--gold-strong);
+}
+
+.noormexa-badge-suspended {
+  background: rgba(220, 60, 60, 0.14);
+  color: #c23b3b;
+}
+
+.noormexa-admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.noormexa-icon-text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.noormexa-icon-text-button.noormexa-danger-text {
+  color: #c23b3b;
+  border-color: rgba(220, 60, 60, 0.3);
+}
+
+.noormexa-admin-category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.noormexa-admin-category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--foreground);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.noormexa-admin-category-pill button {
+  display: inline-flex;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.noormexa-admin-category-pill button:hover {
+  color: #c23b3b;
+}
+
+/* ===== شرائط حالة المتجر (لوحة البائع) ===== */
+
+.noormexa-status-banner {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.noormexa-status-pending {
+  background: var(--gold-soft);
+  color: var(--gold-strong);
+  border: 1px solid var(--gold);
+}
+
+.noormexa-status-suspended {
+  background: rgba(220, 60, 60, 0.1);
+  color: #c23b3b;
+  border: 1px solid rgba(220, 60, 60, 0.3);
+}
+
+/* ===== المساعد الذكي العائم ===== */
+
+.noormexa-ai-widget {
+  position: fixed;
+  inset-block-end: 20px;
+  inset-inline-end: 20px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.noormexa-ai-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--navy);
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--safe-shadow);
+  cursor: pointer;
+}
+
+.dark .noormexa-ai-fab {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.noormexa-ai-panel {
+  width: min(360px, calc(100vw - 32px));
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--safe-shadow);
+  overflow: hidden;
+}
+
+.noormexa-ai-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--navy);
+  color: var(--gold-soft);
+}
+
+.noormexa-ai-panel-header .noormexa-icon-button {
+  color: var(--gold-soft);
+}
+
+.noormexa-ai-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.noormexa-ai-mode-switch {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.noormexa-ai-mode-button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.noormexa-ai-mode-active {
+  border-color: var(--gold);
+  color: var(--gold-strong);
+  background: var(--gold-soft);
+}
+
+.noormexa-ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 200px;
+}
+
+.noormexa-ai-intro {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.noormexa-ai-bubble {
+  align-self: flex-start;
+  max-width: 88%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  color: var(--foreground);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.noormexa-ai-bubble-user {
+  align-self: flex-end;
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.noormexa-ai-thinking {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.noormexa-ai-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.noormexa-ai-input-row input {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  padding: 10px 12px;
+  font-size: 0.86rem;
+}
+
+.noormexa-ai-input-row button {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: var(--gold);
+  color: var(--navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.noormexa-ai-input-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
