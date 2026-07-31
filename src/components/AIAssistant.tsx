@@ -67,9 +67,9 @@ export default function AIAssistant() {
       });
       const data = await res.json();
       if (!res.ok) {
-        const base = res.status === 503 ? text.notConfigured : data.error || text.error;
-        const withDebug = data.debug ? `${base}\n\n[Debug]: ${data.debug}` : base;
-        setMessages((prev) => [...prev, { role: "assistant", content: withDebug }]);
+        const friendly = res.status === 503 ? text.notConfigured : text.error;
+        setMessages((prev) => [...prev, { role: "assistant", content: friendly }]);
+        if (data.debug) console.error("AI assistant error:", data.debug);
       } else {
         setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
       }
