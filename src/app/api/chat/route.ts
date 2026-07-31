@@ -44,22 +44,29 @@ export async function POST(req: NextRequest) {
 
   try {
     // نفضّل Gemini (مجاني) لو متاح، وإلا نستخدم Anthropic
-    const reply = geminiKey
+    const result = geminiKey
       ? await callGemini(geminiKey, systemPrompt, messages)
       : await callAnthropic(anthropicKey!, systemPrompt, messages);
 
-    if (reply === null) {
-      return NextResponse.json({ error: "تعذر الوصول للمساعد الذكي حاليًا" }, { status: 502 });
+    if (result.text === null) {
+      return NextResponse.json(
+        { error: "تعذر الوصول للمساعد الذكي حاليًا", debug: result.debug },
+        { status: 502 }
+      );
     }
 
-    return NextResponse.json({ reply: reply || "..." });
+    return NextResponse.json({ reply: result.text || "..." });
   } catch (error) {
     console.error("Chat route error:", error);
-    return NextResponse.json({ error: "حدث خطأ غير متوقع" }, { status: 500 });
+    return NextResponse.json({ error: "حدث خطأ غير متوقع", debug: String(error) }, { status: 500 });
   }
 }
 
-async function callGemini(apiKey: string, systemPrompt: string, messages: ChatMessage[]): Promise<string | null> {
+async function callGemini(
+  apiKey: string,
+  systemPrompt: string,
+  messages: ChatMessage[]
+): Promise<{ text: string | null; debug?: string }> {
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
@@ -77,16 +84,21 @@ async function callGemini(apiKey: string, systemPrompt: string, messages: ChatMe
   });
 
   if (!response.ok) {
-    console.error("Gemini API error:", response.status, await response.text());
-    return null;
+    const errText = await response.text();
+    console.error("Gemini API error:", response.status, errText);
+    return { text: null, debug: `Gemini ${response.status}: ${errText.slice(0, 300)}` };
   }
 
   const data = await response.json();
   const parts = data.candidates?.[0]?.content?.parts as { text?: string }[] | undefined;
-  return parts?.map((p) => p.text || "").join("") ?? "";
+  return { text: parts?.map((p) => p.text || "").join("") ?? "" };
 }
 
-async function callAnthropic(apiKey: string, systemPrompt: string, messages: ChatMessage[]): Promise<string | null> {
+async function callAnthropic(
+  apiKey: string,
+  systemPrompt: string,
+  messages: ChatMessage[]
+): Promise<{ text: string | null; debug?: string }> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -103,11 +115,12 @@ async function callAnthropic(apiKey: string, systemPrompt: string, messages: Cha
   });
 
   if (!response.ok) {
-    console.error("Anthropic API error:", response.status, await response.text());
-    return null;
+    const errText = await response.text();
+    console.error("Anthropic API error:", response.status, errText);
+    return { text: null, debug: `Anthropic ${response.status}: ${errText.slice(0, 300)}` };
   }
 
   const data = await response.json();
   const content = data.content as { type: string; text?: string }[] | undefined;
-  return content?.map((block) => block.text || "").join("") ?? "";
+  return { text: content?.map((block) => block.text || "").join("") ?? "" };
 }
