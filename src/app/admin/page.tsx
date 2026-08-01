@@ -74,6 +74,7 @@ const copy = {
     revoke: "سحب الصلاحية",
     noAdmins: "مفيش مالكين تانيين لسه.",
     you: "(إنت)",
+    developerBadge: "— مطوّر المنصة",
   },
   en: {
     deniedTitle: "Access denied",
@@ -116,6 +117,7 @@ const copy = {
     revoke: "Revoke access",
     noAdmins: "No other owners yet.",
     you: "(you)",
+    developerBadge: "— Platform developer",
   },
 } as const;
 
@@ -125,6 +127,7 @@ export default function AdminPage() {
   const text = copy[language];
 
   const isAdmin = Boolean(profile?.is_admin);
+  const isSuperAdmin = Boolean(profile?.is_super_admin);
 
   const [stores, setStores] = useState<Store[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -403,53 +406,56 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="noormexa-dashboard-form-card">
-            <div className="noormexa-section-heading">
-              <h2>{text.adminsTitle}</h2>
-              <p>{text.adminsHint}</p>
-            </div>
-
-            <form onSubmit={handleGrantAdmin} className="noormexa-form">
-              <label className="noormexa-field noormexa-form-full">
-                <span>{text.adminEmailPlaceholder}</span>
-                <input
-                  type="email"
-                  value={newAdminEmail}
-                  onChange={(e) => setNewAdminEmail(e.target.value)}
-                  placeholder={text.adminEmailPlaceholder}
-                  required
-                />
-              </label>
-              <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={grantBusy}>
-                <UserPlus size={16} />
-                {text.grantAdmin}
-              </button>
-            </form>
-
-            {grantMessage && (
-              <p className={grantMessage.ok ? "noormexa-form-success" : "noormexa-form-error"}>{grantMessage.text}</p>
-            )}
-
-            {admins.length === 0 ? (
-              <p className="noormexa-empty-state">{text.noAdmins}</p>
-            ) : (
-              <div className="noormexa-admin-category-list">
-                {admins.map((admin) => (
-                  <div key={admin.id} className="noormexa-admin-category-pill">
-                    <ShieldCheck size={14} />
-                    <span>
-                      {admin.full_name || admin.email} {admin.id === user?.id && text.you}
-                    </span>
-                    {admin.id !== user?.id && (
-                      <button type="button" onClick={() => handleRevokeAdmin(admin.id)} aria-label={text.revoke}>
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+          {isSuperAdmin && (
+            <div className="noormexa-dashboard-form-card">
+              <div className="noormexa-section-heading">
+                <h2>{text.adminsTitle}</h2>
+                <p>{text.adminsHint}</p>
               </div>
-            )}
-          </div>
+
+              <form onSubmit={handleGrantAdmin} className="noormexa-form">
+                <label className="noormexa-field noormexa-form-full">
+                  <span>{text.adminEmailPlaceholder}</span>
+                  <input
+                    type="email"
+                    value={newAdminEmail}
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                    placeholder={text.adminEmailPlaceholder}
+                    required
+                  />
+                </label>
+                <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={grantBusy}>
+                  <UserPlus size={16} />
+                  {text.grantAdmin}
+                </button>
+              </form>
+
+              {grantMessage && (
+                <p className={grantMessage.ok ? "noormexa-form-success" : "noormexa-form-error"}>{grantMessage.text}</p>
+              )}
+
+              {admins.length === 0 ? (
+                <p className="noormexa-empty-state">{text.noAdmins}</p>
+              ) : (
+                <div className="noormexa-admin-category-list">
+                  {admins.map((admin) => (
+                    <div key={admin.id} className="noormexa-admin-category-pill">
+                      <ShieldCheck size={14} />
+                      <span>
+                        {admin.full_name || admin.email}{" "}
+                        {admin.is_super_admin ? text.developerBadge : ""} {admin.id === user?.id && text.you}
+                      </span>
+                      {admin.id !== user?.id && !admin.is_super_admin && (
+                        <button type="button" onClick={() => handleRevokeAdmin(admin.id)} aria-label={text.revoke}>
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </main>

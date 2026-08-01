@@ -143,12 +143,13 @@ export type AdminProfile = {
   email: string | null;
   full_name: string | null;
   is_admin: boolean;
+  is_super_admin: boolean;
 };
 
 export async function getAllAdmins(): Promise<AdminProfile[]> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, full_name, is_admin")
+    .select("id, email, full_name, is_admin, is_super_admin")
     .eq("is_admin", true);
   if (error || !data) return [];
   return data as AdminProfile[];
