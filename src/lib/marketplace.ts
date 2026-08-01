@@ -134,6 +134,54 @@ export async function deleteCategory(categoryId: string): Promise<boolean> {
   return !error;
 }
 
+// ============================================================
+// إدارة المالكين (Admins) المتعددين
+// ============================================================
+
+export type AdminProfile = {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  is_admin: boolean;
+};
+
+export async function getAllAdmins(): Promise<AdminProfile[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, is_admin")
+    .eq("is_admin", true);
+  if (error || !data) return [];
+  return data as AdminProfile[];
+}
+
+export async function grantAdminByEmail(
+  email: string
+): Promise<{ success: boolean; error: string | null }> {
+  const normalized = email.trim().toLowerCase();
+  const { data: found, error: findError } = await supabase
+    .from("profiles")
+    .select("id, email")
+    .ilike("email", normalized)
+    .maybeSingle();
+
+  if (findError || !found) {
+    return { success: false, error: "الإيميل ده مش مسجّل حساب على الموقع لسه. لازم يعمل حساب الأول." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ is_admin: true })
+    .eq("id", found.id);
+
+  if (updateError) return { success: false, error: "تعذر منح الصلاحية، حاول تاني." };
+  return { success: true, error: null };
+}
+
+export async function revokeAdmin(userId: string): Promise<boolean> {
+  const { error } = await supabase.from("profiles").update({ is_admin: false }).eq("id", userId);
+  return !error;
+}
+
 export type PlatformStats = {
   totalStores: number;
   pendingStores: number;

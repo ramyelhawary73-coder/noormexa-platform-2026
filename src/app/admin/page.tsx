@@ -11,18 +11,23 @@ import {
   ShieldCheck,
   Store as StoreIcon,
   Trash2,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
 import {
   createCategory,
   deleteCategory,
+  getAllAdmins,
   getAllStoresAdmin,
   getCategories,
   getPlatformStats,
+  grantAdminByEmail,
+  revokeAdmin,
   updateStoreCommission,
   updateStorePlan,
   updateStoreStatus,
+  type AdminProfile,
   type PlatformStats,
 } from "@/lib/marketplace";
 import type { Category, Store } from "@/types/marketplace";
@@ -62,6 +67,13 @@ const copy = {
     slug: "الرابط (slug)",
     delete: "حذف",
     noStores: "لا يوجد متاجر مسجلة بعد.",
+    adminsTitle: "إدارة المالكين (Admins)",
+    adminsHint: "امنح صلاحية إدارة المنصة الكاملة لأي حساب مسجّل بالفعل عن طريق إيميله.",
+    adminEmailPlaceholder: "إيميل الحساب المسجّل بالموقع",
+    grantAdmin: "منح صلاحية مالك",
+    revoke: "سحب الصلاحية",
+    noAdmins: "مفيش مالكين تانيين لسه.",
+    you: "(إنت)",
   },
   en: {
     deniedTitle: "Access denied",
@@ -97,6 +109,13 @@ const copy = {
     slug: "Slug",
     delete: "Delete",
     noStores: "No stores registered yet.",
+    adminsTitle: "Manage owners (Admins)",
+    adminsHint: "Grant full platform management access to any already-registered account by email.",
+    adminEmailPlaceholder: "Email of the registered account",
+    grantAdmin: "Grant owner access",
+    revoke: "Revoke access",
+    noAdmins: "No other owners yet.",
+    you: "(you)",
   },
 } as const;
 
@@ -117,16 +136,24 @@ export default function AdminPage() {
   const [catNameEn, setCatNameEn] = useState("");
   const [catSlug, setCatSlug] = useState("");
 
+  const [admins, setAdmins] = useState<AdminProfile[]>([]);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [grantMessage, setGrantMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [grantBusy, setGrantBusy] = useState(false);
+
   useEffect(() => {
     if (!user || !isAdmin) return;
     let active = true;
-    Promise.all([getAllStoresAdmin(), getCategories(), getPlatformStats()]).then(([s, c, st]) => {
-      if (!active) return;
-      setStores(s);
-      setCategories(c);
-      setStats(st);
-      setResolvedForId(user.id);
-    });
+    Promise.all([getAllStoresAdmin(), getCategories(), getPlatformStats(), getAllAdmins()]).then(
+      ([s, c, st, ad]) => {
+        if (!active) return;
+        setStores(s);
+        setCategories(c);
+        setStats(st);
+        setAdmins(ad);
+        setResolvedForId(user.id);
+      }
+    );
     return () => {
       active = false;
     };
@@ -173,6 +200,28 @@ export default function AdminPage() {
   const handleDeleteCategory = async (id: string) => {
     const ok = await deleteCategory(id);
     if (ok) setCategories((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const handleGrantAdmin = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!newAdminEmail.trim()) return;
+    setGrantBusy(true);
+    setGrantMessage(null);
+    const result = await grantAdminByEmail(newAdminEmail.trim());
+    setGrantBusy(false);
+    if (result.success) {
+      setGrantMessage({ ok: true, text: language === "ar" ? "تم منح الصلاحية بنجاح ✅" : "Access granted ✅" });
+      setNewAdminEmail("");
+      const updated = await getAllAdmins();
+      setAdmins(updated);
+    } else {
+      setGrantMessage({ ok: false, text: result.error || (language === "ar" ? "حصل خطأ" : "Something went wrong") });
+    }
+  };
+
+  const handleRevokeAdmin = async (adminId: string) => {
+    const ok = await revokeAdmin(adminId);
+    if (ok) setAdmins((prev) => prev.filter((a) => a.id !== adminId));
   };
 
   if (authLoading || (isAdmin && loadingData)) {
@@ -352,6 +401,54 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="noormexa-dashboard-form-card">
+            <div className="noormexa-section-heading">
+              <h2>{text.adminsTitle}</h2>
+              <p>{text.adminsHint}</p>
+            </div>
+
+            <form onSubmit={handleGrantAdmin} className="noormexa-form">
+              <label className="noormexa-field noormexa-form-full">
+                <span>{text.adminEmailPlaceholder}</span>
+                <input
+                  type="email"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  placeholder={text.adminEmailPlaceholder}
+                  required
+                />
+              </label>
+              <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={grantBusy}>
+                <UserPlus size={16} />
+                {text.grantAdmin}
+              </button>
+            </form>
+
+            {grantMessage && (
+              <p className={grantMessage.ok ? "noormexa-form-success" : "noormexa-form-error"}>{grantMessage.text}</p>
+            )}
+
+            {admins.length === 0 ? (
+              <p className="noormexa-empty-state">{text.noAdmins}</p>
+            ) : (
+              <div className="noormexa-admin-category-list">
+                {admins.map((admin) => (
+                  <div key={admin.id} className="noormexa-admin-category-pill">
+                    <ShieldCheck size={14} />
+                    <span>
+                      {admin.full_name || admin.email} {admin.id === user?.id && text.you}
+                    </span>
+                    {admin.id !== user?.id && (
+                      <button type="button" onClick={() => handleRevokeAdmin(admin.id)} aria-label={text.revoke}>
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
