@@ -1884,3 +1884,18 @@ html[dir="rtl"] .noormexa-password-shell {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.noormexa-muted-text {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.noormexa-image-preview {
+  margin-top: 8px;
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+}

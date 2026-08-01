@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
 import { Package, Plus, Store as StoreIcon, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -13,6 +13,7 @@ import {
   getMyProducts,
   getMyStore,
   updateProductStatus,
+  uploadProductImage,
 } from "@/lib/marketplace";
 import type { Category, Product, Store } from "@/types/marketplace";
 
@@ -34,7 +35,10 @@ const copy = {
     productDesc: "وصف المنتج",
     productPrice: "السعر (ج.م)",
     productStock: "الكمية المتاحة",
-    productImage: "رابط صورة المنتج (اختياري)",
+    productImage: "صورة المنتج",
+    uploading: "جاري رفع الصورة...",
+    uploadHint: "JPG أو PNG، حتى 5 ميجا",
+    changeImage: "تغيير الصورة",
     productCategory: "التصنيف",
     saveProduct: "حفظ المنتج",
     noProducts: "لسه معملتش أي منتجات. ضيف أول منتج من الفورم فوق.",
@@ -61,7 +65,10 @@ const copy = {
     productDesc: "Product description",
     productPrice: "Price (EGP)",
     productStock: "Stock",
-    productImage: "Product image URL (optional)",
+    productImage: "Product image",
+    uploading: "Uploading image...",
+    uploadHint: "JPG or PNG, up to 5MB",
+    changeImage: "Change image",
     productCategory: "Category",
     saveProduct: "Save product",
     noProducts: "No products yet. Add your first one from the form above.",
@@ -93,6 +100,8 @@ export default function DashboardPage() {
   const [productPrice, setProductPrice] = useState("");
   const [productStock, setProductStock] = useState("");
   const [productImage, setProductImage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [productCategory, setProductCategory] = useState("");
 
   useEffect(() => {
@@ -122,6 +131,20 @@ export default function DashboardPage() {
     if (newStore) setStore(newStore);
   };
 
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+    setUploadError("");
+    setUploadingImage(true);
+    const { url, error } = await uploadProductImage(file, user.id);
+    setUploadingImage(false);
+    if (url) {
+      setProductImage(url);
+    } else {
+      setUploadError(error || "");
+    }
+  };
+
   const handleAddProduct = async (event: FormEvent) => {
     event.preventDefault();
     if (!store || !productName.trim() || !productPrice) return;
@@ -143,6 +166,7 @@ export default function DashboardPage() {
       setProductPrice("");
       setProductStock("");
       setProductImage("");
+      setUploadError("");
       setProductCategory("");
     }
   };
@@ -272,7 +296,20 @@ export default function DashboardPage() {
               </label>
               <label className="noormexa-field noormexa-form-full" htmlFor="productImage">
                 <span>{text.productImage}</span>
-                <input id="productImage" value={productImage} onChange={(e) => setProductImage(e.target.value)} />
+                <input
+                  id="productImage"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleImageChange}
+                  disabled={uploadingImage}
+                />
+                <small className="noormexa-muted-text">{text.uploadHint}</small>
+                {uploadingImage && <small className="noormexa-muted-text">{text.uploading}</small>}
+                {uploadError && <small className="noormexa-danger-text">{uploadError}</small>}
+                {productImage && !uploadingImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={productImage} alt="" className="noormexa-image-preview" />
+                )}
               </label>
               <label className="noormexa-field noormexa-form-full" htmlFor="productDesc">
                 <span>{text.productDesc}</span>

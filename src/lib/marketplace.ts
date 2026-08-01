@@ -251,3 +251,23 @@ export async function deleteProduct(productId: string): Promise<boolean> {
   const { error } = await supabase.from("products").delete().eq("id", productId);
   return !error;
 }
+
+export async function uploadProductImage(
+  file: File,
+  userId: string
+): Promise<{ url: string | null; error: string | null }> {
+  const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "-");
+  const path = `${userId}/${Date.now()}-${safeName}`;
+
+  const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+
+  if (uploadError) {
+    return { url: null, error: "تعذر رفع الصورة. اتأكد إنك شغّلت ملف schema_phase2_storage.sql فى Supabase." };
+  }
+
+  const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+  return { url: data.publicUrl, error: null };
+}
