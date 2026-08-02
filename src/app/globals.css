@@ -307,6 +307,26 @@ footer {
   background: var(--surface);
 }
 
+.noormexa-mobile-logout {
+  min-height: 46px;
+  border-radius: 16px;
+  padding-inline: 14px;
+  display: flex;
+  align-items: center;
+  color: #c23b3b;
+  background: none;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 800;
+  text-align: start;
+  cursor: pointer;
+}
+
+.noormexa-mobile-logout:hover {
+  background: rgba(220, 60, 60, 0.08);
+}
+
 .noormexa-hero-section {
   padding-block: 28px 34px;
 }
@@ -1713,6 +1733,71 @@ html[dir="rtl"] .noormexa-password-shell {
   background: rgba(220, 60, 60, 0.1);
   color: #c23b3b;
   border: 1px solid rgba(220, 60, 60, 0.3);
+}
+
+.noormexa-admin-store-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.noormexa-admin-store-row:last-child {
+  border-bottom: none;
+}
+
+.noormexa-admin-store-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.noormexa-admin-store-main strong {
+  font-size: 0.94rem;
+  font-weight: 900;
+  color: var(--foreground);
+}
+
+.noormexa-admin-store-main span {
+  font-size: 0.82rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40rem;
+}
+
+.noormexa-admin-store-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.noormexa-status-announcement {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--gold);
+  display: grid;
+  gap: 4px;
+}
+
+.noormexa-status-announcement strong {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--gold-strong);
+}
+
+.noormexa-status-announcement p {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 /* ===== المساعد الذكي العائم ===== */

@@ -272,3 +272,46 @@ export async function uploadProductImage(
   const { data } = supabase.storage.from("product-images").getPublicUrl(path);
   return { url: data.publicUrl, error: null };
 }
+
+export type Announcement = {
+  id: string;
+  title: string;
+  body: string;
+  audience: "all" | "sellers" | "stores" | "advertisers";
+  created_at: string;
+};
+
+export async function getAnnouncements(): Promise<Announcement[]> {
+  const { data, error } = await supabase
+    .from("announcements")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error || !data) return [];
+  return data as Announcement[];
+}
+
+export async function createAnnouncement(payload: {
+  title: string;
+  body: string;
+  audience: Announcement["audience"];
+  createdBy: string;
+}): Promise<{ announcement: Announcement | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from("announcements")
+    .insert({
+      title: payload.title,
+      body: payload.body,
+      audience: payload.audience,
+      created_by: payload.createdBy,
+    })
+    .select()
+    .single();
+  if (error || !data) return { announcement: null, error: error?.message ?? "تعذر نشر الإعلان" };
+  return { announcement: data as Announcement, error: null };
+}
+
+export async function deleteAnnouncement(id: string): Promise<boolean> {
+  const { error } = await supabase.from("announcements").delete().eq("id", id);
+  return !error;
+}

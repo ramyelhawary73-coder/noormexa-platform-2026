@@ -2,6 +2,7 @@
 
 import { FormEvent, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Megaphone, Search, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabaseClient";
 
@@ -95,6 +96,7 @@ function useNoormexaLanguage() {
 }
 
 export default function AuthPage() {
+  const router = useRouter();
   const language = useNoormexaLanguage();
   const [mode, setMode] = useState<Mode>("register");
   const [role, setRole] = useState<Role>("customer");
@@ -134,6 +136,7 @@ export default function AuthPage() {
         if (error) throw error;
         setStatus("success");
         setMessage(text.successLogin);
+        router.push("/");
         return;
       }
 
@@ -166,6 +169,12 @@ export default function AuthPage() {
 
       setStatus("success");
       setMessage(text.successRegister);
+
+      // لو تأكيد الإيميل متوقف، المستخدم بيبقى مسجل دخول فورًا
+      // فنوجهه على طول بدل ما نسيبه واقف في نفس الصفحة.
+      if (data.session) {
+        router.push("/");
+      }
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Error");

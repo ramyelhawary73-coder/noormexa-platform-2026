@@ -9,11 +9,13 @@ import {
   createProduct,
   createStore,
   deleteProduct,
+  getAnnouncements,
   getCategories,
   getMyProducts,
   getMyStore,
   updateProductStatus,
   uploadProductImage,
+  type Announcement,
 } from "@/lib/marketplace";
 import type { Category, Product, Store } from "@/types/marketplace";
 
@@ -81,7 +83,7 @@ const copy = {
 } as const;
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const language = useNoormexaLanguage();
   const text = copy[language];
 
@@ -104,19 +106,24 @@ export default function DashboardPage() {
   const [uploadError, setUploadError] = useState("");
   const [productCategory, setProductCategory] = useState("");
 
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
   useEffect(() => {
     if (!user) return;
     let active = true;
-    Promise.all([getMyStore(user.id), getCategories()]).then(async ([s, cats]) => {
-      if (!active) return;
-      setStore(s);
-      setCategories(cats);
-      if (s) {
-        const prods = await getMyProducts(s.id);
-        if (active) setProducts(prods);
+    Promise.all([getMyStore(user.id), getCategories(), getAnnouncements()]).then(
+      async ([s, cats, ann]) => {
+        if (!active) return;
+        setStore(s);
+        setCategories(cats);
+        setAnnouncements(ann);
+        if (s) {
+          const prods = await getMyProducts(s.id);
+          if (active) setProducts(prods);
+        }
+        setResolvedForId(user.id);
       }
-      setResolvedForId(user.id);
-    });
+    );
     return () => {
       active = false;
     };
@@ -251,6 +258,22 @@ export default function DashboardPage() {
 
           {store.status === "pending" && <div className="noormexa-status-banner noormexa-status-pending">{text.pendingNotice}</div>}
           {store.status === "suspended" && <div className="noormexa-status-banner noormexa-status-suspended">{text.suspendedNotice}</div>}
+
+          {announcements
+            .filter((a) => {
+              const accountType = (profile?.account_type as string | undefined) ?? "";
+              if (a.audience === "all") return true;
+              if (a.audience === "sellers") return accountType === "seller";
+              if (a.audience === "stores") return accountType === "store";
+              if (a.audience === "advertisers") return accountType === "advertiser";
+              return false;
+            })
+            .map((a) => (
+              <div key={a.id} className="noormexa-status-banner noormexa-status-announcement">
+                <strong>{a.title}</strong>
+                <p>{a.body}</p>
+              </div>
+            ))}
 
           <div className="noormexa-dashboard-form-card">
             <div className="noormexa-section-heading">

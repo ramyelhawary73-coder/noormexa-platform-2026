@@ -6,6 +6,7 @@ import {
   BadgeCheck,
   Ban,
   LayoutDashboard,
+  Megaphone,
   Package,
   Plus,
   ShieldCheck,
@@ -16,10 +17,13 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
 import {
+  createAnnouncement,
   createCategory,
+  deleteAnnouncement,
   deleteCategory,
   getAllAdmins,
   getAllStoresAdmin,
+  getAnnouncements,
   getCategories,
   getPlatformStats,
   grantAdminByEmail,
@@ -28,6 +32,7 @@ import {
   updateStorePlan,
   updateStoreStatus,
   type AdminProfile,
+  type Announcement,
   type PlatformStats,
 } from "@/lib/marketplace";
 import type { Category, Store } from "@/types/marketplace";
@@ -69,6 +74,17 @@ const copy = {
     noStores: "لا يوجد متاجر مسجلة بعد.",
     adminsTitle: "إدارة المالكين (Admins)",
     adminsHint: "امنح صلاحية إدارة المنصة الكاملة لأي حساب مسجّل بالفعل عن طريق إيميله.",
+    annTitle: "المنشورات والإشعارات",
+    annHint: "ابعت رسالة تظهر فورًا فى لوحة تحكم البائعين والمتاجر.",
+    annTitlePlaceholder: "عنوان الرسالة",
+    annBodyPlaceholder: "نص الرسالة",
+    annAudienceLabel: "الجمهور",
+    annAudienceAll: "الكل (كل الأنواع)",
+    annAudienceSellers: "البائعين فقط",
+    annAudienceStores: "المتاجر فقط",
+    annAudienceAdvertisers: "المعلنين فقط",
+    annPublish: "نشر الرسالة",
+    annEmpty: "مفيش إعلانات منشورة لسه.",
     adminEmailPlaceholder: "إيميل الحساب المسجّل بالموقع",
     grantAdmin: "منح صلاحية مالك",
     revoke: "سحب الصلاحية",
@@ -112,6 +128,17 @@ const copy = {
     noStores: "No stores registered yet.",
     adminsTitle: "Manage owners (Admins)",
     adminsHint: "Grant full platform management access to any already-registered account by email.",
+    annTitle: "Announcements",
+    annHint: "Send a message that appears instantly in sellers' and stores' dashboards.",
+    annTitlePlaceholder: "Message title",
+    annBodyPlaceholder: "Message body",
+    annAudienceLabel: "Audience",
+    annAudienceAll: "Everyone (all types)",
+    annAudienceSellers: "Sellers only",
+    annAudienceStores: "Stores only",
+    annAudienceAdvertisers: "Advertisers only",
+    annPublish: "Publish message",
+    annEmpty: "No announcements published yet.",
     adminEmailPlaceholder: "Email of the registered account",
     grantAdmin: "Grant owner access",
     revoke: "Revoke access",
@@ -144,23 +171,58 @@ export default function AdminPage() {
   const [grantMessage, setGrantMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [grantBusy, setGrantBusy] = useState(false);
 
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [annTitle, setAnnTitle] = useState("");
+  const [annBody, setAnnBody] = useState("");
+  const [annAudience, setAnnAudience] = useState<Announcement["audience"]>("all");
+  const [annBusy, setAnnBusy] = useState(false);
+
   useEffect(() => {
     if (!user || !isAdmin) return;
     let active = true;
-    Promise.all([getAllStoresAdmin(), getCategories(), getPlatformStats(), getAllAdmins()]).then(
-      ([s, c, st, ad]) => {
-        if (!active) return;
-        setStores(s);
-        setCategories(c);
-        setStats(st);
-        setAdmins(ad);
-        setResolvedForId(user.id);
-      }
-    );
+    Promise.all([
+      getAllStoresAdmin(),
+      getCategories(),
+      getPlatformStats(),
+      getAllAdmins(),
+      getAnnouncements(),
+    ]).then(([s, c, st, ad, an]) => {
+      if (!active) return;
+      setStores(s);
+      setCategories(c);
+      setStats(st);
+      setAdmins(ad);
+      setAnnouncements(an);
+      setResolvedForId(user.id);
+    });
     return () => {
       active = false;
     };
   }, [user, isAdmin]);
+
+  const handlePublishAnnouncement = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!user || !annTitle.trim() || !annBody.trim()) return;
+    setAnnBusy(true);
+    const { announcement } = await createAnnouncement({
+      title: annTitle.trim(),
+      body: annBody.trim(),
+      audience: annAudience,
+      createdBy: user.id,
+    });
+    setAnnBusy(false);
+    if (announcement) {
+      setAnnouncements((prev) => [announcement, ...prev]);
+      setAnnTitle("");
+      setAnnBody("");
+      setAnnAudience("all");
+    }
+  };
+
+  const handleDeleteAnnouncement = async (id: string) => {
+    const ok = await deleteAnnouncement(id);
+    if (ok) setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+  };
 
   const handleStatus = async (store: Store, status: "approved" | "suspended") => {
     const ok = await updateStoreStatus(store.id, status);
@@ -294,6 +356,62 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          <div className="noormexa-dashboard-form-card">
+            <div className="noormexa-section-heading">
+              <h2>{text.annTitle}</h2>
+              <p>{text.annHint}</p>
+            </div>
+
+            <form onSubmit={handlePublishAnnouncement} className="noormexa-form noormexa-form-grid">
+              <label className="noormexa-field noormexa-form-full">
+                <span>{text.annTitlePlaceholder}</span>
+                <input value={annTitle} onChange={(e) => setAnnTitle(e.target.value)} required />
+              </label>
+              <label className="noormexa-field noormexa-form-full">
+                <span>{text.annBodyPlaceholder}</span>
+                <textarea rows={3} value={annBody} onChange={(e) => setAnnBody(e.target.value)} required />
+              </label>
+              <label className="noormexa-field">
+                <span>{text.annAudienceLabel}</span>
+                <select value={annAudience} onChange={(e) => setAnnAudience(e.target.value as Announcement["audience"])}>
+                  <option value="all">{text.annAudienceAll}</option>
+                  <option value="sellers">{text.annAudienceSellers}</option>
+                  <option value="stores">{text.annAudienceStores}</option>
+                  <option value="advertisers">{text.annAudienceAdvertisers}</option>
+                </select>
+              </label>
+              <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={annBusy}>
+                <Megaphone size={16} />
+                {text.annPublish}
+              </button>
+            </form>
+
+            {announcements.length === 0 ? (
+              <p className="noormexa-empty-state">{text.annEmpty}</p>
+            ) : (
+              <div className="noormexa-admin-table" style={{ marginTop: 16 }}>
+                {announcements.map((a) => (
+                  <div key={a.id} className="noormexa-admin-store-row">
+                    <div className="noormexa-admin-store-main">
+                      <strong>{a.title}</strong>
+                      <span>{a.body}</span>
+                    </div>
+                    <div className="noormexa-admin-store-actions">
+                      <button
+                        type="button"
+                        className="noormexa-icon-text-button noormexa-danger-text"
+                        onClick={() => handleDeleteAnnouncement(a.id)}
+                      >
+                        <Trash2 size={14} />
+                        {text.delete}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="noormexa-dashboard-form-card">
             <div className="noormexa-section-heading">

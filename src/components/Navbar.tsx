@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
-import { Globe2, LayoutDashboard, Menu, Moon, ShieldCheck, Sun, UserRound, X } from "lucide-react";
+import { Globe2, LayoutDashboard, LogOut, Menu, Moon, ShieldCheck, Sun, UserRound, X } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -24,6 +25,7 @@ const copy = {
     account: "دخول",
     dashboard: "لوحة التحكم",
     admin: "لوحة الإدارة",
+    logout: "تسجيل خروج",
     language: "EN",
     menu: "القائمة",
     close: "إغلاق القائمة",
@@ -40,6 +42,7 @@ const copy = {
     account: "Sign in",
     dashboard: "Dashboard",
     admin: "Admin",
+    logout: "Sign out",
     language: "AR",
     menu: "Menu",
     close: "Close menu",
@@ -73,9 +76,16 @@ export default function Navbar() {
   const language = useNoormexaLanguage();
   const [open, setOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const isAdmin = Boolean(profile?.is_admin);
   const text = copy[language];
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut();
+    setOpen(false);
+    router.push("/");
+  };
 
   const toggleLanguage = () => {
     const next = language === "ar" ? "en" : "ar";
@@ -137,6 +147,12 @@ export default function Navbar() {
             {user ? <LayoutDashboard size={16} /> : <UserRound size={16} />}
             <span>{user ? text.dashboard : text.account}</span>
           </Link>
+
+          {user && (
+            <button type="button" className="noormexa-icon-button" onClick={handleLogout} aria-label={text.logout}>
+              <LogOut size={18} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -156,6 +172,11 @@ export default function Navbar() {
             <Link href={user ? "/dashboard" : "/auth"} onClick={() => setOpen(false)}>
               {user ? text.dashboard : text.account}
             </Link>
+            {user && (
+              <button type="button" onClick={handleLogout} className="noormexa-mobile-logout">
+                {text.logout}
+              </button>
+            )}
           </nav>
         </div>
       )}
