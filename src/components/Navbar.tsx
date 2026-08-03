@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { Globe2, LayoutDashboard, LogOut, Menu, Moon, ShieldCheck, Sun, UserRound, X } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
@@ -79,12 +78,17 @@ export default function Navbar() {
   const { user, profile, signOut } = useAuth();
   const isAdmin = Boolean(profile?.is_admin);
   const text = copy[language];
-  const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut();
     setOpen(false);
-    router.push("/");
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+    // تحديث كامل للصفحة (مش تنقل داخلي) عشان نضمن مسح كل حالة
+    // تسجيل الدخول المخزّنة فى المتصفح، حتى لو حصل أي تعليق.
+    window.location.href = "/";
   };
 
   const toggleLanguage = () => {

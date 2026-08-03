@@ -586,6 +586,10 @@ footer {
   background: color-mix(in srgb, var(--surface) 64%, transparent);
 }
 
+.noormexa-stats-section {
+  background: color-mix(in srgb, var(--surface-muted) 60%, transparent);
+}
+
 .noormexa-section-heading {
   max-width: 42rem;
   margin: 0 auto 18px;
@@ -1733,6 +1737,33 @@ html[dir="rtl"] .noormexa-password-shell {
   background: rgba(220, 60, 60, 0.1);
   color: #c23b3b;
   border: 1px solid rgba(220, 60, 60, 0.3);
+}
+
+.noormexa-callback-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--muted);
+}
+
+.noormexa-callback-state h1 {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--foreground);
+  margin: 6px 0 0;
+}
+
+.noormexa-spin {
+  color: var(--gold-strong);
+  animation: noormexa-spin-anim 1s linear infinite;
+}
+
+@keyframes noormexa-spin-anim {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .noormexa-admin-store-row {
