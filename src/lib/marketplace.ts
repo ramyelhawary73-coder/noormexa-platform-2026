@@ -63,7 +63,7 @@ function slugify(name: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9\u0600-\u06FF\s-]/g, "")
     .replace(/\s+/g, "-");
-  const suffix = Math.random().toString(36).slice(2, 7);
+  const suffix = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
   return `${base || "store"}-${suffix}`;
 }
 
@@ -72,21 +72,38 @@ export async function createStore(
   name: string,
   description: string
 ): Promise<{ store: Store | null; error: string | null }> {
-  const slug = slugify(name);
-  const { data, error } = await supabase
-    .from("stores")
-    .insert({
-      owner_id: ownerId,
-      name,
-      slug,
-      description,
-      status: "pending",
-    })
-    .select()
-    .single();
+  const baseSlug = slugify(name);
 
-  if (error || !data) return { store: null, error: error?.message ?? "تعذر إنشاء المتجر" };
-  return { store: data as Store, error: null };
+  // نحاول لحد 5 مرات بمعرف مختلف كل مرة، عشان نضمن عدم تعارض
+  // اسم المتجر (slug) لو حد تاني مستخدم نفس الاسم قبل كده.
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const suffix = Math.random().toString(36).slice(2, 6);
+    const slug = attempt === 0 ? baseSlug : `${baseSlug}-${suffix}`;
+
+    const { data, error } = await supabase
+      .from("stores")
+      .insert({
+        owner_id: ownerId,
+        name,
+        slug,
+        description,
+        status: "pending",
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      return { store: data as Store, error: null };
+    }
+
+    // لو الخطأ مش تعارض فى الاسم (زي مشكلة صلاحيات مثلاً)، نوقف فورًا
+    // ونرجع رسالة الخطأ الحقيقية بدل ما نكرر المحاولة من غير فايدة.
+    if (error && error.code !== "23505") {
+      return { store: null, error: error.message };
+    }
+  }
+
+  return { store: null, error: "تعذر إنشاء المتجر، اسم المتجر مستخدم بكثرة. جرّب اسم مختلف." };
 }
 
 // ============================================================
