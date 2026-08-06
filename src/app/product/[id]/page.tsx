@@ -2,9 +2,10 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { Package, ShoppingBag } from "lucide-react";
-import { getProductById } from "@/lib/marketplace";
+import { Check, Package, ShoppingBag } from "lucide-react";
+import { getProductById, getStoreById } from "@/lib/marketplace";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
+import { useCart } from "@/context/CartContext";
 import type { Product } from "@/types/marketplace";
 
 const copy = {
@@ -13,6 +14,7 @@ const copy = {
     stock: "الكمية المتاحة",
     outOfStock: "غير متوفر حاليًا",
     add: "أضف للسلة",
+    added: "أُضيف للسلة",
     notFound: "المنتج غير موجود",
     back: "الرجوع للرئيسية",
   },
@@ -21,6 +23,7 @@ const copy = {
     stock: "In stock",
     outOfStock: "Out of stock",
     add: "Add to cart",
+    added: "Added to cart",
     notFound: "Product not found",
     back: "Back to home",
   },
@@ -30,21 +33,43 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const { id } = use(params);
   const language = useNoormexaLanguage();
   const text = copy[language];
+  const { addItem } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
+  const [storeName, setStoreName] = useState("");
   const [loadedId, setLoadedId] = useState<string | null>(null);
+  const [justAdded, setJustAdded] = useState(false);
   const loading = loadedId !== id;
 
   useEffect(() => {
     let active = true;
-    getProductById(id).then((p) => {
+    getProductById(id).then(async (p) => {
       if (!active) return;
       setProduct(p);
+      if (p) {
+        const store = await getStoreById(p.store_id);
+        if (active) setStoreName(store?.name ?? "");
+      }
       setLoadedId(id);
     });
     return () => {
       active = false;
     };
   }, [id]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.image_url,
+      storeId: product.store_id,
+      storeName,
+      maxStock: product.stock,
+    });
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1800);
+  };
 
   if (!loading && !product) {
     return (
@@ -82,9 +107,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <p className="noormexa-product-detail-stock">
               {product && product.stock > 0 ? `${text.stock}: ${product.stock}` : text.outOfStock}
             </p>
-            <button type="button" className="noormexa-primary-button" disabled={!product || product.stock <= 0}>
-              <ShoppingBag size={17} />
-              {text.add}
+            <button
+              type="button"
+              className="noormexa-primary-button"
+              disabled={!product || product.stock <= 0}
+              onClick={handleAddToCart}
+            >
+              {justAdded ? <Check size={17} /> : <ShoppingBag size={17} />}
+              {justAdded ? text.added : text.add}
             </button>
           </div>
         </div>

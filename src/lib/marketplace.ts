@@ -35,6 +35,12 @@ export async function getStoreBySlug(slug: string): Promise<Store | null> {
   return data as Store;
 }
 
+export async function getStoreById(id: string): Promise<Store | null> {
+  const { data, error } = await supabase.from("stores").select("*").eq("id", id).single();
+  if (error || !data) return null;
+  return data as Store;
+}
+
 export async function getProductsByStore(storeId: string): Promise<Product[]> {
   const { data, error } = await supabase
     .from("products")
@@ -330,5 +336,144 @@ export async function createAnnouncement(payload: {
 
 export async function deleteAnnouncement(id: string): Promise<boolean> {
   const { error } = await supabase.from("announcements").delete().eq("id", id);
+  return !error;
+}
+
+export type OrderStatus = "pending" | "paid" | "shipped" | "completed" | "cancelled";
+
+export type OrderItemRow = {
+  id: string;
+  order_id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  product_name?: string;
+};
+
+export type Order = {
+  id: string;
+  buyer_id: string;
+  store_id: string;
+  total_amount: number;
+  commission_amount: number;
+  status: OrderStatus;
+  created_at: string;
+  store_name?: string;
+  items?: OrderItemRow[];
+};
+
+export type CheckoutCartItem = {
+  productId: string;
+  storeId: string;
+  price: number;
+  quantity: number;
+};
+
+/**
+ * ينشئ طلب منفصل لكل متجر موجود فى السلة (لأن كل طلب مرتبط بمتجر واحد)،
+ * وبيحسب عمولة المنصة تلقائيًا حسب نسبة عمولة كل متجر.
+ */
+export async function checkoutCart(
+  buyerId: string,
+  cartItems: CheckoutCartItem[]
+): Promise<{ orderIds: string[]; error: string | null }> {
+  const storeIds = Array.from(new Set(cartItems.map((i) => i.storeId)));
+  const { data: stores } = await supabase.from("stores").select("id, commission_rate").in("id", storeIds);
+  const commissionByStore = new Map((stores ?? []).map((s) => [s.id, Number(s.commission_rate ?? 0)]));
+
+  const orderIds: string[] = [];
+
+  for (const storeId of storeIds) {
+    const storeItems = cartItems.filter((i) => i.storeId === storeId);
+    const totalAmount = storeItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const commissionRate = commissionByStore.get(storeId) ?? 0;
+    const commissionAmount = Math.round(totalAmount * (commissionRate / 100) * 100) / 100;
+
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        buyer_id: buyerId,
+        store_id: storeId,
+        total_amount: totalAmount,
+        commission_amount: commissionAmount,
+        status: "pending",
+      })
+      .select()
+      .single();
+
+    if (orderError || !order) {
+      return { orderIds, error: orderError?.message ?? "تعذر إنشاء الطلب" };
+    }
+
+    const itemRows = storeItems.map((i) => ({
+      order_id: order.id,
+      product_id: i.productId,
+      quantity: i.quantity,
+      unit_price: i.price,
+    }));
+
+    const { error: itemsError } = await supabase.from("order_items").insert(itemRows);
+    if (itemsError) {
+      return { orderIds, error: itemsError.message };
+    }
+
+    orderIds.push(order.id as string);
+  }
+
+  return { orderIds, error: null };
+}
+
+export async function getMyOrders(buyerId: string): Promise<Order[]> {
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("*, stores(name)")
+    .eq("buyer_id", buyerId)
+    .order("created_at", { ascending: false });
+  if (error || !orders) return [];
+
+  const orderIds = orders.map((o) => o.id);
+  const { data: items } = await supabase
+    .from("order_items")
+    .select("*, products(name)")
+    .in("order_id", orderIds.length ? orderIds : ["00000000-0000-0000-0000-000000000000"]);
+
+  type StoreRow = { name: string } | null;
+  type ProductRow = { name: string } | null;
+
+  return (orders as (Order & { stores: StoreRow })[]).map((o) => ({
+    ...o,
+    store_name: o.stores?.name,
+    items: ((items ?? []) as (OrderItemRow & { products: ProductRow })[])
+      .filter((it) => it.order_id === o.id)
+      .map((it) => ({ ...it, product_name: it.products?.name })),
+  }));
+}
+
+export async function getStoreOrders(storeId: string): Promise<Order[]> {
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+  if (error || !orders) return [];
+
+  const orderIds = orders.map((o) => o.id);
+  const { data: items } = await supabase
+    .from("order_items")
+    .select("*, products(name)")
+    .in("order_id", orderIds.length ? orderIds : ["00000000-0000-0000-0000-000000000000"]);
+
+  type ProductRow = { name: string } | null;
+
+  return (orders as Order[]).map((o) => ({
+    ...o,
+    items: ((items ?? []) as (OrderItemRow & { products: ProductRow })[])
+      .filter((it) => it.order_id === o.id)
+      .map((it) => ({ ...it, product_name: it.products?.name })),
+  }));
+}
+
+export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
+  const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
   return !error;
 }

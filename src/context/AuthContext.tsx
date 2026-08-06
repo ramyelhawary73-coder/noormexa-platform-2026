@@ -21,16 +21,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string, email?: string | null) => {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         setProfile(data as Profile);
+        return;
       }
+
+      // الملف الشخصي مش موجود (ممكن يحصل لو التسجيل استكمل بعد فترة انتظار
+      // تأكيد الإيميل) - نصلحه تلقائيًا بإنشاء ملف افتراضي بدل ما نسيبه فاضي.
+      const { data: created } = await supabase
+        .from("profiles")
+        .insert({ id: userId, email: email ?? null })
+        .select()
+        .single();
+
+      if (created) setProfile(created as Profile);
     };
 
     const getInitialSession = async () => {
@@ -40,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user.id, session.user.email);
       }
 
       setLoading(false);
@@ -53,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user.id, session.user.email);
       } else {
         setUser(null);
         setProfile(null);

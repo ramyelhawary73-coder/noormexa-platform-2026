@@ -37,7 +37,19 @@ const applyTheme = (theme: Theme) => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setThemeState] = useState<Theme>(() => readInitialTheme());
+  // القيمة الأولى لازم تكون ثابتة ومطابقة تمامًا لما السيرفر بيرسمه
+  // (light دايمًا)، عشان منتفاداش تعارض Hydration. القيمة الحقيقية
+  // المحفوظة عند المستخدم بنقرأها بعد ما الصفحة تخلص تحميل بس
+  // (useEffect بيشتغل على المتصفح فقط، مش وقت الرسم الأول).
+  const [theme, setThemeState] = useState<Theme>("light");
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      const stored = readInitialTheme();
+      setThemeState(stored);
+      applyTheme(stored);
+    });
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);

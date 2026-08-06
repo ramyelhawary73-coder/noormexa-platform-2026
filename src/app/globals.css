@@ -857,6 +857,45 @@ footer {
   padding: 6px;
 }
 
+.noormexa-google-button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.noormexa-google-button:hover {
+  background: var(--surface-soft);
+}
+
+.noormexa-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.noormexa-auth-divider::before,
+.noormexa-auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
 .noormexa-tab {
   min-height: 44px;
   border: 0;
@@ -1015,6 +1054,36 @@ html[dir="rtl"] .noormexa-password-shell {
   color: #15803d;
 }
 
+.noormexa-form-success,
+.noormexa-form-error {
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.noormexa-form-success {
+  border: 1px solid rgba(21, 128, 61, 0.28);
+  background: rgba(22, 163, 74, 0.10);
+  color: #15803d;
+}
+
+.noormexa-form-error {
+  border: 1px solid rgba(185, 28, 28, 0.28);
+  background: rgba(220, 38, 38, 0.10);
+  color: #b91c1c;
+}
+
+.dark .noormexa-form-success {
+  color: #86efac;
+}
+
+.dark .noormexa-form-error {
+  color: #fca5a5;
+}
+
 .noormexa-form-message.error {
   border: 1px solid rgba(185, 28, 28, 0.28);
   background: rgba(220, 38, 38, 0.10);
@@ -1032,6 +1101,44 @@ html[dir="rtl"] .noormexa-password-shell {
 .noormexa-submit-button {
   width: 100%;
   border: 0;
+}
+
+.noormexa-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block: 4px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.noormexa-auth-divider::before,
+.noormexa-auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.noormexa-google-button {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 0.94rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.noormexa-google-button:hover {
+  background: var(--surface-soft);
 }
 
 .noormexa-switch-auth {
@@ -2014,4 +2121,249 @@ html[dir="rtl"] .noormexa-password-shell {
   object-fit: cover;
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
+}
+
+/* ===== زر وشارة السلة فى الناف بار ===== */
+
+.noormexa-cart-link {
+  position: relative;
+}
+
+.noormexa-cart-badge {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.68rem;
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== صفحة السلة ===== */
+
+.noormexa-cart-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.noormexa-cart-items {
+  display: grid;
+  gap: 18px;
+}
+
+.noormexa-cart-store-group {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.noormexa-cart-store-name {
+  font-size: 0.82rem;
+  font-weight: 850;
+  color: var(--gold-strong);
+}
+
+.noormexa-cart-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding-block: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.noormexa-cart-store-group .noormexa-cart-row:first-of-type {
+  border-top: none;
+}
+
+.noormexa-cart-row-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.noormexa-cart-row-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noormexa-cart-row-info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.noormexa-cart-row-info strong {
+  font-size: 0.9rem;
+  font-weight: 850;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noormexa-cart-row-info span {
+  font-size: 0.82rem;
+  color: var(--gold-strong);
+  font-weight: 800;
+}
+
+.noormexa-cart-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.noormexa-cart-qty button {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-muted);
+  color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.noormexa-cart-qty span {
+  min-width: 16px;
+  text-align: center;
+  font-weight: 850;
+  font-size: 0.86rem;
+}
+
+.noormexa-cart-summary {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--safe-shadow);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  position: sticky;
+  top: 90px;
+}
+
+.noormexa-cart-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+
+.noormexa-cart-total-row strong {
+  font-size: 1.3rem;
+  color: var(--gold-strong);
+}
+
+/* ===== صفحة الطلبات ===== */
+
+.noormexa-orders-list {
+  display: grid;
+  gap: 14px;
+}
+
+.noormexa-order-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.noormexa-order-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 850;
+  font-size: 0.88rem;
+}
+
+.noormexa-order-items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.noormexa-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.noormexa-status-pending {
+  background: var(--gold-soft);
+  color: var(--gold-strong);
+}
+
+.noormexa-status-paid {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.noormexa-status-shipped {
+  background: rgba(147, 51, 234, 0.12);
+  color: #9333ea;
+}
+
+.noormexa-status-completed {
+  background: rgba(34, 168, 100, 0.14);
+  color: #1e8a53;
+}
+
+.noormexa-status-cancelled {
+  background: rgba(220, 60, 60, 0.14);
+  color: #c23b3b;
+}
+
+.noormexa-status-approved {
+  background: rgba(34, 168, 100, 0.14);
+  color: #1e8a53;
+}
+
+.noormexa-status-suspended {
+  background: rgba(220, 60, 60, 0.14);
+  color: #c23b3b;
+}
+
+@media (min-width: 860px) {
+  .noormexa-cart-layout {
+    grid-template-columns: 1fr 320px;
+  }
 }

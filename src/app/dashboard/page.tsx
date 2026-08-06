@@ -6,6 +6,10 @@ import { Package, Plus, Store as StoreIcon, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
 import {
+  getStoreOrders,
+  updateOrderStatus,
+  type Order,
+  type OrderStatus,
   createProduct,
   createStore,
   deleteProduct,
@@ -28,6 +32,7 @@ const copy = {
     storeName: "اسم المتجر",
     storeDesc: "وصف قصير عن المتجر",
     createStoreBtn: "إنشاء المتجر",
+    genericError: "حصل خطأ غير متوقع، جرّب تاني بعد شوية.",
     dashboardTitle: "لوحة تحكم المتجر",
     pendingNotice: "متجرك حاليًا قيد المراجعة من إدارة المنصة. هتقدر تعرض منتجاتك، لكن هتظهر للعملاء بعد الموافقة.",
     suspendedNotice: "متجرك موقوف مؤقتًا من إدارة المنصة. تواصل مع الدعم لمزيد من التفاصيل.",
@@ -44,6 +49,18 @@ const copy = {
     productCategory: "التصنيف",
     saveProduct: "حفظ المنتج",
     noProducts: "لسه معملتش أي منتجات. ضيف أول منتج من الفورم فوق.",
+    ordersTitle: "طلبات متجري",
+    noOrders: "لسه معملتش أي طلب.",
+    orderNumber: "طلب رقم",
+    total: "الإجمالي",
+    currency: "ج.م",
+    orderStatus: {
+      pending: "قيد المراجعة",
+      paid: "مدفوع",
+      shipped: "تم الشحن",
+      completed: "تم التسليم",
+      cancelled: "ملغي",
+    } as Record<string, string>,
     hide: "إخفاء",
     show: "إظهار",
     delete: "حذف",
@@ -58,6 +75,7 @@ const copy = {
     storeName: "Store name",
     storeDesc: "Short store description",
     createStoreBtn: "Create store",
+    genericError: "Something went wrong, please try again shortly.",
     dashboardTitle: "Store dashboard",
     pendingNotice: "Your store is under review by the platform team. You can add products, but they'll be visible to customers after approval.",
     suspendedNotice: "Your store is temporarily suspended by the platform team. Contact support for details.",
@@ -74,6 +92,18 @@ const copy = {
     productCategory: "Category",
     saveProduct: "Save product",
     noProducts: "No products yet. Add your first one from the form above.",
+    ordersTitle: "Store orders",
+    noOrders: "No orders yet.",
+    orderNumber: "Order",
+    total: "Total",
+    currency: "EGP",
+    orderStatus: {
+      pending: "Pending review",
+      paid: "Paid",
+      shipped: "Shipped",
+      completed: "Delivered",
+      cancelled: "Cancelled",
+    } as Record<string, string>,
     hide: "Hide",
     show: "Show",
     delete: "Delete",
@@ -93,6 +123,7 @@ export default function DashboardPage() {
   const [resolvedForId, setResolvedForId] = useState<string | null>(null);
   const checking = Boolean(user) && resolvedForId !== user?.id;
   const [saving, setSaving] = useState(false);
+  const [storeError, setStoreError] = useState("");
 
   const [storeName, setStoreName] = useState("");
   const [storeDesc, setStoreDesc] = useState("");
@@ -107,6 +138,7 @@ export default function DashboardPage() {
   const [productCategory, setProductCategory] = useState("");
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -118,8 +150,11 @@ export default function DashboardPage() {
         setCategories(cats);
         setAnnouncements(ann);
         if (s) {
-          const prods = await getMyProducts(s.id);
-          if (active) setProducts(prods);
+          const [prods, storeOrders] = await Promise.all([getMyProducts(s.id), getStoreOrders(s.id)]);
+          if (active) {
+            setProducts(prods);
+            setOrders(storeOrders);
+          }
         }
         setResolvedForId(user.id);
       }
@@ -129,13 +164,34 @@ export default function DashboardPage() {
     };
   }, [user]);
 
+  const handleOrderStatusChange = async (orderId: string, status: OrderStatus) => {
+    const ok = await updateOrderStatus(orderId, status);
+    if (ok) {
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status } : o)));
+    }
+  };
+
   const handleCreateStore = async (event: FormEvent) => {
     event.preventDefault();
-    if (!user || !storeName.trim()) return;
+    if (!user || !storeName.trim() || saving) return;
     setSaving(true);
-    const { store: newStore } = await createStore(user.id, storeName.trim(), storeDesc.trim());
+    setStoreError("");
+    const { store: newStore, error } = await createStore(user.id, storeName.trim(), storeDesc.trim());
+    if (newStore) {
+      setStore(newStore);
+      setSaving(false);
+      return;
+    }
+
+    // لو فشل الإنشاء (مثلاً لأن متجر اتعمل بالفعل لنفس الحساب من محاولة
+    // سابقة)، نجيب المتجر الموجود فعليًا بدل ما نسيب المستخدم عالق.
+    const existing = await getMyStore(user.id);
     setSaving(false);
-    if (newStore) setStore(newStore);
+    if (existing) {
+      setStore(existing);
+    } else {
+      setStoreError(error || text.genericError);
+    }
   };
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -232,6 +288,7 @@ export default function DashboardPage() {
                 <span>{text.storeDesc}</span>
                 <textarea id="storeDesc" value={storeDesc} onChange={(e) => setStoreDesc(e.target.value)} rows={3} />
               </label>
+              {storeError && <p className="noormexa-form-error">{storeError}</p>}
               <button type="submit" className="noormexa-primary-button" disabled={saving}>
                 {saving ? text.saving : text.createStoreBtn}
               </button>
@@ -381,6 +438,50 @@ export default function DashboardPage() {
                       {text.delete}
                     </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="noormexa-section noormexa-section-soft">
+        <div className="noormexa-container">
+          <div className="noormexa-section-heading">
+            <h2>{text.ordersTitle}</h2>
+          </div>
+
+          {orders.length === 0 ? (
+            <p className="noormexa-empty-state">{text.noOrders}</p>
+          ) : (
+            <div className="noormexa-orders-list">
+              {orders.map((order) => (
+                <div key={order.id} className="noormexa-order-card">
+                  <div className="noormexa-order-card-header">
+                    <span>
+                      {text.orderNumber} #{order.id.slice(0, 8)}
+                    </span>
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleOrderStatusChange(order.id, e.target.value as OrderStatus)}
+                    >
+                      {Object.entries(text.orderStatus).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <ul className="noormexa-order-items-list">
+                    {order.items?.map((item) => (
+                      <li key={item.id}>
+                        {item.product_name} × {item.quantity}
+                      </li>
+                    ))}
+                  </ul>
+                  <strong>
+                    {text.total}: {order.total_amount} {text.currency}
+                  </strong>
                 </div>
               ))}
             </div>

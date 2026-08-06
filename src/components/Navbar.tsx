@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
-import { Globe2, LayoutDashboard, LogOut, Menu, Moon, ShieldCheck, Sun, UserRound, X } from "lucide-react";
+import { Globe2, LayoutDashboard, LogOut, Menu, Moon, ShieldCheck, ShoppingCart, Sun, UserRound, X } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
 type Language = "ar" | "en";
 
@@ -23,6 +24,8 @@ const copy = {
     ],
     account: "دخول",
     dashboard: "لوحة التحكم",
+    myOrders: "طلباتي",
+    cart: "السلة",
     admin: "لوحة الإدارة",
     logout: "تسجيل خروج",
     language: "EN",
@@ -76,6 +79,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, profile, signOut } = useAuth();
+  const { totalCount } = useCart();
   const isAdmin = Boolean(profile?.is_admin);
   const text = copy[language];
 
@@ -139,6 +143,11 @@ export default function Navbar() {
           <button type="button" className="noormexa-icon-button" onClick={toggleTheme} aria-label="Toggle theme">
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+
+          <Link href="/cart" className="noormexa-icon-button noormexa-cart-link" aria-label="cart">
+            <ShoppingCart size={18} />
+            {totalCount > 0 && <span className="noormexa-cart-badge">{totalCount}</span>}
+          </Link>
 
           {isAdmin && (
             <Link href="/admin" className="noormexa-pill-button noormexa-admin-link">

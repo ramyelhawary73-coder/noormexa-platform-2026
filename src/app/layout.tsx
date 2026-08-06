@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AIAssistant from "@/components/AIAssistant";
@@ -43,12 +44,14 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
-            <div className="noormexa-app-shell">
-              <Navbar />
-              {children}
-              <Footer />
-              <AIAssistant />
-            </div>
+            <CartProvider>
+              <div className="noormexa-app-shell">
+                <Navbar />
+                {children}
+                <Footer />
+                <AIAssistant />
+              </div>
+            </CartProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
