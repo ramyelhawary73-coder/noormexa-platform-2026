@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Minus, Package, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { CreditCard, Minus, Package, Plus, ShoppingBag, Trash2, Truck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
@@ -16,8 +16,13 @@ const copy = {
     browse: "تصفح السوق",
     remove: "حذف",
     total: "الإجمالي",
-    checkout: "إتمام الطلب (الدفع عند الاستلام)",
+    paymentMethod: "طريقة الدفع",
+    cod: "الدفع عند الاستلام",
+    paymobLabel: "بطاقة / محفظة إلكترونية (Paymob)",
+    stripeLabel: "بطاقة دولية (Stripe)",
+    checkout: "إتمام الطلب",
     checkingOut: "جاري تنفيذ الطلب...",
+    redirecting: "جاري تحويلك لصفحة الدفع...",
     needLogin: "لازم تسجّل دخول الأول عشان تكمل الطلب.",
     goLogin: "تسجيل الدخول",
     success: "تم تسجيل طلبك بنجاح! هيتواصل معاك المتجر لتأكيد التوصيل.",
@@ -32,8 +37,13 @@ const copy = {
     browse: "Browse the market",
     remove: "Remove",
     total: "Total",
-    checkout: "Place order (Cash on delivery)",
+    paymentMethod: "Payment method",
+    cod: "Cash on delivery",
+    paymobLabel: "Card / e-wallet (Paymob)",
+    stripeLabel: "International card (Stripe)",
+    checkout: "Place order",
     checkingOut: "Placing your order...",
+    redirecting: "Redirecting to payment...",
     needLogin: "You need to sign in first to check out.",
     goLogin: "Sign in",
     success: "Your order was placed! The store will contact you to confirm delivery.",
@@ -44,6 +54,8 @@ const copy = {
   },
 } as const;
 
+type PaymentMethod = "cod" | "paymob" | "stripe";
+
 export default function CartPage() {
   const language = useNoormexaLanguage();
   const text = copy[language];
@@ -51,8 +63,24 @@ export default function CartPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [placing, setPlacing] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [providers, setProviders] = useState({ paymob: false, stripe: false });
+  const [method, setMethod] = useState<PaymentMethod>("cod");
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/payment/create")
+      .then((res) => res.json())
+      .then((data) => {
+        if (active) setProviders({ paymob: Boolean(data.paymob), stripe: Boolean(data.stripe) });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const grouped = items.reduce<Record<string, typeof items>>((acc, item) => {
     acc[item.storeId] = acc[item.storeId] ? [...acc[item.storeId], item] : [item];
@@ -63,17 +91,41 @@ export default function CartPage() {
     if (!user) return;
     setPlacing(true);
     setError("");
-    const { error: checkoutError } = await checkoutCart(
+    const { orderIds, error: checkoutError } = await checkoutCart(
       user.id,
       items.map((i) => ({ productId: i.productId, storeId: i.storeId, price: i.price, quantity: i.quantity }))
     );
-    setPlacing(false);
-    if (checkoutError) {
+
+    if (checkoutError || orderIds.length === 0) {
+      setPlacing(false);
       setError(text.error);
       return;
     }
-    clearCart();
-    setDone(true);
+
+    if (method === "cod") {
+      setPlacing(false);
+      clearCart();
+      setDone(true);
+      return;
+    }
+
+    // دفع إلكتروني: نبدأ جلسة الدفع ونحوّل المستخدم لصفحة الدفع الآمنة
+    setRedirecting(true);
+    try {
+      const res = await fetch("/api/payment/create", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ orderIds, provider: method }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || "payment failed");
+      clearCart();
+      window.location.href = data.url;
+    } catch {
+      setPlacing(false);
+      setRedirecting(false);
+      setError(text.error);
+    }
   };
 
   if (done) {
@@ -165,6 +217,46 @@ export default function CartPage() {
 
                 {error && <p className="noormexa-form-message error">{error}</p>}
 
+                {user && (
+                  <div className="noormexa-payment-methods">
+                    <span className="noormexa-field-label">{text.paymentMethod}</span>
+                    <label className="noormexa-payment-option">
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        checked={method === "cod"}
+                        onChange={() => setMethod("cod")}
+                      />
+                      <Truck size={16} />
+                      {text.cod}
+                    </label>
+                    {providers.paymob && (
+                      <label className="noormexa-payment-option">
+                        <input
+                          type="radio"
+                          name="payment-method"
+                          checked={method === "paymob"}
+                          onChange={() => setMethod("paymob")}
+                        />
+                        <CreditCard size={16} />
+                        {text.paymobLabel}
+                      </label>
+                    )}
+                    {providers.stripe && (
+                      <label className="noormexa-payment-option">
+                        <input
+                          type="radio"
+                          name="payment-method"
+                          checked={method === "stripe"}
+                          onChange={() => setMethod("stripe")}
+                        />
+                        <CreditCard size={16} />
+                        {text.stripeLabel}
+                      </label>
+                    )}
+                  </div>
+                )}
+
                 {user ? (
                   <button
                     type="button"
@@ -172,7 +264,7 @@ export default function CartPage() {
                     disabled={placing}
                     onClick={handleCheckout}
                   >
-                    {placing ? text.checkingOut : text.checkout}
+                    {redirecting ? text.redirecting : placing ? text.checkingOut : text.checkout}
                   </button>
                 ) : (
                   <>

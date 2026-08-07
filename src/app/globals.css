@@ -2487,3 +2487,34 @@ html[dir="rtl"] .noormexa-password-shell {
   font-size: 0.88rem;
   line-height: 1.7;
 }
+
+/* ===== اختيار طريقة الدفع فى السلة ===== */
+
+.noormexa-payment-methods {
+  display: grid;
+  gap: 8px;
+}
+
+.noormexa-payment-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.noormexa-payment-option:has(input:checked) {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  color: var(--gold-strong);
+}
+
+.noormexa-payment-option input {
+  accent-color: var(--gold);
+}
