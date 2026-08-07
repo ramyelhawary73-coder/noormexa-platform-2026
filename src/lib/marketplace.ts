@@ -417,6 +417,26 @@ export async function checkoutCart(
       return { orderIds, error: itemsError.message };
     }
 
+    // ننقّص المخزون المتاح لكل منتج اتباع، وننقل حالته لـ "غير متوفر"
+    // لو خلص تمامًا، عشان مايفضلش يظهر للعملاء بعد نفاذه. لو البائع
+    // كان مخفي المنتج يدويًا، بنسيب حالة الإخفاء زي ما هي.
+    for (const item of storeItems) {
+      const { data: currentProduct } = await supabase
+        .from("products")
+        .select("stock, status")
+        .eq("id", item.productId)
+        .single();
+
+      if (currentProduct) {
+        const nextStock = Math.max(0, Number(currentProduct.stock ?? 0) - item.quantity);
+        const updates: { stock: number; status?: "active" | "out_of_stock" } = { stock: nextStock };
+        if (currentProduct.status !== "hidden") {
+          updates.status = nextStock === 0 ? "out_of_stock" : "active";
+        }
+        await supabase.from("products").update(updates).eq("id", item.productId);
+      }
+    }
+
     orderIds.push(order.id as string);
   }
 
@@ -476,4 +496,72 @@ export async function getStoreOrders(storeId: string): Promise<Order[]> {
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
   const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
   return !error;
+}
+
+export type Review = {
+  id: string;
+  product_id: string;
+  buyer_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  reviewer_name?: string | null;
+};
+
+export type ReviewSummary = {
+  average: number;
+  count: number;
+};
+
+export async function getProductReviews(productId: string): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*, profiles(full_name)")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+  type Row = Review & { profiles: { full_name: string | null } | null };
+  return (data as Row[]).map((row) => ({ ...row, reviewer_name: row.profiles?.full_name ?? null }));
+}
+
+export function summarizeReviews(reviews: Review[]): ReviewSummary {
+  if (reviews.length === 0) return { average: 0, count: 0 };
+  const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+  return { average: Math.round((sum / reviews.length) * 10) / 10, count: reviews.length };
+}
+
+export async function getMyReviewForProduct(productId: string, buyerId: string): Promise<Review | null> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("product_id", productId)
+    .eq("buyer_id", buyerId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as Review;
+}
+
+export async function submitReview(payload: {
+  productId: string;
+  buyerId: string;
+  rating: number;
+  comment: string;
+}): Promise<{ review: Review | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .upsert(
+      {
+        product_id: payload.productId,
+        buyer_id: payload.buyerId,
+        rating: payload.rating,
+        comment: payload.comment || null,
+      },
+      { onConflict: "product_id,buyer_id" }
+    )
+    .select()
+    .single();
+
+  if (error || !data) return { review: null, error: error?.message ?? "تعذر إرسال التقييم" };
+  return { review: data as Review, error: null };
 }

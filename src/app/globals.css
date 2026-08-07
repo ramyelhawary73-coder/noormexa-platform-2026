@@ -2367,3 +2367,123 @@ html[dir="rtl"] .noormexa-password-shell {
     grid-template-columns: 1fr 320px;
   }
 }
+
+/* ===== تقييمات المنتجات ===== */
+
+.noormexa-star-row {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--gold);
+}
+
+.noormexa-star-row-small {
+  margin-top: 2px;
+}
+
+.noormexa-review-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.noormexa-review-summary span {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.noormexa-field-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 850;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.noormexa-star-picker {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.noormexa-star-picker button {
+  border: none;
+  background: none;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 2px;
+}
+
+.noormexa-review-form-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+  padding: 20px;
+  margin-bottom: 20px;
+  max-width: 32rem;
+}
+
+.noormexa-review-textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  margin-bottom: 14px;
+  resize: vertical;
+}
+
+.noormexa-review-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.noormexa-reviews-list {
+  display: grid;
+  gap: 14px;
+}
+
+.noormexa-review-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.noormexa-review-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.noormexa-review-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.noormexa-review-card-header strong {
+  font-size: 0.88rem;
+  font-weight: 850;
+  color: var(--foreground);
+}
+
+.noormexa-review-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
