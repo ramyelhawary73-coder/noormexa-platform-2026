@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -11,6 +11,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,30 +21,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = useCallback(async (userId: string, email?: string | null) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (!error && data) {
+      setProfile(data as Profile);
+      return;
+    }
+
+    // الملف الشخصي مش موجود (ممكن يحصل لو التسجيل استكمل بعد فترة انتظار
+    // تأكيد الإيميل) - نصلحه تلقائيًا بإنشاء ملف افتراضي بدل ما نسيبه فاضي.
+    const { data: created } = await supabase
+      .from("profiles")
+      .insert({ id: userId, email: email ?? null })
+      .select()
+      .single();
+
+    if (created) setProfile(created as Profile);
+  }, []);
+
   useEffect(() => {
-    const fetchProfile = async (userId: string, email?: string | null) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle();
-
-      if (!error && data) {
-        setProfile(data as Profile);
-        return;
-      }
-
-      // الملف الشخصي مش موجود (ممكن يحصل لو التسجيل استكمل بعد فترة انتظار
-      // تأكيد الإيميل) - نصلحه تلقائيًا بإنشاء ملف افتراضي بدل ما نسيبه فاضي.
-      const { data: created } = await supabase
-        .from("profiles")
-        .insert({ id: userId, email: email ?? null })
-        .select()
-        .single();
-
-      if (created) setProfile(created as Profile);
-    };
-
     const getInitialSession = async () => {
       const {
         data: { session },
@@ -73,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile]);
 
   const signOut = async () => {
     setLoading(true);
@@ -83,8 +84,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   };
 
+  const refreshProfile = useCallback(async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session) {
+      await fetchProfile(session.user.id, session.user.email);
+    }
+  }, [fetchProfile]);
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

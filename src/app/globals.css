@@ -2518,3 +2518,51 @@ html[dir="rtl"] .noormexa-password-shell {
 .noormexa-payment-option input {
   accent-color: var(--gold);
 }
+
+/* ===== صفحة اختيار نوع الحساب بعد جوجل ===== */
+
+.noormexa-role-select-container {
+  max-width: 36rem;
+  display: grid;
+  gap: 6px;
+}
+
+.noormexa-role-select-container h1 {
+  margin: 4px 0 0;
+}
+
+.noormexa-role-select-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.noormexa-role-select-card {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  text-align: start;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.noormexa-role-select-card strong {
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+.noormexa-role-select-card span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.noormexa-role-select-active {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  box-shadow: var(--safe-shadow);
+}

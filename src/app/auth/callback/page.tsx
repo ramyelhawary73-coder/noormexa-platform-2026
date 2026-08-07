@@ -55,11 +55,18 @@ function AuthCallbackInner() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("account_type")
+        .select("account_type, account_type_chosen")
         .eq("id", session.user.id)
         .maybeSingle();
 
       if (!active) return;
+
+      // مستخدم جديد (زي أول دخول بجوجل) ولسه ما اختارش نوع حسابه
+      // فعليًا - نوجهه لصفحة الاختيار بدل ما نفترض إنه "متسوق".
+      if (!profile?.account_type_chosen) {
+        router.replace("/auth/choose-role");
+        return;
+      }
 
       const accountType = (profile?.account_type as string | undefined) ?? "customer";
       const destination = ["seller", "store", "advertiser"].includes(accountType) ? "/dashboard" : "/";

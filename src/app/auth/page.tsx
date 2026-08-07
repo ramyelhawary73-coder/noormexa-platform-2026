@@ -174,6 +174,7 @@ export default function AuthPage() {
           phone: phone || null,
           account_type: role,
           business_name: businessName || null,
+          account_type_chosen: true,
           updated_at: new Date().toISOString(),
         });
       }
