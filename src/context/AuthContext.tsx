@@ -35,13 +35,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // الملف الشخصي مش موجود (ممكن يحصل لو التسجيل استكمل بعد فترة انتظار
     // تأكيد الإيميل) - نصلحه تلقائيًا بإنشاء ملف افتراضي بدل ما نسيبه فاضي.
+    // upsert بدل insert عشان لو حصل تعارض سباق (تبويب تاني عمل الملف
+    // في نفس اللحظة)، العملية تنجح من غير ما ترمي خطأ 409.
     const { data: created } = await supabase
       .from("profiles")
-      .insert({ id: userId, email: email ?? null })
+      .upsert({ id: userId, email: email ?? null }, { onConflict: "id", ignoreDuplicates: true })
       .select()
-      .single();
+      .maybeSingle();
 
-    if (created) setProfile(created as Profile);
+    if (created) {
+      setProfile(created as Profile);
+    } else {
+      // لو upsert ماردّش صف (لأن الصف كان موجود بالفعل)، نجيبه تاني.
+      const { data: existing } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+      if (existing) setProfile(existing as Profile);
+    }
   }, []);
 
   useEffect(() => {

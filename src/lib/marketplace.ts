@@ -417,24 +417,13 @@ export async function checkoutCart(
       return { orderIds, error: itemsError.message };
     }
 
-    // ننقّص المخزون المتاح لكل منتج اتباع، وننقل حالته لـ "غير متوفر"
-    // لو خلص تمامًا، عشان مايفضلش يظهر للعملاء بعد نفاذه. لو البائع
-    // كان مخفي المنتج يدويًا، بنسيب حالة الإخفاء زي ما هي.
+    // ننقّص المخزون المتاح لكل منتج اتباع عن طريق دالة آمنة على مستوى
+    // قاعدة البيانات (بدل تعديل مباشر مش مسموح للمشتري أصلًا بـ RLS).
     for (const item of storeItems) {
-      const { data: currentProduct } = await supabase
-        .from("products")
-        .select("stock, status")
-        .eq("id", item.productId)
-        .single();
-
-      if (currentProduct) {
-        const nextStock = Math.max(0, Number(currentProduct.stock ?? 0) - item.quantity);
-        const updates: { stock: number; status?: "active" | "out_of_stock" } = { stock: nextStock };
-        if (currentProduct.status !== "hidden") {
-          updates.status = nextStock === 0 ? "out_of_stock" : "active";
-        }
-        await supabase.from("products").update(updates).eq("id", item.productId);
-      }
+      await supabase.rpc("decrement_product_stock", {
+        p_product_id: item.productId,
+        p_quantity: item.quantity,
+      });
     }
 
     orderIds.push(order.id as string);
