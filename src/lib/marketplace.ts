@@ -360,6 +360,11 @@ export type Order = {
   created_at: string;
   store_name?: string;
   items?: OrderItemRow[];
+  shipping_name?: string | null;
+  shipping_phone?: string | null;
+  shipping_address?: string | null;
+  shipping_city?: string | null;
+  shipping_notes?: string | null;
 };
 
 export type CheckoutCartItem = {
@@ -369,13 +374,22 @@ export type CheckoutCartItem = {
   quantity: number;
 };
 
+export type ShippingInfo = {
+  fullName: string;
+  phone: string;
+  address: string;
+  city: string;
+  notes?: string;
+};
+
 /**
  * ينشئ طلب منفصل لكل متجر موجود فى السلة (لأن كل طلب مرتبط بمتجر واحد)،
  * وبيحسب عمولة المنصة تلقائيًا حسب نسبة عمولة كل متجر.
  */
 export async function checkoutCart(
   buyerId: string,
-  cartItems: CheckoutCartItem[]
+  cartItems: CheckoutCartItem[],
+  shipping: ShippingInfo
 ): Promise<{ orderIds: string[]; error: string | null }> {
   const storeIds = Array.from(new Set(cartItems.map((i) => i.storeId)));
   const { data: stores } = await supabase.from("stores").select("id, commission_rate").in("id", storeIds);
@@ -397,6 +411,11 @@ export async function checkoutCart(
         total_amount: totalAmount,
         commission_amount: commissionAmount,
         status: "pending",
+        shipping_name: shipping.fullName,
+        shipping_phone: shipping.phone,
+        shipping_address: shipping.address,
+        shipping_city: shipping.city,
+        shipping_notes: shipping.notes || null,
       })
       .select()
       .single();

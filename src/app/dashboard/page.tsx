@@ -511,6 +511,17 @@ export default function DashboardPage() {
                       </li>
                     ))}
                   </ul>
+                  {order.shipping_name && (
+                    <div className="noormexa-shipping-info">
+                      <strong>{order.shipping_name}</strong>
+                      <span>{order.shipping_phone}</span>
+                      <span>
+                        {order.shipping_address}
+                        {order.shipping_city ? `، ${order.shipping_city}` : ""}
+                      </span>
+                      {order.shipping_notes && <span className="noormexa-muted-text">{order.shipping_notes}</span>}
+                    </div>
+                  )}
                   <strong>
                     {text.total}: {order.total_amount} {text.currency}
                   </strong>

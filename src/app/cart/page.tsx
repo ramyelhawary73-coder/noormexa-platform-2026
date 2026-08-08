@@ -16,6 +16,13 @@ const copy = {
     browse: "تصفح السوق",
     remove: "حذف",
     total: "الإجمالي",
+    shippingTitle: "بيانات الشحن",
+    fullName: "الاسم بالكامل",
+    phone: "رقم الهاتف",
+    address: "العنوان بالتفصيل",
+    city: "المدينة",
+    notes: "ملاحظات للتوصيل (اختياري)",
+    shippingRequired: "من فضلك املأ كل بيانات الشحن قبل إتمام الطلب.",
     paymentMethod: "طريقة الدفع",
     cod: "الدفع عند الاستلام",
     paymobLabel: "بطاقة / محفظة إلكترونية (Paymob)",
@@ -37,6 +44,13 @@ const copy = {
     browse: "Browse the market",
     remove: "Remove",
     total: "Total",
+    shippingTitle: "Shipping details",
+    fullName: "Full name",
+    phone: "Phone number",
+    address: "Detailed address",
+    city: "City",
+    notes: "Delivery notes (optional)",
+    shippingRequired: "Please fill in all shipping details before checking out.",
     paymentMethod: "Payment method",
     cod: "Cash on delivery",
     paymobLabel: "Card / e-wallet (Paymob)",
@@ -60,7 +74,7 @@ export default function CartPage() {
   const language = useNoormexaLanguage();
   const text = copy[language];
   const { items, removeItem, updateQuantity, totalAmount, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const router = useRouter();
   const [placing, setPlacing] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
@@ -68,6 +82,12 @@ export default function CartPage() {
   const [error, setError] = useState("");
   const [providers, setProviders] = useState({ paymob: false, stripe: false });
   const [method, setMethod] = useState<PaymentMethod>("cod");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [notes, setNotes] = useState("");
+  const [prefilledFor, setPrefilledFor] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -82,18 +102,41 @@ export default function CartPage() {
     };
   }, []);
 
+  // نعبّي بيانات الشحن أول مرة بس من بيانات البروفايل (لو موجودة)،
+  // ونسيب المستخدم يعدّلها براحته من غير ما نمسحها كل ما البروفايل يتحدّث.
+  useEffect(() => {
+    if (!user || prefilledFor === user.id) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      setFullName((profile?.full_name as string | undefined) ?? "");
+      setPhone((profile?.phone as string | undefined) ?? "");
+      setPrefilledFor(user.id);
+    });
+    return () => {
+      active = false;
+    };
+  }, [user, profile, prefilledFor]);
+
   const grouped = items.reduce<Record<string, typeof items>>((acc, item) => {
     acc[item.storeId] = acc[item.storeId] ? [...acc[item.storeId], item] : [item];
     return acc;
   }, {});
 
+  const shippingValid = fullName.trim() && phone.trim() && address.trim() && city.trim();
+
   const handleCheckout = async () => {
     if (!user) return;
+    if (!shippingValid) {
+      setError(text.shippingRequired);
+      return;
+    }
     setPlacing(true);
     setError("");
     const { orderIds, error: checkoutError } = await checkoutCart(
       user.id,
-      items.map((i) => ({ productId: i.productId, storeId: i.storeId, price: i.price, quantity: i.quantity }))
+      items.map((i) => ({ productId: i.productId, storeId: i.storeId, price: i.price, quantity: i.quantity })),
+      { fullName: fullName.trim(), phone: phone.trim(), address: address.trim(), city: city.trim(), notes: notes.trim() }
     );
 
     if (checkoutError || orderIds.length === 0) {
@@ -216,6 +259,32 @@ export default function CartPage() {
                 </div>
 
                 {error && <p className="noormexa-form-message error">{error}</p>}
+
+                {user && (
+                  <div className="noormexa-shipping-form">
+                    <span className="noormexa-field-label">{text.shippingTitle}</span>
+                    <label className="noormexa-field">
+                      <span>{text.fullName}</span>
+                      <input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.phone}</span>
+                      <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.address}</span>
+                      <input value={address} onChange={(e) => setAddress(e.target.value)} required />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.city}</span>
+                      <input value={city} onChange={(e) => setCity(e.target.value)} required />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.notes}</span>
+                      <input value={notes} onChange={(e) => setNotes(e.target.value)} />
+                    </label>
+                  </div>
+                )}
 
                 {user && (
                   <div className="noormexa-payment-methods">

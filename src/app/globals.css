@@ -2574,3 +2574,37 @@ html[dir="rtl"] .noormexa-password-shell {
   flex-wrap: wrap;
   justify-content: center;
 }
+
+.noormexa-shipping-info {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  border: 1px dashed var(--line);
+  font-size: 0.84rem;
+}
+
+.noormexa-shipping-info strong {
+  color: var(--foreground);
+  font-weight: 900;
+}
+
+.noormexa-shipping-info span {
+  color: var(--muted);
+}
+
+.noormexa-shipping-form {
+  display: grid;
+  gap: 10px;
+}
+
+.noormexa-shipping-form .noormexa-field {
+  gap: 4px;
+}
+
+.noormexa-shipping-form .noormexa-field span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+}
