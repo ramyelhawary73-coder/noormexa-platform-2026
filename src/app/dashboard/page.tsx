@@ -29,6 +29,10 @@ const copy = {
     loginCta: "تسجيل الدخول",
     createStoreTitle: "أنشئ متجرك",
     createStoreText: "خطوة واحدة وابدأ تعرض منتجاتك للعالم.",
+    customerBlockedTitle: "الصفحة دي مخصصة للبائعين والمتاجر",
+    customerBlockedText: "حسابك مسجّل كمتسوق. لو عايز تبيع منتجاتك، تقدر تغيّر نوع حسابك.",
+    switchToSeller: "أنا عايز أبيع كمان",
+    browseInstead: "تصفح السوق",
     storeName: "اسم المتجر",
     storeDesc: "وصف قصير عن المتجر",
     createStoreBtn: "إنشاء المتجر",
@@ -72,6 +76,10 @@ const copy = {
     loginCta: "Sign in",
     createStoreTitle: "Create your store",
     createStoreText: "One step and you're ready to show your products to the world.",
+    customerBlockedTitle: "This page is for sellers and stores",
+    customerBlockedText: "Your account is registered as a shopper. If you want to sell, you can switch your account type.",
+    switchToSeller: "I want to sell too",
+    browseInstead: "Browse the market",
     storeName: "Store name",
     storeDesc: "Short store description",
     createStoreBtn: "Create store",
@@ -271,6 +279,30 @@ export default function DashboardPage() {
   }
 
   if (!store) {
+    const accountType = (profile?.account_type as string | undefined) ?? "customer";
+
+    if (accountType === "customer") {
+      return (
+        <main className="noormexa-main">
+          <section className="noormexa-section">
+            <div className="noormexa-container noormexa-empty-state">
+              <StoreIcon size={32} />
+              <h1>{text.customerBlockedTitle}</h1>
+              <p>{text.customerBlockedText}</p>
+              <div className="noormexa-empty-state-actions">
+                <Link href="/auth/choose-role" className="noormexa-primary-button">
+                  {text.switchToSeller}
+                </Link>
+                <Link href="/" className="noormexa-pill-button">
+                  {text.browseInstead}
+                </Link>
+              </div>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     return (
       <main className="noormexa-main">
         <section className="noormexa-section">

@@ -2566,3 +2566,11 @@ html[dir="rtl"] .noormexa-password-shell {
   background: var(--gold-soft);
   box-shadow: var(--safe-shadow);
 }
+
+.noormexa-empty-state-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
