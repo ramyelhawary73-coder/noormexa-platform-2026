@@ -86,13 +86,24 @@ export default function Navbar() {
   const handleLogout = async () => {
     setOpen(false);
     // مهلة أمان: لو signOut() اتأخر (مشكلة شبكة مؤقتة مثلًا)، منسيبش
-    // المستخدم واقف - نكمل الخروج المحلي بعد 3 ثواني بأي الأحوال.
+    // المستخدم واقف - نكمل بعد 2.5 ثانية بأي الأحوال.
     await Promise.race([
       signOut().catch((error) => console.error("Sign out error:", error)),
-      new Promise((resolve) => setTimeout(resolve, 3000)),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
     ]);
-    // تحديث كامل للصفحة (مش تنقل داخلي) عشان نضمن مسح كل حالة
-    // تسجيل الدخول المخزّنة فى المتصفح، حتى لو حصل أي تعليق.
+
+    // ضمان نهائي: نمسح يدويًا أي بيانات جلسة متبقية فى المتصفح بنفسنا،
+    // بدل ما نعتمد بس على إن طلب الشبكة بتاع signOut() خلص فعليًا قبل
+    // الـ reload. من غير الخطوة دي، لو الشبكة كانت بطيئة، الصفحة كانت
+    // بترجع تلاقي جلسة الدخول القديمة لسه محفوظة وتفتكرك لسه داخل.
+    if (typeof window !== "undefined") {
+      Object.keys(window.localStorage)
+        .filter((key) => key.startsWith("sb-") && key.includes("-auth-token"))
+        .forEach((key) => window.localStorage.removeItem(key));
+    }
+
+    // تحديث كامل للصفحة (مش تنقل داخلي) عشان نضمن قراءة الحالة الجديدة
+    // من الصفر، حتى لو حصل أي تعليق.
     window.location.href = "/";
   };
 
