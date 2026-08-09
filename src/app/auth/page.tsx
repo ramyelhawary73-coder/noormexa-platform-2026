@@ -49,6 +49,7 @@ const copy = {
     successRegister: "تم إنشاء الحساب! افتح بريدك الإلكتروني (وتفقّد مجلد Spam) ودوس على رابط التأكيد عشان تفعّل حسابك.",
     successLogin: "تم تسجيل الدخول بنجاح.",
     unavailable: "التسجيل غير متاح الآن. يمكنك تجربة الواجهة وسيتم تفعيل الحسابات عند جاهزية الربط.",
+    timeoutError: "الاتصال بالسيرفر بطيء جدًا أو مش شغال دلوقتي. اتأكد من النت وجرب تاني بعد شوية.",
   },
   en: {
     badge: "NOORMEXA Account",
@@ -78,6 +79,7 @@ const copy = {
     successRegister: "Account created! Open your email (check Spam too) and click the confirmation link to activate your account.",
     successLogin: "Signed in successfully.",
     unavailable: "Registration is not available right now. You can preview the interface; accounts will work when connection is ready.",
+    timeoutError: "The connection to the server is too slow or unavailable right now. Check your internet and try again shortly.",
   },
 } as const;
 
@@ -97,6 +99,15 @@ function subscribeToLanguage(callback: () => void) {
 
 function useNoormexaLanguage() {
   return useSyncExternalStore<Language>(subscribeToLanguage, getLanguageSnapshot, () => "ar");
+}
+
+const AUTH_TIMEOUT_MS = 12000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, timeoutMessage: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(timeoutMessage)), ms)),
+  ]);
 }
 
 export default function AuthPage() {
@@ -143,7 +154,11 @@ export default function AuthPage() {
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await withTimeout(
+          supabase.auth.signInWithPassword({ email, password }),
+          AUTH_TIMEOUT_MS,
+          text.timeoutError
+        );
         if (error) throw error;
         setStatus("success");
         setMessage(text.successLogin);
@@ -151,18 +166,22 @@ export default function AuthPage() {
         return;
       }
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            phone,
-            account_type: role,
-            business_name: businessName,
+      const { data, error } = await withTimeout(
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              phone,
+              account_type: role,
+              business_name: businessName,
+            },
           },
-        },
-      });
+        }),
+        AUTH_TIMEOUT_MS,
+        text.timeoutError
+      );
 
       if (error) throw error;
 
