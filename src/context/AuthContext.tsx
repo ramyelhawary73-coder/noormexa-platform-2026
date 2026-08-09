@@ -21,11 +21,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (userId: string, email?: string | null) => {
+  const fetchProfile = useCallback(async (authUser: User) => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", userId)
+      .eq("id", authUser.id)
       .maybeSingle();
 
     if (!error && data) {
@@ -35,11 +35,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // الملف الشخصي مش موجود (ممكن يحصل لو التسجيل استكمل بعد فترة انتظار
     // تأكيد الإيميل) - نصلحه تلقائيًا بإنشاء ملف افتراضي بدل ما نسيبه فاضي.
+    // بنقرأ بيانات النوع (بائع/متجر/معلن) اللي المستخدم اختارها بالفعل
+    // وقت التسجيل بالإيميل (متخزنة فى user_metadata حتى قبل التأكيد)،
+    // عشان لو كان اختار نوعه، مايتسألش عنه تاني بعد التفعيل.
+    const meta = authUser.user_metadata ?? {};
+    const chosenType = typeof meta.account_type === "string" ? meta.account_type : null;
+
     // upsert بدل insert عشان لو حصل تعارض سباق (تبويب تاني عمل الملف
     // في نفس اللحظة)، العملية تنجح من غير ما ترمي خطأ 409.
     const { data: created } = await supabase
       .from("profiles")
-      .upsert({ id: userId, email: email ?? null }, { onConflict: "id", ignoreDuplicates: true })
+      .upsert(
+        {
+          id: authUser.id,
+          email: authUser.email ?? null,
+          full_name: typeof meta.full_name === "string" ? meta.full_name : null,
+          phone: typeof meta.phone === "string" ? meta.phone : null,
+          account_type: chosenType ?? "customer",
+          business_name: typeof meta.business_name === "string" ? meta.business_name : null,
+          account_type_chosen: Boolean(chosenType),
+        },
+        { onConflict: "id", ignoreDuplicates: true }
+      )
       .select()
       .maybeSingle();
 
@@ -47,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setProfile(created as Profile);
     } else {
       // لو upsert ماردّش صف (لأن الصف كان موجود بالفعل)، نجيبه تاني.
-      const { data: existing } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+      const { data: existing } = await supabase.from("profiles").select("*").eq("id", authUser.id).maybeSingle();
       if (existing) setProfile(existing as Profile);
     }
   }, []);
@@ -60,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user.id, session.user.email);
+        await fetchProfile(session.user);
       }
 
       setLoading(false);
@@ -73,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user.id, session.user.email);
+        await fetchProfile(session.user);
       } else {
         setUser(null);
         setProfile(null);
@@ -97,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { session },
     } = await supabase.auth.getSession();
     if (session) {
-      await fetchProfile(session.user.id, session.user.email);
+      await fetchProfile(session.user);
     }
   }, [fetchProfile]);
 

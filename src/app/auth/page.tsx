@@ -166,17 +166,26 @@ export default function AuthPage() {
 
       if (error) throw error;
 
-      if (data.user) {
-        await supabase.from("profiles").upsert({
-          id: data.user.id,
-          full_name: fullName,
-          email,
-          phone: phone || null,
-          account_type: role,
-          business_name: businessName || null,
-          account_type_chosen: true,
-          updated_at: new Date().toISOString(),
-        });
+      if (data.user && data.session) {
+        // لو فيه جلسة فورية (تأكيد الإيميل متوقف)، نظبط الملف الشخصي
+        // على طول. لو التأكيد مفعّل، مفيش جلسة لسه، فأي محاولة تعديل
+        // هنا هترفض من قواعد الحماية وتضيع وقت من غير فايدة - النظام
+        // هيظبط الملف الشخصي تلقائيًا أول ما يسجل دخوله فعليًا بعد التأكيد.
+        try {
+          await supabase.from("profiles").upsert({
+            id: data.user.id,
+            full_name: fullName,
+            email,
+            phone: phone || null,
+            account_type: role,
+            business_name: businessName || null,
+            account_type_chosen: true,
+            updated_at: new Date().toISOString(),
+          });
+        } catch (profileError) {
+          // حتى لو فشلت الخطوة دي، متمنعش نجاح التسجيل نفسه من الظهور.
+          console.error("Profile upsert error:", profileError);
+        }
       }
 
       setStatus("success");

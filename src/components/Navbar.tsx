@@ -85,11 +85,12 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     setOpen(false);
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
+    // مهلة أمان: لو signOut() اتأخر (مشكلة شبكة مؤقتة مثلًا)، منسيبش
+    // المستخدم واقف - نكمل الخروج المحلي بعد 3 ثواني بأي الأحوال.
+    await Promise.race([
+      signOut().catch((error) => console.error("Sign out error:", error)),
+      new Promise((resolve) => setTimeout(resolve, 3000)),
+    ]);
     // تحديث كامل للصفحة (مش تنقل داخلي) عشان نضمن مسح كل حالة
     // تسجيل الدخول المخزّنة فى المتصفح، حتى لو حصل أي تعليق.
     window.location.href = "/";
