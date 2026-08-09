@@ -3,6 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  color-scheme: light;
   /* هوية NOORMEXA الرسمية: Deep Navy / Champagne Gold / Warm Ivory / Charcoal */
   --background: #f6f2e9;
   --foreground: #1c1c1e;
@@ -23,6 +24,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #0b1322;
   --foreground: #f6f2e9;
   --surface: #101a2e;
@@ -101,6 +103,13 @@ input,
 textarea,
 select {
   font: inherit;
+  background-color: var(--surface);
+  color: var(--foreground);
+}
+
+select option {
+  background-color: var(--surface);
+  color: var(--foreground);
 }
 
 button {
