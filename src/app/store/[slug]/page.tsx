@@ -64,11 +64,20 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
 
   return (
     <main className="noormexa-main">
+      {store?.banner_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={store.banner_url} alt="" className="noormexa-store-banner-hero" />
+      )}
       <section className="noormexa-section">
         <div className="noormexa-container">
           <div className="noormexa-store-header">
             <span className="noormexa-card-icon">
-              <StoreIcon size={26} />
+              {store?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={store.logo_url} alt="" className="noormexa-store-logo-img" />
+              ) : (
+                <StoreIcon size={26} />
+              )}
             </span>
             <div>
               <h1>{store?.name}</h1>

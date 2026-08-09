@@ -14,6 +14,7 @@ export type Store = {
   slug: string;
   description: string | null;
   logo_url: string | null;
+  banner_url: string | null;
   commission_rate: number;
   plan: string;
   status: "pending" | "approved" | "suspended";

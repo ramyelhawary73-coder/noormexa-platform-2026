@@ -2,7 +2,19 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
-import { Package, Plus, Store as StoreIcon, Trash2 } from "lucide-react";
+import {
+  BarChart3,
+  Image as ImageIcon,
+  LayoutGrid,
+  Package,
+  Pencil,
+  Plus,
+  Settings,
+  ShoppingBag,
+  Store as StoreIcon,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
 import {
@@ -17,8 +29,11 @@ import {
   getCategories,
   getMyProducts,
   getMyStore,
+  updateProduct,
   updateProductStatus,
+  updateStoreProfile,
   uploadProductImage,
+  uploadStoreImage,
   type Announcement,
 } from "@/lib/marketplace";
 import type { Category, Product, Store } from "@/types/marketplace";
@@ -70,6 +85,23 @@ const copy = {
     delete: "حذف",
     price: "ج.م",
     saving: "جارٍ الحفظ...",
+    tabOverview: "نظرة عامة",
+    tabSettings: "إعدادات المتجر",
+    tabProducts: "المنتجات",
+    tabOrders: "الطلبات",
+    statRevenue: "إجمالي المبيعات",
+    statOrders: "إجمالي الطلبات",
+    statPending: "طلبات قيد المراجعة",
+    statProducts: "المنتجات",
+    settingsTitle: "هوية متجرك",
+    settingsHint: "الاسم، الوصف، الشعار، والبانر اللي بيشوفه العملاء فى صفحة متجرك.",
+    logoLabel: "شعار المتجر",
+    bannerLabel: "بانر المتجر (صورة عريضة)",
+    saveSettings: "حفظ التعديلات",
+    settingsSaved: "تم حفظ بيانات متجرك بنجاح.",
+    editProduct: "تعديل",
+    cancelEdit: "إلغاء",
+    saveEdit: "حفظ التعديل",
   },
   en: {
     loginPrompt: "You need to sign in first to access the dashboard.",
@@ -117,6 +149,23 @@ const copy = {
     delete: "Delete",
     price: "EGP",
     saving: "Saving...",
+    tabOverview: "Overview",
+    tabSettings: "Store settings",
+    tabProducts: "Products",
+    tabOrders: "Orders",
+    statRevenue: "Total sales",
+    statOrders: "Total orders",
+    statPending: "Pending review",
+    statProducts: "Products",
+    settingsTitle: "Your store identity",
+    settingsHint: "Name, description, logo, and banner customers see on your store page.",
+    logoLabel: "Store logo",
+    bannerLabel: "Store banner (wide image)",
+    saveSettings: "Save changes",
+    settingsSaved: "Your store details were saved.",
+    editProduct: "Edit",
+    cancelEdit: "Cancel",
+    saveEdit: "Save changes",
   },
 } as const;
 
@@ -148,6 +197,28 @@ export default function DashboardPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
 
+  const [activeTab, setActiveTab] = useState<"overview" | "settings" | "products" | "orders">("overview");
+
+  const [settingsName, setSettingsName] = useState("");
+  const [settingsDesc, setSettingsDesc] = useState("");
+  const [settingsLogo, setSettingsLogo] = useState("");
+  const [settingsBanner, setSettingsBanner] = useState("");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsMessage, setSettingsMessage] = useState("");
+  const [settingsLoadedFor, setSettingsLoadedFor] = useState<string | null>(null);
+
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editStock, setEditStock] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editImage, setEditImage] = useState("");
+  const [editUploading, setEditUploading] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     let active = true;
@@ -171,6 +242,22 @@ export default function DashboardPage() {
       active = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!store || settingsLoadedFor === store.id) return;
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      setSettingsName(store.name);
+      setSettingsDesc(store.description || "");
+      setSettingsLogo(store.logo_url || "");
+      setSettingsBanner(store.banner_url || "");
+      setSettingsLoadedFor(store.id);
+    });
+    return () => {
+      active = false;
+    };
+  }, [store, settingsLoadedFor]);
 
   const handleOrderStatusChange = async (orderId: string, status: OrderStatus) => {
     const ok = await updateOrderStatus(orderId, status);
@@ -255,6 +342,81 @@ export default function DashboardPage() {
     if (ok) setProducts((prev) => prev.filter((p) => p.id !== product.id));
   };
 
+  const handleLogoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingLogo(true);
+    const { url } = await uploadStoreImage(file, user.id, "logo");
+    setUploadingLogo(false);
+    if (url) setSettingsLogo(url);
+  };
+
+  const handleBannerUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingBanner(true);
+    const { url } = await uploadStoreImage(file, user.id, "banner");
+    setUploadingBanner(false);
+    if (url) setSettingsBanner(url);
+  };
+
+  const handleSaveSettings = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!store) return;
+    setSettingsSaving(true);
+    setSettingsMessage("");
+    const { store: updated } = await updateStoreProfile(store.id, {
+      name: settingsName.trim(),
+      description: settingsDesc.trim() || null,
+      logo_url: settingsLogo || null,
+      banner_url: settingsBanner || null,
+    });
+    setSettingsSaving(false);
+    if (updated) {
+      setStore(updated);
+      setSettingsMessage(text.settingsSaved);
+    }
+  };
+
+  const handleStartEdit = (product: Product) => {
+    setEditingProductId(product.id);
+    setEditName(product.name);
+    setEditDesc(product.description || "");
+    setEditPrice(String(product.price));
+    setEditStock(String(product.stock));
+    setEditCategory(product.category_id || "");
+    setEditImage(product.image_url || "");
+  };
+
+  const handleCancelEdit = () => setEditingProductId(null);
+
+  const handleEditImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+    setEditUploading(true);
+    const { url } = await uploadProductImage(file, user.id);
+    setEditUploading(false);
+    if (url) setEditImage(url);
+  };
+
+  const handleSaveEdit = async (productId: string) => {
+    if (!editName.trim() || !editPrice) return;
+    setEditSaving(true);
+    const { product } = await updateProduct(productId, {
+      name: editName.trim(),
+      description: editDesc.trim() || null,
+      price: Number(editPrice),
+      stock: Number(editStock) || 0,
+      category_id: editCategory || null,
+      image_url: editImage || null,
+    });
+    setEditSaving(false);
+    if (product) {
+      setProducts((prev) => prev.map((p) => (p.id === productId ? product : p)));
+      setEditingProductId(null);
+    }
+  };
+
   if (authLoading || checking) {
     return (
       <main className="noormexa-main">
@@ -331,6 +493,11 @@ export default function DashboardPage() {
     );
   }
 
+  const totalRevenue = orders
+    .filter((o) => o.status === "paid" || o.status === "shipped" || o.status === "completed")
+    .reduce((sum, o) => sum + Number(o.total_amount ?? 0), 0);
+  const pendingOrdersCount = orders.filter((o) => o.status === "pending").length;
+
   return (
     <main className="noormexa-main">
       <section className="noormexa-section">
@@ -364,6 +531,92 @@ export default function DashboardPage() {
               </div>
             ))}
 
+          <div className="noormexa-seller-tabs">
+            <button type="button" className={activeTab === "overview" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("overview")}>
+              <BarChart3 size={16} />
+              {text.tabOverview}
+            </button>
+            <button type="button" className={activeTab === "settings" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("settings")}>
+              <Settings size={16} />
+              {text.tabSettings}
+            </button>
+            <button type="button" className={activeTab === "products" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("products")}>
+              <LayoutGrid size={16} />
+              {text.tabProducts}
+            </button>
+            <button type="button" className={activeTab === "orders" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("orders")}>
+              <ShoppingBag size={16} />
+              {text.tabOrders}
+            </button>
+          </div>
+
+          {activeTab === "overview" && (
+            <div className="noormexa-stats-grid noormexa-admin-stats-grid">
+              <div className="noormexa-stat-card">
+                <strong>
+                  {totalRevenue.toFixed(2)} {text.currency}
+                </strong>
+                <span>{text.statRevenue}</span>
+              </div>
+              <div className="noormexa-stat-card">
+                <strong>{orders.length}</strong>
+                <span>{text.statOrders}</span>
+              </div>
+              <div className="noormexa-stat-card">
+                <strong>{pendingOrdersCount}</strong>
+                <span>{text.statPending}</span>
+              </div>
+              <div className="noormexa-stat-card">
+                <strong>{products.length}</strong>
+                <span>{text.statProducts}</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "settings" && (
+            <div className="noormexa-dashboard-form-card">
+              <div className="noormexa-section-heading">
+                <h2>{text.settingsTitle}</h2>
+                <p>{text.settingsHint}</p>
+              </div>
+              <form onSubmit={handleSaveSettings} className="noormexa-form noormexa-form-grid">
+                <label className="noormexa-field noormexa-form-full">
+                  <span>{text.storeName}</span>
+                  <input value={settingsName} onChange={(e) => setSettingsName(e.target.value)} required />
+                </label>
+                <label className="noormexa-field noormexa-form-full">
+                  <span>{text.storeDesc}</span>
+                  <textarea rows={3} value={settingsDesc} onChange={(e) => setSettingsDesc(e.target.value)} />
+                </label>
+                <label className="noormexa-field">
+                  <span>{text.logoLabel}</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoUpload} disabled={uploadingLogo} />
+                  {uploadingLogo && <small className="noormexa-muted-text">{text.uploading}</small>}
+                  {settingsLogo && !uploadingLogo && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={settingsLogo} alt="" className="noormexa-image-preview" />
+                  )}
+                </label>
+                <label className="noormexa-field">
+                  <span>{text.bannerLabel}</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleBannerUpload} disabled={uploadingBanner} />
+                  {uploadingBanner && <small className="noormexa-muted-text">{text.uploading}</small>}
+                  {settingsBanner && !uploadingBanner && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={settingsBanner} alt="" className="noormexa-banner-preview" />
+                  )}
+                </label>
+                <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={settingsSaving}>
+                  <ImageIcon size={16} />
+                  {settingsSaving ? text.saving : text.saveSettings}
+                </button>
+                {settingsMessage && <p className="noormexa-form-message success">{settingsMessage}</p>}
+              </form>
+            </div>
+          )}
+
+          {activeTab === "products" && (
+            <>
           <div className="noormexa-dashboard-form-card">
             <div className="noormexa-section-heading">
               <h2>{text.addProduct}</h2>
@@ -445,38 +698,94 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="noormexa-product-grid">
-              {products.map((product) => (
-                <div key={product.id} className="noormexa-product-card noormexa-product-card-manage">
-                  <div className="noormexa-product-image">
-                    {product.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={product.image_url} alt={product.name} />
-                    ) : (
-                      <Package size={28} />
-                    )}
+              {products.map((product) =>
+                editingProductId === product.id ? (
+                  <div key={product.id} className="noormexa-product-card noormexa-product-edit-card">
+                    <label className="noormexa-field">
+                      <span>{text.productName}</span>
+                      <input value={editName} onChange={(e) => setEditName(e.target.value)} required />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.productPrice}</span>
+                      <input type="number" min="0" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} required />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.productStock}</span>
+                      <input type="number" min="0" value={editStock} onChange={(e) => setEditStock(e.target.value)} />
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.productCategory}</span>
+                      <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
+                        <option value="">—</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {language === "ar" ? cat.name_ar : cat.name_en}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="noormexa-field">
+                      <span>{text.productImage}</span>
+                      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleEditImageChange} disabled={editUploading} />
+                      {editImage && !editUploading && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={editImage} alt="" className="noormexa-image-preview" />
+                      )}
+                    </label>
+                    <label className="noormexa-field noormexa-form-full">
+                      <span>{text.productDesc}</span>
+                      <textarea rows={2} value={editDesc} onChange={(e) => setEditDesc(e.target.value)} />
+                    </label>
+                    <div className="noormexa-product-manage-actions">
+                      <button type="button" className="noormexa-primary-button" disabled={editSaving} onClick={() => handleSaveEdit(product.id)}>
+                        {editSaving ? text.saving : text.saveEdit}
+                      </button>
+                      <button type="button" onClick={handleCancelEdit}>
+                        <X size={15} />
+                        {text.cancelEdit}
+                      </button>
+                    </div>
                   </div>
-                  <div className="noormexa-product-info">
-                    <span>{product.name}</span>
-                    <strong>
-                      {product.price} {text.price}
-                    </strong>
+                ) : (
+                  <div key={product.id} className="noormexa-product-card noormexa-product-card-manage">
+                    <div className="noormexa-product-image">
+                      {product.image_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={product.image_url} alt={product.name} />
+                      ) : (
+                        <Package size={28} />
+                      )}
+                    </div>
+                    <div className="noormexa-product-info">
+                      <span>{product.name}</span>
+                      <strong>
+                        {product.price} {text.price}
+                      </strong>
+                    </div>
+                    <div className="noormexa-product-manage-actions">
+                      <button type="button" onClick={() => handleStartEdit(product)}>
+                        <Pencil size={15} />
+                        {text.editProduct}
+                      </button>
+                      <button type="button" onClick={() => toggleProductVisibility(product)}>
+                        {product.status === "active" ? text.hide : text.show}
+                      </button>
+                      <button type="button" onClick={() => removeProduct(product)} className="noormexa-danger-button">
+                        <Trash2 size={15} />
+                        {text.delete}
+                      </button>
+                    </div>
                   </div>
-                  <div className="noormexa-product-manage-actions">
-                    <button type="button" onClick={() => toggleProductVisibility(product)}>
-                      {product.status === "active" ? text.hide : text.show}
-                    </button>
-                    <button type="button" onClick={() => removeProduct(product)} className="noormexa-danger-button">
-                      <Trash2 size={15} />
-                      {text.delete}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
+          )}
+            </>
           )}
         </div>
       </section>
 
+      {activeTab === "orders" && (
       <section className="noormexa-section noormexa-section-soft">
         <div className="noormexa-container">
           <div className="noormexa-section-heading">
@@ -531,6 +840,7 @@ export default function DashboardPage() {
           )}
         </div>
       </section>
+      )}
     </main>
   );
 }

@@ -573,3 +573,53 @@ export async function submitReview(payload: {
   if (error || !data) return { review: null, error: error?.message ?? "تعذر إرسال التقييم" };
   return { review: data as Review, error: null };
 }
+
+// ============================================================
+// إدارة العلامة التجارية (Seller / Brand Console)
+// ============================================================
+
+export async function updateStoreProfile(
+  storeId: string,
+  updates: { name?: string; description?: string | null; logo_url?: string | null; banner_url?: string | null }
+): Promise<{ store: Store | null; error: string | null }> {
+  const { data, error } = await supabase.from("stores").update(updates).eq("id", storeId).select().single();
+  if (error || !data) return { store: null, error: error?.message ?? "تعذر تحديث بيانات المتجر" };
+  return { store: data as Store, error: null };
+}
+
+export async function updateProduct(
+  productId: string,
+  updates: {
+    name?: string;
+    description?: string | null;
+    price?: number;
+    stock?: number;
+    category_id?: string | null;
+    image_url?: string | null;
+  }
+): Promise<{ product: Product | null; error: string | null }> {
+  const { data, error } = await supabase.from("products").update(updates).eq("id", productId).select().single();
+  if (error || !data) return { product: null, error: error?.message ?? "تعذر تحديث المنتج" };
+  return { product: data as Product, error: null };
+}
+
+export async function uploadStoreImage(
+  file: File,
+  userId: string,
+  kind: "logo" | "banner"
+): Promise<{ url: string | null; error: string | null }> {
+  const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "-");
+  const path = `${userId}/${kind}-${Date.now()}-${safeName}`;
+
+  const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+
+  if (uploadError) {
+    return { url: null, error: "تعذر رفع الصورة. اتأكد إنك شغّلت ملف schema_phase2_storage.sql فى Supabase." };
+  }
+
+  const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+  return { url: data.publicUrl, error: null };
+}
