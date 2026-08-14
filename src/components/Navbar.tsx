@@ -45,6 +45,7 @@ const copy = {
     dashboard: "Dashboard",
     admin: "Admin",
     logout: "Sign out",
+    cart: "Cart",
     language: "AR",
     menu: "Menu",
     close: "Close menu",
@@ -147,16 +148,26 @@ export default function Navbar() {
             {open ? <X size={20} /> : <Menu size={21} />}
           </button>
 
-          <button type="button" className="noormexa-pill-button" onClick={toggleLanguage} aria-label="Toggle language">
+          <button
+            type="button"
+            className="noormexa-pill-button noormexa-lang-toggle"
+            onClick={toggleLanguage}
+            aria-label="Toggle language"
+          >
             <Globe2 size={16} />
             <span>{text.language}</span>
           </button>
 
-          <button type="button" className="noormexa-icon-button" onClick={toggleTheme} aria-label="Toggle theme">
+          <button
+            type="button"
+            className="noormexa-icon-button noormexa-theme-toggle"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <Link href="/cart" className="noormexa-icon-button noormexa-cart-link" aria-label="cart">
+          <Link href="/cart" className="noormexa-icon-button noormexa-cart-link noormexa-desktop-only-action" aria-label="cart">
             <ShoppingCart size={18} />
             {totalCount > 0 && <span className="noormexa-cart-badge">{totalCount}</span>}
           </Link>
@@ -174,7 +185,12 @@ export default function Navbar() {
           </Link>
 
           {user && (
-            <button type="button" className="noormexa-icon-button" onClick={handleLogout} aria-label={text.logout}>
+            <button
+              type="button"
+              className="noormexa-icon-button noormexa-desktop-only-action"
+              onClick={handleLogout}
+              aria-label={text.logout}
+            >
               <LogOut size={18} />
             </button>
           )}
@@ -189,6 +205,9 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/cart" onClick={() => setOpen(false)}>
+              {text.cart} {totalCount > 0 ? `(${totalCount})` : ""}
+            </Link>
             {isAdmin && (
               <Link href="/admin" onClick={() => setOpen(false)}>
                 {text.admin}

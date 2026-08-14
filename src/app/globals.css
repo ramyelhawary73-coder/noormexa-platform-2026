@@ -282,6 +282,10 @@ footer {
   display: none;
 }
 
+.noormexa-desktop-only-action {
+  display: none;
+}
+
 .noormexa-admin-link {
   display: none;
   border-color: var(--gold);
@@ -1340,6 +1344,10 @@ html[dir="rtl"] .noormexa-password-shell {
     display: inline-flex;
   }
 
+  .noormexa-desktop-only-action {
+    display: inline-flex;
+  }
+
   .noormexa-hero-section {
     padding-block: 46px 54px;
   }
@@ -1713,6 +1721,13 @@ html[dir="rtl"] .noormexa-password-shell {
 .noormexa-admin-table-wrap {
   overflow-x: auto;
   margin-top: 14px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.noormexa-admin-list {
+  width: 100%;
+  min-width: 0;
 }
 
 .noormexa-admin-table {
@@ -2683,4 +2698,72 @@ html[dir="rtl"] .noormexa-password-shell {
   height: 100%;
   object-fit: cover;
   border-radius: inherit;
+}
+
+/* ===== تحسينات خاصة بالشاشات الصغيرة جدًا (لوحة الإدارة والبائع) ===== */
+
+@media (max-width: 480px) {
+  .noormexa-ai-widget {
+    inset-block-end: 14px;
+    inset-inline-end: 14px;
+  }
+
+  .noormexa-ai-fab {
+    width: 46px;
+    height: 46px;
+  }
+
+  .noormexa-ai-panel {
+    width: min(320px, calc(100vw - 24px));
+    max-height: 60vh;
+  }
+
+  .noormexa-stats-grid,
+  .noormexa-admin-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .noormexa-stat-card {
+    padding: 14px 8px;
+  }
+
+  .noormexa-stat-card strong {
+    font-size: 1.3rem;
+  }
+
+  .noormexa-seller-tabs button {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .noormexa-admin-store-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .noormexa-admin-store-main span {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .noormexa-admin-store-actions,
+  .noormexa-product-manage-actions,
+  .noormexa-empty-state-actions {
+    width: 100%;
+  }
+
+  .noormexa-admin-commission-input {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .noormexa-role-select-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .noormexa-product-grid,
+  .noormexa-form-grid {
+    grid-template-columns: 1fr;
+  }
 }

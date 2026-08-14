@@ -390,7 +390,7 @@ export default function AdminPage() {
             {announcements.length === 0 ? (
               <p className="noormexa-empty-state">{text.annEmpty}</p>
             ) : (
-              <div className="noormexa-admin-table" style={{ marginTop: 16 }}>
+              <div className="noormexa-admin-list" style={{ marginTop: 16 }}>
                 {announcements.map((a) => (
                   <div key={a.id} className="noormexa-admin-store-row">
                     <div className="noormexa-admin-store-main">
