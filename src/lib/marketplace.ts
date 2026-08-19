@@ -235,6 +235,39 @@ export async function getPlatformStats(): Promise<PlatformStats> {
   };
 }
 
+export type AdminProductRow = Product & { store_name: string | null };
+
+export async function getAllProductsAdmin(): Promise<AdminProductRow[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, stores(name)")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error || !data) return [];
+  type Row = Product & { stores: { name: string } | null };
+  return (data as Row[]).map((row) => ({ ...row, store_name: row.stores?.name ?? null }));
+}
+
+export type AdminOrderRow = Omit<Order, "store_name"> & { store_name: string | null; buyer_email: string | null };
+
+export async function getAllOrdersAdmin(): Promise<AdminOrderRow[]> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*, stores(name), profiles!orders_buyer_id_fkey(email)")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error || !data) return [];
+  type Row = Omit<Order, "store_name"> & { stores: { name: string } | null; profiles: { email: string } | null };
+  return (data as Row[]).map((row) => {
+    const { stores, profiles, ...order } = row;
+    return {
+      ...order,
+      store_name: stores?.name ?? null,
+      buyer_email: profiles?.email ?? null,
+    };
+  });
+}
+
 export async function getMyProducts(storeId: string): Promise<Product[]> {
   const { data, error } = await supabase
     .from("products")

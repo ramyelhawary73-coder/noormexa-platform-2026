@@ -2767,3 +2767,81 @@ html[dir="rtl"] .noormexa-password-shell {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== قائمة تحكم المالك الجانبية (Sidebar) ===== */
+
+.noormexa-admin-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: 18px;
+  align-items: start;
+}
+
+.noormexa-admin-sidebar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.noormexa-admin-sidebar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.noormexa-admin-nav-active {
+  color: var(--gold-strong) !important;
+  border-bottom-color: var(--gold) !important;
+}
+
+.noormexa-admin-content {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .noormexa-admin-layout {
+    grid-template-columns: 220px 1fr;
+  }
+
+  .noormexa-admin-sidebar {
+    flex-direction: column;
+    overflow-x: visible;
+    border-bottom: none;
+    border-inline-end: 1px solid var(--line);
+    padding-inline-end: 12px;
+    position: sticky;
+    top: 90px;
+  }
+
+  .noormexa-admin-sidebar button {
+    justify-content: flex-start;
+    border-bottom: none;
+    border-inline-start: 2px solid transparent;
+    border-radius: 0 10px 10px 0;
+  }
+
+  .noormexa-admin-nav-active {
+    background: var(--gold-soft);
+    border-inline-start-color: var(--gold) !important;
+  }
+}
+
+.noormexa-lang-toggle,
+.noormexa-theme-toggle {
+  flex: 0 0 auto;
+}

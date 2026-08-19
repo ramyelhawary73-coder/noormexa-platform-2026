@@ -5,14 +5,20 @@ import Link from "next/link";
 import {
   BadgeCheck,
   Ban,
+  BarChart3,
   LayoutDashboard,
+  LayoutGrid,
   Megaphone,
   Package,
   Plus,
   ShieldCheck,
+  ShoppingBag,
+  Sparkles,
   Store as StoreIcon,
   Trash2,
   UserPlus,
+  Users,
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
@@ -22,15 +28,20 @@ import {
   deleteAnnouncement,
   deleteCategory,
   getAllAdmins,
+  getAllOrdersAdmin,
+  getAllProductsAdmin,
   getAllStoresAdmin,
   getAnnouncements,
   getCategories,
   getPlatformStats,
   grantAdminByEmail,
   revokeAdmin,
+  updateProductStatus,
   updateStoreCommission,
   updateStorePlan,
   updateStoreStatus,
+  type AdminOrderRow,
+  type AdminProductRow,
   type AdminProfile,
   type Announcement,
   type PlatformStats,
@@ -91,6 +102,32 @@ const copy = {
     noAdmins: "مفيش مالكين تانيين لسه.",
     you: "(إنت)",
     developerBadge: "— مطوّر المنصة",
+    navOverview: "نظرة عامة",
+    navStores: "المتاجر",
+    navProducts: "المنتجات",
+    navOrders: "الطلبات",
+    navCategories: "التصنيفات",
+    navAdmins: "المالكين",
+    navAnnouncements: "المنشورات",
+    navFinance: "الإعدادات المالية",
+    comingSoonTitle: "قريبًا",
+    comingSoonText: "القسم ده جزء من المرحلة الجاية فى الخطة، هيتفعّل قريب.",
+    productsTitle: "كل منتجات المنصة",
+    colProduct: "المنتج",
+    colStoreName: "المتجر",
+    colPrice: "السعر",
+    noProducts: "لا يوجد منتجات بعد.",
+    active: "نشط",
+    hidden: "مخفي",
+    outOfStock: "غير متوفر",
+    hide: "إخفاء",
+    show: "إظهار",
+    ordersTitle: "كل طلبات المنصة",
+    colOrder: "رقم الطلب",
+    colBuyer: "المشتري",
+    colTotal: "الإجمالي",
+    colDate: "التاريخ",
+    noOrders: "لا يوجد طلبات بعد.",
   },
   en: {
     deniedTitle: "Access denied",
@@ -145,6 +182,32 @@ const copy = {
     noAdmins: "No other owners yet.",
     you: "(you)",
     developerBadge: "— Platform developer",
+    navOverview: "Overview",
+    navStores: "Stores",
+    navProducts: "Products",
+    navOrders: "Orders",
+    navCategories: "Categories",
+    navAdmins: "Owners",
+    navAnnouncements: "Announcements",
+    navFinance: "Financial settings",
+    comingSoonTitle: "Coming soon",
+    comingSoonText: "This section is part of the next phase of the plan and will be enabled soon.",
+    productsTitle: "All platform products",
+    colProduct: "Product",
+    colStoreName: "Store",
+    colPrice: "Price",
+    noProducts: "No products yet.",
+    active: "Active",
+    hidden: "Hidden",
+    outOfStock: "Out of stock",
+    hide: "Hide",
+    show: "Show",
+    ordersTitle: "All platform orders",
+    colOrder: "Order",
+    colBuyer: "Buyer",
+    colTotal: "Total",
+    colDate: "Date",
+    noOrders: "No orders yet.",
   },
 } as const;
 
@@ -177,6 +240,12 @@ export default function AdminPage() {
   const [annAudience, setAnnAudience] = useState<Announcement["audience"]>("all");
   const [annBusy, setAnnBusy] = useState(false);
 
+  const [adminProducts, setAdminProducts] = useState<AdminProductRow[]>([]);
+  const [adminOrders, setAdminOrders] = useState<AdminOrderRow[]>([]);
+
+  type Section = "overview" | "stores" | "products" | "orders" | "categories" | "admins" | "announcements" | "finance";
+  const [activeSection, setActiveSection] = useState<Section>("overview");
+
   useEffect(() => {
     if (!user || !isAdmin) return;
     let active = true;
@@ -186,13 +255,17 @@ export default function AdminPage() {
       getPlatformStats(),
       getAllAdmins(),
       getAnnouncements(),
-    ]).then(([s, c, st, ad, an]) => {
+      getAllProductsAdmin(),
+      getAllOrdersAdmin(),
+    ]).then(([s, c, st, ad, an, prod, ord]) => {
       if (!active) return;
       setStores(s);
       setCategories(c);
       setStats(st);
       setAdmins(ad);
       setAnnouncements(an);
+      setAdminProducts(prod);
+      setAdminOrders(ord);
       setResolvedForId(user.id);
     });
     return () => {
@@ -289,6 +362,12 @@ export default function AdminPage() {
     if (ok) setAdmins((prev) => prev.filter((a) => a.id !== adminId));
   };
 
+  const handleToggleProductStatus = async (product: AdminProductRow) => {
+    const nextStatus = product.status === "active" ? "hidden" : "active";
+    const ok = await updateProductStatus(product.id, nextStatus);
+    if (ok) setAdminProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, status: nextStatus } : p)));
+  };
+
   if (authLoading || (isAdmin && loadingData)) {
     return (
       <main className="noormexa-main">
@@ -314,6 +393,17 @@ export default function AdminPage() {
     );
   }
 
+  const navItems: { key: Section; label: string; icon: typeof BarChart3 }[] = [
+    { key: "overview", label: text.navOverview, icon: BarChart3 },
+    { key: "stores", label: text.navStores, icon: StoreIcon },
+    { key: "products", label: text.navProducts, icon: LayoutGrid },
+    { key: "orders", label: text.navOrders, icon: ShoppingBag },
+    { key: "categories", label: text.navCategories, icon: Package },
+    { key: "announcements", label: text.navAnnouncements, icon: Megaphone },
+    { key: "finance", label: text.navFinance, icon: Wallet },
+    ...(isSuperAdmin ? [{ key: "admins" as Section, label: text.navAdmins, icon: Users }] : []),
+  ];
+
   return (
     <main className="noormexa-main">
       <section className="noormexa-section">
@@ -328,7 +418,23 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {stats && (
+          <div className="noormexa-admin-layout">
+            <nav className="noormexa-admin-sidebar">
+              {navItems.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={key === activeSection ? "noormexa-admin-nav-active" : ""}
+                  onClick={() => setActiveSection(key)}
+                >
+                  <Icon size={17} />
+                  {label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="noormexa-admin-content">
+              {activeSection === "overview" && stats && (
             <div className="noormexa-stats-grid noormexa-admin-stats">
               <div className="noormexa-stat-card">
                 <strong>{stats.totalStores}</strong>
@@ -357,6 +463,7 @@ export default function AdminPage() {
             </div>
           )}
 
+          {activeSection === "announcements" && (
           <div className="noormexa-dashboard-form-card">
             <div className="noormexa-section-heading">
               <h2>{text.annTitle}</h2>
@@ -412,7 +519,101 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+          )}
 
+          {activeSection === "products" && (
+            <div className="noormexa-dashboard-form-card">
+              <div className="noormexa-section-heading">
+                <h2>{text.productsTitle}</h2>
+              </div>
+              {adminProducts.length === 0 ? (
+                <p className="noormexa-empty-state">{text.noProducts}</p>
+              ) : (
+                <div className="noormexa-admin-table-wrap">
+                  <table className="noormexa-admin-table">
+                    <thead>
+                      <tr>
+                        <th>{text.colProduct}</th>
+                        <th>{text.colStoreName}</th>
+                        <th>{text.colPrice}</th>
+                        <th>{text.colStatus}</th>
+                        <th>{text.colActions}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminProducts.map((product) => (
+                        <tr key={product.id}>
+                          <td>{product.name}</td>
+                          <td>{product.store_name || "—"}</td>
+                          <td>{product.price}</td>
+                          <td>
+                            <span className={`noormexa-badge noormexa-badge-${product.status === "active" ? "approved" : "suspended"}`}>
+                              {product.status === "active" ? text.active : product.status === "hidden" ? text.hidden : text.outOfStock}
+                            </span>
+                          </td>
+                          <td className="noormexa-admin-actions">
+                            <button type="button" className="noormexa-icon-text-button" onClick={() => handleToggleProductStatus(product)}>
+                              {product.status === "active" ? text.hide : text.show}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeSection === "orders" && (
+            <div className="noormexa-dashboard-form-card">
+              <div className="noormexa-section-heading">
+                <h2>{text.ordersTitle}</h2>
+              </div>
+              {adminOrders.length === 0 ? (
+                <p className="noormexa-empty-state">{text.noOrders}</p>
+              ) : (
+                <div className="noormexa-admin-table-wrap">
+                  <table className="noormexa-admin-table">
+                    <thead>
+                      <tr>
+                        <th>{text.colOrder}</th>
+                        <th>{text.colStoreName}</th>
+                        <th>{text.colBuyer}</th>
+                        <th>{text.colTotal}</th>
+                        <th>{text.colStatus}</th>
+                        <th>{text.colDate}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminOrders.map((order) => (
+                        <tr key={order.id}>
+                          <td>#{order.id.slice(0, 8)}</td>
+                          <td>{order.store_name || "—"}</td>
+                          <td>{order.buyer_email || "—"}</td>
+                          <td>{order.total_amount}</td>
+                          <td>
+                            <span className="noormexa-status-pill noormexa-status-pending">{order.status}</span>
+                          </td>
+                          <td>{new Date(order.created_at).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeSection === "finance" && (
+            <div className="noormexa-empty-state">
+              <Sparkles size={28} />
+              <h3>{text.comingSoonTitle}</h3>
+              <p>{text.comingSoonText}</p>
+            </div>
+          )}
+
+          {activeSection === "stores" && (
           <div className="noormexa-dashboard-form-card">
             <div className="noormexa-section-heading">
               <h2>{text.storesTitle}</h2>
@@ -484,7 +685,9 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+          )}
 
+          {activeSection === "categories" && (
           <div className="noormexa-dashboard-form-card">
             <div className="noormexa-section-heading">
               <h2>{text.categoriesTitle}</h2>
@@ -523,8 +726,9 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+          )}
 
-          {isSuperAdmin && (
+          {activeSection === "admins" && isSuperAdmin && (
             <div className="noormexa-dashboard-form-card">
               <div className="noormexa-section-heading">
                 <h2>{text.adminsTitle}</h2>
@@ -574,6 +778,8 @@ export default function AdminPage() {
               )}
             </div>
           )}
+            </div>
+          </div>
         </div>
       </section>
     </main>
