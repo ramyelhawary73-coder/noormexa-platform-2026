@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import BrandLogo from "@/components/BrandLogo";
 
 type Language = "ar" | "en";
 
@@ -60,16 +60,7 @@ export default function Footer() {
       <div className="noormexa-container noormexa-footer-grid">
         <section className="noormexa-footer-brand-card">
           <div className="noormexa-footer-brand-row">
-            <span className="noormexa-footer-logo-shell">
-              <Image src="/logo-icon-dark.png" alt="NOORMEXA" width={84} height={84} className="noormexa-footer-logo" />
-            </span>
-            <div>
-              <strong className="noormexa-footer-word">
-                NOORMEXA
-                {text.arabicName && <span className="noormexa-footer-word-ar">{text.arabicName}</span>}
-              </strong>
-              <p>{text.tagline}</p>
-            </div>
+            <BrandLogo size="lg" showTagline={true} taglineText={text.tagline} />
           </div>
           <p className="noormexa-footer-text">{text.text}</p>
         </section>

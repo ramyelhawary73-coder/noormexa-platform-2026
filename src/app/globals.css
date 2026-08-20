@@ -161,6 +161,13 @@ footer {
 
 .noormexa-app-shell {
   min-height: 100dvh;
+  padding-bottom: 72px;
+}
+
+@media (min-width: 768px) {
+  .noormexa-app-shell {
+    padding-bottom: 0;
+  }
 }
 
 .noormexa-container {

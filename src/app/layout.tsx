@@ -7,6 +7,7 @@ import { MarketplaceProvider } from "@/context/MarketplaceContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AIAssistant from "@/components/AIAssistant";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 export const metadata: Metadata = {
   title: "NOORMEXA | Global E-Commerce Marketplace",
@@ -52,6 +53,7 @@ export default function RootLayout({
                   {children}
                   <Footer />
                   <AIAssistant />
+                  <MobileBottomNav />
                 </div>
               </CartProvider>
             </MarketplaceProvider>
