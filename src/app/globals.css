@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
-:root {
+:root,
+[data-theme="light"],
+html:not(.dark) {
   color-scheme: light;
-  /* هوية NOORMEXA الرسمية: Deep Navy / Champagne Gold / Warm Ivory / Charcoal */
+  /* هوية NOORMEXA الرسمية */
   --background: #f6f2e9;
   --foreground: #1c1c1e;
   --surface: #ffffff;
@@ -23,6 +25,10 @@
   --soft-shadow: 0 8px 22px rgba(11, 19, 34, 0.07);
 }
 
+:root.dark,
+html.dark,
+body.dark,
+[data-theme="dark"],
 .dark {
   color-scheme: dark;
   --background: #0b1322;

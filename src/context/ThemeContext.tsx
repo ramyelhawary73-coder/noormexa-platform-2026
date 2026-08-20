@@ -7,10 +7,10 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
-type Theme = "light" | "dark";
+export type Theme = "light" | "dark";
 
 interface ThemeContextType {
   theme: Theme;
@@ -21,55 +21,78 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const STORAGE_KEY = "noormexa-theme";
 
-const readInitialTheme = (): Theme => {
+const getThemeSnapshot = (): Theme => {
   if (typeof window === "undefined") return "light";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
   return "light";
 };
 
-const applyTheme = (theme: Theme) => {
+const getServerSnapshot = (): Theme => "light";
+
+const subscribeToTheme = (callback: () => void) => {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("noormexa-theme-change", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener("noormexa-theme-change", callback);
+    window.removeEventListener("storage", callback);
+  };
+};
+
+const applyThemeToDOM = (theme: Theme) => {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  root.classList.toggle("dark", theme === "dark");
+  const body = document.body;
+
+  if (theme === "dark") {
+    root.classList.add("dark");
+    if (body) body.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+    if (body) body.classList.remove("dark");
+  }
+
   root.dataset.theme = theme;
+  root.setAttribute("data-theme", theme);
   root.style.colorScheme = theme;
+  if (body) {
+    body.dataset.theme = theme;
+    body.setAttribute("data-theme", theme);
+  }
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  // القيمة الأولى لازم تكون ثابتة ومطابقة تمامًا لما السيرفر بيرسمه
-  // (light دايمًا)، عشان منتفاداش تعارض Hydration. القيمة الحقيقية
-  // المحفوظة عند المستخدم بنقرأها بعد ما الصفحة تخلص تحميل بس
-  // (useEffect بيشتغل على المتصفح فقط، مش وقت الرسم الأول).
-  const [theme, setThemeState] = useState<Theme>("light");
+  const theme = useSyncExternalStore<Theme>(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getServerSnapshot
+  );
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      const stored = readInitialTheme();
-      setThemeState(stored);
-      applyTheme(stored);
-    });
-  }, []);
-
-  useEffect(() => {
-    applyTheme(theme);
+    applyThemeToDOM(theme);
   }, [theme]);
 
   const setTheme = useCallback((nextTheme: Theme) => {
-    setThemeState(nextTheme);
-    window.localStorage.setItem(STORAGE_KEY, nextTheme);
-    window.dispatchEvent(
-      new CustomEvent("noormexa-theme-change", { detail: nextTheme }),
-    );
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(STORAGE_KEY, nextTheme);
+      applyThemeToDOM(nextTheme);
+      window.dispatchEvent(
+        new CustomEvent("noormexa-theme-change", { detail: nextTheme })
+      );
+      window.dispatchEvent(new Event("storage"));
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  }, [setTheme, theme]);
+    const current = getThemeSnapshot();
+    const next = current === "dark" ? "light" : "dark";
+    setTheme(next);
+  }, [setTheme]);
 
   const value = useMemo(
     () => ({ theme, setTheme, toggleTheme }),
-    [theme, setTheme, toggleTheme],
+    [theme, setTheme, toggleTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

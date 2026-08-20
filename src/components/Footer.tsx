@@ -59,8 +59,8 @@ export default function Footer() {
     <footer className="noormexa-footer">
       <div className="noormexa-container noormexa-footer-grid">
         <section className="noormexa-footer-brand-card">
-          <div className="noormexa-footer-brand-row">
-            <BrandLogo size="lg" showTagline={true} taglineText={text.tagline} />
+          <div className="noormexa-footer-brand-row mb-3">
+            <BrandLogo size="lg" />
           </div>
           <p className="noormexa-footer-text">{text.text}</p>
         </section>

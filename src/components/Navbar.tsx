@@ -113,6 +113,11 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    // Sync document language attributes
+    setDocumentLanguage(language);
+  }, [language]);
+
   const handleLogout = async () => {
     setOpen(false);
     await Promise.race([
@@ -130,29 +135,31 @@ export default function Navbar() {
   };
 
   const toggleLanguage = () => {
-    const next = language === "ar" ? "en" : "ar";
-    window.localStorage.setItem(LANGUAGE_KEY, next);
-    setDocumentLanguage(next);
-    window.dispatchEvent(new CustomEvent("noormexa-language-change", { detail: next }));
-    setOpen(false);
+    const next: Language = language === "ar" ? "en" : "ar";
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(LANGUAGE_KEY, next);
+      setDocumentLanguage(next);
+      window.dispatchEvent(new CustomEvent("noormexa-language-change", { detail: next }));
+      window.dispatchEvent(new Event("storage"));
+    }
   };
 
   const currencyList = Object.keys(currencies) as CurrencyCode[];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface/85 backdrop-blur-xl border-b border-line shadow-xs transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
-        {/* Start: Official Brand Logo & Tagline */}
+    <header className="sticky top-0 z-50 w-full bg-surface/90 backdrop-blur-xl border-b border-line shadow-xs transition-colors">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Start: Amazon-Quality Brand Logo */}
         <Link
           href="/"
-          className="flex-shrink-0 flex items-center gap-2 group focus:outline-none"
+          className="flex-shrink-0 flex items-center group focus:outline-none py-1"
           aria-label="NOORMEXA home"
           onClick={() => setOpen(false)}
         >
-          <BrandLogo size="md" showTagline={true} taglineText={text.tagline} />
+          <BrandLogo size="md" />
         </Link>
 
-        {/* Center: Apple-inspired Desktop Navigation Bar */}
+        {/* Center: Desktop Navigation Bar */}
         <nav
           className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-soft/80 border border-line/70 shadow-xs"
           aria-label="Main navigation"
@@ -165,7 +172,7 @@ export default function Navbar() {
                 : "text-muted hover:text-foreground hover:bg-surface/50"
             }`}
           >
-            <ShoppingBag size={14} className="text-gold" />
+            <ShoppingBag size={14} className="text-[#FF9900]" />
             <span>{text.marketplace}</span>
           </Link>
 
@@ -177,7 +184,7 @@ export default function Navbar() {
                 : "text-muted hover:text-foreground hover:bg-surface/50"
             }`}
           >
-            <StoreIcon size={14} className="text-gold" />
+            <StoreIcon size={14} className="text-[#FF9900]" />
             <span>{text.sellerHub}</span>
           </Link>
 
@@ -189,7 +196,7 @@ export default function Navbar() {
                 : "text-muted hover:text-foreground hover:bg-surface/50"
             }`}
           >
-            <Truck size={14} className="text-gold" />
+            <Truck size={14} className="text-[#FF9900]" />
             <span>{text.orders}</span>
           </Link>
 
@@ -198,29 +205,29 @@ export default function Navbar() {
               href="/admin"
               className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/admin")
-                  ? "bg-navy text-gold shadow-sm border border-gold/40"
-                  : "text-gold-strong hover:bg-gold-soft/50"
+                  ? "bg-[#131921] text-[#FF9900] shadow-sm border border-[#FF9900]/40"
+                  : "text-[#D97706] dark:text-[#FF9900] hover:bg-gold-soft/50"
               }`}
             >
-              <ShieldCheck size={14} className="text-gold" />
+              <ShieldCheck size={14} className="text-[#FF9900]" />
               <span>{text.adminHub}</span>
             </Link>
           )}
         </nav>
 
         {/* End: Utility Controls & Actions */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Currency Switcher */}
           <div className="relative" ref={currencyMenuRef}>
             <button
               type="button"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-gold hover:text-foreground transition-all shadow-xs"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-[#FF9900] hover:text-foreground transition-all shadow-xs"
               onClick={() => setCurrencyOpen(!currencyOpen)}
               title={text.currency}
               aria-label={text.currency}
             >
-              <Coins size={13} className="text-gold" />
-              <span className="font-mono text-[11px]">{currency}</span>
+              <Coins size={13} className="text-[#FF9900]" />
+              <span className="font-mono text-[11px] font-black">{currency}</span>
               <ChevronDown
                 size={11}
                 className={`text-muted transition-transform duration-200 ${
@@ -230,7 +237,7 @@ export default function Navbar() {
             </button>
 
             {currencyOpen && (
-              <div className="absolute top-full mt-2 end-0 z-50 min-w-[190px] bg-surface rounded-2xl shadow-xl border border-line p-1.5 animate-in fade-in zoom-in-95">
+              <div className="absolute top-full mt-2 ltr:right-0 rtl:left-0 z-[100] min-w-[210px] bg-surface rounded-2xl shadow-2xl border border-line p-1.5 animate-in fade-in zoom-in-95 backdrop-blur-xl">
                 <div className="px-3 py-1.5 text-[10px] font-bold text-muted border-b border-line mb-1 uppercase tracking-wider">
                   {text.currency} / Select Currency
                 </div>
@@ -244,7 +251,7 @@ export default function Navbar() {
                         type="button"
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                           active
-                            ? "bg-gold-soft text-gold-strong font-black"
+                            ? "bg-[#FF9900]/15 text-[#D97706] dark:text-[#FF9900] font-black border border-[#FF9900]/30"
                             : "hover:bg-surface-soft text-foreground"
                         }`}
                         onClick={() => {
@@ -272,30 +279,34 @@ export default function Navbar() {
           {/* Language Toggle Button */}
           <button
             type="button"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-gold hover:text-foreground transition-all shadow-xs"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-[#FF9900] hover:text-foreground transition-all shadow-xs active:scale-95"
             onClick={toggleLanguage}
-            title="Toggle Language"
+            title={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}
             aria-label="Toggle language"
           >
-            <Globe2 size={13} className="text-gold" />
-            <span className="text-[11px] font-mono">{text.language}</span>
+            <Globe2 size={13} className="text-[#FF9900]" />
+            <span className="text-[11px] font-bold">{language === "ar" ? "EN" : "عربي"}</span>
           </button>
 
-          {/* Theme Switcher Button */}
+          {/* Theme Switcher Button (Day / Night) */}
           <button
             type="button"
-            className="w-8 h-8 rounded-full border border-line bg-surface hover:border-gold flex items-center justify-center text-muted hover:text-foreground transition-all shadow-xs"
+            className="w-8 h-8 rounded-full border border-line bg-surface hover:border-[#FF9900] flex items-center justify-center text-muted hover:text-foreground transition-all shadow-xs active:scale-95"
             onClick={toggleTheme}
-            title={theme === "dark" ? "Light Mode" : "Dark Mode"}
+            title={theme === "dark" ? "تفعيل الوضع النهاري (Light Mode)" : "تفعيل الوضع الليلي (Dark Mode)"}
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun size={15} className="text-gold" /> : <Moon size={15} />}
+            {theme === "dark" ? (
+              <Sun size={16} className="text-[#FF9900] transition-transform duration-300 rotate-0 hover:rotate-45" />
+            ) : (
+              <Moon size={16} className="text-slate-700 transition-transform duration-300 rotate-0 hover:-rotate-12" />
+            )}
           </button>
 
           {/* Wishlist Link (Desktop) */}
           <Link
             href="/marketplace?wishlist=true"
-            className="hidden sm:flex relative w-8 h-8 rounded-full border border-line bg-surface hover:border-gold items-center justify-center text-muted hover:text-foreground transition-all shadow-xs"
+            className="hidden sm:flex relative w-8 h-8 rounded-full border border-line bg-surface hover:border-[#FF9900] items-center justify-center text-muted hover:text-foreground transition-all shadow-xs"
             title={text.wishlist}
             aria-label={text.wishlist}
           >
@@ -313,13 +324,13 @@ export default function Navbar() {
           {/* Cart Link with Live Badge */}
           <Link
             href="/cart"
-            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface hover:border-gold flex items-center justify-center text-foreground hover:text-gold transition-all shadow-xs"
+            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface hover:border-[#FF9900] flex items-center justify-center text-foreground hover:text-[#FF9900] transition-all shadow-xs"
             title={text.cart}
             aria-label={text.cart}
           >
             <ShoppingCart size={16} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-gold text-navy text-[10px] font-black px-1 shadow-sm animate-pulse">
+              <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#FF9900] text-black text-[10px] font-black px-1 shadow-sm animate-pulse">
                 {cartCount}
               </span>
             )}
@@ -328,9 +339,9 @@ export default function Navbar() {
           {/* User Account / Sign In Action (Desktop) */}
           <Link
             href={user ? "/dashboard" : "/auth"}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-gold text-foreground transition-all shadow-xs"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-[#FF9900] text-foreground transition-all shadow-xs"
           >
-            {user ? <LayoutDashboard size={14} className="text-gold" /> : <UserRound size={14} />}
+            {user ? <LayoutDashboard size={14} className="text-[#FF9900]" /> : <UserRound size={14} />}
             <span>{user ? text.dashboard : text.account}</span>
           </Link>
 
@@ -347,10 +358,10 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* Mobile Hamburger Toggle (Apple Style) */}
+          {/* Mobile Hamburger Toggle */}
           <button
             type="button"
-            className="lg:hidden w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center text-foreground hover:border-gold transition-all shadow-xs"
+            className="lg:hidden w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center text-foreground hover:border-[#FF9900] transition-all shadow-xs"
             onClick={() => setOpen(!open)}
             aria-label={open ? text.close : text.menu}
             aria-expanded={open}
@@ -362,8 +373,31 @@ export default function Navbar() {
 
       {/* Sleek Mobile Slide-down Panel */}
       {open && (
-        <div className="lg:hidden border-t border-line bg-surface/95 backdrop-blur-2xl px-4 py-6 shadow-2xl animate-in slide-in-from-top-3 duration-200">
+        <div className="lg:hidden border-t border-line bg-surface/98 backdrop-blur-2xl px-4 py-6 shadow-2xl animate-in slide-in-from-top-3 duration-200">
           <div className="max-w-md mx-auto space-y-4">
+            {/* Controls Bar in Mobile Menu */}
+            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-surface-soft border border-line">
+              <span className="text-xs font-bold text-muted">الإعدادات السريعة:</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleLanguage}
+                  className="px-2.5 py-1 rounded-xl bg-surface border border-line text-xs font-bold flex items-center gap-1 text-foreground"
+                >
+                  <Globe2 size={13} className="text-[#FF9900]" />
+                  <span>{language === "ar" ? "EN" : "عربي"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="px-2.5 py-1 rounded-xl bg-surface border border-line text-xs font-bold flex items-center gap-1 text-foreground"
+                >
+                  {theme === "dark" ? <Sun size={13} className="text-[#FF9900]" /> : <Moon size={13} />}
+                  <span>{theme === "dark" ? "نهار" : "ليل"}</span>
+                </button>
+              </div>
+            </div>
+
             {/* Navigation Links */}
             <div className="grid grid-cols-2 gap-2">
               <Link
