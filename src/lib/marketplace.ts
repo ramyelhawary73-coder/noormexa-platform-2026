@@ -235,7 +235,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
   };
 }
 
-export type AdminProductRow = Product & { store_name: string | null };
+export type AdminProductRow = Omit<Product, "store_name"> & { store_name?: string | null };
 
 export async function getAllProductsAdmin(): Promise<AdminProductRow[]> {
   const { data, error } = await supabase
@@ -245,7 +245,7 @@ export async function getAllProductsAdmin(): Promise<AdminProductRow[]> {
     .limit(200);
   if (error || !data) return [];
   type Row = Product & { stores: { name: string } | null };
-  return (data as Row[]).map((row) => ({ ...row, store_name: row.stores?.name ?? null }));
+  return (data as Row[]).map((row) => ({ ...row, store_name: row.stores?.name ?? undefined }));
 }
 
 export type AdminOrderRow = Omit<Order, "store_name"> & { store_name: string | null; buyer_email: string | null };
