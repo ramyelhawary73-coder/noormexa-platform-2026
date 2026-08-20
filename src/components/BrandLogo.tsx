@@ -26,6 +26,180 @@ function subscribeToLanguage(callback: () => void) {
   };
 }
 
+/**
+ * 100% Self-Contained Vector SVG Sun-Crown 'N' Emblem
+ * Eliminates all external image loading issues, 404s, and deployment glitches.
+ */
+export function NoormexaEmblemSvg({
+  size = 40,
+  isDark = true,
+  className = "",
+}: {
+  size?: number;
+  isDark?: boolean;
+  className?: string;
+}) {
+  const uniqueId = isDark ? "dark" : "light";
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 200 200"
+      width={size}
+      height={size}
+      className={`flex-shrink-0 select-none ${className}`}
+      aria-hidden="true"
+    >
+      <defs>
+        {/* Squircle Background Gradient */}
+        <linearGradient id={`nmxBg_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          {isDark ? (
+            <>
+              <stop offset="0%" stopColor="#0F223D" />
+              <stop offset="50%" stopColor="#081424" />
+              <stop offset="100%" stopColor="#03070E" />
+            </>
+          ) : (
+            <>
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="60%" stopColor="#FBF8F3" />
+              <stop offset="100%" stopColor="#F2ECE1" />
+            </>
+          )}
+        </linearGradient>
+
+        {/* Squircle Metallic Border Gradient */}
+        <linearGradient id={`nmxRim_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          {isDark ? (
+            <>
+              <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.9" />
+              <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#B45309" stopOpacity="0.4" />
+            </>
+          ) : (
+            <>
+              <stop offset="0%" stopColor="#D97706" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="#B45309" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#78350F" stopOpacity="0.25" />
+            </>
+          )}
+        </linearGradient>
+
+        {/* 3D Gold Gradient for the Letter 'N' Sculpture */}
+        <linearGradient id={`nmxGold_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          {isDark ? (
+            <>
+              <stop offset="0%" stopColor="#FFFBEB" />
+              <stop offset="25%" stopColor="#FDE047" />
+              <stop offset="55%" stopColor="#F59E0B" />
+              <stop offset="85%" stopColor="#D97706" />
+              <stop offset="100%" stopColor="#92400E" />
+            </>
+          ) : (
+            <>
+              <stop offset="0%" stopColor="#F59E0B" />
+              <stop offset="30%" stopColor="#D97706" />
+              <stop offset="70%" stopColor="#B45309" />
+              <stop offset="100%" stopColor="#78350F" />
+            </>
+          )}
+        </linearGradient>
+
+        {/* Rays Gradient */}
+        <linearGradient id={`nmxRays_${uniqueId}`} x1="0%" y1="100%" x2="100%" y2="0%">
+          {isDark ? (
+            <>
+              <stop offset="0%" stopColor="#F59E0B" />
+              <stop offset="100%" stopColor="#FEF08A" />
+            </>
+          ) : (
+            <>
+              <stop offset="0%" stopColor="#78350F" />
+              <stop offset="100%" stopColor="#D97706" />
+            </>
+          )}
+        </linearGradient>
+      </defs>
+
+      {/* 1. Base Squircle Shape with Precision Curved Corners */}
+      <rect
+        x="6"
+        y="6"
+        width="188"
+        height="188"
+        rx="46"
+        fill={`url(#nmxBg_${uniqueId})`}
+        stroke={`url(#nmxRim_${uniqueId})`}
+        strokeWidth="4"
+      />
+
+      {/* 2. Radiant Sun Rays of NOOR (النور) */}
+      <g
+        stroke={`url(#nmxRays_${uniqueId})`}
+        strokeWidth="3.6"
+        strokeLinecap="round"
+        opacity="0.95"
+      >
+        <line x1="120" y1="56" x2="114" y2="42" />
+        <line x1="134" y1="50" x2="134" y2="34" />
+        <line x1="148" y1="52" x2="156" y2="38" />
+        <line x1="160" y1="60" x2="172" y2="50" />
+        <line x1="166" y1="74" x2="180" y2="70" />
+      </g>
+
+      {/* 3. Sun Core Disc */}
+      <circle
+        cx="142"
+        cy="66"
+        r="12"
+        fill={`url(#nmxGold_${uniqueId})`}
+      />
+      <circle
+        cx="142"
+        cy="66"
+        r="8"
+        fill={isDark ? "#FFFBEB" : "#F59E0B"}
+        opacity="0.9"
+      />
+
+      {/* 4. Letter 'N' Straight Left Vertical Pillar */}
+      <rect
+        x="42"
+        y="56"
+        width="22"
+        height="92"
+        rx="9"
+        fill={`url(#nmxGold_${uniqueId})`}
+      />
+
+      {/* 5. Letter 'N' Straight Right Vertical Pillar */}
+      <rect
+        x="131"
+        y="72"
+        width="22"
+        height="76"
+        rx="9"
+        fill={`url(#nmxGold_${uniqueId})`}
+      />
+
+      {/* 6. Precision Diagonal Ribbon Connecting The Pillars */}
+      <path
+        d="M 46 62 C 50 60, 62 62, 68 70 L 132 134 C 138 140, 148 142, 152 136 C 154 132, 152 124, 146 118 L 82 54 C 76 48, 66 46, 54 52 Z"
+        fill={`url(#nmxGold_${uniqueId})`}
+      />
+
+      {/* 7. Subtle Light Accent Flare */}
+      <circle
+        cx="53"
+        cy="65"
+        r="4"
+        fill="#FFFFFF"
+        opacity={isDark ? "0.85" : "0.5"}
+      />
+    </svg>
+  );
+}
+
 export default function BrandLogo({
   size = "md",
   className = "",
@@ -39,106 +213,54 @@ export default function BrandLogo({
 
   const config = {
     sm: {
-      iconSize: 32,
-      textSize: "text-base sm:text-lg",
-      arSize: "text-[10px]",
-      taglineSize: "text-[8.5px]",
-      gap: "gap-2 sm:gap-2.5",
+      iconPx: 30,
+      textSize: "text-sm sm:text-base",
+      arSize: "text-[9px] sm:text-[10px]",
+      taglineSize: "text-[8px] sm:text-[9px]",
+      gap: "gap-1.5 sm:gap-2",
     },
     md: {
-      iconSize: 42,
-      textSize: "text-xl sm:text-[22px]",
-      arSize: "text-xs",
-      taglineSize: "text-[10px]",
-      gap: "gap-2.5 sm:gap-3",
+      iconPx: 38,
+      textSize: "text-base sm:text-xl",
+      arSize: "text-[10px] sm:text-xs",
+      taglineSize: "text-[9px] sm:text-[10px]",
+      gap: "gap-2 sm:gap-2.5",
     },
     lg: {
-      iconSize: 52,
-      textSize: "text-2xl sm:text-3xl",
-      arSize: "text-sm",
-      taglineSize: "text-xs",
-      gap: "gap-3 sm:gap-3.5",
+      iconPx: 48,
+      textSize: "text-xl sm:text-2xl",
+      arSize: "text-xs sm:text-sm",
+      taglineSize: "text-[10px] sm:text-xs",
+      gap: "gap-2.5 sm:gap-3",
     },
     xl: {
-      iconSize: 64,
-      textSize: "text-3xl sm:text-4xl",
-      arSize: "text-base",
-      taglineSize: "text-sm",
-      gap: "gap-3.5 sm:gap-4",
+      iconPx: 60,
+      textSize: "text-2xl sm:text-3xl",
+      arSize: "text-sm sm:text-base",
+      taglineSize: "text-xs sm:text-sm",
+      gap: "gap-3 sm:gap-4",
     },
   }[size];
 
-  // Official App Icon Badges matching the brand guide sheet
-  const appIconSrc = isDark
-    ? "/brand/app-icon-dark.png"
-    : "/brand/app-icon-light.png";
-
-  // Standalone App Icon
-  if (variant === "icon") {
+  // Standalone Icon
+  if (variant === "icon" || variant === "symbol") {
     return (
       <div
-        className={`relative inline-flex items-center justify-center select-none flex-shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
-        style={{ width: `${config.iconSize}px`, height: `${config.iconSize}px` }}
+        className={`inline-flex items-center justify-center select-none flex-shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={appIconSrc}
-          alt="NOORMEXA Logo"
-          width={config.iconSize * 2}
-          height={config.iconSize * 2}
-          className="w-full h-full object-contain rounded-2xl drop-shadow-sm"
-          loading="eager"
-        />
-      </div>
-    );
-  }
-
-  // Standalone Transparent Symbol
-  if (variant === "symbol") {
-    const symbolSrc = isDark
-      ? "/brand/noormexa-n-symbol-dark.png"
-      : "/brand/noormexa-n-symbol-light.png";
-
-    return (
-      <div
-        className={`relative inline-flex items-center justify-center select-none flex-shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
-        style={{ width: `${config.iconSize}px`, height: `${config.iconSize}px` }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={symbolSrc}
-          alt="NOORMEXA Symbol"
-          width={config.iconSize * 2}
-          height={config.iconSize * 2}
-          className="w-full h-full object-contain drop-shadow-sm"
-          loading="eager"
-        />
+        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} />
       </div>
     );
   }
 
   return (
     <div
-      className={`inline-flex items-center select-none group focus:outline-none ${config.gap} ${className}`}
+      className={`inline-flex items-center select-none group focus:outline-none flex-shrink-0 ${config.gap} ${className}`}
       dir={isArabic ? "rtl" : "ltr"}
     >
-      {/* 1. Official 3D Sun-Crown 'N' Squircle Badge Icon */}
-      <div
-        className="relative flex-shrink-0 flex items-center justify-center rounded-2xl overflow-hidden shadow-xs transition-transform duration-200 group-hover:scale-105"
-        style={{
-          width: `${config.iconSize}px`,
-          height: `${config.iconSize}px`,
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={appIconSrc}
-          alt="NOORMEXA"
-          width={config.iconSize * 2}
-          height={config.iconSize * 2}
-          className="w-full h-full object-contain rounded-2xl aspect-square"
-          loading="eager"
-        />
+      {/* 1. Official 100% Vector 3D Sun-Crown 'N' Squircle Badge */}
+      <div className="relative flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} />
       </div>
 
       {/* 2. World-Class Marketplace Typography Lockup */}
@@ -164,7 +286,7 @@ export default function BrandLogo({
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', sans-serif",
                 fontWeight: 900,
                 letterSpacing: "-0.03em",
-                filter: isDark ? "drop-shadow(0 0 10px rgba(245, 158, 11, 0.45))" : "none",
+                filter: isDark ? "drop-shadow(0 0 8px rgba(245, 158, 11, 0.4))" : "none",
               }}
             >
               MEXA
@@ -187,10 +309,10 @@ export default function BrandLogo({
           )}
         </div>
 
-        {/* Global Marketplace Tagline */}
+        {/* Global Marketplace Tagline (Hidden on narrow mobile to keep header clean) */}
         {showTagline && (
           <div
-            className="flex items-center gap-1.5 mt-0.5"
+            className="hidden sm:flex items-center gap-1.5 mt-0.5"
             dir={isArabic ? "rtl" : "ltr"}
             style={{ fontFamily: "'Cairo', 'Segoe UI', Tahoma, sans-serif" }}
           >
