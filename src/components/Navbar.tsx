@@ -223,7 +223,7 @@ export default function Navbar() {
           {/* Mobile Owner Hub Quick Button */}
           <Link
             href="/admin"
-            className="flex lg:hidden items-center gap-1 px-2.5 py-1.5 rounded-full bg-surface border border-line text-foreground text-[11px] font-black shadow-xs shrink-0 hover:bg-surface-soft transition-all"
+            className="flex lg:hidden items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-full bg-surface border border-line text-foreground text-[11px] font-black shadow-xs shrink-0 hover:bg-surface-soft transition-all"
             title="لوحة تحكم صاحب الموقع"
           >
             <Crown size={13} className="text-orange-500" />
@@ -234,11 +234,12 @@ export default function Navbar() {
           <button
             type="button"
             onClick={openPwaInstallModal}
-            className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !text-white shadow-xs hover:shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 !text-white shadow-xs hover:shadow-orange-500/25 transition-all hover:scale-105 active:scale-95 cursor-pointer shrink-0"
             title={language === "ar" ? "تثبيت NOORMEXA كتطبيق على جهازك" : "Install NOORMEXA App"}
           >
             <Download size={13} className="stroke-[2.5]" />
-            <span>{language === "ar" ? "تثبيت التطبيق" : "Install App"}</span>
+            <span className="hidden lg:inline">{language === "ar" ? "تثبيت التطبيق" : "Install App"}</span>
+            <span className="lg:hidden">{language === "ar" ? "تثبيت" : "Install"}</span>
           </button>
 
           {/* Currency Switcher */}

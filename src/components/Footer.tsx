@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import { Download } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 
 type Language = "ar" | "en";
 
@@ -11,8 +13,9 @@ const LANGUAGE_KEY = "noormexa-language";
 const copy = {
   ar: {
     arabicName: "نورميكسا",
-    tagline: "سوق تجارة إلكترونية عالمي",
-    text: "NOORMEXA يساعد المتسوقين والبائعين والمتاجر والمعلنين على الظهور في تجربة واضحة وسهلة.",
+    tagline: "نورك إلى التجارة العالمية الذكية",
+    text: "NOORMEXA — منصة وسوق التجارة الإلكترونية الشامل، يجمع أرقى المتاجر والعلامات الموثوقة مع تجربة تسوق فائقة السرعة والأمان.",
+    installApp: "📲 تثبيت تطبيق NOORMEXA",
     groups: [
       { title: "التسوق", items: ["استكشف السوق", "ابحث عن متجر", "أقسام السوق"] },
       { title: "البيع", items: ["ابدأ البيع", "اعرض منتجاتك", "اعرض متجرك"] },
@@ -22,8 +25,9 @@ const copy = {
   },
   en: {
     arabicName: null,
-    tagline: "Global E-Commerce Marketplace",
-    text: "NOORMEXA helps shoppers, sellers, stores, and advertisers appear in a clear and simple experience.",
+    tagline: "The Beacon of Smart Global Commerce",
+    text: "NOORMEXA — The premier smart global e-commerce marketplace connecting verified stores, sellers, and shoppers worldwide.",
+    installApp: "📲 Install NOORMEXA App",
     groups: [
       { title: "Shopping", items: ["Explore market", "Find stores", "Market sections"] },
       { title: "Selling", items: ["Start selling", "Show products", "Show store"] },
@@ -62,7 +66,16 @@ export default function Footer() {
           <div className="noormexa-footer-brand-row mb-3">
             <BrandLogo size="lg" />
           </div>
-          <p className="noormexa-footer-text">{text.text}</p>
+          <p className="noormexa-footer-text mb-4">{text.text}</p>
+
+          <button
+            type="button"
+            onClick={openPwaInstallModal}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !text-white text-xs font-black shadow-md hover:shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Download size={15} className="stroke-[2.5]" />
+            <span>{text.installApp}</span>
+          </button>
         </section>
 
         <section className="noormexa-footer-links" aria-label="Footer links">
