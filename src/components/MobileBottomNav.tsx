@@ -101,17 +101,16 @@ export default function MobileBottomNav() {
                 <div
                   className={`relative -top-2 w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 ${
                     isActive
-                      ? "bg-gradient-to-tr from-amber-600 to-amber-400 text-white shadow-amber-500/30 scale-105 ring-2 ring-gold"
-                      : "bg-navy text-gold dark:bg-gold dark:text-navy border border-gold/30 hover:scale-105"
+                      ? "bg-orange-500 text-white shadow-orange-500/30 scale-105 ring-2 ring-orange-400"
+                      : "bg-navy text-white hover:scale-105 border border-slate-700"
                   }`}
                 >
                   <Icon size={20} className="fill-current stroke-[2]" />
-                  <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface animate-ping" />
                   <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
                 </div>
                 <span
                   className={`text-[10px] font-black -mt-1 leading-none ${
-                    isActive ? "text-amber-600 dark:text-gold" : "text-foreground font-bold"
+                    isActive ? "text-orange-500 font-black" : "text-foreground font-bold"
                   }`}
                 >
                   {item.label}
@@ -126,14 +125,14 @@ export default function MobileBottomNav() {
               href={item.href}
               className={`relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-colors ${
                 isActive
-                  ? "text-amber-600 dark:text-gold font-black"
+                  ? "text-orange-500 font-black"
                   : "text-muted hover:text-foreground font-bold"
               }`}
             >
               <div className="relative">
                 <Icon size={20} className={isActive ? "stroke-[2.5]" : "stroke-[1.8]"} />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1.5 -end-2 min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-gold text-navy text-[9px] font-black px-1 shadow-sm">
+                  <span className="absolute -top-1.5 -end-2 min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black px-1 shadow-sm">
                     {item.badge}
                   </span>
                 )}

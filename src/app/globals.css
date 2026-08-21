@@ -6,24 +6,24 @@
 [data-theme="light"],
 html:not(.dark) {
   color-scheme: light;
-  /* World-Class Luxury Palette: Pure Alabaster, Royal Midnight Slate & Refined Champagne Gold */
+  /* Global Commerce Palette (Amazon / Alibaba grade): Deep Charcoal Navy, Pure White & Vibrant Commerce Amber */
   --background: #f8fafc;
-  --foreground: #090d16;
+  --foreground: #0f172a;
   --surface: #ffffff;
   --surface-soft: #f1f5f9;
   --surface-muted: #e2e8f0;
   --line: rgba(15, 23, 42, 0.08);
-  --line-strong: rgba(15, 23, 42, 0.16);
+  --line-strong: rgba(15, 23, 42, 0.15);
   --muted: #475569;
-  --gold: #c99738;
-  --gold-strong: #9a6e1a;
-  --gold-soft: #fdfaf0;
-  --navy: #090d16;
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
-  --safe-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
-  --soft-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  --gold: #f97316;
+  --gold-strong: #ea580c;
+  --gold-soft: #fff7ed;
+  --navy: #0f172a;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+  --safe-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --soft-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
 
 :root.dark,
@@ -32,21 +32,21 @@ body.dark,
 [data-theme="dark"],
 .dark {
   color-scheme: dark;
-  /* World-Class Dark Luxury Palette: Midnight Obsidian, Crystal Sapphire Slate & Luminous Champagne Gold */
-  --background: #070c18;
+  /* Global Commerce Dark Palette: Deep Obsidian Slate, Solid Card Gray & Crisp Amber Accent */
+  --background: #0b0f19;
   --foreground: #f8fafc;
-  --surface: #0f172a;
-  --surface-soft: #172238;
-  --surface-muted: #1e293b;
-  --line: rgba(248, 250, 252, 0.09);
-  --line-strong: rgba(248, 250, 252, 0.18);
+  --surface: #111827;
+  --surface-soft: #1e293b;
+  --surface-muted: #334155;
+  --line: rgba(248, 250, 252, 0.08);
+  --line-strong: rgba(248, 250, 252, 0.16);
   --muted: #94a3b8;
-  --gold: #dfb14e;
-  --gold-strong: #f3cb69;
-  --gold-soft: rgba(223, 177, 78, 0.12);
-  --navy: #070c18;
-  --safe-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
-  --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --gold: #fb923c;
+  --gold-strong: #f97316;
+  --gold-soft: rgba(251, 146, 60, 0.14);
+  --navy: #0b0f19;
+  --safe-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  --soft-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
@@ -100,16 +100,16 @@ body::before {
   pointer-events: none;
   content: "";
   background:
-    radial-gradient(circle at 18% 8%, rgba(212, 175, 55, 0.12), transparent 28rem),
-    radial-gradient(circle at 86% 12%, rgba(15, 23, 42, 0.04), transparent 26rem),
+    radial-gradient(circle at 18% 8%, rgba(249, 115, 22, 0.03), transparent 28rem),
+    radial-gradient(circle at 86% 12%, rgba(15, 23, 42, 0.03), transparent 26rem),
     linear-gradient(180deg, var(--background) 0%, var(--surface-soft) 52%, var(--background) 100%);
 }
 
 .dark body::before {
   background:
-    radial-gradient(circle at 18% 8%, rgba(229, 193, 88, 0.14), transparent 28rem),
-    radial-gradient(circle at 86% 12%, rgba(212, 175, 55, 0.07), transparent 26rem),
-    linear-gradient(180deg, var(--background) 0%, #0a1120 52%, #05080f 100%);
+    radial-gradient(circle at 18% 8%, rgba(249, 115, 22, 0.04), transparent 28rem),
+    radial-gradient(circle at 86% 12%, rgba(59, 130, 246, 0.03), transparent 26rem),
+    linear-gradient(180deg, var(--background) 0%, #0d1322 52%, #080c16 100%);
 }
 
 /* Universal Button Text Containment & Anti-Breaking Rules */
@@ -525,40 +525,42 @@ footer {
 
 .noormexa-primary-button:hover {
   background: #1e293b;
-  border-color: var(--gold);
+  border-color: #334155;
   transform: translateY(-1.5px);
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
 }
 
 .dark .noormexa-primary-button {
-  border-color: var(--gold);
-  background: var(--gold);
-  color: #070c18;
-  box-shadow: 0 4px 18px rgba(223, 177, 78, 0.2);
+  border-color: #f97316;
+  background: #f97316;
+  color: #0b0f19;
+  box-shadow: 0 4px 18px rgba(249, 115, 22, 0.25);
 }
 
 .dark .noormexa-primary-button:hover {
-  background: var(--gold-strong);
+  background: #fb923c;
+  border-color: #fb923c;
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 24px rgba(223, 177, 78, 0.32);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.35);
 }
 
 .noormexa-gold-button {
-  border: 1px solid rgba(201, 151, 56, 0.4);
-  background: linear-gradient(135deg, #dfb14e 0%, #c5922c 100%);
-  color: #090d16;
-  box-shadow: 0 4px 14px rgba(201, 151, 56, 0.22);
+  border: 1px solid rgba(234, 88, 12, 0.3);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
 }
 
 .noormexa-gold-button:hover {
-  background: linear-gradient(135deg, #f0c568 0%, #dfb14e 100%);
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 22px rgba(201, 151, 56, 0.32);
+  box-shadow: 0 8px 22px rgba(249, 115, 22, 0.35);
 }
 
 .dark .noormexa-gold-button {
-  background: linear-gradient(135deg, #dfb14e 0%, #b8860b 100%);
-  color: #070c18;
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+  color: #ffffff;
 }
 
 .noormexa-secondary-button {
@@ -569,7 +571,7 @@ footer {
 }
 
 .noormexa-secondary-button:hover {
-  border-color: var(--gold);
+  border-color: rgba(15, 23, 42, 0.3);
   background: var(--surface-soft);
   color: var(--foreground);
   transform: translateY(-1.5px);

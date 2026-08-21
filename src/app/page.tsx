@@ -551,14 +551,14 @@ export default function HomePage() {
       {/* 1. Global Trust & Quality Assurance Strip */}
       <div className="bg-slate-900 text-slate-100 border-b border-slate-800 py-2.5 px-4">
         <div className="noormexa-container flex flex-wrap items-center justify-between gap-3 text-[11px] sm:text-xs">
-          <div className="flex items-center gap-2 text-amber-400 font-bold">
-            <Sparkles size={14} className="animate-pulse shrink-0 text-amber-400" />
+          <div className="flex items-center gap-2 text-orange-400 font-bold">
+            <Sparkles size={14} className="shrink-0 text-orange-400" />
             <span className="truncate">{text.trustBar.guarantee}</span>
           </div>
 
           <div className="hidden md:flex items-center gap-6 text-slate-300 font-medium">
             <span className="flex items-center gap-1.5">
-              <Truck size={13} className="text-amber-400" />
+              <Truck size={13} className="text-orange-400" />
               <span>{text.trustBar.freeShipping}</span>
             </span>
             <span className="flex items-center gap-1.5">
@@ -574,9 +574,9 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <Link
               href="/marketplace?filter=deals"
-              className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] sm:text-[11px] hover:bg-amber-400 transition-all flex items-center gap-1 shadow-xs"
+              className="px-2.5 py-0.5 rounded-full bg-orange-500 text-white font-black text-[10px] sm:text-[11px] hover:bg-orange-600 transition-all flex items-center gap-1 shadow-xs"
             >
-              <Flame size={12} className="text-slate-950 fill-slate-950" />
+              <Flame size={12} className="text-white fill-white" />
               <span>{isAr ? "فلاش ديلز 40% خصم" : "Flash Deals 40% OFF"}</span>
             </Link>
           </div>
@@ -588,8 +588,8 @@ export default function HomePage() {
         <div className="noormexa-container grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left / Primary Text Column */}
           <div className="lg:col-span-6 space-y-6 text-start">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-gold text-xs font-black shadow-xs">
-              <Crown size={14} className="text-amber-600 dark:text-gold fill-amber-500/30" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-black shadow-xs">
+              <Crown size={14} className="text-orange-500" />
               <span>{text.hero.badge}</span>
             </div>
 
@@ -601,11 +601,11 @@ export default function HomePage() {
               {text.hero.subtitle}
             </p>
 
-            {/* Interactive Live Search Bar */}
+            {/* Interactive Live Search Bar (Amazon / Alibaba Style) */}
             <form onSubmit={handleSearchSubmit} className="relative max-w-xl">
-              <div className="flex items-center bg-surface border-2 border-line hover:border-gold/60 focus-within:border-gold rounded-2xl p-1.5 shadow-md transition-all">
+              <div className="flex items-center bg-surface border-2 border-line hover:border-orange-500/60 focus-within:border-orange-500 rounded-2xl p-1.5 shadow-md transition-all">
                 <div className="p-2.5 text-muted">
-                  <Search size={20} className="text-amber-600 dark:text-gold" />
+                  <Search size={20} className="text-orange-500" />
                 </div>
                 <input
                   type="text"
@@ -616,7 +616,7 @@ export default function HomePage() {
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-navy hover:bg-slate-800 text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-strong font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1.5"
                 >
                   <span>{text.hero.searchButton}</span>
                   <DirectionIcon size={14} />
@@ -631,7 +631,7 @@ export default function HomePage() {
                     key={tag}
                     type="button"
                     onClick={() => router.push(`/marketplace?search=${encodeURIComponent(tag)}`)}
-                    className="px-2.5 py-0.5 rounded-lg bg-surface-soft border border-line text-foreground/80 hover:border-gold hover:text-foreground transition-all"
+                    className="px-2.5 py-0.5 rounded-lg bg-surface-soft border border-line text-foreground/80 hover:border-orange-500/50 hover:text-foreground transition-all"
                   >
                     {tag}
                   </button>
@@ -643,7 +643,7 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="/marketplace"
-                className="noormexa-primary-button px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black shadow-md flex items-center gap-2"
+                className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-black shadow-md flex items-center gap-2 transition-all"
               >
                 <ShoppingBag size={16} />
                 <span>{text.hero.ctaShop}</span>
@@ -652,9 +652,9 @@ export default function HomePage() {
 
               <Link
                 href="/seller/dashboard"
-                className="px-5 py-3.5 rounded-2xl bg-surface border border-line hover:border-gold text-foreground font-bold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-xs"
+                className="px-5 py-3.5 rounded-2xl bg-surface border border-line hover:border-slate-400 text-foreground font-bold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-xs"
               >
-                <Store size={16} className="text-amber-600 dark:text-gold" />
+                <Store size={16} className="text-orange-500" />
                 <span>{text.hero.ctaSell}</span>
               </Link>
             </div>
@@ -667,13 +667,13 @@ export default function HomePage() {
 
               {/* Floating Social Proof Pill */}
               <div className="absolute bottom-4 start-4 z-20 bg-surface/95 backdrop-blur-md border border-line px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-gold font-black shrink-0">
-                  <Star size={18} className="fill-amber-500" />
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 font-black shrink-0">
+                  <Star size={18} className="fill-orange-500" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-black text-foreground flex items-center gap-1.5 whitespace-nowrap">
                     <span dir="ltr">4.9 / 5.0</span>
-                    <span className="text-amber-500">★</span>
+                    <span className="text-orange-500">★</span>
                     <span className="text-[10px] text-muted font-normal">({isAr ? "تقييم عام" : "Score"})</span>
                   </div>
                   <div className="text-[10px] text-muted whitespace-nowrap">{isAr ? "أكثر من 120,000 عميل موثق" : "120k+ Verified Orders"}</div>
@@ -688,7 +688,7 @@ export default function HomePage() {
       {officialStore && (
         <section className="py-8 md:py-12 border-b border-line bg-surface-soft/60">
           <div className="noormexa-container">
-            <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line hover:border-gold/40 shadow-lg relative overflow-hidden transition-all group">
+            <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line hover:border-slate-300 dark:hover:border-slate-700 shadow-md relative overflow-hidden transition-all group">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                 <div className="flex items-start sm:items-center gap-5">
                   {/* Official NOORMEXA Vector Logo Emblem */}
@@ -697,14 +697,14 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-gold font-black text-[11px] border border-amber-500/20">
-                      <Sparkles size={12} className="text-amber-500" />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400 font-black text-[11px] border border-orange-500/20">
+                      <Sparkles size={12} className="text-orange-500" />
                       <span>{text.officialSection.tag}</span>
                     </div>
 
                     <h2 className="text-xl sm:text-2xl font-black text-foreground flex flex-wrap items-center gap-2">
                       <span>{isAr ? "متجر نورميكسا الرسمي" : "NOORMEXA Flagship Direct"}</span>
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-gold bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/20" dir="ltr">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 dark:text-slate-200 bg-surface-soft px-2.5 py-0.5 rounded-lg border border-line" dir="ltr">
                         <BadgeCheck size={13} className="text-emerald-500" />
                         <span>Flagship Direct</span>
                       </span>
@@ -719,7 +719,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-3 shrink-0">
                   <Link
                     href={`/store/${officialStore.slug}`}
-                    className="noormexa-primary-button px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+                    className="px-6 py-3.5 rounded-2xl bg-navy hover:bg-slate-800 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 whitespace-nowrap transition-all"
                   >
                     <span>{text.officialSection.visitStore}</span>
                     <DirectionIcon size={14} />
@@ -750,7 +750,7 @@ export default function HomePage() {
             {/* Live Clock */}
             <div className="flex items-center gap-3 bg-surface-soft border border-line p-3 rounded-2xl shadow-xs shrink-0">
               <span className="text-xs font-bold text-muted flex items-center gap-1">
-                <Timer size={15} className="text-amber-500" />
+                <Timer size={15} className="text-orange-500" />
                 <span>{text.flashDeals.endsIn}</span>
               </span>
               <div className="flex items-center gap-1 font-mono font-black text-xs sm:text-sm">
@@ -775,7 +775,7 @@ export default function HomePage() {
               return (
                 <div
                   key={prod.id}
-                  className="group rounded-3xl bg-surface border border-line hover:border-gold hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                  className="group rounded-3xl bg-surface border border-line hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between"
                 >
                   <div className="relative aspect-square overflow-hidden bg-surface-soft shrink-0">
                     <img
@@ -805,13 +805,13 @@ export default function HomePage() {
                     <div className="space-y-1.5">
                       {/* Store Attribution */}
                       <div className="flex items-center gap-1.5 text-[11px] text-muted">
-                        <Store size={12} className="text-amber-500 shrink-0" />
+                        <Store size={12} className="text-orange-500 shrink-0" />
                         <span className="truncate font-bold text-foreground/80">{store?.name || "Official Store"}</span>
-                        {store?.is_official && <Crown size={11} className="text-amber-500 fill-amber-500 shrink-0" />}
+                        {store?.is_official && <Crown size={11} className="text-orange-500 shrink-0" />}
                       </div>
 
                       <Link href={`/product/${prod.id}`} className="block">
-                        <h3 className="font-bold text-foreground text-sm line-clamp-2 min-h-[2.6rem] group-hover:text-gold transition-colors leading-snug">
+                        <h3 className="font-bold text-foreground text-sm line-clamp-2 min-h-[2.6rem] group-hover:text-orange-500 transition-colors leading-snug">
                           {prod.name}
                         </h3>
                       </Link>
@@ -828,21 +828,21 @@ export default function HomePage() {
                       <div className="space-y-1 text-[10px]">
                         <div className="flex justify-between text-muted font-bold">
                           <span>{text.flashDeals.claimed} 78%</span>
-                          <span className="text-amber-600 dark:text-gold font-black whitespace-nowrap">{isAr ? "متبقي 6 قطع فقط" : "6 left"}</span>
+                          <span className="text-orange-600 dark:text-orange-400 font-black whitespace-nowrap">{isAr ? "متبقي 6 قطع فقط" : "6 left"}</span>
                         </div>
                         <div className="w-full h-1.5 rounded-full bg-surface-soft border border-line overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full" style={{ width: "78%" }} />
+                          <div className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full" style={{ width: "78%" }} />
                         </div>
                       </div>
 
-                      {/* Add to Cart CTA */}
+                      {/* Add to Cart CTA (Amazon Style) */}
                       <button
                         type="button"
                         onClick={() => handleQuickAdd(prod)}
                         className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs whitespace-nowrap transition-all flex items-center justify-center gap-1.5 ${
                           isAdded
                             ? "bg-emerald-600 text-white shadow-sm"
-                            : "bg-surface-soft hover:bg-gold hover:text-navy border border-line text-foreground"
+                            : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
                         }`}
                       >
                         {isAdded ? (
@@ -871,7 +871,7 @@ export default function HomePage() {
         <div className="noormexa-container space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-900 dark:text-gold font-black text-xs border border-amber-500/20 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400 font-black text-xs border border-orange-500/20 mb-1">
                 <Sparkles size={13} />
                 <span>{text.categories.badge}</span>
               </span>
@@ -883,7 +883,7 @@ export default function HomePage() {
 
             <Link
               href="/marketplace"
-              className="text-xs sm:text-sm font-bold text-amber-600 dark:text-gold hover:underline flex items-center gap-1 shrink-0"
+              className="text-xs sm:text-sm font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 shrink-0"
             >
               <span>{text.categories.viewCatalog}</span>
               <DirectionIcon size={14} />
@@ -897,7 +897,7 @@ export default function HomePage() {
                 <Link
                   key={cat.slug}
                   href={`/marketplace?category=${cat.slug}`}
-                  className="group relative rounded-3xl overflow-hidden border border-line bg-surface hover:border-gold hover:shadow-xl transition-all duration-300 flex flex-col"
+                  className="group relative rounded-3xl overflow-hidden border border-line bg-surface hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all duration-300 flex flex-col"
                 >
                   <div className="aspect-[4/3] relative overflow-hidden bg-surface-soft">
                     <img
@@ -906,13 +906,13 @@ export default function HomePage() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute top-3 end-3 p-2 rounded-xl bg-surface/90 backdrop-blur-xs border border-line text-amber-600 dark:text-gold">
+                    <div className="absolute top-3 end-3 p-2 rounded-xl bg-surface/90 backdrop-blur-xs border border-line text-foreground">
                       <Icon size={16} />
                     </div>
                   </div>
 
                   <div className="p-4 space-y-1 text-center bg-surface">
-                    <h3 className="font-bold text-foreground text-xs sm:text-sm group-hover:text-gold transition-colors line-clamp-1">
+                    <h3 className="font-bold text-foreground text-xs sm:text-sm group-hover:text-orange-500 transition-colors line-clamp-1">
                       {isAr ? cat.name : cat.nameEn}
                     </h3>
                     <span className="text-[11px] text-muted block">{cat.count}</span>

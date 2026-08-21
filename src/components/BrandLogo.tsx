@@ -51,71 +51,70 @@ export function NoormexaEmblemSvg({
       aria-hidden="true"
     >
       <defs>
-        {/* Luxury Squircle Base Background */}
+        {/* International Luxury Squircle Base */}
         <linearGradient id={`nmxBg_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           {isDark ? (
             <>
-              <stop offset="0%" stopColor="#111a2e" />
-              <stop offset="50%" stopColor="#0a0f1d" />
-              <stop offset="100%" stopColor="#05070d" />
+              <stop offset="0%" stopColor="#1e293b" />
+              <stop offset="50%" stopColor="#0f172a" />
+              <stop offset="100%" stopColor="#0b0f19" />
             </>
           ) : (
             <>
               <stop offset="0%" stopColor="#ffffff" />
               <stop offset="60%" stopColor="#f8fafc" />
-              <stop offset="100%" stopColor="#edf2f7" />
+              <stop offset="100%" stopColor="#f1f5f9" />
             </>
           )}
         </linearGradient>
 
-        {/* Squircle Metallic Chamfer Bezel */}
+        {/* Squircle Precision Chamfer Bezel */}
         <linearGradient id={`nmxRim_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           {isDark ? (
             <>
-              <stop offset="0%" stopColor="#f6d88e" stopOpacity="0.9" />
-              <stop offset="50%" stopColor="#dfb14e" stopOpacity="0.75" />
-              <stop offset="100%" stopColor="#9a6e1a" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#f97316" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#334155" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#0f172a" stopOpacity="0.4" />
             </>
           ) : (
             <>
-              <stop offset="0%" stopColor="#dfb14e" stopOpacity="0.8" />
-              <stop offset="50%" stopColor="#b8860b" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#6e4f0c" stopOpacity="0.25" />
+              <stop offset="0%" stopColor="#f97316" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="#cbd5e1" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.2" />
             </>
           )}
         </linearGradient>
 
-        {/* 3D Master Goldsmith Letter 'N' Sculpture */}
+        {/* 3D Master Letter 'N' Sculpture (Vibrant Commerce Accent) */}
         <linearGradient id={`nmxGold_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           {isDark ? (
             <>
-              <stop offset="0%" stopColor="#fff8e7" />
-              <stop offset="20%" stopColor="#fbe396" />
-              <stop offset="55%" stopColor="#dfb14e" />
-              <stop offset="85%" stopColor="#b8860b" />
-              <stop offset="100%" stopColor="#7a520a" />
+              <stop offset="0%" stopColor="#fed7aa" />
+              <stop offset="25%" stopColor="#fb923c" />
+              <stop offset="65%" stopColor="#f97316" />
+              <stop offset="100%" stopColor="#c2410c" />
             </>
           ) : (
             <>
-              <stop offset="0%" stopColor="#dfb14e" />
-              <stop offset="35%" stopColor="#c5922c" />
-              <stop offset="70%" stopColor="#9e6d12" />
-              <stop offset="100%" stopColor="#694504" />
+              <stop offset="0%" stopColor="#fb923c" />
+              <stop offset="40%" stopColor="#f97316" />
+              <stop offset="80%" stopColor="#ea580c" />
+              <stop offset="100%" stopColor="#c2410c" />
             </>
           )}
         </linearGradient>
 
         {/* Diagonal Bevel Highlight */}
         <linearGradient id={`nmxBevel_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity={isDark ? "0.85" : "0.5"} />
-          <stop offset="100%" stopColor="#dfb14e" stopOpacity="0.1" />
+          <stop offset="0%" stopColor="#ffffff" stopOpacity={isDark ? "0.9" : "0.6"} />
+          <stop offset="100%" stopColor="#f97316" stopOpacity="0.1" />
         </linearGradient>
 
         {/* Crown Star Core */}
         <radialGradient id={`nmxStar_${uniqueId}`} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="45%" stopColor="#fbe396" />
-          <stop offset="100%" stopColor="#dfb14e" stopOpacity="0" />
+          <stop offset="45%" stopColor="#fed7aa" />
+          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -277,12 +276,12 @@ export default function BrandLogo({
               NOOR
             </span>
             <span
-              className={`uppercase font-black ${config.textSize} bg-gradient-to-r from-[#F59E0B] via-[#EAB308] to-[#D97706] bg-clip-text text-transparent ml-[1px]`}
+              className={`uppercase font-black ${config.textSize} bg-gradient-to-r from-[#F97316] to-[#EA580C] bg-clip-text text-transparent ml-[1px]`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', sans-serif",
                 fontWeight: 900,
                 letterSpacing: "-0.03em",
-                filter: isDark ? "drop-shadow(0 0 8px rgba(245, 158, 11, 0.4))" : "none",
+                filter: isDark ? "drop-shadow(0 0 8px rgba(249, 115, 22, 0.3))" : "none",
               }}
             >
               MEXA
@@ -294,8 +293,8 @@ export default function BrandLogo({
             <span
               className={`font-black select-none transition-colors px-1.5 py-0.5 rounded-md ${
                 isDark
-                  ? "bg-[#F59E0B]/15 text-[#FBBF24] border border-[#F59E0B]/30"
-                  : "bg-[#F59E0B]/12 text-[#B45309] border border-[#F59E0B]/20"
+                  ? "bg-orange-500/15 text-orange-400 border border-orange-500/30"
+                  : "bg-orange-500/10 text-orange-700 border border-orange-500/20"
               } ${config.arSize}`}
               dir="rtl"
               style={{ fontFamily: "'Cairo', 'Segoe UI', Tahoma, sans-serif" }}
