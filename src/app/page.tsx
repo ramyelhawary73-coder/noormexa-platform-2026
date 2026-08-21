@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { NoormexaEmblemSvg } from "@/components/BrandLogo";
+import { useTheme } from "@/context/ThemeContext";
 
 type Language = "ar" | "en";
 
@@ -454,6 +456,8 @@ export default function HomePage() {
   const isAr = language === "ar";
   const text = copy[language];
   const router = useRouter();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const { products, stores, formatPrice, addToCart, wishlist, toggleWishlist } = useMarketplace();
 
@@ -599,7 +603,7 @@ export default function HomePage() {
 
             {/* Interactive Live Search Bar */}
             <form onSubmit={handleSearchSubmit} className="relative max-w-xl">
-              <div className="flex items-center bg-surface border-2 border-line hover:border-gold focus-within:border-gold rounded-2xl p-1.5 shadow-md transition-all">
+              <div className="flex items-center bg-surface border-2 border-line hover:border-gold/60 focus-within:border-gold rounded-2xl p-1.5 shadow-md transition-all">
                 <div className="p-2.5 text-muted">
                   <Search size={20} className="text-amber-600 dark:text-gold" />
                 </div>
@@ -612,7 +616,7 @@ export default function HomePage() {
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-strong text-navy font-black text-xs sm:text-sm shrink-0 shadow-xs hover:opacity-95 transition-all flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl bg-navy hover:bg-slate-800 text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-strong font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1.5"
                 >
                   <span>{text.hero.searchButton}</span>
                   <DirectionIcon size={14} />
@@ -639,7 +643,7 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="/marketplace"
-                className="px-6 py-3.5 rounded-2xl bg-gold text-navy hover:bg-gold-strong font-black text-xs sm:text-sm shadow-md transition-all flex items-center gap-2"
+                className="noormexa-primary-button px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black shadow-md flex items-center gap-2"
               >
                 <ShoppingBag size={16} />
                 <span>{text.hero.ctaShop}</span>
@@ -682,28 +686,30 @@ export default function HomePage() {
 
       {/* 3. Official Flagship Store Spotlight Section */}
       {officialStore && (
-        <section className="py-8 md:py-12 border-b border-line bg-surface-soft/70">
+        <section className="py-8 md:py-12 border-b border-line bg-surface-soft/60">
           <div className="noormexa-container">
-            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-surface via-surface-soft to-surface border-2 border-amber-500/30 shadow-md relative overflow-hidden">
-              <div className="absolute top-0 end-0 -mt-8 -me-8 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-
+            <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line hover:border-gold/40 shadow-lg relative overflow-hidden transition-all group">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                <div className="flex items-start sm:items-center gap-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-navy text-gold border-2 border-gold flex items-center justify-center shadow-lg shrink-0">
-                    <Crown size={36} className="fill-amber-500 text-gold" />
+                <div className="flex items-start sm:items-center gap-5">
+                  {/* Official NOORMEXA Vector Logo Emblem */}
+                  <div className="relative flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                    <NoormexaEmblemSvg size={68} isDark={isDark} />
                   </div>
 
                   <div className="space-y-1.5">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-gold font-black text-[10px] border border-amber-500/30">
-                      <Sparkles size={11} />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-gold font-black text-[11px] border border-amber-500/20">
+                      <Sparkles size={12} className="text-amber-500" />
                       <span>{text.officialSection.tag}</span>
                     </div>
-                    <h2 className="text-lg sm:text-2xl font-black text-foreground flex flex-wrap items-center gap-2">
-                      <span>{isAr ? "متجر نورميكسا الرسمي" : "NOORMEXA Flagship Store"}</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-gold bg-amber-500/15 px-2.5 py-0.5 rounded-lg border border-amber-500/20" dir="ltr">
-                        Flagship Direct
+
+                    <h2 className="text-xl sm:text-2xl font-black text-foreground flex flex-wrap items-center gap-2">
+                      <span>{isAr ? "متجر نورميكسا الرسمي" : "NOORMEXA Flagship Direct"}</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-gold bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/20" dir="ltr">
+                        <BadgeCheck size={13} className="text-emerald-500" />
+                        <span>Flagship Direct</span>
                       </span>
                     </h2>
+
                     <p className="text-xs sm:text-sm text-muted max-w-2xl leading-relaxed">
                       {officialStore.description || text.officialSection.desc}
                     </p>
@@ -713,7 +719,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-3 shrink-0">
                   <Link
                     href={`/store/${officialStore.slug}`}
-                    className="noormexa-gold-button text-xs sm:text-sm font-black shadow-lg flex items-center justify-center gap-2 px-6 py-3 rounded-2xl whitespace-nowrap"
+                    className="noormexa-primary-button px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
                   >
                     <span>{text.officialSection.visitStore}</span>
                     <DirectionIcon size={14} />

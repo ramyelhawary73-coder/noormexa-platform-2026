@@ -6,24 +6,24 @@
 [data-theme="light"],
 html:not(.dark) {
   color-scheme: light;
-  /* World-Class Light Luxury Palette: Clean Crisp Alabaster, Royal Navy & Rich Amber Gold */
+  /* World-Class Luxury Palette: Pure Alabaster, Royal Midnight Slate & Refined Champagne Gold */
   --background: #f8fafc;
   --foreground: #090d16;
   --surface: #ffffff;
   --surface-soft: #f1f5f9;
   --surface-muted: #e2e8f0;
-  --line: rgba(15, 23, 42, 0.12);
-  --line-strong: rgba(15, 23, 42, 0.22);
+  --line: rgba(15, 23, 42, 0.08);
+  --line-strong: rgba(15, 23, 42, 0.16);
   --muted: #475569;
-  --gold: #d97706;
-  --gold-strong: #92400e;
-  --gold-soft: #fef3c7;
-  --navy: #0f172a;
+  --gold: #c99738;
+  --gold-strong: #9a6e1a;
+  --gold-soft: #fdfaf0;
+  --navy: #090d16;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 10px;
-  --safe-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
-  --soft-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  --safe-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  --soft-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 :root.dark,
@@ -32,19 +32,19 @@ body.dark,
 [data-theme="dark"],
 .dark {
   color-scheme: dark;
-  /* World-Class Dark Luxury Palette: Midnight Obsidian, Crystal Sapphire Navy & Luminous Gold */
-  --background: #070b14;
+  /* World-Class Dark Luxury Palette: Midnight Obsidian, Crystal Sapphire Slate & Luminous Champagne Gold */
+  --background: #070c18;
   --foreground: #f8fafc;
-  --surface: #0e1626;
-  --surface-soft: #142036;
+  --surface: #0f172a;
+  --surface-soft: #172238;
   --surface-muted: #1e293b;
-  --line: rgba(248, 250, 252, 0.12);
-  --line-strong: rgba(248, 250, 252, 0.22);
-  --muted: #cbd5e1;
-  --gold: #f59e0b;
-  --gold-strong: #fbbf24;
-  --gold-soft: rgba(245, 158, 11, 0.18);
-  --navy: #070b14;
+  --line: rgba(248, 250, 252, 0.09);
+  --line-strong: rgba(248, 250, 252, 0.18);
+  --muted: #94a3b8;
+  --gold: #dfb14e;
+  --gold-strong: #f3cb69;
+  --gold-soft: rgba(223, 177, 78, 0.12);
+  --navy: #070c18;
   --safe-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
   --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
@@ -520,45 +520,45 @@ footer {
   border: 1px solid var(--navy);
   background: var(--navy);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
 }
 
 .noormexa-primary-button:hover {
-  background: color-mix(in srgb, var(--navy) 88%, var(--gold));
+  background: #1e293b;
   border-color: var(--gold);
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
 }
 
 .dark .noormexa-primary-button {
   border-color: var(--gold);
   background: var(--gold);
-  color: #070b14;
-  box-shadow: 0 4px 18px rgba(229, 193, 88, 0.25);
+  color: #070c18;
+  box-shadow: 0 4px 18px rgba(223, 177, 78, 0.2);
 }
 
 .dark .noormexa-primary-button:hover {
   background: var(--gold-strong);
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 24px rgba(229, 193, 88, 0.38);
+  box-shadow: 0 8px 24px rgba(223, 177, 78, 0.32);
 }
 
 .noormexa-gold-button {
-  border: 1px solid var(--gold);
-  background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
-  color: #070b14;
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(201, 151, 56, 0.4);
+  background: linear-gradient(135deg, #dfb14e 0%, #c5922c 100%);
+  color: #090d16;
+  box-shadow: 0 4px 14px rgba(201, 151, 56, 0.22);
 }
 
 .noormexa-gold-button:hover {
-  background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+  background: linear-gradient(135deg, #f0c568 0%, #dfb14e 100%);
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 22px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 8px 22px rgba(201, 151, 56, 0.32);
 }
 
 .dark .noormexa-gold-button {
-  background: linear-gradient(135deg, #e5c158 0%, #c49a26 100%);
-  color: #070b14;
+  background: linear-gradient(135deg, #dfb14e 0%, #b8860b 100%);
+  color: #070c18;
 }
 
 .noormexa-secondary-button {

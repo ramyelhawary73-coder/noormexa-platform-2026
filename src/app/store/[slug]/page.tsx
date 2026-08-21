@@ -6,7 +6,6 @@ import {
   BadgeCheck,
   Check,
   Copy,
-  Crown,
   Heart,
   Megaphone,
   Package,
@@ -21,6 +20,8 @@ import {
   Truck,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { NoormexaEmblemSvg } from "@/components/BrandLogo";
+import { useTheme } from "@/context/ThemeContext";
 import type { Product } from "@/types/marketplace";
 
 type Language = "ar" | "en";
@@ -48,6 +49,8 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
   const { slug } = use(params);
   const language = useNoormexaLanguage();
   const isAr = language === "ar";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const { stores, products, marketingPosts, formatPrice, addToCart, likeMarketingPost } = useMarketplace();
 
@@ -157,28 +160,31 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
         {/* Store Profile Card */}
         <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden bg-surface-soft border-2 border-gold shadow-md shrink-0 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={store.logo_url || "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80"}
-                alt={store.name}
-                className="w-full h-full object-cover"
-              />
-              {store.is_official && (
-                <div className="absolute top-1 right-1 bg-amber-500 text-white p-1 rounded-full shadow-md">
-                  <Crown size={12} className="fill-white" />
-                </div>
-              )}
-            </div>
+            {store.is_official ? (
+              <div className="relative shrink-0 flex items-center justify-center p-2 rounded-3xl bg-surface-soft border border-line shadow-md">
+                <NoormexaEmblemSvg size={76} isDark={isDark} />
+              </div>
+            ) : (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden bg-surface-soft border border-line shadow-md shrink-0 relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={store.logo_url || "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80"}
+                  alt={store.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-foreground">{store.name}</h1>
+                <h1 className="text-xl sm:text-2xl font-black text-foreground">
+                  {store.is_official ? (isAr ? "متجر نورميكسا الرسمي" : "NOORMEXA Flagship Direct") : store.name}
+                </h1>
                 
                 {store.is_official ? (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-gold font-black text-xs border border-amber-500/30 shadow-xs">
-                    <Crown size={13} className="text-amber-500 fill-amber-500" />
-                    <span>{isAr ? "متجر رسمي معتمد للمنصة" : "Official Flagship Store"}</span>
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-gold font-black text-xs border border-amber-500/20 shadow-xs">
+                    <BadgeCheck size={14} className="text-emerald-500" />
+                    <span>{isAr ? "المتجر الرسمي المعتمد للمنصة" : "Official Flagship Direct"}</span>
                   </span>
                 ) : store.is_verified ? (
                   <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 font-bold text-xs border border-emerald-600/20">
@@ -193,12 +199,12 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               )}
 
               <div className="flex flex-wrap items-center gap-4 text-xs text-muted pt-1">
-                <span className="flex items-center gap-1 text-gold font-bold">
-                  <Star size={14} className="fill-gold" />
+                <span className="flex items-center gap-1 text-amber-600 dark:text-gold font-bold">
+                  <Star size={14} className="fill-amber-500 text-amber-500" />
                   <span>{store.rating || 5.0} / 5.0</span>
                 </span>
                 <span>•</span>
-                <span>{store.country || "السعودية"}</span>
+                <span>{store.country || (isAr ? "المملكة العربية السعودية" : "Saudi Arabia")}</span>
                 <span>•</span>
                 <span>{storeProducts.length} {isAr ? "منتج متوفر" : "products listed"}</span>
               </div>
@@ -209,16 +215,16 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
             {store.contact_phone && (
               <a
                 href={`tel:${store.contact_phone}`}
-                className="px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center gap-2 shadow-xs transition-all"
+                className="px-4 py-2.5 rounded-xl border border-line hover:border-gold/50 bg-surface text-foreground font-bold text-xs flex items-center gap-2 shadow-xs transition-all"
               >
-                <Phone size={14} className="text-gold" />
+                <Phone size={14} className="text-amber-600 dark:text-gold" />
                 <span>{isAr ? "اتصال بالبائع" : "Call Store"}</span>
               </a>
             )}
 
             <Link
               href="/seller/dashboard"
-              className="px-4 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+              className="noormexa-primary-button px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 shadow-xs"
             >
               <StoreIcon size={14} />
               <span>{isAr ? "لوحة التاجر" : "Merchant Central"}</span>

@@ -27,8 +27,8 @@ function subscribeToLanguage(callback: () => void) {
 }
 
 /**
- * 100% Self-Contained Vector SVG Sun-Crown 'N' Emblem
- * Eliminates all external image loading issues, 404s, and deployment glitches.
+ * 100% Self-Contained Vector SVG Royal Sun-Crown 'N' Emblem
+ * World-Class Luxury Precision Vector Graphic.
  */
 export function NoormexaEmblemSvg({
   size = 40,
@@ -51,74 +51,72 @@ export function NoormexaEmblemSvg({
       aria-hidden="true"
     >
       <defs>
-        {/* Squircle Background Gradient */}
+        {/* Luxury Squircle Base Background */}
         <linearGradient id={`nmxBg_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           {isDark ? (
             <>
-              <stop offset="0%" stopColor="#0F223D" />
-              <stop offset="50%" stopColor="#081424" />
-              <stop offset="100%" stopColor="#03070E" />
+              <stop offset="0%" stopColor="#111a2e" />
+              <stop offset="50%" stopColor="#0a0f1d" />
+              <stop offset="100%" stopColor="#05070d" />
             </>
           ) : (
             <>
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="60%" stopColor="#FBF8F3" />
-              <stop offset="100%" stopColor="#F2ECE1" />
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="60%" stopColor="#f8fafc" />
+              <stop offset="100%" stopColor="#edf2f7" />
             </>
           )}
         </linearGradient>
 
-        {/* Squircle Metallic Border Gradient */}
+        {/* Squircle Metallic Chamfer Bezel */}
         <linearGradient id={`nmxRim_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           {isDark ? (
             <>
-              <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.9" />
-              <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#B45309" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#f6d88e" stopOpacity="0.9" />
+              <stop offset="50%" stopColor="#dfb14e" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#9a6e1a" stopOpacity="0.4" />
             </>
           ) : (
             <>
-              <stop offset="0%" stopColor="#D97706" stopOpacity="0.7" />
-              <stop offset="50%" stopColor="#B45309" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#78350F" stopOpacity="0.25" />
+              <stop offset="0%" stopColor="#dfb14e" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#b8860b" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#6e4f0c" stopOpacity="0.25" />
             </>
           )}
         </linearGradient>
 
-        {/* 3D Gold Gradient for the Letter 'N' Sculpture */}
+        {/* 3D Master Goldsmith Letter 'N' Sculpture */}
         <linearGradient id={`nmxGold_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           {isDark ? (
             <>
-              <stop offset="0%" stopColor="#FFFBEB" />
-              <stop offset="25%" stopColor="#FDE047" />
-              <stop offset="55%" stopColor="#F59E0B" />
-              <stop offset="85%" stopColor="#D97706" />
-              <stop offset="100%" stopColor="#92400E" />
+              <stop offset="0%" stopColor="#fff8e7" />
+              <stop offset="20%" stopColor="#fbe396" />
+              <stop offset="55%" stopColor="#dfb14e" />
+              <stop offset="85%" stopColor="#b8860b" />
+              <stop offset="100%" stopColor="#7a520a" />
             </>
           ) : (
             <>
-              <stop offset="0%" stopColor="#F59E0B" />
-              <stop offset="30%" stopColor="#D97706" />
-              <stop offset="70%" stopColor="#B45309" />
-              <stop offset="100%" stopColor="#78350F" />
+              <stop offset="0%" stopColor="#dfb14e" />
+              <stop offset="35%" stopColor="#c5922c" />
+              <stop offset="70%" stopColor="#9e6d12" />
+              <stop offset="100%" stopColor="#694504" />
             </>
           )}
         </linearGradient>
 
-        {/* Rays Gradient */}
-        <linearGradient id={`nmxRays_${uniqueId}`} x1="0%" y1="100%" x2="100%" y2="0%">
-          {isDark ? (
-            <>
-              <stop offset="0%" stopColor="#F59E0B" />
-              <stop offset="100%" stopColor="#FEF08A" />
-            </>
-          ) : (
-            <>
-              <stop offset="0%" stopColor="#78350F" />
-              <stop offset="100%" stopColor="#D97706" />
-            </>
-          )}
+        {/* Diagonal Bevel Highlight */}
+        <linearGradient id={`nmxBevel_${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity={isDark ? "0.85" : "0.5"} />
+          <stop offset="100%" stopColor="#dfb14e" stopOpacity="0.1" />
         </linearGradient>
+
+        {/* Crown Star Core */}
+        <radialGradient id={`nmxStar_${uniqueId}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="45%" stopColor="#fbe396" />
+          <stop offset="100%" stopColor="#dfb14e" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
       {/* 1. Base Squircle Shape with Precision Curved Corners */}
@@ -130,72 +128,70 @@ export function NoormexaEmblemSvg({
         rx="46"
         fill={`url(#nmxBg_${uniqueId})`}
         stroke={`url(#nmxRim_${uniqueId})`}
-        strokeWidth="4"
+        strokeWidth="3.5"
       />
 
-      {/* 2. Radiant Sun Rays of NOOR (النور) */}
-      <g
-        stroke={`url(#nmxRays_${uniqueId})`}
-        strokeWidth="3.6"
-        strokeLinecap="round"
-        opacity="0.95"
-      >
-        <line x1="120" y1="38" x2="112" y2="22" />
-        <line x1="136" y1="32" x2="136" y2="14" />
-        <line x1="152" y1="34" x2="160" y2="18" />
-        <line x1="166" y1="42" x2="178" y2="32" />
-        <line x1="172" y1="56" x2="188" y2="52" />
+      {/* 2. Inner Subtle Luxury Accent Border */}
+      <rect
+        x="12"
+        y="12"
+        width="176"
+        height="176"
+        rx="40"
+        fill="none"
+        stroke={`url(#nmxRim_${uniqueId})`}
+        strokeWidth="1"
+        strokeOpacity={isDark ? "0.3" : "0.15"}
+      />
+
+      {/* 3. Crown & Lightburst of NOOR (النور) */}
+      <g opacity={isDark ? "0.95" : "0.85"}>
+        {/* Crown Spikes */}
+        <polygon points="126,46 132,30 138,46" fill={`url(#nmxGold_${uniqueId})`} />
+        <polygon points="142,46 150,22 158,46" fill={`url(#nmxGold_${uniqueId})`} />
+        <polygon points="162,46 168,30 174,46" fill={`url(#nmxGold_${uniqueId})`} />
+        {/* Crown Base Bar */}
+        <rect x="124" y="44" width="52" height="6" rx="3" fill={`url(#nmxGold_${uniqueId})`} />
+        {/* Crown Jewels */}
+        <circle cx="132" cy="28" r="2.5" fill="#ffffff" />
+        <circle cx="150" cy="20" r="3.5" fill="#ffffff" />
+        <circle cx="168" cy="28" r="2.5" fill="#ffffff" />
       </g>
 
-      {/* 3. Sun Core Disc */}
-      <circle
-        cx="145"
-        cy="48"
-        r="14"
-        fill={`url(#nmxGold_${uniqueId})`}
-      />
-      <circle
-        cx="145"
-        cy="48"
-        r="8"
-        fill={isDark ? "#FFFBEB" : "#F59E0B"}
-        opacity="0.95"
-      />
-
-      {/* 4. Letter 'N' Straight Left Vertical Pillar */}
+      {/* 4. Sculptural Monogram 'N' (Left Vertical Pillar) */}
       <rect
-        x="44"
-        y="48"
-        width="24"
-        height="104"
-        rx="10"
+        x="38"
+        y="42"
+        width="26"
+        height="116"
+        rx="9"
         fill={`url(#nmxGold_${uniqueId})`}
       />
 
-      {/* 5. Letter 'N' Straight Right Vertical Pillar */}
+      {/* 5. Sculptural Monogram 'N' (Right Vertical Pillar) */}
       <rect
-        x="133"
-        y="68"
-        width="24"
-        height="84"
-        rx="10"
+        x="136"
+        y="60"
+        width="26"
+        height="98"
+        rx="9"
         fill={`url(#nmxGold_${uniqueId})`}
       />
 
-      {/* 6. Precision Diagonal Straight Connecting Beam */}
+      {/* 6. Precision Diagonal Power Connecting Beam */}
       <polygon
-        points="44,48 68,48 157,144 133,152 44,58"
+        points="38,44 64,44 162,148 136,158 38,54"
         fill={`url(#nmxGold_${uniqueId})`}
       />
 
-      {/* 7. Subtle Light Accent Flare */}
-      <circle
-        cx="56"
-        cy="58"
-        r="4"
-        fill="#FFFFFF"
-        opacity={isDark ? "0.85" : "0.5"}
+      {/* 7. Precision Light Bevel Edge for 3D Luxury Sheen */}
+      <polygon
+        points="38,44 64,44 64,52 46,52"
+        fill={`url(#nmxBevel_${uniqueId})`}
       />
+
+      {/* 8. Star Diamond Sparkle */}
+      <circle cx="150" cy="20" r="10" fill={`url(#nmxStar_${uniqueId})`} />
     </svg>
   );
 }
