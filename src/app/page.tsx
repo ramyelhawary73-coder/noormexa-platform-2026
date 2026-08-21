@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
@@ -31,12 +31,17 @@ import {
   Star,
   Store,
   Tag,
-  Timer,
   Truck,
   Users,
   Video,
+  Download,
+  Smartphone,
+  Laptop,
+  Zap,
 } from "lucide-react";
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
+import SmoothFlashTimer from "@/components/landing/SmoothFlashTimer";
+import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { NoormexaEmblemSvg } from "@/components/BrandLogo";
 import { useTheme } from "@/context/ThemeContext";
@@ -635,21 +640,6 @@ export default function HomePage() {
   const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
   const [selectedReelIndex, setSelectedReelIndex] = useState<number | null>(null);
 
-  // Live Flash Deal Countdown Timer (14 hours)
-  const [timeLeft, setTimeLeft] = useState({ hours: 14, mins: 32, secs: 45 });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.secs > 0) return { ...prev, secs: prev.secs - 1 };
-        if (prev.mins > 0) return { ...prev, mins: 59, secs: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, mins: 59, secs: 59 };
-        return { hours: 24, mins: 0, secs: 0 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -1073,9 +1063,9 @@ export default function HomePage() {
       {/* 4. Live Flash Deals & Countdown Vault */}
       <section className="py-10 md:py-16 border-b border-line bg-surface">
         <div className="noormexa-container space-y-8">
-          {/* Section Header with Live Countdown */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-line pb-6">
-            <div className="space-y-1">
+          {/* Section Header with Smooth Live Countdown Timer */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-line pb-6">
+            <div className="space-y-1 max-w-xl">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-black text-xs border border-red-500/20">
                 <Flame size={14} className="fill-red-500 text-red-500 animate-bounce" />
                 <span>{text.flashDeals.badge}</span>
@@ -1086,20 +1076,8 @@ export default function HomePage() {
               <p className="text-xs sm:text-sm text-muted">{text.flashDeals.subtitle}</p>
             </div>
 
-            {/* Live Clock */}
-            <div className="flex items-center gap-3 bg-surface-soft border border-line p-3 rounded-2xl shadow-xs shrink-0">
-              <span className="text-xs font-bold text-muted flex items-center gap-1">
-                <Timer size={15} className="text-orange-500" />
-                <span>{text.flashDeals.endsIn}</span>
-              </span>
-              <div className="flex items-center gap-1 font-mono font-black text-xs sm:text-sm">
-                <span className="px-2 py-1 rounded-lg bg-navy text-white font-bold">{String(timeLeft.hours).padStart(2, "0")}</span>
-                <span>:</span>
-                <span className="px-2 py-1 rounded-lg bg-navy text-white font-bold">{String(timeLeft.mins).padStart(2, "0")}</span>
-                <span>:</span>
-                <span className="px-2 py-1 rounded-lg bg-navy text-white font-bold">{String(timeLeft.secs).padStart(2, "0")}</span>
-              </div>
-            </div>
+            {/* Smooth Digital Animated Flip Timer */}
+            <SmoothFlashTimer language={language} className="shrink-0" />
           </div>
 
           {/* Flash Deals Product Grid */}
@@ -1720,6 +1698,130 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 13.5 NOORMEXA Global Native App Showcase & Installation */}
+      <section className="py-12 md:py-20 border-b border-line bg-gradient-to-br from-slate-950 via-slate-900 to-navy text-white relative overflow-hidden">
+        {/* Background ambient lighting */}
+        <div className="absolute top-0 end-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 start-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="noormexa-container relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 space-y-6 text-start">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-black">
+                <Smartphone size={14} />
+                <span>{isAr ? "برنامج عالمي للموبايل والكمبيوتر" : "Global Desktop & Mobile App"}</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                {isAr
+                  ? "حمّل تطبيق NOORMEXA الرسمي واستمتع بتجربة تسوق عالمية فائقة السلاسة"
+                  : "Install NOORMEXA Official App for a Fluid Global Shopping Experience"}
+              </h2>
+
+              <p className="text-xs sm:text-sm md:text-base text-slate-300 leading-relaxed font-medium">
+                {isAr
+                  ? "ثبّت التطبيق مباشرة على جهاز الكمبيوتر (Windows/Mac) أو هاتفك الذكي (Android/iPhone) بنقرة واحدة بدون متجر تطبيقات، واستمتع بتصفح فائق السرعة، إشعارات تتبع الشحنات، وكوبونات حصرية."
+                  : "Install NOORMEXA directly on your Desktop (Windows/Mac) or Smartphone (Android/iOS) with a single click. Enjoy blazing fast performance, instant order updates, and exclusive app perks."}
+              </p>
+
+              {/* Feature Highlights Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Zap size={16} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs text-white">
+                      {isAr ? "سرعة إطلاق فورية" : "Instant Launch"}
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {isAr ? "يعمل كتطبيق مستقل خفيف بدون استهلاك ذاكرة" : "Lightweight standalone app with zero bloat"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Laptop size={16} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs text-white">
+                      {isAr ? "تطبيق كمبيوتر وموبايل" : "Cross-Platform"}
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {isAr ? "أيقونة رسمية على سطح المكتب وشاشة هاتفك" : "Desktop & home screen icon for fast access"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={openPwaInstallModal}
+                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !text-white font-black text-xs sm:text-sm shadow-lg shadow-orange-500/30 flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Download size={18} className="animate-bounce stroke-[2.5]" />
+                  <span>{isAr ? "تثبيت تطبيق NOORMEXA الآن" : "Install NOORMEXA App"}</span>
+                </button>
+
+                <Link
+                  href="/marketplace"
+                  className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all"
+                >
+                  {isAr ? "متابعة التصفح في المتصفح" : "Browse in Browser"}
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Visual Card / App Mockup Preview */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="w-full max-w-sm rounded-3xl bg-slate-900/90 border border-white/15 p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                {/* Floating emblem */}
+                <div className="flex items-center gap-3.5 pb-4 border-b border-white/10">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-orange-500/30 shrink-0">
+                    <NoormexaEmblemSvg className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-white">NOORMEXA App</h3>
+                    <p className="text-xs text-orange-400 font-bold">Global Marketplace</p>
+                    <span className="text-[10px] text-slate-400">الإصدار 2.4.0 • مجاني 100%</span>
+                  </div>
+                </div>
+
+                {/* Mock UI list */}
+                <div className="py-4 space-y-2.5">
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+                    <span className="text-slate-300">⚡ تجربة التصفح المباشر:</span>
+                    <span className="text-emerald-400 font-bold">سلسة 60fps</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+                    <span className="text-slate-300">📦 إشعارات الشحن:</span>
+                    <span className="text-orange-400 font-bold">فورية</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+                    <span className="text-slate-300">📱 الأجهزة المدعومة:</span>
+                    <span className="text-white font-bold">كل المنصات</span>
+                  </div>
+                </div>
+
+                {/* Quick install trigger */}
+                <button
+                  type="button"
+                  onClick={openPwaInstallModal}
+                  className="w-full py-3 rounded-xl bg-white text-slate-950 hover:bg-slate-100 font-black text-xs text-center flex items-center justify-center gap-2 cursor-pointer transition-all shadow-md active:scale-95"
+                >
+                  <Download size={15} className="text-orange-600 stroke-[2.5]" />
+                  <span>{isAr ? "بدء التثبيت التلقائي بنقرة واحدة" : "1-Click Direct Install"}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

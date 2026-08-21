@@ -1,13 +1,80 @@
 {
-  "name": "NOORMEXA",
+  "name": "NOORMEXA | Global E-Commerce Marketplace",
   "short_name": "NOORMEXA",
-  "description": "NOORMEXA — سوق تجارة إلكترونية عالمي للمتسوقين والبائعين والمتاجر والمعلنين",
-  "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
-  ],
-  "theme_color": "#0b1322",
-  "background_color": "#0b1322",
+  "description": "NOORMEXA — منصة وسوق التجارة الإلكترونية العالمية للمتسوقين والتجار والمتاجر الرسمية والمعلنين",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "start_url": "/"
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#0b1322",
+  "theme_color": "#f97316",
+  "orientation": "any",
+  "dir": "auto",
+  "lang": "ar",
+  "prefer_related_applications": false,
+  "categories": ["shopping", "business", "lifestyle", "finance"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "السوق المفتوح | Marketplace",
+      "short_name": "السوق",
+      "description": "تصفح وشراء آلاف المنتجات العالمية بخصومات حصرية",
+      "url": "/marketplace",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "سلة المشتريات | Shopping Cart",
+      "short_name": "السلة",
+      "description": "إتمام الشراء السريع والدفع الآمن",
+      "url": "/cart",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "تتبع الطلبات | Track Orders",
+      "short_name": "طلباتي",
+      "description": "متابعة حالة شحن وتوصيل طلباتك لحظة بلحظة",
+      "url": "/orders",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "بوابة التجار | Seller Hub",
+      "short_name": "التجار",
+      "description": "إدارة المنتجات والمبيعات والأرباح للتجار والمتاجر",
+      "url": "/seller/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "مركز إدارة المالك | Admin Hub",
+      "short_name": "الإدارة",
+      "description": "التحكم الكامل في المنصة والإشراف العام",
+      "url": "/admin",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
 }

@@ -8,13 +8,24 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AIAssistant from "@/components/AIAssistant";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export const metadata: Metadata = {
   title: "NOORMEXA | Global E-Commerce Marketplace",
   description: "NOORMEXA — سوق تجارة إلكترونية عالمي للمتسوقين والبائعين والمتاجر والمعلنين.",
   manifest: "/manifest.json",
+  applicationName: "NOORMEXA",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "NOORMEXA",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: "/favicon.ico",
+    shortcut: "/favicon.png",
     apple: "/apple-touch-icon.png",
   },
 };
@@ -54,6 +65,7 @@ export default function RootLayout({
                   <Footer />
                   <AIAssistant />
                   <MobileBottomNav />
+                  <PwaInstallPrompt />
                 </div>
               </CartProvider>
             </MarketplaceProvider>

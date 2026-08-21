@@ -21,8 +21,10 @@ import {
   UserRound,
   X,
   ChevronDown,
+  Download,
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { useMarketplace } from "@/context/MarketplaceContext";
@@ -227,6 +229,17 @@ export default function Navbar() {
             <Crown size={13} className="text-orange-500" />
             <span className="hidden xs:inline">{language === "ar" ? "لوحة المالك" : "Owner"}</span>
           </Link>
+
+          {/* PWA Install App Button (Desktop & Tablet) */}
+          <button
+            type="button"
+            onClick={openPwaInstallModal}
+            className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !text-white shadow-xs hover:shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            title={language === "ar" ? "تثبيت NOORMEXA كتطبيق على جهازك" : "Install NOORMEXA App"}
+          >
+            <Download size={13} className="stroke-[2.5]" />
+            <span>{language === "ar" ? "تثبيت التطبيق" : "Install App"}</span>
+          </button>
 
           {/* Currency Switcher */}
           <div className="relative" ref={currencyMenuRef}>
@@ -467,6 +480,24 @@ export default function Navbar() {
 
             {/* Quick Links Row */}
             <div className="p-3 rounded-2xl bg-surface-soft border border-line space-y-2 text-xs">
+              {/* Install App Trigger in Mobile Drawer */}
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  openPwaInstallModal();
+                }}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 to-amber-500/15 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-black text-xs cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Download size={16} className="text-orange-500 animate-bounce" />
+                  <span>{language === "ar" ? "تثبيت التطبيق على جهازك" : "Install NOORMEXA App"}</span>
+                </span>
+                <span className="text-[10px] bg-orange-500 text-white px-2 py-0.5 rounded-full font-bold">
+                  {language === "ar" ? "تثبيت مجاني" : "Free"}
+                </span>
+              </button>
+
               <Link
                 href={user ? "/dashboard" : "/auth"}
                 onClick={() => setOpen(false)}
