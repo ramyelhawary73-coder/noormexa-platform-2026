@@ -270,7 +270,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                         >
                           <Tag size={12} />
                           <span>{post.promo_code}</span>
-                          <Copy size={11} />
+                          {copiedCode === post.promo_code ? <Check size={11} /> : <Copy size={11} />}
                         </button>
                       )}
                     </div>
