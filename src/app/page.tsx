@@ -7,16 +7,22 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
   ArrowRight,
+  Award,
   BadgeCheck,
+  Building2,
   Check,
   Coins,
+  Copy,
   CreditCard,
   Crown,
   Flame,
+  Gift,
   Heart,
   HelpCircle,
   Package,
   Percent,
+  Play,
+  RefreshCw,
   Search,
   ShieldCheck,
   ShoppingBag,
@@ -28,6 +34,7 @@ import {
   Timer,
   Truck,
   Users,
+  Video,
 } from "lucide-react";
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import { useMarketplace } from "@/context/MarketplaceContext";
@@ -70,37 +77,69 @@ type PlanCard = {
   highlight?: boolean;
 };
 
+type BrandItem = {
+  name: string;
+  category: string;
+  logoText: string;
+  country: string;
+  taglineAr: string;
+  taglineEn: string;
+  verified: boolean;
+};
+
+type CouponItem = {
+  code: string;
+  discount: string;
+  titleAr: string;
+  titleEn: string;
+  descAr: string;
+  descEn: string;
+  minSpend: string;
+};
+
+type VideoStory = {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  author: string;
+  productName: string;
+  productPrice: number;
+  thumbnail: string;
+  views: string;
+  rating: number;
+};
+
 const LANGUAGE_KEY = "noormexa-language";
 
 const copy = {
   ar: {
     trustBar: {
-      freeShipping: "شحن مجاني للطلبات المؤهلة",
-      guarantee: "منتجات أصلية 100% معتمدة",
-      fastDelivery: "توصيل سريع وتتبع مباشر",
-      securePay: "دفع آمن بالبطاقات وApple Pay ومدى",
+      freeShipping: "شحن مجاني وسريع للطلبات المؤهلة",
+      guarantee: "منتجات أصلية 100% معتمدة بفحص الجودة",
+      fastDelivery: "توصيل سريع وتتبع مباشر لحظة بلحظة",
+      securePay: "دفع آمن بالبطاقات، مدى، Apple Pay، والدفع عند الاستلام",
     },
     hero: {
-      badge: "منصة التجارة الإلكترونية الشاملة والفاخرة — NOORMEXA GLOBAL",
-      title: "عالم متكامل للتسوق الراقي وتجارة المستقبل",
-      subtitle: "اكتشف أرقى المنتجات العالمية، تسوق من المتاجر الرسمية الموثقة، أو افتح متجرك الخاص وابدأ البيع فوراً بأعلى معايير الأمان والسرعة.",
-      searchPlaceholder: "ابحث عن منتج، متجر رسمي، علامة تجارية، أو تصنيف...",
+      badge: "منصة التجارة الإلكترونية العالمية المعتمدة — NOORMEXA GLOBAL",
+      title: "عالم متكامل للتسوق الذكي وتجارة المستقبل",
+      subtitle: "استكشف آلاف المنتجات المضمونة من أرقى المتاجر والعلامات التجارية الموثقة، أو افتح متجرك الخاص وابدأ البيع فوراً بأعلى معايير الأمان والسرعة والأرباح المباشرة.",
+      searchPlaceholder: "ابحث عن منتج، متجر رسمي، علامة تجارية، أو كود خصم...",
       searchButton: "بحث فوري",
-      quickTags: ["ساعات كرونوغراف", "عطور ملكية", "أزياء كشمير", "سماعات Pro", "ديكورات فاخرة"],
-      ctaShop: "تسوق التشكيلة الحصرية",
+      quickTags: ["ساعات ذكية وفخمة", "عطور وبخور ملكي", "أجهزة وإلكترونيات", "أزياء وموضة", "مستلزمات المنزل"],
+      ctaShop: "ابدأ التسوق الآن",
       ctaSell: "انضم كتاجر معتمد",
-      ctaMarket: "تصفح السوق المفتوح",
+      ctaMarket: "تصفح السوق الشامل",
     },
     officialSection: {
       tag: "المتجر المعتمد الحصري",
-      title: "متجر NOORMEXA الرسمي المباشر",
-      desc: "التشكيلة الرسمية المباشرة من المنصة بعمولة 0%، ضمان ذهبي معتمد، وشحن فوري مع خدمة عملاء VIP على مدار الساعة.",
+      title: "متجر نورميكسا الرسمي المباشر",
+      desc: "التشكيلة الرسمية المباشرة من المنصة بعمولة 0%، ضمان الجودة المعتمد، شحن فوري مع كونسيرج VIP على مدار الساعة.",
       visitStore: "زيارة المتجر الرسمي",
     },
     flashDeals: {
       badge: "عروض الفلاش الحصرية",
       title: "تخفيضات استثنائية لفترة محدودة",
-      subtitle: "استفد من خصومات تصل إلى 40% على أكثر المنتجات طلباً قبل نفاد الكمية.",
+      subtitle: "استفد من خصومات تصل إلى 50% على أكثر المنتجات طلباً قبل نفاد الكمية المحددة.",
       endsIn: "ينتهي العرض خلال:",
       hours: "ساعة",
       mins: "دقيقة",
@@ -108,24 +147,94 @@ const copy = {
       claimed: "تم طلب",
       viewAll: "عرض كافة العروض",
     },
+    brandsSection: {
+      badge: "العلامات المعتمدة",
+      title: "أشهر الماركات والمتاجر الموثقة",
+      subtitle: "تسوق منتجات أصلية 100% مباشرة من الوكلاء المعتمدين والموزعين الرسميين.",
+      viewAllBrands: "تصفح جميع الماركات",
+    },
     categories: {
-      badge: "أقسام السوق الفاخرة",
+      badge: "أقسام السوق الشاملة",
       title: "تسوق حسب القسم المفضل",
-      subtitle: "مجموعات مختارة بعناية لتلبي ذوقك الراقي واحتياجاتك اليومية.",
+      subtitle: "مجموعات شاملة ومختارة بعناية لتلبي كافة احتياجاتك اليومية وأحدث صيحات الموضة والتقنية.",
       viewCatalog: "استكشف كل الأقسام",
     },
     featuredProducts: {
-      badge: "التشكيلة الأكثر طلباً",
-      title: "منتجات مميزة بتقييمات استثنائية",
-      subtitle: "اخترنا لك نخبة من أفضل منتجات المتاجر المعتمدة ذات الجودة العالية.",
+      badge: "التشكيلة الأكثر مبيعاً",
+      title: "أفضل المنتجات وأعلاها تقييماً",
+      subtitle: "اخترنا لك نخبة من أفضل منتجات المتاجر المعتمدة ذات الجودة الاستثنائية وتقييمات العملاء العالية.",
       addToCart: "إضافة للسلة",
       added: "تمت الإضافة ✓",
       viewProduct: "تفاصيل المنتج",
     },
+    couponsSection: {
+      badge: "نادي التوفير والقسائم",
+      title: "كوبونات خصم فورية ومكافآت كاش باك",
+      subtitle: "انسخ كود الخصم بلمسة واحدة واستفد من توفير إضافي فوري عند إتمام عملية الشراء.",
+      copyCode: "نسخ الكود",
+      copied: "تم النسخ بنجاح! ✓",
+      minSpendText: "للطلبات فوق",
+    },
+    b2bSection: {
+      badge: "نورميكسا للأعمال والجملة",
+      title: "حلول التجارة بالجملة والتوريد للشركات",
+      subtitle: "استورد وباشر شراء الكميات الكبيرة بأسعار الجملة المباشرة مع فواتير ضريبية وشهادات مطابقة وشحن بحري وجوي سريع.",
+      ctaQuote: "طلب عرض أسعار بالجملة (RFQ)",
+      ctaExploreB2B: "تصفح كتالوج الجملة",
+      features: [
+        "أسعار جملة تنافسية مباشرة من المصانع",
+        "شحن حاويات متكامل وتخليص جمركي موثق",
+        "فواتير ضريبية إلكترونية معتمدة لكافة الدول",
+        "تسهيلات دفع واعتمادات مستندية للشركات",
+      ],
+    },
+    videoStoriesSection: {
+      badge: "ريلز وتجارب المشترين",
+      title: "فيديوهات فتح الصناديق وتقييمات حية",
+      subtitle: "شاهد كيف تبدو المنتجات في الواقع عبر تجارب حقيقية موثقة من عملاء المنصة.",
+      watchNow: "مشاهدة التقييم",
+    },
+    guaranteesSection: {
+      badge: "ضمانات NOORMEXA الذهبية",
+      title: "لماذا يفضل ملايين المشترين التسوق معنا؟",
+      subtitle: "تجربة تسوق آمنة ومتكاملة تحميك في كل خطوة من التصفح حتى الاستلام وما بعد البيع.",
+      items: [
+        {
+          title: "أصالة مضمونة 100%",
+          desc: "جميع المتاجر تخضع للتحقق الصارم من السجل التجاري وجودة البضائع.",
+          icon: ShieldCheck,
+        },
+        {
+          title: "استرجاع مجاني وسهل",
+          desc: "إمكانية إرجاع أو استبدال المنتج خلال 14 يوماً مع استرداد كامل المبلغ.",
+          icon: RefreshCw,
+        },
+        {
+          title: "شحن جوي سريع وتتبع حي",
+          desc: "شراكات لوجستية مع كبرى شركات الشحن العالمية مع تتبع فوري مباشر.",
+          icon: Truck,
+        },
+        {
+          title: "أمان دفع إلكتروني متقدم",
+          desc: "تشفير بنكي عالي المستوى وحماية كاملة لبيانات البطاقات وبوابات الدفع.",
+          icon: CreditCard,
+        },
+        {
+          title: "خدمة عملاء كونسيرج 24/7",
+          desc: "فريق دعم فني متفرغ لمساعدتك في أي استفسار عبر المحادثة الحية والهاتف.",
+          icon: HelpCircle,
+        },
+        {
+          title: "أفضل سعر وتوفير حقيقي",
+          desc: "عروض يومية وكوبونات مستمرة مع نقاط ولاء وكاش باك على كل طلب.",
+          icon: Award,
+        },
+      ],
+    },
     roles: {
       badge: "منظومة واحدة تجمع الجميع",
       title: "اختر بوابتك في NOORMEXA",
-      subtitle: "صُممت المنصة لتلائم المتسوقين الباحثين عن التميز، والتجار والعلامات الطامحة للنمو العالمي.",
+      subtitle: "صُممت المنصة لتلائم المتسوقين الباحثين عن التميز، والتجار والعلامات الطامحة للنمو العالمي وزيادة المبيعات.",
       items: [
         {
           title: "المتسوق الراقي",
@@ -152,10 +261,10 @@ const copy = {
           href: "/auth?mode=signup&role=store",
         },
         {
-          title: "الشركاء والمعلنون",
-          text: "أطلق حملاتك الترويجية وبانرات الفلاش سيل لتصل إلى ملايين المشترين النشطين في الخليج والعالم.",
-          cta: "أطلق حملتك",
-          badge: "وصول واسع",
+          title: "الشركاء والمسوقون بالعمولة",
+          text: "انضم إلى برنامج التسويق بالعمولة واربح عمولات مجزية على كل عملية بيع تتم عبر روابطك.",
+          cta: "انضم للشركاء",
+          badge: "أرباح مستمرة",
           icon: Sparkles,
           href: "/marketplace",
         },
@@ -164,7 +273,7 @@ const copy = {
     testimonials: {
       badge: "آراء وتجارب العملاء",
       title: "موثوق به من آلاف المتسوقين والتجار",
-      subtitle: "شهادات حقيقية من عملائنا في المملكة العربية السعودية، الإمارات، مصر، والكويت.",
+      subtitle: "شهادات حقيقية من عملائنا في المملكة العربية السعودية، الإمارات، مصر، الكويت، وكافة دول المنطقة.",
       reviews: [
         {
           name: "عبدالرحمن الشمري",
@@ -254,19 +363,19 @@ const copy = {
   },
   en: {
     trustBar: {
-      freeShipping: "Free shipping on qualifying orders",
-      guarantee: "100% Genuine Certified Luxury",
-      fastDelivery: "Express delivery & live tracking",
-      securePay: "Secure checkout via Cards, Apple Pay & Mada",
+      freeShipping: "Free express shipping on qualifying orders",
+      guarantee: "100% Genuine Certified & Quality Inspected",
+      fastDelivery: "Express delivery & real-time GPS tracking",
+      securePay: "Secure checkout via Cards, Apple Pay, Mada & COD",
     },
     hero: {
-      badge: "PREMIER GLOBAL MULTI-VENDOR MARKETPLACE — NOORMEXA GLOBAL",
-      title: "The Ultimate Destination for Luxury Commerce",
-      subtitle: "Discover curated premium goods, shop from verified official flagship stores, or launch your high-growth storefront with military-grade security and speed.",
-      searchPlaceholder: "Search luxury watches, royal perfumes, designer fashion...",
-      searchButton: "Search",
-      quickTags: ["Chronograph Watches", "Royal Oud", "Cashmere Coats", "Pro ANC Audio", "Artisan Living"],
-      ctaShop: "Shop Exclusive Catalog",
+      badge: "CERTIFIED GLOBAL MULTI-VENDOR COMMERCE PLATFORM — NOORMEXA",
+      title: "The Ultimate Ecosystem for Smart Commerce",
+      subtitle: "Discover thousands of guaranteed products from verified flagship stores and authorized global brands, or launch your high-growth seller store with military-grade speed and secure payouts.",
+      searchPlaceholder: "Search luxury watches, perfumes, electronics, fashion, or discount codes...",
+      searchButton: "Instant Search",
+      quickTags: ["Smartwatches", "Royal Oud", "Pro Audio", "Designer Fashion", "Smart Living"],
+      ctaShop: "Shop Catalog Now",
       ctaSell: "Become a Verified Merchant",
       ctaMarket: "Explore Marketplace",
     },
@@ -279,7 +388,7 @@ const copy = {
     flashDeals: {
       badge: "Exclusive Flash Deals",
       title: "Limited-Time Curated Vault",
-      subtitle: "Save up to 40% on top trending luxury collections before stock runs out.",
+      subtitle: "Save up to 50% on top trending luxury collections before stock runs out.",
       endsIn: "Offers end in:",
       hours: "hrs",
       mins: "mins",
@@ -287,19 +396,89 @@ const copy = {
       claimed: "Claimed",
       viewAll: "Explore All Deals",
     },
+    brandsSection: {
+      badge: "Authorized Brands",
+      title: "Top Verified Brands & Flagship Houses",
+      subtitle: "Shop 100% original goods directly from authorized distributors and verified brand partners.",
+      viewAllBrands: "Browse All Brands",
+    },
     categories: {
       badge: "Curated Collections",
-      title: "Shop by Signature Category",
-      subtitle: "Meticulously crafted collections to match your discerning lifestyle.",
-      viewCatalog: "Explore All Categories",
+      title: "Shop by Signature Department",
+      subtitle: "Meticulously crafted collections to match your discerning lifestyle and everyday tech needs.",
+      viewCatalog: "Explore All Departments",
     },
     featuredProducts: {
       badge: "Trending Best Sellers",
-      title: "Exceptional Quality & 5-Star Craftsmanship",
-      subtitle: "Handpicked masterpieces from our highest-rated verified merchant partners.",
+      title: "Top-Rated Products & 5-Star Craftsmanship",
+      subtitle: "Handpicked bestsellers from our highest-rated verified merchant partners.",
       addToCart: "Add to Cart",
       added: "Added to Cart ✓",
       viewProduct: "View Details",
+    },
+    couponsSection: {
+      badge: "Smart Savings Club",
+      title: "Instant Discount Coupons & Cashback",
+      subtitle: "Copy any promo code with a single tap to unlock extra instant discounts at checkout.",
+      copyCode: "Copy Code",
+      copied: "Copied! ✓",
+      minSpendText: "On orders above",
+    },
+    b2bSection: {
+      badge: "NOORMEXA Wholesale & B2B",
+      title: "Wholesale Sourcing & Enterprise Supply",
+      subtitle: "Source bulk quantities directly at factory prices with electronic VAT invoices, compliance certificates, and express freight.",
+      ctaQuote: "Request Bulk Quote (RFQ)",
+      ctaExploreB2B: "Browse Wholesale Catalog",
+      features: [
+        "Direct factory wholesale pricing & bulk tier discounts",
+        "Container logistics, freight forwarding & customs clearance",
+        "Compliant tax invoices across all GCC and global markets",
+        "Corporate trade credits & flexible escrow payment terms",
+      ],
+    },
+    videoStoriesSection: {
+      badge: "Customer Live Reels",
+      title: "Unboxing Videos & Real Reviews",
+      subtitle: "See how items look and perform in real life from authentic verified customer unboxings.",
+      watchNow: "Watch Review",
+    },
+    guaranteesSection: {
+      badge: "Golden Guarantees",
+      title: "Why Millions of Discerning Shoppers Choose Us",
+      subtitle: "A seamless, secure ecosystem protecting your purchase at every step from cart to doorstep.",
+      items: [
+        {
+          title: "100% Authenticity Guaranteed",
+          desc: "Every merchant undergoes rigorous KYC vetting and quality audits.",
+          icon: ShieldCheck,
+        },
+        {
+          title: "14-Day Free Returns",
+          desc: "Hassle-free return and exchange policy with 100% money-back guarantee.",
+          icon: RefreshCw,
+        },
+        {
+          title: "Express Air Shipping",
+          desc: "Priority logistics partnerships with real-time GPS tracking.",
+          icon: Truck,
+        },
+        {
+          title: "Bank-Grade Payment Security",
+          desc: "End-to-end encrypted checkout supporting Cards, Apple Pay & Mada.",
+          icon: CreditCard,
+        },
+        {
+          title: "24/7 VIP Concierge Support",
+          desc: "Dedicated multilingual customer success team ready around the clock.",
+          icon: HelpCircle,
+        },
+        {
+          title: "Best Price & Loyalty Rewards",
+          desc: "Daily price matches, instant promo codes, and reward points on every order.",
+          icon: Award,
+        },
+      ],
     },
     roles: {
       badge: "One Ecosystem for All",
@@ -331,10 +510,10 @@ const copy = {
           href: "/auth?mode=signup&role=store",
         },
         {
-          title: "Advertisers & Partners",
-          text: "Promote flash deals and premium banners to high-value shoppers across the Middle East & Worldwide.",
-          cta: "Start Campaign",
-          badge: "Global Reach",
+          title: "Affiliate & Growth Partners",
+          text: "Join our high-paying affiliate network and earn recurring commissions on every referred order.",
+          cta: "Join Partners",
+          badge: "High Payouts",
           icon: Sparkles,
           href: "/marketplace",
         },
@@ -464,8 +643,9 @@ export default function HomePage() {
   // Search input state
   const [searchQuery, setSearchQuery] = useState("");
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
+  const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
 
-  // Live Flash Deal Countdown Timer (Simulated 14 hours remaining)
+  // Live Flash Deal Countdown Timer (14 hours)
   const [timeLeft, setTimeLeft] = useState({ hours: 14, mins: 32, secs: 45 });
 
   useEffect(() => {
@@ -497,13 +677,19 @@ export default function HomePage() {
     }, 2000);
   };
 
+  const handleCopyCoupon = (code: string) => {
+    navigator.clipboard?.writeText(code);
+    setCopiedCoupon(code);
+    setTimeout(() => setCopiedCoupon(null), 2500);
+  };
+
   const DirectionIcon = isAr ? ArrowLeft : ArrowRight;
 
   // Curated Categories List with High-Resolution Visuals
   const categoriesList: CategoryCard[] = [
     {
-      name: "إلكترونيات ذكية",
-      nameEn: "Smart Electronics",
+      name: "إلكترونيات وهواتف ذكية",
+      nameEn: "Smart Electronics & Tech",
       slug: "electronics",
       count: "128+ منتج",
       icon: Package,
@@ -511,23 +697,23 @@ export default function HomePage() {
     },
     {
       name: "أزياء وكشمير فاخر",
-      nameEn: "Haute Fashion",
+      nameEn: "Haute Fashion & Apparel",
       slug: "fashion",
       count: "94+ منتج",
       icon: ShoppingBag,
       image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&auto=format&fit=crop&q=80",
     },
     {
-      name: "عطور ملكية وبخور",
-      nameEn: "Royal Perfumery",
+      name: "عطور ملكية وبخور شرقي",
+      nameEn: "Royal Perfumery & Oud",
       slug: "beauty",
       count: "67+ منتج",
       icon: Sparkles,
       image: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&auto=format&fit=crop&q=80",
     },
     {
-      name: "ساعات ومجوهرات",
-      nameEn: "Watches & Jewelry",
+      name: "ساعات كرونوغراف ومجوهرات",
+      nameEn: "Watches & Fine Jewelry",
       slug: "accessories",
       count: "52+ منتج",
       icon: Crown,
@@ -535,11 +721,137 @@ export default function HomePage() {
     },
     {
       name: "ديكور ومنزل حرفي",
-      nameEn: "Artisan Living",
+      nameEn: "Artisan Home & Living",
       slug: "home",
       count: "81+ منتج",
       icon: Tag,
       image: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=500&auto=format&fit=crop&q=80",
+    },
+  ];
+
+  // Top Authorized Brands
+  const authorizedBrands: BrandItem[] = [
+    {
+      name: "Apple Direct",
+      category: "Tech & Mobiles",
+      logoText: "APPLE",
+      country: "USA",
+      taglineAr: "الأجهزة الأصلية مع ضمان الوكيل المعتمد",
+      taglineEn: "Genuine devices with authorized local warranty",
+      verified: true,
+    },
+    {
+      name: "Sony Pro Audio",
+      category: "Audio & Cameras",
+      logoText: "SONY",
+      country: "Japan",
+      taglineAr: "سماعات عزل الضوضاء وكاميرات احترافية",
+      taglineEn: "Industry-leading ANC audio and cinema gear",
+      verified: true,
+    },
+    {
+      name: "Dior & Guerlain",
+      category: "Luxury Fragrances",
+      logoText: "DIOR",
+      country: "France",
+      taglineAr: "العطور الباريسية والخلطات الخاصة النادرة",
+      taglineEn: "Rare private blends and Parisian perfumery",
+      verified: true,
+    },
+    {
+      name: "Rolex & Tudor",
+      category: "Timepieces",
+      logoText: "ROLEX",
+      country: "Switzerland",
+      taglineAr: "ساعات ميكانيكية سويسرية معتمدة الأرقام",
+      taglineEn: "Swiss certified chronometers with serial certificates",
+      verified: true,
+    },
+    {
+      name: "Nike Prime Gear",
+      category: "Sport & Footwear",
+      logoText: "NIKE",
+      country: "USA",
+      taglineAr: "أحدث إصدارات الأحذية والملابس الرياضية",
+      taglineEn: "Latest limited sneaker drops and athletic wear",
+      verified: true,
+    },
+    {
+      name: "Samsung Galaxy",
+      category: "Smartphones & TV",
+      logoText: "SAMSUNG",
+      country: "S. Korea",
+      taglineAr: "شاشات OLED وهواتف Ultra المدعومة بالذكاء الاصطناعي",
+      taglineEn: "AI-enhanced Galaxy phones and Neo QLED displays",
+      verified: true,
+    },
+  ];
+
+  // Live Smart Coupons
+  const smartCoupons: CouponItem[] = [
+    {
+      code: "NOOR10",
+      discount: "10% خصم",
+      titleAr: "خصم ترحيبي فوري للمتسوقين الجدد",
+      titleEn: "Instant Welcome Discount",
+      descAr: "يسري على جميع مشترياتك الأولى بدون حد أقصى للخصم",
+      descEn: "Valid on all first-time purchases across the catalog",
+      minSpend: "200 ج.م / 50 ر.س",
+    },
+    {
+      code: "FREESHIP",
+      discount: "شحن مجاني",
+      titleAr: "قسيمة التوصيل الجوي السريع المجاني",
+      titleEn: "Free Express Delivery Voucher",
+      descAr: "شحن فوري لباب منزلك لجميع الطلبات في الشرق الأوسط",
+      descEn: "Direct air freight dispatch to your doorstep",
+      minSpend: "350 ج.م / 90 ر.س",
+    },
+    {
+      code: "FLAGSHIP20",
+      discount: "20% توفير",
+      titleAr: "كوبون متجر نورميكسا الرسمي المباشر",
+      titleEn: "NOORMEXA Flagship Special Coupon",
+      descAr: "خصم إضافي خاص على تشكيلة متجر المنصة الحصرية",
+      descEn: "Exclusive extra discount on Flagship Direct products",
+      minSpend: "500 ج.م / 120 ر.س",
+    },
+  ];
+
+  // Customer Video Unboxing Stories
+  const videoStories: VideoStory[] = [
+    {
+      id: "v1",
+      titleAr: "فتح صندوق ساعة الكرونوغراف الملكية وتجربة السوار الجلدي الفاخر",
+      titleEn: "Unboxing the Royal Chronograph & Luxury Leather Strap",
+      author: "سلطان العتيبي (السعودية)",
+      productName: "ساعة الكرونوغراف الملكية",
+      productPrice: 2850,
+      thumbnail: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=500&auto=format&fit=crop&q=80",
+      views: "18.4K",
+      rating: 5.0,
+    },
+    {
+      id: "v2",
+      titleAr: "تجربة عطر السلطان الفاخر وثبات الفوحان لأكثر من 36 ساعة",
+      titleEn: "Royal Oud Longevity & Projection Real-World Test",
+      author: "مروة الشامسي (الإمارات)",
+      productName: "عطر السلطان الملكي (100ml)",
+      productPrice: 1950,
+      thumbnail: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500&auto=format&fit=crop&q=80",
+      views: "24.1K",
+      rating: 4.9,
+    },
+    {
+      id: "v3",
+      titleAr: "مراجعة سماعة Pro Wireless ANC مع ميزة الشحن السريع",
+      titleEn: "Pro Wireless ANC Studio Headphones Deep Dive",
+      author: "أحمد منصور (مصر)",
+      productName: "سماعة الرأس اللاسلكية الاحترافية",
+      productPrice: 1450,
+      thumbnail: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80",
+      views: "12.8K",
+      rating: 5.0,
     },
   ];
 
@@ -563,10 +875,6 @@ export default function HomePage() {
             </span>
             <span className="flex items-center gap-1.5">
               <ShieldCheck size={13} className="text-emerald-400" />
-              <span>{text.trustBar.fastDelivery}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CreditCard size={13} className="text-sky-400" />
               <span>{text.trustBar.securePay}</span>
             </span>
           </div>
@@ -574,17 +882,17 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <Link
               href="/marketplace?filter=deals"
-              className="px-2.5 py-0.5 rounded-full bg-orange-500 text-white font-black text-[10px] sm:text-[11px] hover:bg-orange-600 transition-all flex items-center gap-1 shadow-xs"
+              className="px-3 py-1 rounded-full bg-orange-500 hover:bg-orange-600 !text-white font-black text-[10px] sm:text-[11px] transition-all flex items-center gap-1 shadow-xs"
             >
               <Flame size={12} className="text-white fill-white" />
-              <span>{isAr ? "فلاش ديلز 40% خصم" : "Flash Deals 40% OFF"}</span>
+              <span>{isAr ? "فلاش ديلز 50% خصم" : "Flash Deals 50% OFF"}</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* 2. World-Class Luxury Hero Section */}
-      <section className="relative pt-8 pb-12 md:pt-14 md:pb-20 border-b border-line bg-gradient-to-b from-surface/40 via-surface-soft/60 to-surface">
+      {/* 2. Hero Interactive Stage */}
+      <section className="relative py-8 md:py-16 border-b border-line bg-gradient-to-b from-surface via-surface-soft to-surface">
         <div className="noormexa-container grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left / Primary Text Column */}
           <div className="lg:col-span-6 space-y-6 text-start">
@@ -593,11 +901,11 @@ export default function HomePage() {
               <span>{text.hero.badge}</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-[1.2]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight leading-[1.18]">
               {text.hero.title}
             </h1>
 
-            <p className="text-sm sm:text-base text-muted leading-relaxed max-w-xl">
+            <p className="text-xs sm:text-sm md:text-base text-muted max-w-xl leading-relaxed">
               {text.hero.subtitle}
             </p>
 
@@ -612,26 +920,26 @@ export default function HomePage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={text.hero.searchPlaceholder}
-                  className="w-full bg-transparent border-none text-foreground placeholder:text-muted/70 text-xs sm:text-sm font-medium focus:outline-none px-2"
+                  className="w-full bg-transparent border-none text-foreground text-xs sm:text-sm font-medium focus:outline-hidden px-2 placeholder:text-muted/60"
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>{text.hero.searchButton}</span>
                   <DirectionIcon size={14} />
                 </button>
               </div>
 
-              {/* Quick Search Chips */}
+              {/* Quick Suggestion Pills */}
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5 text-[11px]">
-                <span className="text-muted font-bold">{isAr ? "الأكثر بحثاً:" : "Popular:"}</span>
+                <span className="text-muted font-bold">{isAr ? "شائع الآن:" : "Trending:"}</span>
                 {text.hero.quickTags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => router.push(`/marketplace?search=${encodeURIComponent(tag)}`)}
-                    className="px-2.5 py-0.5 rounded-lg bg-surface-soft border border-line text-foreground/80 hover:border-orange-500/50 hover:text-foreground transition-all"
+                    className="px-2.5 py-0.5 rounded-lg bg-surface-soft border border-line text-foreground/80 hover:border-orange-500/50 hover:text-foreground transition-all cursor-pointer"
                   >
                     {tag}
                   </button>
@@ -639,15 +947,14 @@ export default function HomePage() {
               </div>
             </form>
 
-            {/* Direct Action CTAs */}
+            {/* Call to Actions */}
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="/marketplace"
-                className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-black shadow-md flex items-center gap-2 transition-all"
+                className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white text-xs sm:text-sm font-black shadow-md hover:shadow-orange-500/25 flex items-center gap-2 transition-all"
               >
                 <ShoppingBag size={16} />
                 <span>{text.hero.ctaShop}</span>
-                <DirectionIcon size={14} />
               </Link>
 
               <Link
@@ -660,10 +967,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right / Hero Showcase Slider */}
+          {/* Right / Visual Live Product Slider Column */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-line bg-surface">
-              <HeroImageSlider language={language} />
+            <div className="relative z-10 w-full">
+              <HeroImageSlider />
 
               {/* Floating Social Proof Pill */}
               <div className="absolute bottom-4 start-4 z-20 bg-surface/95 backdrop-blur-md border border-line px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-3">
@@ -684,7 +991,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. Official Flagship Store Spotlight Section */}
+      {/* 3. Official Flagship Store Spotlight Section (Fixed high contrast button) */}
       {officialStore && (
         <section className="py-8 md:py-12 border-b border-line bg-surface-soft/60">
           <div className="noormexa-container">
@@ -719,7 +1026,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-3 shrink-0">
                   <Link
                     href={`/store/${officialStore.slug}`}
-                    className="px-6 py-3.5 rounded-2xl bg-navy hover:bg-slate-800 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 whitespace-nowrap transition-all"
+                    className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shadow-md hover:shadow-orange-500/20 flex items-center justify-center gap-2 whitespace-nowrap transition-all border border-orange-400/30"
                   >
                     <span>{text.officialSection.visitStore}</span>
                     <DirectionIcon size={14} />
@@ -758,19 +1065,17 @@ export default function HomePage() {
                 <span>:</span>
                 <span className="px-2 py-1 rounded-lg bg-navy text-white font-bold">{String(timeLeft.mins).padStart(2, "0")}</span>
                 <span>:</span>
-                <span className="px-2 py-1 rounded-lg bg-red-600 text-white font-bold animate-pulse">{String(timeLeft.secs).padStart(2, "0")}</span>
+                <span className="px-2 py-1 rounded-lg bg-navy text-white font-bold">{String(timeLeft.secs).padStart(2, "0")}</span>
               </div>
             </div>
           </div>
 
           {/* Flash Deals Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {products.slice(0, 4).map((prod, idx) => {
-              const discount = 20 + idx * 5;
-              const originalPrice = prod.price * (1 + discount / 100);
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {products.slice(0, 4).map((prod) => {
               const store = stores.find((s) => s.id === prod.store_id);
               const isAdded = addedProductId === prod.id;
-              const isWishlisted = wishlist.includes(prod.id);
+              const isFav = wishlist.includes(prod.id);
 
               return (
                 <div
@@ -779,29 +1084,31 @@ export default function HomePage() {
                 >
                   <div className="relative aspect-square overflow-hidden bg-surface-soft shrink-0">
                     <img
-                      src={prod.image_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"}
+                      src={prod.image_url || ""}
                       alt={prod.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Discount Badge */}
-                    <div className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-red-600 text-white font-black text-[11px] shadow-md flex items-center gap-1 z-10 whitespace-nowrap">
+                    <div className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-red-600 text-white font-black text-[11px] shadow-sm flex items-center gap-1">
                       <Percent size={11} />
-                      <span dir="ltr">-{discount}%</span>
+                      <span>{isAr ? "خصم 35%" : "35% OFF"}</span>
                     </div>
 
                     {/* Wishlist Button */}
                     <button
                       type="button"
                       onClick={() => toggleWishlist(prod.id)}
-                      className="absolute top-3 end-3 w-8 h-8 rounded-full bg-surface/90 backdrop-blur-xs border border-line flex items-center justify-center text-muted hover:text-red-500 hover:scale-110 transition-all shadow-sm z-10"
+                      className={`absolute top-3 end-3 w-8 h-8 rounded-full border border-line flex items-center justify-center transition-all cursor-pointer ${
+                        isFav ? "bg-red-500 text-white border-red-500" : "bg-surface/90 text-muted hover:text-red-500 backdrop-blur-xs"
+                      }`}
                       aria-label="Wishlist"
                     >
-                      <Heart size={15} className={isWishlisted ? "fill-red-500 text-red-500" : ""} />
+                      <Heart size={14} className={isFav ? "fill-white" : ""} />
                     </button>
                   </div>
 
-                  <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div className="space-y-1.5">
                       {/* Store Attribution */}
                       <div className="flex items-center gap-1.5 text-[11px] text-muted">
@@ -815,16 +1122,16 @@ export default function HomePage() {
                           {prod.name}
                         </h3>
                       </Link>
+
+                      {/* Pricing */}
+                      <div className="flex items-baseline gap-2 pt-1">
+                        <span className="text-lg font-black text-foreground">{formatPrice(prod.price)}</span>
+                        <span className="text-xs text-muted line-through">{formatPrice(prod.price * 1.35)}</span>
+                      </div>
                     </div>
 
-                    {/* Price & Progress Bar */}
-                    <div className="space-y-2 pt-2 border-t border-line/60">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-base sm:text-lg font-black text-foreground whitespace-nowrap">{formatPrice(prod.price)}</span>
-                        <span className="text-xs text-muted line-through whitespace-nowrap">{formatPrice(originalPrice)}</span>
-                      </div>
-
-                      {/* Stock Claimed Bar */}
+                    {/* Progress Bar & CTA */}
+                    <div className="space-y-3 pt-2 border-t border-line/60">
                       <div className="space-y-1 text-[10px]">
                         <div className="flex justify-between text-muted font-bold">
                           <span>{text.flashDeals.claimed} 78%</span>
@@ -839,10 +1146,10 @@ export default function HomePage() {
                       <button
                         type="button"
                         onClick={() => handleQuickAdd(prod)}
-                        className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs whitespace-nowrap transition-all flex items-center justify-center gap-1.5 ${
+                        className={`w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer ${
                           isAdded
-                            ? "bg-emerald-600 text-white shadow-sm"
-                            : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
+                            ? "bg-emerald-600 !text-white shadow-sm"
+                            : "bg-orange-500 hover:bg-orange-600 !text-white shadow-sm"
                         }`}
                       >
                         {isAdded ? (
@@ -866,8 +1173,58 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. Signature Categories Grid */}
-      <section id="categories" className="py-12 md:py-16 border-b border-line bg-surface-soft/50">
+      {/* 5. Authorized Global Brands Showcase */}
+      <section className="py-10 md:py-16 border-b border-line bg-surface-soft/40">
+        <div className="noormexa-container space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-black text-xs border border-blue-500/20 mb-1">
+                <Award size={13} />
+                <span>{text.brandsSection.badge}</span>
+              </span>
+              <h2 className="text-xl sm:text-3xl font-black text-foreground tracking-tight">
+                {text.brandsSection.title}
+              </h2>
+              <p className="text-xs sm:text-sm text-muted">{text.brandsSection.subtitle}</p>
+            </div>
+
+            <Link
+              href="/marketplace"
+              className="text-xs sm:text-sm font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 shrink-0"
+            >
+              <span>{text.brandsSection.viewAllBrands}</span>
+              <DirectionIcon size={14} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {authorizedBrands.map((brand) => (
+              <Link
+                key={brand.name}
+                href={`/marketplace?search=${encodeURIComponent(brand.name)}`}
+                className="p-5 rounded-2xl bg-surface border border-line hover:border-orange-500/50 hover:shadow-md transition-all text-center space-y-2.5 group flex flex-col justify-between"
+              >
+                <div className="w-12 h-12 mx-auto rounded-xl bg-surface-soft border border-line flex items-center justify-center font-mono font-black text-sm text-foreground tracking-wider group-hover:scale-105 transition-transform">
+                  {brand.logoText.slice(0, 4)}
+                </div>
+                <div>
+                  <h3 className="font-black text-xs sm:text-sm text-foreground group-hover:text-orange-500 transition-colors flex items-center justify-center gap-1">
+                    <span>{brand.name}</span>
+                    <BadgeCheck size={12} className="text-emerald-500" />
+                  </h3>
+                  <span className="text-[10px] text-muted block">{brand.category}</span>
+                </div>
+                <div className="pt-2 border-t border-line/60 text-[10px] text-orange-600 dark:text-orange-400 font-bold">
+                  {isAr ? brand.taglineAr : brand.taglineEn}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Signature Categories Department Catalog */}
+      <section className="py-12 md:py-16 border-b border-line bg-surface">
         <div className="noormexa-container space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -875,10 +1232,10 @@ export default function HomePage() {
                 <Sparkles size={13} />
                 <span>{text.categories.badge}</span>
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              <h2 className="text-xl sm:text-3xl font-black text-foreground tracking-tight">
                 {text.categories.title}
               </h2>
-              <p className="text-xs sm:text-sm text-muted mt-1">{text.categories.subtitle}</p>
+              <p className="text-xs sm:text-sm text-muted">{text.categories.subtitle}</p>
             </div>
 
             <Link
@@ -890,7 +1247,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
             {categoriesList.map((cat) => {
               const Icon = cat.icon;
               return (
@@ -924,7 +1281,262 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. Multi-Vendor Platform Ecosystem (Choose Your Role) */}
+      {/* 7. Smart Savings & Instant Coupons Club */}
+      <section className="py-10 md:py-16 border-b border-line bg-surface-soft/60">
+        <div className="noormexa-container space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs border border-emerald-500/20">
+              <Gift size={14} />
+              <span>{text.couponsSection.badge}</span>
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              {text.couponsSection.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-muted">
+              {text.couponsSection.subtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {smartCoupons.map((coupon) => (
+              <div
+                key={coupon.code}
+                className="p-6 rounded-3xl bg-surface border-2 border-dashed border-line hover:border-orange-500 transition-all space-y-4 shadow-xs relative flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 font-black text-xs">
+                      {coupon.discount}
+                    </span>
+                    <span className="text-[11px] text-muted font-medium">
+                      {text.couponsSection.minSpendText} {coupon.minSpend}
+                    </span>
+                  </div>
+                  <h3 className="font-black text-base text-foreground">
+                    {isAr ? coupon.titleAr : coupon.titleEn}
+                  </h3>
+                  <p className="text-xs text-muted leading-relaxed">
+                    {isAr ? coupon.descAr : coupon.descEn}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-line/60 flex items-center justify-between gap-3">
+                  <div className="font-mono font-black text-sm text-foreground bg-surface-soft px-3 py-2 rounded-xl border border-line tracking-wider">
+                    {coupon.code}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCoupon(coupon.code)}
+                    className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                  >
+                    {copiedCoupon === coupon.code ? (
+                      <>
+                        <Check size={14} />
+                        <span>{text.couponsSection.copied}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} />
+                        <span>{text.couponsSection.copyCode}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. B2B Wholesale & Enterprise Sourcing Hub */}
+      <section className="py-12 md:py-20 border-b border-line bg-gradient-to-r from-slate-900 via-navy to-slate-900 text-white">
+        <div className="noormexa-container grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-orange-400 text-xs font-black">
+              <Building2 size={14} />
+              <span>{text.b2bSection.badge}</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+              {text.b2bSection.title}
+            </h2>
+
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
+              {text.b2bSection.subtitle}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              {text.b2bSection.features.map((feat) => (
+                <div key={feat} className="flex items-start gap-2 text-xs text-slate-200">
+                  <Check size={15} className="text-orange-400 shrink-0 mt-0.5" />
+                  <span>{feat}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 pt-4">
+              <Link
+                href="/seller/dashboard"
+                className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shadow-md transition-all flex items-center gap-2"
+              >
+                <span>{text.b2bSection.ctaQuote}</span>
+                <DirectionIcon size={14} />
+              </Link>
+              <Link
+                href="/marketplace?category=wholesale"
+                className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all"
+              >
+                <span>{text.b2bSection.ctaExploreB2B}</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5">
+            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <span className="font-black text-sm text-white">{isAr ? "نموذج طلب توريد فوري" : "Instant Sourcing Request"}</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">24h RFQ SLA</span>
+              </div>
+              <div className="space-y-3 text-xs">
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-bold">{isAr ? "المنتج المطلوب أو الفئة" : "Product Category"}</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={isAr ? "إلكترونيات أو أزياء أو عطور بكميات تجارية" : "Consumer Electronics / Bulk Fashion"}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white/90 text-xs"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 font-bold">{isAr ? "الكمية التقديرية" : "Quantity"}</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={isAr ? "+500 قطعة" : "500+ Units"}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white/90 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 font-bold">{isAr ? "بلد التسليم" : "Destination"}</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={isAr ? "السعودية / مصر / الإمارات" : "GCC / Egypt"}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white/90 text-xs"
+                    />
+                  </div>
+                </div>
+                <Link
+                  href="/seller/dashboard"
+                  className="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs flex items-center justify-center gap-1.5 mt-2 transition-all block text-center"
+                >
+                  <Building2 size={14} />
+                  <span>{isAr ? "تقديم طلب توريد رسمي" : "Submit Enterprise Inquiry"}</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. Video Stories & Customer Unboxings */}
+      <section className="py-12 md:py-16 border-b border-line bg-surface">
+        <div className="noormexa-container space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-black text-xs border border-purple-500/20">
+              <Video size={14} />
+              <span>{text.videoStoriesSection.badge}</span>
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">{text.videoStoriesSection.title}</h2>
+            <p className="text-xs sm:text-sm text-muted">{text.videoStoriesSection.subtitle}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {videoStories.map((story) => (
+              <div
+                key={story.id}
+                className="group rounded-3xl overflow-hidden bg-surface-soft border border-line hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all flex flex-col justify-between"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                  <img
+                    src={story.thumbnail}
+                    alt={story.productName}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Play size={20} className="fill-white ms-0.5" />
+                    </div>
+                  </div>
+
+                  <div className="absolute top-3 end-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold flex items-center gap-1">
+                    <Star size={10} className="fill-orange-400 text-orange-400" />
+                    <span>{story.rating}</span>
+                  </div>
+
+                  <div className="absolute bottom-3 start-3 end-3 text-white text-xs font-bold truncate">
+                    {story.author}
+                  </div>
+                </div>
+
+                <div className="p-4 space-y-3 bg-surface">
+                  <h3 className="font-bold text-xs sm:text-sm text-foreground line-clamp-2">
+                    {isAr ? story.titleAr : story.titleEn}
+                  </h3>
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-line">
+                    <span className="font-black text-orange-600 dark:text-orange-400">{formatPrice(story.productPrice)}</span>
+                    <Link
+                      href="/marketplace"
+                      className="text-xs font-bold text-muted hover:text-foreground flex items-center gap-1"
+                    >
+                      <span>{text.videoStoriesSection.watchNow}</span>
+                      <DirectionIcon size={12} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 10. The 6 Core Guarantees */}
+      <section className="py-12 md:py-16 border-b border-line bg-surface-soft/60">
+        <div className="noormexa-container space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400 font-black text-xs border border-orange-500/20">
+              <ShieldCheck size={14} />
+              <span>{text.guaranteesSection.badge}</span>
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">{text.guaranteesSection.title}</h2>
+            <p className="text-xs sm:text-sm text-muted">{text.guaranteesSection.subtitle}</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {text.guaranteesSection.items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="p-6 rounded-3xl bg-surface border border-line space-y-3 hover:border-orange-500/40 hover:shadow-md transition-all shadow-xs"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
+                    <Icon size={24} />
+                  </div>
+                  <h3 className="font-black text-base text-foreground">{item.title}</h3>
+                  <p className="text-xs text-muted leading-relaxed font-medium">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 11. Multi-Vendor Platform Ecosystem (Choose Your Role) */}
       <section id="roles" className="py-12 md:py-20 border-b border-line bg-surface">
         <div className="noormexa-container space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -946,11 +1558,11 @@ export default function HomePage() {
               return (
                 <div
                   key={role.title}
-                  className="p-6 rounded-3xl bg-surface-soft border border-line hover:border-gold hover:shadow-lg transition-all duration-300 flex flex-col justify-between space-y-6 group"
+                  className="p-6 rounded-3xl bg-surface-soft border border-line hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300 flex flex-col justify-between space-y-6 group"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-gold flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                         <Icon size={22} />
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full bg-surface border border-line text-[10px] font-bold text-muted">
@@ -966,7 +1578,7 @@ export default function HomePage() {
 
                   <Link
                     href={role.href}
-                    className="w-full py-2.5 rounded-xl bg-surface border border-line hover:border-gold hover:bg-gold hover:text-navy text-foreground font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                    className="w-full py-2.5 rounded-xl bg-surface border border-line hover:bg-orange-500 hover:!text-white text-foreground font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-xs"
                   >
                     <span>{role.cta}</span>
                     <DirectionIcon size={13} />
@@ -978,11 +1590,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. Platform Statistics & Proof of Scale */}
-      <section className="py-12 md:py-16 border-b border-line bg-gradient-to-r from-navy via-[#121f36] to-navy text-white">
+      {/* 12. Platform Statistics & Proof of Scale */}
+      <section className="py-12 md:py-16 border-b border-line bg-gradient-to-r from-slate-900 via-navy to-slate-900 text-white">
         <div className="noormexa-container space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-1">
-            <span className="text-xs font-black text-gold tracking-widest uppercase">{text.stats.badge}</span>
+            <span className="text-xs font-black text-orange-400 tracking-widest uppercase">{text.stats.badge}</span>
             <h2 className="text-2xl sm:text-3xl font-black text-white">{text.stats.title}</h2>
           </div>
 
@@ -994,10 +1606,10 @@ export default function HomePage() {
                   key={stat.label}
                   className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xs text-center space-y-2 hover:bg-white/10 transition-all"
                 >
-                  <div className="w-10 h-10 mx-auto rounded-xl bg-gold/20 text-gold flex items-center justify-center">
+                  <div className="w-10 h-10 mx-auto rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center">
                     <Icon size={20} />
                   </div>
-                  <div className="text-3xl sm:text-4xl font-black text-gold tracking-tight">{stat.value}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-orange-400 tracking-tight">{stat.value}</div>
                   <div className="text-xs sm:text-sm font-bold text-white">{stat.label}</div>
                   <div className="text-[10px] text-white/60">{stat.sublabel}</div>
                 </div>
@@ -1007,7 +1619,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8. Verified Testimonials & Customer Trust */}
+      {/* 13. Verified Testimonials & Customer Trust */}
       <section className="py-12 md:py-16 border-b border-line bg-surface">
         <div className="noormexa-container space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-1">
@@ -1027,9 +1639,9 @@ export default function HomePage() {
               >
                 <div className="space-y-3">
                   {/* Star Rating */}
-                  <div className="flex items-center gap-1 text-amber-500">
+                  <div className="flex items-center gap-1 text-orange-500">
                     {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} size={15} className="fill-amber-500" />
+                      <Star key={i} size={15} className="fill-orange-500" />
                     ))}
                   </div>
 
@@ -1054,11 +1666,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 9. Merchant Subscription Plans */}
+      {/* 14. Merchant Subscription Plans */}
       <section id="plans" className="py-12 md:py-20 border-b border-line bg-surface-soft/60">
         <div className="noormexa-container space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 text-amber-900 dark:text-gold font-black text-xs border border-amber-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400 font-black text-xs border border-orange-500/20">
               <Coins size={14} />
               <span>{text.plans.badge}</span>
             </span>
@@ -1074,12 +1686,12 @@ export default function HomePage() {
                 key={plan.name}
                 className={`p-6 sm:p-8 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 ${
                   plan.highlight
-                    ? "bg-surface border-2 border-gold shadow-2xl relative scale-105"
-                    : "bg-surface border border-line shadow-sm hover:border-gold/50"
+                    ? "bg-surface border-2 border-orange-500 shadow-xl relative scale-105"
+                    : "bg-surface border border-line shadow-sm hover:border-slate-300"
                 }`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3.5 start-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[11px] font-black shadow-md flex items-center gap-1">
+                  <div className="absolute -top-3.5 start-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-orange-500 text-white text-[11px] font-black shadow-md flex items-center gap-1">
                     <Sparkles size={12} />
                     <span>{plan.badge}</span>
                   </div>
@@ -1108,7 +1720,7 @@ export default function HomePage() {
                   href="/auth?mode=signup&role=seller"
                   className={`w-full py-3 rounded-xl font-black text-xs text-center transition-all ${
                     plan.highlight
-                      ? "bg-gold text-navy hover:bg-gold-strong shadow-md"
+                      ? "bg-orange-500 hover:bg-orange-600 !text-white shadow-md"
                       : "bg-surface-soft hover:bg-surface border border-line text-foreground"
                   }`}
                 >
@@ -1120,7 +1732,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 10. Interactive Frequently Asked Questions */}
+      {/* 15. Interactive Frequently Asked Questions */}
       <section id="faq" className="py-12 md:py-16 bg-surface">
         <div className="noormexa-container max-w-4xl space-y-8">
           <div className="text-center space-y-1">
@@ -1136,7 +1748,7 @@ export default function HomePage() {
             {text.faq.items.map((item) => (
               <details
                 key={item.q}
-                className="group p-5 rounded-2xl bg-surface-soft border border-line hover:border-gold transition-all select-none"
+                className="group p-5 rounded-2xl bg-surface-soft border border-line hover:border-slate-300 dark:hover:border-slate-700 transition-all select-none"
               >
                 <summary className="font-bold text-foreground text-xs sm:text-sm cursor-pointer list-none flex items-center justify-between gap-3">
                   <span>{item.q}</span>

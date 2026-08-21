@@ -315,8 +315,8 @@ function MarketplaceContent() {
               onClick={() => setSelectedCategory("all")}
               className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
                 selectedCategory === "all"
-                  ? "bg-gold text-navy border-gold shadow-sm font-extrabold"
-                  : "bg-surface text-muted border-line hover:border-gold/60"
+                  ? "bg-orange-500 text-white border-orange-500 shadow-sm font-extrabold"
+                  : "bg-surface text-muted border-line hover:border-orange-500/50 hover:text-foreground"
               }`}
             >
               {text.allCategories}
@@ -328,8 +328,8 @@ function MarketplaceContent() {
                 onClick={() => setSelectedCategory(cat.slug)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
                   selectedCategory === cat.slug
-                    ? "bg-gold text-navy border-gold shadow-sm font-extrabold"
-                    : "bg-surface text-muted border-line hover:border-gold/60"
+                    ? "bg-orange-500 text-white border-orange-500 shadow-sm font-extrabold"
+                    : "bg-surface text-muted border-line hover:border-orange-500/50 hover:text-foreground"
                 }`}
               >
                 {language === "ar" ? cat.name_ar : cat.name_en}
@@ -625,7 +625,7 @@ function MarketplaceContent() {
                             isAdded
                               ? "bg-emerald-600 text-white"
                               : product.stock > 0
-                              ? "bg-gold text-navy hover:bg-gold-strong dark:bg-gold dark:text-navy dark:hover:bg-amber-400 border border-gold/40"
+                              ? "bg-orange-500 hover:bg-orange-600 !text-white shadow-xs active:scale-[0.98]"
                               : "bg-surface-soft text-muted cursor-not-allowed border border-line"
                           }`}
                         >

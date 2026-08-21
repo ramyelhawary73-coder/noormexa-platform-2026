@@ -401,7 +401,7 @@ export default function Navbar() {
                 <Link
                   href="/admin"
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-navy text-white font-black text-xs shadow-xs text-center"
+                  className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs text-center"
                 >
                   <ShieldCheck size={14} />
                   <span>{language === "ar" ? "مركز الإدارة الشامل" : "Super Admin"}</span>
@@ -445,9 +445,9 @@ export default function Navbar() {
               <Link
                 href="/marketplace"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line hover:border-gold text-xs font-bold text-foreground transition-all"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line hover:border-orange-500/50 text-xs font-bold text-foreground transition-all"
               >
-                <div className="w-8 h-8 rounded-xl bg-gold-soft text-gold-strong flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
                   <ShoppingBag size={16} />
                 </div>
                 <span>{text.marketplace}</span>
@@ -456,9 +456,9 @@ export default function Navbar() {
               <Link
                 href="/orders"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line hover:border-gold text-xs font-bold text-foreground transition-all"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line hover:border-orange-500/50 text-xs font-bold text-foreground transition-all"
               >
-                <div className="w-8 h-8 rounded-xl bg-gold-soft text-gold-strong flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
                   <Truck size={16} />
                 </div>
                 <span>{text.orders}</span>
@@ -473,7 +473,7 @@ export default function Navbar() {
                 className="flex items-center justify-between p-2 rounded-xl hover:bg-surface text-foreground font-bold"
               >
                 <span className="flex items-center gap-2">
-                  <UserRound size={16} className="text-gold" />
+                  <UserRound size={16} className="text-orange-500" />
                   <span>{user ? text.dashboard : text.account}</span>
                 </span>
                 <span className="text-[10px] text-muted">{user ? "نشط" : "تسجيل"}</span>
