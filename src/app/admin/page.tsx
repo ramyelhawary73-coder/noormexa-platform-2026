@@ -6,6 +6,7 @@ import {
   Activity,
   BadgeCheck,
   Banknote,
+  BarChart3,
   Boxes,
   Check,
   ChevronRight,
@@ -50,6 +51,7 @@ const copy = {
     tabOrders: "إدارة الطلبات",
     tabPayouts: "تسويات وسحب الأرباح",
     tabPromotions: "العروض والخصومات",
+    tabAnalytics: "التحليلات والتقارير",
     gmvLabel: "إجمالي قيمة التداول (GMV)",
     netCommissionLabel: "صافي أرباح المنصة (Commissions)",
     activeStoresLabel: "المتاجر المعتمدة النشطة",
@@ -71,6 +73,7 @@ const copy = {
     tabOrders: "Orders & Shipping Dispatch",
     tabPayouts: "Payouts & Settlements",
     tabPromotions: "Promotions & Marketing",
+    tabAnalytics: "Analytics & Growth",
     gmvLabel: "Gross Merchandise Value (GMV)",
     netCommissionLabel: "Platform Net Commission",
     activeStoresLabel: "Active Verified Stores",
@@ -129,7 +132,7 @@ export default function SuperAdminPage() {
   } = useMarketplace();
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders" | "payouts" | "promotions"
+    "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders" | "payouts" | "promotions" | "analytics"
   >("overview");
 
   // Official Flagship Store Modal State
@@ -232,6 +235,14 @@ export default function SuperAdminPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowOfficialModal(true)}
+              className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs sm:text-sm flex items-center gap-2 transition-all shadow-xs"
+            >
+              <Crown size={15} className="fill-white" />
+              <span>{isAr ? "تدشين متجر رسمي" : "Launch Official Store"}</span>
+            </button>
             <Link
               href="/seller/dashboard"
               className="px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-gold text-xs sm:text-sm font-bold text-foreground flex items-center gap-2 transition-all shadow-xs"
@@ -249,7 +260,7 @@ export default function SuperAdminPage() {
           </div>
         </div>
 
-        {/* Navigation Tabs Bar - Symmetrical Grid */}
+        {/* Navigation Tabs Bar - Symmetrical 10-Tab Grid (5 cols x 2 rows) */}
         <div className="bg-surface/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5">
             {[
@@ -261,6 +272,7 @@ export default function SuperAdminPage() {
               { id: "gateways", label: text.tabGateways, icon: CreditCard, count: null },
               { id: "currencies", label: text.tabCurrencies, icon: Coins, count: `${Object.keys(currencies).length}` },
               { id: "promotions", label: text.tabPromotions, icon: Megaphone, count: `${coupons.length}` },
+              { id: "analytics", label: text.tabAnalytics, icon: BarChart3, count: "LIVE" },
               { id: "settings", label: text.tabSettings, icon: Settings, count: null },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -1207,7 +1219,145 @@ export default function SuperAdminPage() {
           </div>
         )}
 
-        {/* Tab 9: Platform Global Settings & Logistics */}
+        {/* Tab 9: Analytics & Growth */}
+        {activeTab === "analytics" && (
+          <div className="space-y-6 animate-in fade-in">
+            {/* Analytics Header Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>{isAr ? "معدل التحويل العام (CVR)" : "Conversion Rate"}</span>
+                  <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600">
+                    <TrendingUp size={15} />
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">3.84%</div>
+                <div className="text-[11px] text-emerald-600 font-bold">+0.6% {isAr ? "أعلى من الشهر الماضي" : "vs last month"}</div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>{isAr ? "الزوار النشطون حالياً" : "Live Active Shoppers"}</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">1,482</div>
+                <div className="text-[11px] text-muted">{isAr ? "متسوق يتصفحون المنتجات الآن" : "Browsing live catalogs"}</div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>{isAr ? "معدل الاحتفاظ بالعملاء" : "Customer Retention"}</span>
+                  <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600">
+                    <Activity size={15} />
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">42.6%</div>
+                <div className="text-[11px] text-emerald-600 font-bold">{isAr ? "عملاء متكررو الشراء" : "Repeat buyers"}</div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>{isAr ? "نسبة إتمام الدفع الإلكتروني" : "Online Payment Share"}</span>
+                  <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600">
+                    <CreditCard size={15} />
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">68.2%</div>
+                <div className="text-[11px] text-muted">{isAr ? "بطاقات ومدى وApple Pay" : "Digital vs COD"}</div>
+              </div>
+            </div>
+
+            {/* Geographical Distribution & Category Performance */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Regional Sales Breakdown */}
+              <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-line pb-3">
+                  <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                    <Coins size={16} className="text-amber-500" />
+                    <span>{isAr ? "توزيع المبيعات الجغرافي بالعملات والأسواق" : "Geographic Revenue Share"}</span>
+                  </h3>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold">
+                    {isAr ? "تحديث حي" : "Live"}
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  {[
+                    { market: isAr ? "المملكة العربية السعودية (SAR)" : "Saudi Arabia (SAR)", percent: 42, color: "bg-emerald-500", gmv: "78,200 SAR" },
+                    { market: isAr ? "جمهورية مصر العربية (EGP)" : "Egypt (EGP)", percent: 28, color: "bg-amber-500", gmv: "195,400 EGP" },
+                    { market: isAr ? "دولة الإمارات العربية المتحدة (AED)" : "United Arab Emirates (AED)", percent: 18, color: "bg-blue-500", gmv: "29,600 AED" },
+                    { market: isAr ? "دولة الكويت وقطر (KWD/QAR)" : "Kuwait & Qatar (KWD/QAR)", percent: 8, color: "bg-purple-500", gmv: "14,800 USD eq." },
+                    { market: isAr ? "باقي دول العالم (USD/EUR)" : "International (USD/EUR)", percent: 4, color: "bg-slate-400", gmv: "6,200 USD" },
+                  ].map((item) => (
+                    <div key={item.market} className="space-y-1.5">
+                      <div className="flex items-center justify-between font-bold">
+                        <span className="text-foreground">{item.market}</span>
+                        <span className="text-muted">{item.gmv} ({item.percent}%)</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-surface-soft border border-line overflow-hidden">
+                        <div className={`h-full rounded-full ${item.color}`} style={{ width: `${item.percent}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Categories & AI Marketplace Recommendations */}
+              <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-line pb-3">
+                  <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                    <Sparkles size={16} className="text-gold" />
+                    <span>{isAr ? "توصيات الذكاء الاصطناعي لنمو السوق" : "AI Marketplace Growth Insights"}</span>
+                  </h3>
+                  <span className="text-[11px] text-muted">NOORMEXA AI Core</span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-foreground space-y-1">
+                    <div className="font-black text-amber-700 dark:text-gold flex items-center gap-1.5">
+                      <Crown size={14} />
+                      <span>{isAr ? "زيادة الطلب على العطور الملكية والساعات" : "High Demand Surge: Luxury Watches & Oud"}</span>
+                    </div>
+                    <p className="text-[11px] text-muted leading-relaxed">
+                      {isAr
+                        ? "سجل قطاع العطور والساعات الفاخرة نمواً بنسبة +34% هذا الأسبوع. يُوصى بتدشين حملة فلاش سيل موجهة للمتسوقين في الخليج."
+                        : "Luxury Oud & Chronograph Watches saw a +34% surge. Recommended to launch a targeted Flash Deal campaign."}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-foreground space-y-1">
+                    <div className="font-black text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                      <BadgeCheck size={14} />
+                      <span>{isAr ? "كفاءة تسوية أرباح المتاجر ممتازة" : "Payout Health: 99.4% On-Time"}</span>
+                    </div>
+                    <p className="text-[11px] text-muted leading-relaxed">
+                      {isAr
+                        ? "متوسط وقت إنجاز طلبات سحب الأرباح للتجار 1.2 يوم عمل، مما يرفع مؤشر رضا البائعين وولاء المتاجر للمنصة."
+                        : "Average vendor payout fulfillment time is 1.2 business days, maintaining high merchant retention."}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-foreground space-y-1">
+                    <div className="font-black text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
+                      <Activity size={14} />
+                      <span>{isAr ? "الترويج عبر كود NOORMEXA2026 حقق أعلى مبيعات" : "Top Promo Code ROI: NOORMEXA2026"}</span>
+                    </div>
+                    <p className="text-[11px] text-muted leading-relaxed">
+                      {isAr
+                        ? "الكوبون ساهم في إتمام أكثر من 142 طلباً بقيمة تجاوزت 64,000 ج.م في أول 72 ساعة من إطلاقه."
+                        : "Generated 142 orders totaling over 64k within the initial 72 hours of activation."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 10: Platform Global Settings & Logistics */}
         {activeTab === "settings" && (
           <form onSubmit={handleSavePlatformSettings} className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
             <div className="flex items-center justify-between border-b border-line pb-3">
