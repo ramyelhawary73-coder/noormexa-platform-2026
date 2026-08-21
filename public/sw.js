@@ -7,21 +7,23 @@ const STATIC_ASSETS = [
   "/manifest.json",
   "/favicon.svg",
   "/favicon.png",
-  "/favicon-32.png",
   "/icon-192.png",
   "/icon-512.png",
-  "/apple-touch-icon.png",
 ];
 
-// Install Event: Precaches essential app assets
+// Install Event: Precaches essential app assets safely
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(STATIC_ASSETS).catch((err) => {
-          console.warn("[NOORMEXA SW] Pre-cache warning:", err);
-        });
+      .then(async (cache) => {
+        for (const url of STATIC_ASSETS) {
+          try {
+            await cache.add(url);
+          } catch {
+            // Ignore individual asset failure
+          }
+        }
       })
       .then(() => self.skipWaiting())
   );
