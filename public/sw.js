@@ -5,8 +5,9 @@ const OFFLINE_FALLBACK_PAGE = "/";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
-  "/favicon.ico",
+  "/favicon.svg",
   "/favicon.png",
+  "/favicon-32.png",
   "/icon-192.png",
   "/icon-512.png",
   "/apple-touch-icon.png",

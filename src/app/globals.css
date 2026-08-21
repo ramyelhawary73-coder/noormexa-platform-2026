@@ -137,13 +137,16 @@ a[role="button"] span {
   white-space: nowrap;
 }
 
-button,
 input,
 textarea,
 select {
   font: inherit;
   background-color: var(--surface);
   color: var(--foreground);
+}
+
+button {
+  font: inherit;
 }
 
 select option {

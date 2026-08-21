@@ -9,7 +9,6 @@ import {
   Laptop,
   X,
   Sparkles,
-  ExternalLink,
   Copy,
   Check,
   Zap,
@@ -162,7 +161,25 @@ export default function PwaInstallPrompt() {
     }
   };
 
-  const handleOpenStandaloneTab = () => {
+  // Direct Install Action Button inside Modal
+  const handleDirectInstallClick = async () => {
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice.outcome === "accepted") {
+          setIsInstalled(true);
+          setShowBanner(false);
+          setShowModal(false);
+        }
+        setDeferredPrompt(null);
+        return;
+      } catch (err) {
+        console.error("Direct install error:", err);
+      }
+    }
+    
+    // If not in standalone mode and in an embedded window/tab, open top-level window for direct browser prompt
     if (typeof window !== "undefined") {
       window.open(window.location.origin, "_blank", "noopener,noreferrer");
     }
@@ -313,15 +330,17 @@ export default function PwaInstallPrompt() {
                 <span className="text-xs font-black text-orange-300">
                   ⚡ للتثبيت التلقائي بنقرة واحدة:
                 </span>
-                <span className="text-[10px] text-slate-400">Chrome / Edge / Safari</span>
+                <span className="text-[10px] text-slate-300 font-mono">
+                  {deferredPrompt ? "جاهز للتثبيت الفوري ✓" : "Chrome / Edge / Safari"}
+                </span>
               </div>
               <button
                 type="button"
-                onClick={handleOpenStandaloneTab}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
+                onClick={handleDirectInstallClick}
+                className="w-full py-3 px-4 rounded-xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-orange-500/30 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer border border-orange-400/50"
               >
-                <ExternalLink size={14} className="stroke-[2.5]" />
-                <span>فتح في تبويب المتصفح للتثبيت المباشر</span>
+                <Download size={16} className="stroke-[2.5]" />
+                <span>{deferredPrompt ? "تثبيت التطبيق على جهازك الآن 📲" : "تثبيت التطبيق المباشر على جهازك"}</span>
               </button>
             </div>
 

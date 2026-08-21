@@ -443,14 +443,14 @@ export default function CartPage() {
               <div className="space-y-3 pt-2">
                 <Link
                   href="/checkout"
-                  className="w-full py-4 rounded-2xl bg-gold text-navy hover:bg-gold-strong font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md"
+                  className="w-full py-4 rounded-2xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-orange-500/25 border border-orange-400/40 active:scale-[0.99]"
                 >
-                  <ShoppingBag size={18} />
-                  <span>{text.proceedToCheckout}</span>
+                  <ShoppingBag size={18} className="stroke-[2.5]" />
+                  <span className="!text-white font-black">{text.proceedToCheckout}</span>
                 </Link>
 
                 <div className="flex items-center justify-center gap-2 text-[11px] text-muted">
-                  <ShieldCheck size={14} className="text-gold" />
+                  <ShieldCheck size={14} className="text-orange-500" />
                   <span>{text.secureCheckoutBadge}</span>
                 </div>
               </div>

@@ -529,25 +529,25 @@ export default function ReelsVideoModal({
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className={`py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer ${
+                className={`py-3 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-lg active:scale-95 cursor-pointer ${
                   isAdded
-                    ? "bg-emerald-600 text-white"
-                    : "bg-orange-500 hover:bg-orange-600 !text-white"
+                    ? "!bg-emerald-600 !text-white border border-emerald-500 shadow-emerald-600/30"
+                    : "!bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white border border-orange-400/50 shadow-orange-500/30"
                 }`}
               >
                 {isAdded ? (
                   <>
-                    <Check size={14} />
-                    <span>{isAr ? "في السلة ✓" : "Added ✓"}</span>
+                    <Check size={15} className="stroke-[3]" />
+                    <span className="!text-white font-black">{isAr ? "في السلة ✓" : "Added ✓"}</span>
                   </>
                 ) : (
                   <>
-                    <ShoppingCart size={14} />
-                    <span>{isAr ? "شراء المنتج" : "Buy Now"}</span>
+                    <ShoppingCart size={15} className="stroke-[2.5]" />
+                    <span className="!text-white font-black">{isAr ? "شراء المنتج" : "Buy Now"}</span>
                   </>
                 )}
               </button>
@@ -555,10 +555,10 @@ export default function ReelsVideoModal({
               <Link
                 href={`/product/${currentReel.productId}`}
                 onClick={onClose}
-                className="py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-white/10 text-center"
+                className="py-3 px-3 rounded-xl !bg-slate-800 hover:!bg-slate-700 !text-white font-black text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-600/80 hover:border-orange-500/50 text-center shadow-md active:scale-95"
               >
-                <span>{isAr ? "تفاصيل المنتج" : "Details"}</span>
-                <ExternalLink size={13} />
+                <span className="!text-white font-bold">{isAr ? "تفاصيل المنتج" : "Details"}</span>
+                <ExternalLink size={13} className="text-orange-400" />
               </Link>
             </div>
           </div>

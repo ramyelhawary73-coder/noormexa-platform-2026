@@ -488,20 +488,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   type="button"
                   disabled={product.stock <= 0}
                   onClick={handleAddToCart}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-surface border-2 border-gold text-foreground hover:bg-gold-soft font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm active:scale-98"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-surface border-2 border-orange-500 text-foreground hover:bg-orange-500/10 font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ShoppingCart size={17} className="text-gold" />
-                  <span>{text.addToCart}</span>
+                  <ShoppingCart size={17} className="text-orange-500" />
+                  <span className="font-black text-foreground">{text.addToCart}</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={product.stock <= 0}
                   onClick={handleBuyNow}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
+                  className="w-full py-3.5 px-6 rounded-2xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-orange-500/25 active:scale-98 cursor-pointer border border-orange-400/40 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Zap size={17} />
-                  <span>{text.buyNow}</span>
+                  <Zap size={17} className="fill-white text-white" />
+                  <span className="!text-white font-black">{text.buyNow}</span>
                 </button>
               </div>
 
