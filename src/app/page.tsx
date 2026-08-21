@@ -545,24 +545,24 @@ export default function HomePage() {
   return (
     <main id="top" className="noormexa-main overflow-hidden">
       {/* 1. Global Trust & Quality Assurance Strip */}
-      <div className="bg-gradient-to-r from-navy via-[#121e35] to-navy text-foreground border-b border-line py-2.5 px-4">
+      <div className="bg-slate-900 text-slate-100 border-b border-slate-800 py-2.5 px-4">
         <div className="noormexa-container flex flex-wrap items-center justify-between gap-3 text-[11px] sm:text-xs">
-          <div className="flex items-center gap-2 text-amber-600 dark:text-gold font-bold">
-            <Sparkles size={14} className="animate-pulse shrink-0" />
+          <div className="flex items-center gap-2 text-amber-400 font-bold">
+            <Sparkles size={14} className="animate-pulse shrink-0 text-amber-400" />
             <span className="truncate">{text.trustBar.guarantee}</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-6 text-foreground/80 font-medium">
+          <div className="hidden md:flex items-center gap-6 text-slate-300 font-medium">
             <span className="flex items-center gap-1.5">
-              <Truck size={13} className="text-amber-600 dark:text-gold" />
+              <Truck size={13} className="text-amber-400" />
               <span>{text.trustBar.freeShipping}</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <ShieldCheck size={13} className="text-emerald-500" />
+              <ShieldCheck size={13} className="text-emerald-400" />
               <span>{text.trustBar.fastDelivery}</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <CreditCard size={13} className="text-blue-400" />
+              <CreditCard size={13} className="text-sky-400" />
               <span>{text.trustBar.securePay}</span>
             </span>
           </div>
@@ -570,9 +570,9 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <Link
               href="/marketplace?filter=deals"
-              className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-gold border border-amber-500/40 font-black text-[10px] sm:text-[11px] hover:bg-amber-500 hover:text-white transition-all flex items-center gap-1"
+              className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] sm:text-[11px] hover:bg-amber-400 transition-all flex items-center gap-1 shadow-xs"
             >
-              <Flame size={12} className="text-amber-500 fill-amber-500" />
+              <Flame size={12} className="text-slate-950 fill-slate-950" />
               <span>{isAr ? "فلاش ديلز 40% خصم" : "Flash Deals 40% OFF"}</span>
             </Link>
           </div>

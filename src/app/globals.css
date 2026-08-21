@@ -6,24 +6,24 @@
 [data-theme="light"],
 html:not(.dark) {
   color-scheme: light;
-  /* World-Class Light Luxury Palette: Clean Alabaster, Royal Slate & Champagne Gold */
-  --background: #f8f9fb;
-  --foreground: #0f172a;
+  /* World-Class Light Luxury Palette: Clean Crisp Alabaster, Royal Navy & Rich Amber Gold */
+  --background: #f8fafc;
+  --foreground: #090d16;
   --surface: #ffffff;
   --surface-soft: #f1f5f9;
   --surface-muted: #e2e8f0;
-  --line: rgba(15, 23, 42, 0.09);
-  --line-strong: rgba(15, 23, 42, 0.18);
-  --muted: #64748b;
-  --gold: #d4af37;
-  --gold-strong: #a47d17;
-  --gold-soft: #fbf5e6;
+  --line: rgba(15, 23, 42, 0.12);
+  --line-strong: rgba(15, 23, 42, 0.22);
+  --muted: #475569;
+  --gold: #d97706;
+  --gold-strong: #92400e;
+  --gold-soft: #fef3c7;
   --navy: #0f172a;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 10px;
-  --safe-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
-  --soft-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  --safe-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  --soft-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
 :root.dark,
@@ -32,21 +32,21 @@ body.dark,
 [data-theme="dark"],
 .dark {
   color-scheme: dark;
-  /* World-Class Dark Luxury Palette: Midnight Obsidian, Crystal Sapphire & Luminous Gold */
+  /* World-Class Dark Luxury Palette: Midnight Obsidian, Crystal Sapphire Navy & Luminous Gold */
   --background: #070b14;
   --foreground: #f8fafc;
   --surface: #0e1626;
   --surface-soft: #142036;
-  --surface-muted: #1c2c48;
-  --line: rgba(248, 250, 252, 0.09);
-  --line-strong: rgba(248, 250, 252, 0.18);
-  --muted: #94a3b8;
-  --gold: #e5c158;
-  --gold-strong: #f6d87d;
-  --gold-soft: rgba(229, 193, 88, 0.14);
+  --surface-muted: #1e293b;
+  --line: rgba(248, 250, 252, 0.12);
+  --line-strong: rgba(248, 250, 252, 0.22);
+  --muted: #cbd5e1;
+  --gold: #f59e0b;
+  --gold-strong: #fbbf24;
+  --gold-soft: rgba(245, 158, 11, 0.18);
   --navy: #070b14;
-  --safe-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-  --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --safe-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 @theme inline {

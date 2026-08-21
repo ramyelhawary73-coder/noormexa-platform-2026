@@ -7,7 +7,7 @@ import {
   Home,
   ShoppingBag,
   Package,
-  Heart,
+  Crown,
   ShoppingCart,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
@@ -19,15 +19,15 @@ const labels = {
   ar: {
     home: "الرئيسية",
     marketplace: "السوق",
+    admin: "لوحة المالك",
     orders: "طلباتي",
-    wishlist: "المفضلة",
     cart: "السلة",
   },
   en: {
     home: "Home",
     marketplace: "Shop",
+    admin: "Owner Hub",
     orders: "Orders",
-    wishlist: "Wishlist",
     cart: "Cart",
   },
 } as const;
@@ -50,7 +50,9 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const language = useSyncExternalStore<Language>(subscribeToLanguage, getLanguageSnapshot, () => "ar");
   const text = labels[language];
-  const { cartCount, wishlist } = useMarketplace();
+  const { cartCount } = useMarketplace();
+
+  const isOwnerActive = pathname.startsWith("/admin") || pathname.startsWith("/seller");
 
   const navItems = [
     { href: "/", label: text.home, icon: Home, active: pathname === "/" },
@@ -61,17 +63,17 @@ export default function MobileBottomNav() {
       active: pathname.startsWith("/marketplace") && !pathname.includes("wishlist"),
     },
     {
+      href: "/admin",
+      label: text.admin,
+      icon: Crown,
+      isSpecial: true,
+      active: isOwnerActive,
+    },
+    {
       href: "/orders",
       label: text.orders,
       icon: Package,
       active: pathname.startsWith("/orders"),
-    },
-    {
-      href: "/marketplace?wishlist=true",
-      label: text.wishlist,
-      icon: Heart,
-      badge: wishlist.length,
-      active: pathname.includes("wishlist"),
     },
     {
       href: "/cart",
@@ -83,11 +85,40 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-line shadow-lg transition-transform pb-[env(safe-area-inset-bottom,0px)]">
-      <nav className="flex items-center justify-around h-16 px-2 max-w-lg mx-auto">
+    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-line shadow-2xl transition-transform pb-[env(safe-area-inset-bottom,0px)]">
+      <nav className="flex items-center justify-around h-16 px-1.5 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.active;
+
+          if (item.isSpecial) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center group"
+              >
+                <div
+                  className={`relative -top-2 w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 ${
+                    isActive
+                      ? "bg-gradient-to-tr from-amber-600 to-amber-400 text-white shadow-amber-500/30 scale-105 ring-2 ring-gold"
+                      : "bg-navy text-gold dark:bg-gold dark:text-navy border border-gold/30 hover:scale-105"
+                  }`}
+                >
+                  <Icon size={20} className="fill-current stroke-[2]" />
+                  <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface animate-ping" />
+                  <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
+                </div>
+                <span
+                  className={`text-[10px] font-black -mt-1 leading-none ${
+                    isActive ? "text-amber-600 dark:text-gold" : "text-foreground font-bold"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          }
 
           return (
             <Link
@@ -95,8 +126,8 @@ export default function MobileBottomNav() {
               href={item.href}
               className={`relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-colors ${
                 isActive
-                  ? "text-gold font-bold"
-                  : "text-muted hover:text-foreground font-medium"
+                  ? "text-amber-600 dark:text-gold font-black"
+                  : "text-muted hover:text-foreground font-bold"
               }`}
             >
               <div className="relative">
@@ -107,7 +138,7 @@ export default function MobileBottomNav() {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] mt-1 leading-none">{item.label}</span>
+              <span className="text-[10px] mt-1 leading-none font-bold">{item.label}</span>
               {isActive && (
                 <span className="absolute bottom-1 w-1 h-1 rounded-full bg-gold" />
               )}

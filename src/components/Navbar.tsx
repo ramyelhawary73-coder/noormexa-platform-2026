@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore, useRef, useEffect } from "react";
 import {
   Coins,
+  Crown,
   Globe2,
   Heart,
   LayoutDashboard,
@@ -172,7 +173,7 @@ export default function Navbar() {
                 : "text-muted hover:text-foreground hover:bg-surface/50"
             }`}
           >
-            <ShoppingBag size={14} className="text-[#FF9900]" />
+            <ShoppingBag size={14} className="text-amber-500" />
             <span>{text.marketplace}</span>
           </Link>
 
@@ -184,7 +185,7 @@ export default function Navbar() {
                 : "text-muted hover:text-foreground hover:bg-surface/50"
             }`}
           >
-            <StoreIcon size={14} className="text-[#FF9900]" />
+            <StoreIcon size={14} className="text-amber-500" />
             <span>{text.sellerHub}</span>
           </Link>
 
@@ -196,7 +197,7 @@ export default function Navbar() {
                 : "text-muted hover:text-foreground hover:bg-surface/50"
             }`}
           >
-            <Truck size={14} className="text-[#FF9900]" />
+            <Truck size={14} className="text-amber-500" />
             <span>{text.orders}</span>
           </Link>
 
@@ -217,16 +218,26 @@ export default function Navbar() {
 
         {/* End: Utility Controls & Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Mobile Owner Hub Quick Button */}
+          <Link
+            href="/admin"
+            className="flex lg:hidden items-center gap-1 px-2.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-gold text-[11px] font-black shadow-xs shrink-0 hover:bg-amber-500/25 transition-all"
+            title="لوحة تحكم صاحب الموقع"
+          >
+            <Crown size={13} className="text-amber-600 dark:text-gold fill-amber-500/20" />
+            <span className="hidden xs:inline">{language === "ar" ? "لوحة المالك" : "Owner"}</span>
+          </Link>
+
           {/* Currency Switcher */}
           <div className="relative" ref={currencyMenuRef}>
             <button
               type="button"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-[#FF9900] hover:text-foreground transition-all shadow-xs"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-gold hover:text-foreground transition-all shadow-xs"
               onClick={() => setCurrencyOpen(!currencyOpen)}
               title={text.currency}
               aria-label={text.currency}
             >
-              <Coins size={13} className="text-[#FF9900]" />
+              <Coins size={13} className="text-amber-500" />
               <span className="font-mono text-[11px] font-black">{currency}</span>
               <ChevronDown
                 size={11}
@@ -251,7 +262,7 @@ export default function Navbar() {
                         type="button"
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                           active
-                            ? "bg-[#FF9900]/15 text-[#D97706] dark:text-[#FF9900] font-black border border-[#FF9900]/30"
+                            ? "bg-gold/15 text-amber-800 dark:text-gold font-black border border-gold/40"
                             : "hover:bg-surface-soft text-foreground"
                         }`}
                         onClick={() => {
@@ -265,7 +276,7 @@ export default function Navbar() {
                             ({language === "ar" ? info.symbolAr : info.symbolEn})
                           </span>
                         </span>
-                        <span className="text-[10px] text-muted">
+                        <span className="text-[10px] text-muted font-bold">
                           {language === "ar" ? info.nameAr : info.nameEn}
                         </span>
                       </button>
@@ -279,34 +290,34 @@ export default function Navbar() {
           {/* Language Toggle Button */}
           <button
             type="button"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-[#FF9900] hover:text-foreground transition-all shadow-xs active:scale-95"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-gold hover:text-foreground transition-all shadow-xs active:scale-95"
             onClick={toggleLanguage}
             title={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}
             aria-label="Toggle language"
           >
-            <Globe2 size={13} className="text-[#FF9900]" />
+            <Globe2 size={13} className="text-amber-500" />
             <span className="text-[11px] font-bold">{language === "ar" ? "EN" : "عربي"}</span>
           </button>
 
           {/* Theme Switcher Button (Day / Night) */}
           <button
             type="button"
-            className="w-8 h-8 rounded-full border border-line bg-surface hover:border-[#FF9900] flex items-center justify-center text-muted hover:text-foreground transition-all shadow-xs active:scale-95"
+            className="w-8 h-8 rounded-full border border-line bg-surface hover:border-gold flex items-center justify-center text-muted hover:text-foreground transition-all shadow-xs active:scale-95"
             onClick={toggleTheme}
             title={theme === "dark" ? "تفعيل الوضع النهاري (Light Mode)" : "تفعيل الوضع الليلي (Dark Mode)"}
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
-              <Sun size={16} className="text-[#FF9900] transition-transform duration-300 rotate-0 hover:rotate-45" />
+              <Sun size={16} className="text-gold transition-transform duration-300 rotate-0 hover:rotate-45" />
             ) : (
-              <Moon size={16} className="text-slate-700 transition-transform duration-300 rotate-0 hover:-rotate-12" />
+              <Moon size={16} className="text-slate-800 transition-transform duration-300 rotate-0 hover:-rotate-12" />
             )}
           </button>
 
           {/* Wishlist Link (Desktop) */}
           <Link
             href="/marketplace?wishlist=true"
-            className="hidden sm:flex relative w-8 h-8 rounded-full border border-line bg-surface hover:border-[#FF9900] items-center justify-center text-muted hover:text-foreground transition-all shadow-xs"
+            className="hidden sm:flex relative w-8 h-8 rounded-full border border-line bg-surface hover:border-gold items-center justify-center text-muted hover:text-foreground transition-all shadow-xs"
             title={text.wishlist}
             aria-label={text.wishlist}
           >
@@ -324,13 +335,13 @@ export default function Navbar() {
           {/* Cart Link with Live Badge */}
           <Link
             href="/cart"
-            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface hover:border-[#FF9900] flex items-center justify-center text-foreground hover:text-[#FF9900] transition-all shadow-xs"
+            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface hover:border-gold flex items-center justify-center text-foreground hover:text-gold transition-all shadow-xs"
             title={text.cart}
             aria-label={text.cart}
           >
             <ShoppingCart size={16} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#FF9900] text-black text-[10px] font-black px-1 shadow-sm animate-pulse">
+              <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-gold text-navy text-[10px] font-black px-1 shadow-sm animate-pulse">
                 {cartCount}
               </span>
             )}
@@ -339,9 +350,9 @@ export default function Navbar() {
           {/* User Account / Sign In Action (Desktop) */}
           <Link
             href={user ? "/dashboard" : "/auth"}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-[#FF9900] text-foreground transition-all shadow-xs"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-line bg-surface hover:border-gold text-foreground transition-all shadow-xs"
           >
-            {user ? <LayoutDashboard size={14} className="text-[#FF9900]" /> : <UserRound size={14} />}
+            {user ? <LayoutDashboard size={14} className="text-gold" /> : <UserRound size={14} />}
             <span>{user ? text.dashboard : text.account}</span>
           </Link>
 
@@ -361,7 +372,7 @@ export default function Navbar() {
           {/* Mobile Hamburger Toggle */}
           <button
             type="button"
-            className="lg:hidden w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center text-foreground hover:border-[#FF9900] transition-all shadow-xs"
+            className="lg:hidden w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center text-foreground hover:border-gold transition-all shadow-xs"
             onClick={() => setOpen(!open)}
             aria-label={open ? text.close : text.menu}
             aria-expanded={open}
@@ -375,6 +386,37 @@ export default function Navbar() {
       {open && (
         <div className="lg:hidden border-t border-line bg-surface/98 backdrop-blur-2xl px-4 py-6 shadow-2xl animate-in slide-in-from-top-3 duration-200">
           <div className="max-w-md mx-auto space-y-4">
+            {/* VIP Site Owner & Admin Management Box */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-surface-soft to-surface border-2 border-amber-500/40 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-gold font-black text-xs">
+                  <Crown size={16} className="text-amber-600 dark:text-gold fill-amber-500/30" />
+                  <span>{language === "ar" ? "لوحة تحكم صاحب الموقع والإدارة" : "Site Owner & Admin Center"}</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">
+                  {language === "ar" ? "متاح بالكامل" : "Full Access"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-navy text-gold dark:bg-gold dark:text-navy font-black text-xs shadow-xs text-center"
+                >
+                  <ShieldCheck size={14} />
+                  <span>{language === "ar" ? "مركز الإدارة الشامل" : "Super Admin"}</span>
+                </Link>
+                <Link
+                  href="/seller/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-surface border border-line hover:border-gold text-foreground font-black text-xs shadow-xs text-center"
+                >
+                  <StoreIcon size={14} className="text-amber-600 dark:text-gold" />
+                  <span>{language === "ar" ? "بوابة التجار والمتجر" : "Seller Portal"}</span>
+                </Link>
+              </div>
+            </div>
+
             {/* Controls Bar in Mobile Menu */}
             <div className="flex items-center justify-between p-2.5 rounded-2xl bg-surface-soft border border-line">
               <span className="text-xs font-bold text-muted">الإعدادات السريعة:</span>
@@ -384,7 +426,7 @@ export default function Navbar() {
                   onClick={toggleLanguage}
                   className="px-2.5 py-1 rounded-xl bg-surface border border-line text-xs font-bold flex items-center gap-1 text-foreground"
                 >
-                  <Globe2 size={13} className="text-[#FF9900]" />
+                  <Globe2 size={13} className="text-amber-500" />
                   <span>{language === "ar" ? "EN" : "عربي"}</span>
                 </button>
                 <button
@@ -392,7 +434,7 @@ export default function Navbar() {
                   onClick={toggleTheme}
                   className="px-2.5 py-1 rounded-xl bg-surface border border-line text-xs font-bold flex items-center gap-1 text-foreground"
                 >
-                  {theme === "dark" ? <Sun size={13} className="text-[#FF9900]" /> : <Moon size={13} />}
+                  {theme === "dark" ? <Sun size={13} className="text-gold" /> : <Moon size={13} />}
                   <span>{theme === "dark" ? "نهار" : "ليل"}</span>
                 </button>
               </div>
@@ -412,17 +454,6 @@ export default function Navbar() {
               </Link>
 
               <Link
-                href="/seller/dashboard"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line hover:border-gold text-xs font-bold text-foreground transition-all"
-              >
-                <div className="w-8 h-8 rounded-xl bg-gold-soft text-gold-strong flex items-center justify-center">
-                  <StoreIcon size={16} />
-                </div>
-                <span>{text.sellerHub}</span>
-              </Link>
-
-              <Link
                 href="/orders"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line hover:border-gold text-xs font-bold text-foreground transition-all"
@@ -431,17 +462,6 @@ export default function Navbar() {
                   <Truck size={16} />
                 </div>
                 <span>{text.orders}</span>
-              </Link>
-
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-500/10 dark:bg-navy border border-amber-500/30 dark:border-gold/40 text-amber-900 dark:text-gold text-xs font-black transition-all"
-              >
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 dark:bg-gold/20 text-amber-700 dark:text-gold flex items-center justify-center">
-                  <ShieldCheck size={16} />
-                </div>
-                <span>{text.adminHub}</span>
               </Link>
             </div>
 
