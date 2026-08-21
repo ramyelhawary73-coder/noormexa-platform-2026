@@ -46,17 +46,24 @@ export default function PwaInstallPrompt() {
   // Trigger Install Flow
   const triggerInstallFlow = useCallback(async () => {
     // 1. If native browser prompt is ready and we can prompt directly:
-    if (deferredPrompt) {
+    const promptEvent =
+      deferredPrompt ||
+      (typeof window !== "undefined" ? (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent }).__pwa_prompt : null);
+
+    if (promptEvent) {
       try {
-        await deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
         if (choice.outcome === "accepted") {
           setIsInstalled(true);
           setShowBanner(false);
           setShowModal(false);
+          if (typeof window !== "undefined") {
+            (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent | null }).__pwa_prompt = null;
+          }
+          setDeferredPrompt(null);
+          return;
         }
-        setDeferredPrompt(null);
-        return;
       } catch (err) {
         console.error("Install prompt error:", err);
       }
@@ -73,6 +80,12 @@ export default function PwaInstallPrompt() {
   // Check device and register service worker
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Check early captured prompt
+    const globalPrompt = (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent }).__pwa_prompt;
+    if (globalPrompt) {
+      setTimeout(() => setDeferredPrompt(globalPrompt), 0);
+    }
 
     // Detect device to set default modal tab
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -116,19 +129,28 @@ export default function PwaInstallPrompt() {
     let bannerTimeout: NodeJS.Timeout | undefined;
 
     if (!wasDismissed) {
-      bannerTimeout = setTimeout(() => setShowBanner(true), 4000);
+      bannerTimeout = setTimeout(() => setShowBanner(true), 3500);
     }
 
     // Listen for BeforeInstallPrompt on Chrome, Edge, Android, Desktop
     const handleBeforeInstall = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
+      (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent }).__pwa_prompt = e;
       setDeferredPrompt(e);
       if (!wasDismissed) {
-        setTimeout(() => setShowBanner(true), 2500);
+        setTimeout(() => setShowBanner(true), 1500);
+      }
+    };
+
+    const handlePwaReady = () => {
+      const p = (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent }).__pwa_prompt;
+      if (p) {
+        setDeferredPrompt(p);
       }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    window.addEventListener("noormexa-pwa-ready", handlePwaReady);
 
     // Listen for appinstalled
     const handleAppInstalled = () => {
@@ -136,6 +158,7 @@ export default function PwaInstallPrompt() {
       setShowBanner(false);
       setShowModal(false);
       setDeferredPrompt(null);
+      (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent | null }).__pwa_prompt = null;
     };
 
     window.addEventListener("appinstalled", handleAppInstalled);
@@ -149,6 +172,7 @@ export default function PwaInstallPrompt() {
     return () => {
       if (bannerTimeout) clearTimeout(bannerTimeout);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("noormexa-pwa-ready", handlePwaReady);
       window.removeEventListener("appinstalled", handleAppInstalled);
       window.removeEventListener("noormexa-trigger-pwa-install", handleCustomTrigger);
     };
@@ -163,25 +187,43 @@ export default function PwaInstallPrompt() {
 
   // Direct Install Action Button inside Modal
   const handleDirectInstallClick = async () => {
-    if (deferredPrompt) {
+    const promptEvent =
+      deferredPrompt ||
+      (typeof window !== "undefined" ? (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent }).__pwa_prompt : null);
+
+    if (promptEvent) {
       try {
-        await deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
         if (choice.outcome === "accepted") {
           setIsInstalled(true);
           setShowBanner(false);
           setShowModal(false);
+          if (typeof window !== "undefined") {
+            (window as unknown as { __pwa_prompt?: BeforeInstallPromptEvent | null }).__pwa_prompt = null;
+          }
+          setDeferredPrompt(null);
+          return;
         }
-        setDeferredPrompt(null);
-        return;
       } catch (err) {
         console.error("Direct install error:", err);
       }
     }
     
-    // If not in standalone mode and in an embedded window/tab, open top-level window for direct browser prompt
-    if (typeof window !== "undefined") {
+    // Check if inside an iframe (like editor preview)
+    const isInIframe = typeof window !== "undefined" && window.self !== window.top;
+    if (isInIframe && typeof window !== "undefined") {
       window.open(window.location.origin, "_blank", "noopener,noreferrer");
+    } else {
+      // In top-level browser: user needs to click install icon in URL bar or menu
+      const userAgent = typeof window !== "undefined" ? window.navigator.userAgent.toLowerCase() : "";
+      if (/iphone|ipad|ipod/.test(userAgent)) {
+        setActiveTab("ios");
+      } else if (/android/.test(userAgent)) {
+        setActiveTab("android");
+      } else {
+        setActiveTab("desktop");
+      }
     }
   };
 
