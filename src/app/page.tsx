@@ -40,6 +40,7 @@ import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { NoormexaEmblemSvg } from "@/components/BrandLogo";
 import { useTheme } from "@/context/ThemeContext";
+import ReelsVideoModal, { type ReelStory } from "@/components/landing/ReelsVideoModal";
 
 type Language = "ar" | "en";
 
@@ -95,18 +96,6 @@ type CouponItem = {
   descAr: string;
   descEn: string;
   minSpend: string;
-};
-
-type VideoStory = {
-  id: string;
-  titleAr: string;
-  titleEn: string;
-  author: string;
-  productName: string;
-  productPrice: number;
-  thumbnail: string;
-  views: string;
-  rating: number;
 };
 
 const LANGUAGE_KEY = "noormexa-language";
@@ -644,6 +633,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
+  const [selectedReelIndex, setSelectedReelIndex] = useState<number | null>(null);
 
   // Live Flash Deal Countdown Timer (14 hours)
   const [timeLeft, setTimeLeft] = useState({ hours: 14, mins: 32, secs: 45 });
@@ -818,40 +808,82 @@ export default function HomePage() {
     },
   ];
 
-  // Customer Video Unboxing Stories
-  const videoStories: VideoStory[] = [
+  // Customer Video Unboxing Stories & Real Interactive Reels
+  const videoStories: ReelStory[] = [
     {
       id: "v1",
       titleAr: "فتح صندوق ساعة الكرونوغراف الملكية وتجربة السوار الجلدي الفاخر",
       titleEn: "Unboxing the Royal Chronograph & Luxury Leather Strap",
-      author: "سلطان العتيبي (السعودية)",
-      productName: "ساعة الكرونوغراف الملكية",
-      productPrice: 2850,
-      thumbnail: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=500&auto=format&fit=crop&q=80",
-      views: "18.4K",
+      author: "سلطان العتيبي",
+      authorCityAr: "الرياض، المملكة العربية السعودية",
+      authorCityEn: "Riyadh, Saudi Arabia",
+      authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
       rating: 5.0,
+      orderNumber: "NRX-98214-KSA",
+      commentAr: "الساعة وصلتني في تغليف ملكي فاخر جداً ومعها بطاقة الضمان والرقم التسلسلي المعتمد. الفولاذ المصقول والزجاج الياقوتي فائق الجودة والوزن رائع جداً. تجربة شراء فاخرة تستحق 5 نجوم.",
+      commentEn: "The timepiece arrived in royal luxury presentation packaging complete with warranty certificate and serial stamp. The 316L steel and sapphire crystal feel ultra-premium.",
+      views: "18.4K",
+      initialLikes: 1420,
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      posterImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&auto=format&fit=crop&q=80",
+      durationText: "00:45",
+      productId: "prod-chronograph-watch",
+      productNameAr: "ساعة الكرونوغراف الفاخرة NOORMEXA Royal Sapphire",
+      productNameEn: "NOORMEXA Royal Sapphire Chronograph Watch",
+      productPrice: 6800,
+      productOriginalPrice: 8500,
+      productImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&auto=format&fit=crop&q=80",
+      storeName: "TechCraft Global Innovations",
     },
     {
       id: "v2",
       titleAr: "تجربة عطر السلطان الفاخر وثبات الفوحان لأكثر من 36 ساعة",
       titleEn: "Royal Oud Longevity & Projection Real-World Test",
-      author: "مروة الشامسي (الإمارات)",
-      productName: "عطر السلطان الملكي (100ml)",
-      productPrice: 1950,
-      thumbnail: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500&auto=format&fit=crop&q=80",
-      views: "24.1K",
+      author: "مروة الشامسي",
+      authorCityAr: "دبي، الإمارات العربية المتحدة",
+      authorCityEn: "Dubai, United Arab Emirates",
+      authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
       rating: 4.9,
+      orderNumber: "NRX-87412-UAE",
+      commentAr: "رائحة العود المعتق مع قطرات الورد الطائفي والعنبر الأبيض خيالية وفوحان رهيب! الكل سألني عن العطر وثباته استمر على العباية لأكثر من 48 ساعة. التوصيل كان في أقل من 24 ساعة.",
+      commentEn: "The aged Cambodian oud combined with white ambergris and Taif rose is simply mesmerizing. Sillage lasted over 48 hours. Incredible luxury fragrance.",
+      views: "24.1K",
+      initialLikes: 2180,
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+      posterImage: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&auto=format&fit=crop&q=80",
+      durationText: "00:52",
+      productId: "prod-royal-oud-perfume",
+      productNameAr: "عطر السلطان الملكي (Imperial Oud & Ambergris 100ml)",
+      productNameEn: "Imperial Oud & Ambergris Eau de Parfum 100ml",
+      productPrice: 2890,
+      productOriginalPrice: 3600,
+      productImage: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&auto=format&fit=crop&q=80",
+      storeName: "Royal Oud & Perfumery",
     },
     {
       id: "v3",
-      titleAr: "مراجعة سماعة Pro Wireless ANC مع ميزة الشحن السريع",
+      titleAr: "مراجعة سماعة Pro Wireless ANC مع ميزة عزل الضوضاء والشحن السريع",
       titleEn: "Pro Wireless ANC Studio Headphones Deep Dive",
-      author: "أحمد منصور (مصر)",
-      productName: "سماعة الرأس اللاسلكية الاحترافية",
-      productPrice: 1450,
-      thumbnail: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80",
-      views: "12.8K",
+      author: "أحمد منصور",
+      authorCityAr: "القاهرة، جمهورية مصر العربية",
+      authorCityEn: "Cairo, Egypt",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
       rating: 5.0,
+      orderNumber: "NRX-76291-EGY",
+      commentAr: "عزل الضوضاء ANC مبهر جداً في الشارع والمكتب، ونقاء الصوت وتجسيم البيز عالي جداً. البطارية جلست معايا أسبوع كامل بدون ما أحتاج أشحنها. خامات وسائد الأذن جلد وميموري فوم مريحة للغاية.",
+      commentEn: "Studio sound quality with powerful active noise cancellation. Battery truly lasts 55 hours. Memory foam cushions are comfortable for long working hours.",
+      views: "12.8K",
+      initialLikes: 980,
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+      posterImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
+      durationText: "00:38",
+      productId: "prod-aurora-headphones",
+      productNameAr: "سماعات الرأس اللاسلكية الاحترافية NOORMEXA Pro ANC",
+      productNameEn: "NOORMEXA Pro Wireless ANC Studio Headphones",
+      productPrice: 3450,
+      productOriginalPrice: 4200,
+      productImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
+      storeName: "TechCraft Global Innovations",
     },
   ];
 
@@ -1084,8 +1116,11 @@ export default function HomePage() {
                 >
                   <div className="relative aspect-square overflow-hidden bg-surface-soft shrink-0">
                     <img
-                      src={prod.image_url || ""}
+                      src={prod.image_url || "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80"}
                       alt={prod.name}
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80";
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
@@ -1440,7 +1475,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 9. Video Stories & Customer Unboxings */}
+      {/* 9. Video Stories & Customer Unboxings (Interactive Video Reels) */}
       <section className="py-12 md:py-16 border-b border-line bg-surface">
         <div className="noormexa-container space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-2">
@@ -1453,49 +1488,72 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {videoStories.map((story) => (
+            {videoStories.map((story, idx) => (
               <div
                 key={story.id}
-                className="group rounded-3xl overflow-hidden bg-surface-soft border border-line hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all flex flex-col justify-between"
+                onClick={() => setSelectedReelIndex(idx)}
+                className="group rounded-3xl overflow-hidden bg-surface border border-line hover:border-orange-500/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
                   <img
-                    src={story.thumbnail}
-                    alt={story.productName}
+                    src={story.posterImage}
+                    alt={story.productNameAr}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&auto=format&fit=crop&q=80";
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                   
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play size={20} className="fill-white ms-0.5" />
+                    <div className="w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform border-2 border-white/40">
+                      <Play size={22} className="fill-white ms-0.5" />
                     </div>
                   </div>
 
-                  <div className="absolute top-3 end-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold flex items-center gap-1">
-                    <Star size={10} className="fill-orange-400 text-orange-400" />
-                    <span>{story.rating}</span>
+                  {/* Rating Badge */}
+                  <div className="absolute top-3 end-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-xs text-white text-[11px] font-black flex items-center gap-1 border border-white/10">
+                    <Star size={12} className="fill-orange-400 text-orange-400" />
+                    <span dir="ltr">{story.rating.toFixed(1)}</span>
                   </div>
 
-                  <div className="absolute bottom-3 start-3 end-3 text-white text-xs font-bold truncate">
-                    {story.author}
+                  {/* Author & City */}
+                  <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between text-white text-xs font-bold">
+                    <div className="flex items-center gap-2 truncate">
+                      <img
+                        src={story.authorAvatar}
+                        alt={story.author}
+                        className="w-6 h-6 rounded-full object-cover border border-white/40 shrink-0"
+                      />
+                      <span className="truncate">{story.author}</span>
+                    </div>
+                    <span className="text-[10px] text-slate-300 font-mono bg-black/40 px-2 py-0.5 rounded-md">
+                      {story.views} {isAr ? "مشاهدة" : "views"}
+                    </span>
                   </div>
                 </div>
 
-                <div className="p-4 space-y-3 bg-surface">
-                  <h3 className="font-bold text-xs sm:text-sm text-foreground line-clamp-2">
+                <div className="p-5 space-y-3 bg-surface">
+                  <h3 className="font-black text-sm text-foreground line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors">
                     {isAr ? story.titleAr : story.titleEn}
                   </h3>
-                  <div className="flex items-center justify-between text-xs pt-2 border-t border-line">
-                    <span className="font-black text-orange-600 dark:text-orange-400">{formatPrice(story.productPrice)}</span>
-                    <Link
-                      href="/marketplace"
-                      className="text-xs font-bold text-muted hover:text-foreground flex items-center gap-1"
+
+                  <div className="flex items-center justify-between text-xs pt-3 border-t border-line">
+                    <span className="font-black text-orange-600 dark:text-orange-400 text-sm">
+                      {formatPrice(story.productPrice)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedReelIndex(idx);
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500 text-orange-600 dark:text-orange-400 hover:!text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                     >
-                      <span>{text.videoStoriesSection.watchNow}</span>
-                      <DirectionIcon size={12} />
-                    </Link>
+                      <Play size={12} className="fill-current" />
+                      <span>{isAr ? "تشغيل الفيديو والتقييم" : "Watch Video Review"}</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1764,6 +1822,15 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Interactive Reels Video Modal */}
+      <ReelsVideoModal
+        isOpen={selectedReelIndex !== null}
+        onClose={() => setSelectedReelIndex(null)}
+        initialIndex={selectedReelIndex || 0}
+        reels={videoStories}
+        language={language}
+      />
     </main>
   );
 }

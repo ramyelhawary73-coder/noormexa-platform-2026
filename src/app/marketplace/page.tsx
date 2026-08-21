@@ -532,6 +532,9 @@ function MarketplaceContent() {
                             <img
                               src={product.image_url}
                               alt={product.name}
+                              onError={(e) => {
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80";
+                              }}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
