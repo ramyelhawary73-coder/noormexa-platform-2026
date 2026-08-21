@@ -167,8 +167,8 @@ async function run() {
   console.log('Generating 96x96 and 32x32 Favicons...');
   await sharp(svgBuffer).resize(96, 96).png().toFile(path.join(publicDir, 'favicon.png'));
   await sharp(svgBuffer).resize(32, 32).png().toFile(path.join(publicDir, 'favicon-32.png'));
-  await sharp(svgBuffer).resize(48, 48).png().toFile(path.join(publicDir, 'favicon.ico'));
-  await sharp(svgBuffer).resize(48, 48).png().toFile(path.join(appDir, 'favicon.ico'));
+  await sharp(svgBuffer).resize(32, 32).png().toFile(path.join(appDir, 'icon.png'));
+  await sharp(svgBuffer).resize(180, 180).png().toFile(path.join(appDir, 'apple-icon.png'));
 
   console.log('Assets successfully generated!');
 }
