@@ -33,7 +33,28 @@ export type Store = {
   rating?: number;
   total_sales?: number;
   country?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  cr_number?: string; // Commercial Registration
+  tax_number?: string;
+  bank_name?: string;
+  iban?: string;
+  return_policy?: string;
   created_at: string;
+};
+
+export type StorePayout = {
+  id: string;
+  store_id: string;
+  store_name: string;
+  amount: number; // in base EGP
+  status: "pending" | "approved" | "transferred" | "rejected";
+  requested_at: string;
+  processed_at?: string;
+  bank_name: string;
+  iban: string;
+  transaction_ref?: string;
+  notes?: string;
 };
 
 export type ProductVariant = {

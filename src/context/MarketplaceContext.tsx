@@ -13,6 +13,7 @@ import type {
   CurrencyInfo,
   Category,
   Store,
+  StorePayout,
   Product,
   PlatformSettings,
   CartItem,
@@ -200,6 +201,12 @@ export const INITIAL_STORES: Store[] = [
     rating: 4.9,
     total_sales: 1420,
     country: "الإمارات / مصر",
+    contact_email: "support@techcraft-global.com",
+    contact_phone: "+971 50 123 4567",
+    cr_number: "CR-DXB-8839201",
+    tax_number: "VAT-AE-10029384",
+    bank_name: "بنك الإمارات دبي الوطني (ENBD)",
+    iban: "AE330500000000012345678",
     created_at: "2026-01-10T10:00:00Z",
   },
   {
@@ -217,6 +224,12 @@ export const INITIAL_STORES: Store[] = [
     rating: 4.8,
     total_sales: 980,
     country: "السعودية",
+    contact_email: "atelier@noorcouture.sa",
+    contact_phone: "+966 55 987 6543",
+    cr_number: "CR-RUH-10109923",
+    tax_number: "VAT-SA-3001293840",
+    bank_name: "البنك الأهلي السعودي (SNB)",
+    iban: "SA1210000001234567890123",
     created_at: "2026-01-15T12:00:00Z",
   },
   {
@@ -234,6 +247,12 @@ export const INITIAL_STORES: Store[] = [
     rating: 5.0,
     total_sales: 2150,
     country: "الكويت / السعودية",
+    contact_email: "orders@royaloud-perfumes.com",
+    contact_phone: "+965 99 887 766",
+    cr_number: "CR-KWT-4499120",
+    tax_number: "VAT-KW-99881122",
+    bank_name: "مصرف الراجحي (Al Rajhi Bank)",
+    iban: "SA4480000000608010101010",
     created_at: "2026-02-01T09:00:00Z",
   },
   {
@@ -251,7 +270,53 @@ export const INITIAL_STORES: Store[] = [
     rating: 4.7,
     total_sales: 640,
     country: "مصر",
+    contact_email: "care@aurorahome.eg",
+    contact_phone: "+20 100 234 5678",
+    cr_number: "CR-CAI-5588390",
+    tax_number: "VAT-EG-44002211",
+    bank_name: "البنك التجاري الدولي (CIB Egypt)",
+    iban: "EG380010000000001234567890123",
     created_at: "2026-02-12T14:30:00Z",
+  },
+];
+
+export const INITIAL_PAYOUTS: StorePayout[] = [
+  {
+    id: "pay-101",
+    store_id: "store-techcraft",
+    store_name: "TechCraft Global Innovations",
+    amount: 18500,
+    status: "transferred",
+    requested_at: "2026-02-10T10:00:00Z",
+    processed_at: "2026-02-11T14:30:00Z",
+    bank_name: "بنك الإمارات دبي الوطني (ENBD)",
+    iban: "AE330500000000012345678",
+    transaction_ref: "TXN-998822-GLB",
+    notes: "تسوية مستحقات النصف الأول من شهر فبراير",
+  },
+  {
+    id: "pay-102",
+    store_id: "store-royaloils",
+    store_name: "Royal Oud & Perfumery",
+    amount: 12400,
+    status: "approved",
+    requested_at: "2026-02-18T16:00:00Z",
+    processed_at: "2026-02-19T11:00:00Z",
+    bank_name: "مصرف الراجحي (Al Rajhi Bank)",
+    iban: "SA4480000000608010101010",
+    transaction_ref: "TXN-774411-KSA",
+    notes: "مستحقات مبيعات دهن العود والزيوت العطرية",
+  },
+  {
+    id: "pay-103",
+    store_id: "store-noorcouture",
+    store_name: "Noor Couture Atelier",
+    amount: 9200,
+    status: "pending",
+    requested_at: "2026-02-20T08:30:00Z",
+    bank_name: "البنك الأهلي السعودي (SNB)",
+    iban: "SA1210000001234567890123",
+    notes: "طلب سحب الأرباح المتاحة",
   },
 ];
 
@@ -664,16 +729,43 @@ interface MarketplaceContextType {
   updateSettings: (partial: Partial<PlatformSettings>) => void;
   toggleGateway: (key: PaymentGatewayKey, enabled: boolean) => void;
 
-  // Catalog
+  // Catalog & Multi-Vendor Stores
   categories: Category[];
   stores: Store[];
   products: Product[];
   addProduct: (product: Omit<Product, "id" | "created_at">) => Product;
   updateProductItem: (id: string, updates: Partial<Product>) => void;
   deleteProductItem: (id: string) => void;
+  registerStore: (storeData: {
+    name: string;
+    slug: string;
+    description: string;
+    country: string;
+    plan?: string;
+    cr_number?: string;
+    tax_number?: string;
+    bank_name?: string;
+    iban?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    logo_url?: string;
+    banner_url?: string;
+  }) => { store: Store; autoApproved: boolean };
+  updateStoreProfile: (storeId: string, updates: Partial<Store>) => void;
   updateStoreStatusItem: (storeId: string, status: Store["status"]) => void;
   toggleStoreVerified: (storeId: string) => void;
   updateStoreCommissionRate: (storeId: string, rate: number) => void;
+
+  // Payouts & Merchant Ledger
+  payouts: StorePayout[];
+  requestStorePayout: (
+    storeId: string,
+    amount: number,
+    iban: string,
+    bankName: string,
+    notes?: string
+  ) => { success: boolean; message: string; payout?: StorePayout };
+  updatePayoutStatus: (payoutId: string, status: StorePayout["status"], transactionRef?: string) => void;
 
   // Wishlist
   wishlist: string[]; // productIds
@@ -726,6 +818,7 @@ const STORAGE_KEYS = {
   STORES: "noormexa_stores_v2",
   ORDERS: "noormexa_orders_v2",
   CURRENCIES: "noormexa_currencies_v2",
+  PAYOUTS: "noormexa_payouts_v2",
 };
 
 export function MarketplaceProvider({ children }: { children: ReactNode }) {
@@ -735,6 +828,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [stores, setStoresState] = useState<Store[]>(INITIAL_STORES);
   const [products, setProductsState] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [payouts, setPayoutsState] = useState<StorePayout[]>(INITIAL_PAYOUTS);
   const [wishlist, setWishlistState] = useState<string[]>([]);
   const [cartItems, setCartItemsState] = useState<CartItem[]>([]);
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
@@ -778,6 +872,12 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(parsed) && parsed.length > 0) setStoresState(parsed);
         }
 
+        const savedPayouts = window.localStorage.getItem(STORAGE_KEYS.PAYOUTS);
+        if (savedPayouts) {
+          const parsed = JSON.parse(savedPayouts);
+          if (Array.isArray(parsed) && parsed.length > 0) setPayoutsState(parsed);
+        }
+
         const savedOrders = window.localStorage.getItem(STORAGE_KEYS.ORDERS);
         if (savedOrders) setOrdersState(JSON.parse(savedOrders));
       } catch (err) {
@@ -803,6 +903,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
       window.localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       window.localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify(stores));
+      window.localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(payouts));
       window.localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
       if (appliedPromo) {
         window.localStorage.setItem(STORAGE_KEYS.PROMO, JSON.stringify(appliedPromo));
@@ -812,7 +913,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Failed to persist marketplace state:", err);
     }
-  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, orders, appliedPromo]);
+  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, payouts, orders, appliedPromo]);
 
   // Currency helpers
   const setCurrency = useCallback((newCur: CurrencyCode) => {
@@ -911,6 +1012,65 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     setProductsState((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
+  const registerStore = useCallback(
+    (storeData: {
+      name: string;
+      slug: string;
+      description: string;
+      country: string;
+      plan?: string;
+      cr_number?: string;
+      tax_number?: string;
+      bank_name?: string;
+      iban?: string;
+      contact_email?: string;
+      contact_phone?: string;
+      logo_url?: string;
+      banner_url?: string;
+    }) => {
+      const cleanSlug = (storeData.slug || storeData.name)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      const autoApproved = settings.autoApproveStores ?? true;
+      const newStore: Store = {
+        id: `store-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        owner_id: `owner-${Date.now()}`,
+        name: storeData.name,
+        slug: cleanSlug || `store-${Date.now()}`,
+        description: storeData.description,
+        country: storeData.country,
+        plan: storeData.plan || "professional",
+        commission_rate: settings.defaultCommissionRate || 8,
+        status: autoApproved ? "approved" : "pending",
+        is_verified: autoApproved,
+        rating: 5.0,
+        total_sales: 0,
+        cr_number: storeData.cr_number,
+        tax_number: storeData.tax_number,
+        bank_name: storeData.bank_name,
+        iban: storeData.iban,
+        contact_email: storeData.contact_email,
+        contact_phone: storeData.contact_phone,
+        logo_url:
+          storeData.logo_url ||
+          "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=200&auto=format&fit=crop&q=80",
+        banner_url:
+          storeData.banner_url ||
+          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80",
+        created_at: new Date().toISOString(),
+      };
+      setStoresState((prev) => [newStore, ...prev]);
+      return { store: newStore, autoApproved };
+    },
+    [settings]
+  );
+
+  const updateStoreProfile = useCallback((storeId: string, updates: Partial<Store>) => {
+    setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, ...updates } : s)));
+  }, []);
+
   const updateStoreStatusItem = useCallback((storeId: string, status: Store["status"]) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, status } : s)));
   }, []);
@@ -924,6 +1084,58 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const updateStoreCommissionRate = useCallback((storeId: string, rate: number) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, commission_rate: rate } : s)));
   }, []);
+
+  // Payout actions
+  const requestStorePayout = useCallback(
+    (storeId: string, amount: number, iban: string, bankName: string, notes?: string) => {
+      const store = stores.find((s) => s.id === storeId);
+      if (!store) {
+        return { success: false, message: "المتجر غير موجود" };
+      }
+      if (amount <= 0) {
+        return { success: false, message: "المبلغ المطلوب غير صالح" };
+      }
+      const newPayout: StorePayout = {
+        id: `pay-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        store_id: storeId,
+        store_name: store.name,
+        amount,
+        status: "pending",
+        requested_at: new Date().toISOString(),
+        bank_name: bankName,
+        iban: iban,
+        notes: notes || "طلب تسوية أرباح مبيعات",
+      };
+      setPayoutsState((prev) => [newPayout, ...prev]);
+      return {
+        success: true,
+        message: "تم إرسال طلب سحب الأرباح بنجاح إلى الإدارة للمراجعة والتحويل",
+        payout: newPayout,
+      };
+    },
+    [stores]
+  );
+
+  const updatePayoutStatus = useCallback(
+    (payoutId: string, status: StorePayout["status"], transactionRef?: string) => {
+      setPayoutsState((prev) =>
+        prev.map((p) =>
+          p.id === payoutId
+            ? {
+                ...p,
+                status,
+                processed_at:
+                  status === "transferred" || status === "approved"
+                    ? new Date().toISOString()
+                    : p.processed_at,
+                transaction_ref: transactionRef || p.transaction_ref,
+              }
+            : p
+        )
+      );
+    },
+    []
+  );
 
   // Cart operations
   const addToCart = useCallback(
@@ -1212,9 +1424,14 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         addProduct,
         updateProductItem,
         deleteProductItem,
+        registerStore,
+        updateStoreProfile,
         updateStoreStatusItem,
         toggleStoreVerified,
         updateStoreCommissionRate,
+        payouts,
+        requestStorePayout,
+        updatePayoutStatus,
         wishlist,
         toggleWishlist,
         isInWishlist,
