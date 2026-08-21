@@ -30,6 +30,7 @@ export type Store = {
   plan: string;
   status: "pending" | "approved" | "suspended";
   is_verified?: boolean;
+  is_official?: boolean; // Official flagship store owned by platform
   rating?: number;
   total_sales?: number;
   country?: string;
@@ -40,6 +41,24 @@ export type Store = {
   bank_name?: string;
   iban?: string;
   return_policy?: string;
+  created_at: string;
+};
+
+export type MarketingPost = {
+  id: string;
+  store_id: string;
+  store_name: string;
+  store_logo?: string;
+  title: string;
+  content: string;
+  image_url?: string;
+  promo_code?: string;
+  discount_percent?: number;
+  featured_product_id?: string;
+  likes_count: number;
+  views_count: number;
+  is_pinned?: boolean;
+  status: "published" | "draft" | "archived";
   created_at: string;
 };
 

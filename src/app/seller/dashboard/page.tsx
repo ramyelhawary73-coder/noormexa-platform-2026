@@ -6,18 +6,20 @@ import {
   ArrowUpRight,
   BadgeCheck,
   Boxes,
-  Building2,
   Check,
   ChevronDown,
   CreditCard,
+  Crown,
   Eye,
-  EyeOff,
-  Globe,
+  Heart,
+  Megaphone,
   Plus,
   Printer,
   Search,
   Settings,
+  ShieldCheck,
   Sparkles,
+  Tag,
   Trash2,
   TrendingUp,
   Truck,
@@ -25,7 +27,7 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order } from "@/types/marketplace";
+import type { Order, Store } from "@/types/marketplace";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -58,38 +60,53 @@ export default function SellerDashboardPage() {
     orders,
     categories,
     payouts,
+    marketingPosts,
     formatPrice,
     addProduct,
-    updateProductItem,
     deleteProductItem,
     updateStoreProfile,
     updateOrderStatus,
     requestStorePayout,
+    createOfficialStore,
+    addMarketingPost,
+    updateMarketingPost,
+    deleteMarketingPost,
+    likeMarketingPost,
   } = useMarketplace();
 
-  // Active Selected Store State (defaults to first store)
-  const [selectedStoreId, setSelectedStoreId] = useState<string>(stores[0]?.id || "store-techcraft");
-  const currentStore = useMemo(() => {
-    return stores.find((s) => s.id === selectedStoreId) || stores[0] || {
-      id: "store-default",
-      name: "متجر نورمكسا المعتمد",
-      slug: "noormexa-store",
-      commission_rate: 8,
-      plan: "professional",
-      status: "approved" as const,
-      is_verified: true,
-      country: "السعودية",
-      description: "المتجر الافتراضي",
-      created_at: new Date().toISOString(),
-      owner_id: "owner-1",
-      logo_url: null,
-      banner_url: null,
-    };
+  // Active Selected Store State
+  const [selectedStoreId, setSelectedStoreId] = useState<string>(stores[0]?.id || "store-noormexa-official");
+  const currentStore: Store = useMemo(() => {
+    return (
+      stores.find((s) => s.id === selectedStoreId) ||
+      stores[0] || {
+        id: "store-default",
+        name: "متجر نورمكسا الرسمي",
+        slug: "noormexa-official",
+        commission_rate: 0,
+        plan: "platform_owner",
+        status: "approved" as const,
+        is_verified: true,
+        is_official: true,
+        country: "المملكة العربية السعودية / مصر / الإمارات",
+        description: "المتجر الرسمي للعلامة",
+        created_at: new Date().toISOString(),
+        owner_id: "owner-platform-admin",
+        logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
+        banner_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&auto=format&fit=crop&q=80",
+      }
+    );
   }, [stores, selectedStoreId]);
 
-  const [activeTab, setActiveTab] = useState<"analytics" | "products" | "orders" | "payouts" | "settings">("analytics");
+  const [activeTab, setActiveTab] = useState<
+    "analytics" | "products" | "orders" | "marketing" | "payouts" | "settings"
+  >("analytics");
+
+  // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
+  const [showOfficialStoreModal, setShowOfficialStoreModal] = useState(false);
+  const [showAddMarketingModal, setShowAddMarketingModal] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -100,6 +117,9 @@ export default function SellerDashboardPage() {
   // Orders Tab Filter
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
 
+  // Marketing Tab Filter
+  const [marketingStatusFilter, setMarketingStatusFilter] = useState<string>("all");
+
   // New Product Form State
   const [newProdName, setNewProdName] = useState("");
   const [newProdNameEn, setNewProdNameEn] = useState("");
@@ -107,10 +127,27 @@ export default function SellerDashboardPage() {
   const [newProdPrice, setNewProdPrice] = useState("");
   const [newProdOriginalPrice, setNewProdOriginalPrice] = useState("");
   const [newProdStock, setNewProdStock] = useState("15");
-  const [newProdImageUrl, setNewProdImageUrl] = useState("https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80");
+  const [newProdImageUrl, setNewProdImageUrl] = useState(
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80"
+  );
   const [newProdDesc, setNewProdDesc] = useState("");
   const [newProdFreeShip, setNewProdFreeShip] = useState(true);
   const [newProdFeatured, setNewProdFeatured] = useState(false);
+
+  // Official Store Form State
+  const [newOfficialName, setNewOfficialName] = useState("متجر نورميكسا المباشر (NOORMEXA Direct)");
+  const [newOfficialDesc, setNewOfficialDesc] = useState("المتجر الرسمي المباشر لعلامة المنصة العالمية - شحن مجاني وضمان شامل");
+
+  // New Marketing Post Form State
+  const [postTitle, setPostTitle] = useState("");
+  const [postContent, setPostContent] = useState("");
+  const [postImageUrl, setPostImageUrl] = useState(
+    "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop&q=80"
+  );
+  const [postPromoCode, setPostPromoCode] = useState("");
+  const [postDiscount, setPostDiscount] = useState("");
+  const [postFeaturedProdId, setPostFeaturedProdId] = useState("");
+  const [postIsPinned, setPostIsPinned] = useState(false);
 
   // Payout Request Form State
   const [payoutAmount, setPayoutAmount] = useState("");
@@ -152,20 +189,30 @@ export default function SellerDashboardPage() {
     });
   }, [orders, currentStore.id, orderStatusFilter]);
 
-  // Payouts for active store
-  const storePayouts = useMemo(() => {
-    return payouts.filter((p) => p.store_id === currentStore.id);
-  }, [payouts, currentStore.id]);
+  // Filter marketing posts for active store
+  const storeMarketingPosts = useMemo(() => {
+    return marketingPosts.filter((p) => {
+      const isStorePost = p.store_id === currentStore.id;
+      if (!isStorePost) return false;
+      if (marketingStatusFilter === "all") return true;
+      return p.status === marketingStatusFilter;
+    });
+  }, [marketingPosts, currentStore.id, marketingStatusFilter]);
 
   // Financial Calculations
   const totalStoreGross = useMemo(() => {
     const fromOrders = storeOrders.reduce((acc, o) => acc + o.total_amount, 0);
-    return fromOrders > 0 ? fromOrders : 34800;
-  }, [storeOrders]);
+    return fromOrders > 0 ? fromOrders : currentStore.is_official ? 84900 : 34800;
+  }, [storeOrders, currentStore.is_official]);
 
-  const commissionRate = currentStore.commission_rate || 8;
+  const commissionRate = currentStore.is_official ? 0 : currentStore.commission_rate || 8;
   const totalCommissionDeducted = Math.round((totalStoreGross * commissionRate) / 100);
   const netEarnings = totalStoreGross - totalCommissionDeducted;
+
+  // Payouts for active store
+  const storePayouts = useMemo(() => {
+    return payouts.filter((p) => p.store_id === currentStore.id);
+  }, [payouts, currentStore.id]);
 
   const totalTransferredPayouts = useMemo(() => {
     return storePayouts
@@ -181,6 +228,14 @@ export default function SellerDashboardPage() {
   };
 
   // Handlers
+  const handleCreateOfficialStore = (e: React.FormEvent) => {
+    e.preventDefault();
+    const created = createOfficialStore(newOfficialName, newOfficialDesc);
+    setShowOfficialStoreModal(false);
+    setSelectedStoreId(created.id);
+    showToast(isAr ? "تم إنشاء وتدشين المتجر الرسمي للمنصة بنجاح!" : "Official platform flagship store created successfully!");
+  };
+
   const handleCreateProduct = (e: React.FormEvent) => {
     e.preventDefault();
     const cat = categories.find((c) => c.id === newProdCat);
@@ -213,6 +268,34 @@ export default function SellerDashboardPage() {
     setNewProdPrice("");
     setNewProdOriginalPrice("");
     setNewProdDesc("");
+  };
+
+  const handleCreateMarketingPost = (e: React.FormEvent) => {
+    e.preventDefault();
+    addMarketingPost({
+      store_id: currentStore.id,
+      store_name: currentStore.name,
+      store_logo: currentStore.logo_url || undefined,
+      title: postTitle,
+      content: postContent,
+      image_url: postImageUrl || undefined,
+      promo_code: postPromoCode ? postPromoCode.toUpperCase().trim() : undefined,
+      discount_percent: postDiscount ? Number(postDiscount) : undefined,
+      featured_product_id: postFeaturedProdId || undefined,
+      is_pinned: postIsPinned,
+      status: "published",
+    });
+
+    setShowAddMarketingModal(false);
+    showToast(isAr ? "تم نشر المنشور التسويقي والعرض الترويجي بنجاح!" : "Marketing campaign post published successfully!");
+
+    // Reset form
+    setPostTitle("");
+    setPostContent("");
+    setPostPromoCode("");
+    setPostDiscount("");
+    setPostFeaturedProdId("");
+    setPostIsPinned(false);
   };
 
   const handleRequestPayout = (e: React.FormEvent) => {
@@ -264,49 +347,65 @@ export default function SellerDashboardPage() {
                 >
                   {stores.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} ({s.country || "المتجر"})
+                      {s.is_official ? "★ [متجر رسمي للمنصة] " : "• [بائع] "}
+                      {s.name}
                     </option>
                   ))}
                 </select>
                 <ChevronDown size={15} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted" />
               </div>
 
-              {currentStore.is_verified && (
+              {currentStore.is_official ? (
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-gold font-black text-xs border border-amber-500/30 shadow-xs">
+                  <Crown size={14} className="text-amber-500 fill-amber-500" />
+                  <span>{isAr ? "متجر المنصة الرسمي المباشر (0% عمولة)" : "Platform Official Store (0% Fee)"}</span>
+                </span>
+              ) : currentStore.is_verified ? (
                 <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600/10 text-emerald-600 font-bold text-xs border border-emerald-600/20 shadow-xs">
                   <BadgeCheck size={14} />
                   <span>{isAr ? "بائع موثق معتمد" : "Verified Merchant"}</span>
                 </span>
-              )}
+              ) : null}
 
-              <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-gold font-bold text-xs border border-amber-500/20">
-                {isAr ? `العمولة: ${commissionRate}%` : `Fee: ${commissionRate}%`}
+              <span className="px-3 py-1 rounded-full bg-surface-soft text-muted font-bold text-xs border border-line">
+                {isAr ? `عمولة المنصة: ${commissionRate}%` : `Fee: ${commissionRate}%`}
               </span>
             </div>
 
             <p className="text-xs sm:text-sm text-muted">
               {isAr
-                ? "لوحة التحكم المتكاملة لإدارة كتالوج المنتجات، فحص الطلبات، ومعالجة التسويات المالية وسحب الأرباح"
-                : "Manage multi-vendor catalog, fulfill incoming orders, and track your financial payouts"}
+                ? "لوحة التحكم المتكاملة لإدارة المتجر، متابعة الطلبات والشحن والتسليم، ونشر العروض والمنشورات التسويقية"
+                : "Comprehensive merchant hub: manage catalog, track order dispatch, publish marketing posts, and handle payouts"}
             </p>
           </div>
 
           {/* Header Action Buttons */}
           <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setShowOfficialStoreModal(true)}
+              className="px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-gold font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
+            >
+              <Crown size={15} />
+              <span>{isAr ? "إنشاء متجر رسمي للمنصة" : "New Flagship Store"}</span>
+            </button>
+
             <Link
               href={`/store/${currentStore.slug}`}
               className="px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
             >
-              <Globe size={15} className="text-gold" />
+              <Eye size={15} className="text-gold" />
               <span>{isAr ? "واجهة المتجر العامة" : "View Storefront"}</span>
             </Link>
 
-            <Link
-              href="/seller/register"
-              className="px-4 py-2.5 rounded-xl border border-line bg-surface text-foreground hover:bg-surface-soft font-bold text-xs flex items-center gap-2 transition-all"
+            <button
+              type="button"
+              onClick={() => setShowAddMarketingModal(true)}
+              className="px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center gap-2 transition-all"
             >
-              <Building2 size={15} className="text-muted" />
-              <span>{isAr ? "تسجيل متجر جديد" : "Onboard New Store"}</span>
-            </Link>
+              <Megaphone size={15} className="text-amber-500" />
+              <span>{isAr ? "نشر عرض تسويقي" : "New Campaign"}</span>
+            </button>
 
             <button
               type="button"
@@ -314,7 +413,7 @@ export default function SellerDashboardPage() {
               className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-sm transition-all"
             >
               <Plus size={16} />
-              <span>{isAr ? "إضافة منتج جديد" : "Add New Product"}</span>
+              <span>{isAr ? "إضافة منتج جديد" : "Add Product"}</span>
             </button>
           </div>
         </div>
@@ -327,13 +426,14 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
-        {/* Navigation Tabs - Symmetrical Grid */}
+        {/* Navigation Tabs - 6 Items */}
         <div className="bg-surface/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5">
             {[
               { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null },
               { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}` },
-              { id: "orders", labelAr: "طلبات المتجر", labelEn: "Store Orders", icon: Truck, count: `${storeOrders.length}` },
+              { id: "orders", labelAr: "الطلبات والتسليم", labelEn: "Orders & Delivery", icon: Truck, count: `${storeOrders.length}` },
+              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}` },
               { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}` },
               { id: "settings", labelAr: "إعدادات وهوية المتجر", labelEn: "Store Settings", icon: Settings, count: null },
             ].map((tab) => {
@@ -395,7 +495,15 @@ export default function SellerDashboardPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-black text-emerald-600">{formatPrice(netEarnings)}</div>
-                <div className="text-[11px] text-muted">{isAr ? `بعد استقطاع عمولة المنصة (${commissionRate}%)` : `After ${commissionRate}% platform fee`}</div>
+                <div className="text-[11px] text-muted">
+                  {currentStore.is_official
+                    ? isAr
+                      ? "متجر رسمي (عمولة 0% كامل الأرباح للمنصة)"
+                      : "Official store (0% commission)"
+                    : isAr
+                    ? `بعد استقطاع عمولة المنصة (${commissionRate}%)`
+                    : `After ${commissionRate}% platform fee`}
+                </div>
               </div>
 
               <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-2">
@@ -426,8 +534,10 @@ export default function SellerDashboardPage() {
                     <Boxes size={16} />
                   </span>
                 </div>
-                <div className="text-2xl font-black text-foreground">{storeProducts.length} <span className="text-xs font-normal text-muted">منتج ({currentStore.rating || 5.0} ★)</span></div>
-                <div className="text-[11px] text-muted">{isAr ? "تقييم ممتاز من المشترين" : "High buyer satisfaction"}</div>
+                <div className="text-2xl font-black text-foreground">
+                  {storeProducts.length} <span className="text-xs font-normal text-muted">منتج ({currentStore.rating || 5.0} ★)</span>
+                </div>
+                <div className="text-[11px] text-muted">{isAr ? "تقييم موثق من المشترين" : "High buyer satisfaction"}</div>
               </div>
             </div>
 
@@ -436,7 +546,7 @@ export default function SellerDashboardPage() {
               <div className="space-y-1 text-start">
                 <div className="font-black text-sm text-foreground flex items-center gap-2">
                   <Sparkles size={16} className="text-gold" />
-                  <span>{isAr ? "برنامج الشحن السريع وحماية المتاجر NOORMEXA Fulfillment" : "NOORMEXA Logistics & Seller Protection"}</span>
+                  <span>{isAr ? "برنامج الشحن السريع والتسليم NOORMEXA Logistics" : "NOORMEXA Logistics & Seller Protection"}</span>
                 </div>
                 <p className="text-xs text-muted max-w-xl">
                   {isAr
@@ -448,167 +558,188 @@ export default function SellerDashboardPage() {
               <div className="flex items-center gap-3 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setShowPayoutModal(true)}
-                  className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                  onClick={() => setActiveTab("orders")}
+                  className="px-5 py-2.5 rounded-xl bg-surface border border-line hover:border-gold text-foreground font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
                 >
-                  <Wallet size={15} />
-                  <span>{isAr ? "سحب الأرباح الآن" : "Request Payout"}</span>
+                  <Truck size={15} className="text-gold" />
+                  <span>{isAr ? "متابعة الشحنات والطلبات" : "Track Shipments"}</span>
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Tab 2: Catalog Products */}
+        {/* Tab 2: Products Catalog */}
         {activeTab === "products" && (
           <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
               <div>
                 <h2 className="text-base font-black text-foreground flex items-center gap-2">
                   <Boxes size={18} className="text-gold" />
-                  <span>{isAr ? "كتالوج منتجات المتجر وإدارة المخزون" : "Catalog & Inventory Management"}</span>
+                  <span>{isAr ? "إدارة كتالوج المنتجات والمخزون" : "Catalog & Inventory Management"}</span>
                 </h2>
-                <p className="text-xs text-muted">{isAr ? `إجمالي ${storeProducts.length} منتج مسجل في هذا المتجر` : `${storeProducts.length} total products listed`}</p>
+                <p className="text-xs text-muted">{isAr ? "إضافة وتعديل الأسعار والكميات والمواصفات للمتجر" : "Add, edit, or adjust stock levels for your products"}</p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="px-4 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs self-start sm:self-auto"
+                className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
               >
-                <Plus size={15} />
+                <Plus size={16} />
                 <span>{isAr ? "إضافة منتج جديد" : "Add New Product"}</span>
               </button>
             </div>
 
-            {/* Filter & Search Bar */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted" />
+            {/* Filters Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2 relative">
+                <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted" />
                 <input
                   type="text"
                   value={productSearch}
                   onChange={(e) => setProductSearch(e.target.value)}
-                  placeholder={isAr ? "ابحث بالاسم العربي أو الإنجليزي للمنتج..." : "Search products..."}
-                  className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-surface-soft border border-line text-xs focus:outline-none focus:border-gold"
+                  placeholder={isAr ? "ابحث بالاسم أو المواصفات..." : "Search products..."}
+                  className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-surface-soft border border-line text-xs font-bold text-foreground focus:outline-none focus:border-gold"
                 />
               </div>
 
-              <select
-                value={productCategoryFilter}
-                onChange={(e) => setProductCategoryFilter(e.target.value)}
-                className="px-4 py-2.5 rounded-xl bg-surface-soft border border-line text-xs font-bold text-foreground focus:outline-none focus:border-gold"
-              >
-                <option value="all">{isAr ? "جميع الأقسام" : "All Categories"}</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {isAr ? c.name_ar : c.name_en}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <select
+                  value={productCategoryFilter}
+                  onChange={(e) => setProductCategoryFilter(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-surface-soft border border-line text-xs font-bold text-foreground focus:outline-none focus:border-gold"
+                >
+                  <option value="all">{isAr ? "جميع الأقسام" : "All Categories"}</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {isAr ? c.name_ar : c.name_en}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            {/* Product List */}
+            {/* Products Table */}
             {filteredStoreProducts.length === 0 ? (
               <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
                 <Boxes size={32} className="text-muted mx-auto" />
-                <div className="text-xs font-bold text-foreground">{isAr ? "لم يتم العثور على منتجات مطابقة" : "No products found"}</div>
-                <p className="text-[11px] text-muted">{isAr ? "أضف منتجك الأول لبدء استقبال الطلبات" : "Add your first product to start selling"}</p>
+                <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد منتجات مسجلة في هذا المتجر حالياً" : "No products found"}</div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(true)}
+                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  <span>{isAr ? "أضف أول منتج الآن" : "Add first product"}</span>
+                </button>
               </div>
             ) : (
-              <div className="divide-y divide-line">
-                {filteredStoreProducts.map((p) => (
-                  <div key={p.id} className="py-4 first:pt-0 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-16 h-16 rounded-2xl overflow-hidden bg-surface-soft border border-line shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={p.image_url || ""} alt="" className="w-full h-full object-cover" />
-                      </div>
-
-                      <div className="space-y-1 min-w-0">
-                        <Link href={`/marketplace/${p.id}`} className="font-black text-sm text-foreground hover:text-gold truncate block">
-                          {p.name}
-                        </Link>
-                        <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-muted">
-                          <span className="font-black text-amber-600 dark:text-gold text-xs">{formatPrice(p.price)}</span>
-                          {p.original_price && <span className="line-through text-muted">{formatPrice(p.original_price)}</span>}
-                          <span>•</span>
-                          <span>{isAr ? "المخزون:" : "Stock:"} <strong className="text-foreground">{p.stock}</strong></span>
-                          {p.free_shipping && <span>• <strong className="text-emerald-600">{isAr ? "شحن مجاني" : "Free Shipping"}</strong></span>}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      {/* Stock inline adjuster */}
-                      <div className="flex items-center rounded-xl bg-surface-soft border border-line overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => updateProductItem(p.id, { stock: Math.max(0, p.stock - 1) })}
-                          className="px-2.5 py-1.5 hover:bg-surface text-muted hover:text-foreground font-bold"
-                        >
-                          -
-                        </button>
-                        <span className="px-2 font-mono font-bold text-foreground text-xs">{p.stock}</span>
-                        <button
-                          type="button"
-                          onClick={() => updateProductItem(p.id, { stock: p.stock + 1 })}
-                          className="px-2.5 py-1.5 hover:bg-surface text-muted hover:text-foreground font-bold"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* Visibility Toggle */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateProductItem(p.id, {
-                            status: p.status === "active" ? "hidden" : "active",
-                          })
-                        }
-                        className={`p-2 rounded-xl border text-xs font-bold transition-colors ${
-                          p.status === "active"
-                            ? "bg-emerald-600/10 text-emerald-600 border-emerald-600/20"
-                            : "bg-surface-soft text-muted border-line"
-                        }`}
-                        title={isAr ? "تبديل حالة العرض بالسوق" : "Toggle Market Visibility"}
-                      >
-                        {p.status === "active" ? <Eye size={16} /> : <EyeOff size={16} />}
-                      </button>
-
-                      {/* Delete */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (confirm(isAr ? "هل أنت متأكد من حذف هذا المنتج؟" : "Delete this product?")) {
-                            deleteProductItem(p.id);
-                            showToast(isAr ? "تم حذف المنتج" : "Product deleted");
-                          }
-                        }}
-                        className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors"
-                        title={isAr ? "حذف المنتج" : "Delete Product"}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-start">
+                  <thead className="bg-surface-soft text-muted border-b border-line font-bold">
+                    <tr>
+                      <th className="p-3 text-start">{isAr ? "المنتج" : "Product"}</th>
+                      <th className="p-3 text-start">{isAr ? "السعر" : "Price"}</th>
+                      <th className="p-3 text-start">{isAr ? "المخزون" : "Stock"}</th>
+                      <th className="p-3 text-start">{isAr ? "الشحن والمميزات" : "Shipping & Badge"}</th>
+                      <th className="p-3 text-center">{isAr ? "إجراءات" : "Actions"}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line">
+                    {filteredStoreProducts.map((p) => (
+                      <tr key={p.id} className="hover:bg-surface-soft/60 transition-colors">
+                        <td className="p-3">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={p.image_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80"}
+                              alt={p.name}
+                              className="w-12 h-12 rounded-xl object-cover border border-line shrink-0"
+                            />
+                            <div className="space-y-0.5">
+                              <div className="font-bold text-foreground line-clamp-1">{p.name}</div>
+                              <div className="text-[11px] text-muted">{p.name_en || p.category_slug}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-black text-amber-600 dark:text-gold">{formatPrice(p.price)}</div>
+                          {p.original_price && (
+                            <div className="text-[10px] text-muted line-through">{formatPrice(p.original_price)}</div>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
+                              p.stock > 10
+                                ? "bg-emerald-600/15 text-emerald-600"
+                                : p.stock > 0
+                                ? "bg-amber-500/15 text-amber-600"
+                                : "bg-red-500/15 text-red-600"
+                            }`}
+                          >
+                            {p.stock > 0 ? `${p.stock} قطعة` : "نفذت الكمية"}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {p.free_shipping && (
+                              <span className="px-2 py-0.5 rounded-md bg-emerald-600/10 text-emerald-600 text-[10px] font-bold">
+                                {isAr ? "شحن مجاني" : "Free Ship"}
+                              </span>
+                            )}
+                            {p.is_featured && (
+                              <span className="px-2 py-0.5 rounded-md bg-gold/15 text-gold text-[10px] font-bold">
+                                {isAr ? "مميز" : "Featured"}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-3 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Link
+                              href={`/product/${p.id}`}
+                              className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground"
+                              title={isAr ? "معاينة المنتج" : "View"}
+                            >
+                              <Eye size={14} />
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                  deleteProductItem(p.id);
+                                  showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                                }
+                              }}
+                              className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
+                              title={isAr ? "حذف المنتج" : "Delete"}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
         )}
 
-        {/* Tab 3: Store Orders Fulfillment */}
+        {/* Tab 3: Store Orders Fulfillment & Delivery Tracking */}
         {activeTab === "orders" && (
           <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
               <div>
                 <h2 className="text-base font-black text-foreground flex items-center gap-2">
                   <Truck size={18} className="text-gold" />
-                  <span>{isAr ? "طلبات المتجر وعمليات الشحن والتسليم" : "Orders & Fulfillment Logistics"}</span>
+                  <span>{isAr ? "طلبات المتجر ومتابعة التسليم والشحن" : "Orders & Fulfillment Logistics"}</span>
                 </h2>
-                <p className="text-xs text-muted">{isAr ? "معالجة بوالص الشحن وتحديث حالة تتبع الشحنات للعملاء" : "Manage customer orders and generate packing slips"}</p>
+                <p className="text-xs text-muted">
+                  {isAr ? "معالجة بوالص الشحن، تحديث حالات التتبع للمشترين، وطباعة الفواتير الضريبية" : "Manage customer orders, update delivery milestones, and print invoices"}
+                </p>
               </div>
 
               {/* Status Filter */}
@@ -619,11 +750,12 @@ export default function SellerDashboardPage() {
                   className="px-4 py-2 rounded-xl bg-surface-soft border border-line text-xs font-bold text-foreground focus:outline-none focus:border-gold"
                 >
                   <option value="all">{isAr ? "جميع الحالات" : "All Statuses"}</option>
-                  <option value="pending">{isAr ? "قيد الانتظار (Pending)" : "Pending"}</option>
+                  <option value="pending">{isAr ? "قيد المراجعة (Pending)" : "Pending"}</option>
                   <option value="paid">{isAr ? "مدفوع (Paid)" : "Paid"}</option>
-                  <option value="processing">{isAr ? "جاري التجهيز (Processing)" : "Processing"}</option>
-                  <option value="shipped">{isAr ? "تم الشحن (Shipped)" : "Shipped"}</option>
-                  <option value="delivered">{isAr ? "تم التسليم (Delivered)" : "Delivered"}</option>
+                  <option value="processing">{isAr ? "جاري التجهيز والتغليف (Processing)" : "Processing"}</option>
+                  <option value="shipped">{isAr ? "تم الشحن مع المندوب (Shipped)" : "Shipped"}</option>
+                  <option value="delivered">{isAr ? "تم التسليم بنجاح (Delivered)" : "Delivered"}</option>
+                  <option value="cancelled">{isAr ? "ملغي (Cancelled)" : "Cancelled"}</option>
                 </select>
               </div>
             </div>
@@ -631,15 +763,15 @@ export default function SellerDashboardPage() {
             {storeOrders.length === 0 ? (
               <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
                 <Truck size={32} className="text-muted mx-auto" />
-                <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد طلبات جديدة لمتجرك حالياً" : "No orders found"}</div>
-                <p className="text-[11px] text-muted">{isAr ? "ستظهر الطلبات الجديدة هنا فور قيام المشترين بإتمام الدفع" : "New orders will appear here automatically"}</p>
+                <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد طلبات تطابق الفلتر حالياً" : "No orders found"}</div>
+                <p className="text-[11px] text-muted">{isAr ? "ستظهر الطلبات الجديدة هنا فور قيام المشترين بإتمام الطلب" : "New orders will appear here automatically"}</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {storeOrders.map((ord) => (
                   <div key={ord.id} className="p-5 rounded-2xl bg-surface-soft border border-line space-y-4 text-xs">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line/60 pb-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                         <span className="font-mono font-black text-sm text-foreground">{ord.orderNumber}</span>
                         <span
                           className={`px-2.5 py-0.5 rounded-full font-bold text-[11px] uppercase ${
@@ -647,14 +779,19 @@ export default function SellerDashboardPage() {
                               ? "bg-emerald-600/15 text-emerald-600"
                               : ord.status === "shipped"
                               ? "bg-sky-500/15 text-sky-500"
+                              : ord.status === "cancelled"
+                              ? "bg-red-500/15 text-red-600"
                               : "bg-amber-500/15 text-amber-600 dark:text-gold"
                           }`}
                         >
                           {ord.status}
                         </span>
+                        <span className="text-muted text-[11px]">
+                          {new Date(ord.created_at).toLocaleDateString(isAr ? "ar-EG" : "en-US")}
+                        </span>
                       </div>
 
-                      <div className="text-xs font-black text-amber-600 dark:text-gold">
+                      <div className="text-sm font-black text-amber-600 dark:text-gold">
                         {formatPrice(ord.total_amount)}
                       </div>
                     </div>
@@ -662,21 +799,21 @@ export default function SellerDashboardPage() {
                     {/* Customer & Shipping Info */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                       <div>
-                        <span className="text-muted block text-[11px]">{isAr ? "العميل:" : "Buyer:"}</span>
+                        <span className="text-muted block text-[11px]">{isAr ? "العميل والمستلم:" : "Buyer:"}</span>
                         <strong className="text-foreground">{ord.shipping_info.fullName}</strong>
                         <div className="text-muted text-[11px]">{ord.shipping_info.phone}</div>
                       </div>
 
                       <div>
-                        <span className="text-muted block text-[11px]">{isAr ? "عنوان الشحن:" : "Delivery Address:"}</span>
+                        <span className="text-muted block text-[11px]">{isAr ? "عنوان الشحن والتسليم:" : "Delivery Address:"}</span>
                         <div className="text-foreground">{ord.shipping_info.city} - {ord.shipping_info.address}</div>
                         <div className="text-muted text-[11px]">{ord.shipping_info.country}</div>
                       </div>
 
                       <div>
-                        <span className="text-muted block text-[11px]">{isAr ? "رقم التتبع والناقل:" : "Tracking & Logistics:"}</span>
+                        <span className="text-muted block text-[11px]">{isAr ? "رقم التتبع والناقل:" : "Tracking & Carrier:"}</span>
                         <div className="font-mono text-foreground font-bold">{ord.trackingNumber}</div>
-                        <div className="text-muted text-[11px]">{ord.carrier || "NOORMEXA Logistics"}</div>
+                        <div className="text-muted text-[11px]">{ord.carrier || "NOORMEXA Global Logistics"}</div>
                       </div>
                     </div>
 
@@ -691,23 +828,24 @@ export default function SellerDashboardPage() {
                       ))}
                     </div>
 
-                    {/* Action Controls */}
+                    {/* Action Controls & Delivery State Updater */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-muted text-[11px]">{isAr ? "تحديث الحالة:" : "Update Status:"}</span>
+                        <span className="text-muted text-[11px]">{isAr ? "تحديث حالة التسليم والشحن:" : "Update Fulfillment:"}</span>
                         <select
                           value={ord.status}
                           onChange={(e) => {
                             updateOrderStatus(ord.id, e.target.value as Order["status"]);
-                            showToast(isAr ? `تم تحديث حالة الطلب إلى ${e.target.value}` : `Order updated to ${e.target.value}`);
+                            showToast(isAr ? `تم تحديث حالة الشحنة إلى ${e.target.value}` : `Shipment updated to ${e.target.value}`);
                           }}
                           className="px-3 py-1.5 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none"
                         >
                           <option value="pending">{isAr ? "قيد المراجعة (Pending)" : "Pending"}</option>
-                          <option value="paid">{isAr ? "تم الدفع (Paid)" : "Paid"}</option>
+                          <option value="paid">{isAr ? "تم استلام الدفع (Paid)" : "Paid"}</option>
                           <option value="processing">{isAr ? "جاري التجهيز والتغليف (Processing)" : "Processing"}</option>
-                          <option value="shipped">{isAr ? "تم الشحن مع المندوب (Shipped)" : "Shipped"}</option>
-                          <option value="delivered">{isAr ? "تم التسليم بنجاح (Delivered)" : "Delivered"}</option>
+                          <option value="shipped">{isAr ? "تم الشحن والتسليم للمندوب (Shipped)" : "Shipped"}</option>
+                          <option value="delivered">{isAr ? "تم التسليم للعميل بنجاح (Delivered)" : "Delivered"}</option>
+                          <option value="cancelled">{isAr ? "إلغاء الطلب (Cancelled)" : "Cancelled"}</option>
                         </select>
                       </div>
 
@@ -727,7 +865,198 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
-        {/* Tab 4: Financial Payouts & Settlement Hub */}
+        {/* Tab 4: Marketing Posts & Social Campaigns */}
+        {activeTab === "marketing" && (
+          <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
+              <div>
+                <h2 className="text-base font-black text-foreground flex items-center gap-2">
+                  <Megaphone size={18} className="text-gold" />
+                  <span>{isAr ? "المنشورات التسويقية والعروض الترويجية للمتجر" : "Marketing Posts & Store Promotions"}</span>
+                </h2>
+                <p className="text-xs text-muted">
+                  {isAr
+                    ? "انشر أحدث العروض، الخصومات الحصرية، وتخفيضات الفلاش لمتابعيك وزوار المنصة لزيادة المبيعات"
+                    : "Publish promo announcements, flash discounts, and spotlight products for customers"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAddMarketingModal(true)}
+                className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+              >
+                <Plus size={16} />
+                <span>{isAr ? "إنشاء منشور تسويقي جديد" : "Create Marketing Post"}</span>
+              </button>
+            </div>
+
+            {/* Marketing Stats Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-5 rounded-2xl bg-surface-soft border border-line space-y-1.5">
+                <div className="text-muted text-[11px]">{isAr ? "إجمالي المنشورات النشطة" : "Published Posts"}</div>
+                <div className="text-2xl font-black text-foreground">{storeMarketingPosts.length}</div>
+                <div className="text-[10px] text-muted">{isAr ? "معروضة في صفحة المتجر وخلاصة المنصة" : "Live on store & feed"}</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-surface-soft border border-line space-y-1.5">
+                <div className="text-muted text-[11px]">{isAr ? "إجمالي التفاعل والمشاهدات" : "Total Views & Reach"}</div>
+                <div className="text-2xl font-black text-amber-600 dark:text-gold">
+                  {storeMarketingPosts.reduce((sum, p) => sum + (p.views_count || 0), 0)}
+                </div>
+                <div className="text-[10px] text-muted">{isAr ? "مشاهدة من المتسوقين" : "Customer impressions"}</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-surface-soft border border-line space-y-1.5">
+                <div className="text-muted text-[11px]">{isAr ? "إجمالي الإعجابات" : "Total Likes"}</div>
+                <div className="text-2xl font-black text-rose-500">
+                  {storeMarketingPosts.reduce((sum, p) => sum + (p.likes_count || 0), 0)}
+                </div>
+                <div className="text-[10px] text-muted">{isAr ? "إعجاب وتفاعل إيجابي" : "Positive customer reactions"}</div>
+              </div>
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+              {[
+                { id: "all", labelAr: "جميع المنشورات", labelEn: "All Posts" },
+                { id: "published", labelAr: "المنشورة والنشطة", labelEn: "Published" },
+                { id: "draft", labelAr: "المسودات", labelEn: "Drafts" },
+              ].map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setMarketingStatusFilter(filter.id)}
+                  className={`px-3.5 py-1.5 rounded-xl font-bold transition-all border shrink-0 ${
+                    marketingStatusFilter === filter.id
+                      ? "bg-gold text-navy border-gold shadow-xs"
+                      : "bg-surface-soft text-muted border-line hover:border-gold"
+                  }`}
+                >
+                  {isAr ? filter.labelAr : filter.labelEn}
+                </button>
+              ))}
+            </div>
+
+            {/* Posts List */}
+            {storeMarketingPosts.length === 0 ? (
+              <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
+                <Megaphone size={32} className="text-muted mx-auto" />
+                <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد منشورات تسويقية لهذا المتجر بعد" : "No marketing posts published yet"}</div>
+                <p className="text-[11px] text-muted">{isAr ? "ابدأ بإطلاق أول حملة ترويجية لمنتجاتك الآن" : "Launch your first promotional campaign to boost store traffic"}</p>
+                <button
+                  type="button"
+                  onClick={() => setShowAddMarketingModal(true)}
+                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  <span>{isAr ? "إنشاء منشور ترويجي" : "Create promo post"}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {storeMarketingPosts.map((post) => (
+                  <div key={post.id} className="p-5 rounded-2xl bg-surface-soft border border-line space-y-3 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      {/* Top bar with pin & date */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {post.is_pinned && (
+                            <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-gold font-black text-[10px]">
+                              ★ {isAr ? "مثبت في المقدمة" : "Pinned"}
+                            </span>
+                          )}
+                          <span className="text-[11px] text-muted">
+                            {new Date(post.created_at).toLocaleDateString(isAr ? "ar-EG" : "en-US")}
+                          </span>
+                        </div>
+
+                        {post.promo_code && (
+                          <span className="px-2.5 py-0.5 rounded-lg bg-emerald-600/15 text-emerald-600 font-mono font-black text-xs flex items-center gap-1">
+                            <Tag size={12} />
+                            <span>{post.promo_code} ({post.discount_percent}% OFF)</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Title & Content */}
+                      <div>
+                        <h3 className="font-black text-sm text-foreground line-clamp-2">{post.title}</h3>
+                        <p className="text-xs text-muted mt-1 leading-relaxed line-clamp-3">{post.content}</p>
+                      </div>
+
+                      {/* Banner Image */}
+                      {post.image_url && (
+                        <div className="rounded-xl overflow-hidden border border-line/60 aspect-video relative">
+                          <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      {/* Linked Product Preview */}
+                      {post.featured_product_id && (
+                        <div className="p-2.5 rounded-xl bg-surface border border-line flex items-center justify-between gap-3 text-xs">
+                          <span className="font-bold text-foreground truncate">
+                            {products.find((p) => p.id === post.featured_product_id)?.name || isAr ? "منتج ترويجي مرتبط" : "Featured Product"}
+                          </span>
+                          <span className="text-gold font-black shrink-0">
+                            {formatPrice(products.find((p) => p.id === post.featured_product_id)?.price || 0)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom engagement and actions */}
+                    <div className="flex items-center justify-between pt-3 border-t border-line/60 text-xs">
+                      <div className="flex items-center gap-4 text-muted text-[11px]">
+                        <span className="flex items-center gap-1">
+                          <Eye size={13} />
+                          <span>{post.views_count || 1} {isAr ? "مشاهدة" : "views"}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => likeMarketingPost(post.id)}
+                          className="flex items-center gap-1 text-rose-500 hover:scale-105 transition-transform"
+                        >
+                          <Heart size={13} className="fill-rose-500 text-rose-500" />
+                          <span>{post.likes_count || 0}</span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateMarketingPost(post.id, { is_pinned: !post.is_pinned });
+                            showToast(post.is_pinned ? isAr ? "تم إلغاء التثبيت" : "Unpinned" : isAr ? "تم التثبيت في المقدمة" : "Pinned");
+                          }}
+                          className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground text-[11px]"
+                          title={post.is_pinned ? isAr ? "إلغاء التثبيت" : "Unpin" : isAr ? "تثبيت" : "Pin"}
+                        >
+                          ★
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنشور التسويقي؟" : "Delete marketing post?")) {
+                              deleteMarketingPost(post.id);
+                              showToast(isAr ? "تم حذف المنشور بنجاح" : "Post deleted");
+                            }
+                          }}
+                          className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
+                          title={isAr ? "حذف" : "Delete"}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 5: Financial Payouts & Settlement Hub */}
         {activeTab === "payouts" && (
           <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
@@ -819,7 +1148,7 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
-        {/* Tab 5: Store Profile & Identity Settings */}
+        {/* Tab 6: Store Profile & Identity Settings */}
         {activeTab === "settings" && (
           <form onSubmit={handleSaveStoreProfile} className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
             <div className="border-b border-line pb-4">
@@ -838,7 +1167,7 @@ export default function SellerDashboardPage() {
                   required
                   value={profileName}
                   onChange={(e) => setProfileName(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold"
                 />
               </div>
 
@@ -915,7 +1244,201 @@ export default function SellerDashboardPage() {
         )}
       </div>
 
-      {/* Add New Product Modal */}
+      {/* Modal 1: Create Official Platform Flagship Store */}
+      {showOfficialStoreModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-surface rounded-3xl border border-line shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <div className="flex items-center gap-2 font-black text-foreground text-base">
+                <Crown size={18} className="text-gold" />
+                <span>{isAr ? "تدشين متجر رسمي جديد للمنصة" : "Create Official Flagship Store"}</span>
+              </div>
+              <button type="button" onClick={() => setShowOfficialStoreModal(false)} className="text-muted hover:text-foreground">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateOfficialStore} className="space-y-4 text-xs">
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-gold space-y-1">
+                <div className="font-bold text-xs flex items-center gap-1.5">
+                  <ShieldCheck size={14} />
+                  <span>{isAr ? "ميزات المتجر الرسمي لمالك المنصة:" : "Platform Owner Flagship Perks:"}</span>
+                </div>
+                <p className="text-[11px] text-muted">
+                  {isAr
+                    ? "يتم توثيقه فورياً بشارة التاج الملكي الذهبي، وتكون عمولة المنصة عليه 0% مع إمكانية عرض وبيع منتجات المنصة المباشرة."
+                    : "Auto-verified with the Golden Crown badge, 0% platform commission, and priority marketplace ranking."}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "اسم المتجر الرسمي *" : "Official Store Name *"}</label>
+                <input
+                  type="text"
+                  required
+                  value={newOfficialName}
+                  onChange={(e) => setNewOfficialName(e.target.value)}
+                  placeholder="متجر نورميكسا المباشر (NOORMEXA Direct)"
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-sm"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "نبذة عن المتجر والضمان *" : "Description *"}</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={newOfficialDesc}
+                  onChange={(e) => setNewOfficialDesc(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
+                <button
+                  type="button"
+                  onClick={() => setShowOfficialStoreModal(false)}
+                  className="px-5 py-2.5 rounded-xl border border-line text-muted hover:text-foreground font-bold text-xs"
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
+                >
+                  {isAr ? "تدشين المتجر الرسمي الآن" : "Launch Store"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 2: Create Marketing Post */}
+      {showAddMarketingModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-xl bg-surface rounded-3xl border border-line shadow-2xl p-6 max-h-[90vh] overflow-y-auto space-y-6 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <div className="flex items-center gap-2 font-black text-foreground text-base">
+                <Megaphone size={18} className="text-gold" />
+                <span>{isAr ? "إنشاء منشور تسويقي وعرض ترويجي" : "New Marketing & Promo Post"}</span>
+              </div>
+              <button type="button" onClick={() => setShowAddMarketingModal(false)} className="text-muted hover:text-foreground">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateMarketingPost} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "عنوان العرض / المنشور *" : "Campaign Title *"}</label>
+                <input
+                  type="text"
+                  required
+                  value={postTitle}
+                  onChange={(e) => setPostTitle(e.target.value)}
+                  placeholder="مثال: خصم 20% لفترة محدودة على أحدث تشكيلة الساعات..."
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-sm"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "نص المنشور التسويقي *" : "Post Content / Caption *"}</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={postContent}
+                  onChange={(e) => setPostContent(e.target.value)}
+                  placeholder="اكتب تفاصيل العرض الحصري لمتابعيك والمشترين في المنصة..."
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "رابط صورة الغلاف / البانر الترويجي *" : "Banner Image URL *"}</label>
+                <input
+                  type="url"
+                  required
+                  value={postImageUrl}
+                  onChange={(e) => setPostImageUrl(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="font-bold text-foreground">{isAr ? "كود الخصم الترويجي (اختياري)" : "Promo Code"}</label>
+                  <input
+                    type="text"
+                    value={postPromoCode}
+                    onChange={(e) => setPostPromoCode(e.target.value)}
+                    placeholder="مثال: NOOR20"
+                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-mono uppercase font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-foreground">{isAr ? "نسبة الخصم % (اختياري)" : "Discount %"}</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="90"
+                    value={postDiscount}
+                    onChange={(e) => setPostDiscount(e.target.value)}
+                    placeholder="20"
+                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "ربط بمنتج معروض في المتجر (اختياري)" : "Link to Store Product"}</label>
+                <select
+                  value={postFeaturedProdId}
+                  onChange={(e) => setPostFeaturedProdId(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                >
+                  <option value="">{isAr ? "بدون ربط منتج محدد" : "None"}</option>
+                  {storeProducts.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({formatPrice(p.price)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-1">
+                <label className="flex items-center gap-2 cursor-pointer font-bold text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={postIsPinned}
+                    onChange={(e) => setPostIsPinned(e.target.checked)}
+                    className="accent-[#d4af37]"
+                  />
+                  <span>{isAr ? "تثبيت هذا المنشور في مقدمة المتجر (Pinned to Top)" : "Pin to top of store"}</span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMarketingModal(false)}
+                  className="px-5 py-2.5 rounded-xl border border-line text-muted hover:text-foreground font-bold text-xs"
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
+                >
+                  {isAr ? "نشر المنشور الترويجي" : "Publish Campaign"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 3: Add New Product */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl bg-surface rounded-3xl border border-line shadow-2xl p-6 max-h-[90vh] overflow-y-auto space-y-6 animate-in zoom-in-95">
@@ -1071,7 +1594,7 @@ export default function SellerDashboardPage() {
         </div>
       )}
 
-      {/* Payout Request Modal */}
+      {/* Modal 4: Request Payout */}
       {showPayoutModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-lg bg-surface rounded-3xl border border-line shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
@@ -1158,7 +1681,7 @@ export default function SellerDashboardPage() {
         </div>
       )}
 
-      {/* Packing Slip & Invoice Modal */}
+      {/* Modal 5: Packing Slip & Invoice Modal */}
       {selectedOrderForInvoice && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl bg-surface rounded-3xl border border-line shadow-2xl p-6 sm:p-8 space-y-6 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
@@ -1176,7 +1699,7 @@ export default function SellerDashboardPage() {
             <div className="p-6 rounded-2xl bg-surface-soft border border-line space-y-6 text-xs text-foreground font-sans">
               <div className="flex justify-between items-start border-b border-line pb-4">
                 <div>
-                  <div className="text-lg font-black text-foreground">NOORMEXA EXPRESS</div>
+                  <div className="text-lg font-black text-foreground">NOORMEXA EXPRESS LOGISTICS</div>
                   <div className="text-muted text-[11px]">{isAr ? "بوليصة شحن واستلام وتوصيل معتمدة" : "Verified Logistics Dispatch"}</div>
                 </div>
                 <div className="text-end">

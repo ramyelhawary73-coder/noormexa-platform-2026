@@ -13,6 +13,7 @@ import type {
   CurrencyInfo,
   Category,
   Store,
+  MarketingPost,
   StorePayout,
   Product,
   PlatformSettings,
@@ -187,6 +188,31 @@ export const INITIAL_CATEGORIES: Category[] = [
 
 export const INITIAL_STORES: Store[] = [
   {
+    id: "store-noormexa-official",
+    owner_id: "owner-platform-admin",
+    name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
+    slug: "noormexa-official",
+    description: "المتجر الرسمي المباشر لعلامة نورميكسا العالمية. منتجات أصلية 100% بضمان الوكيل، شحن فائق السرعة، ومكافآت حصرية لعملاء المنصة.",
+    logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
+    banner_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&auto=format&fit=crop&q=80",
+    commission_rate: 0,
+    plan: "platform_owner",
+    status: "approved",
+    is_verified: true,
+    is_official: true,
+    rating: 5.0,
+    total_sales: 3890,
+    country: "المملكة العربية السعودية / مصر / الإمارات",
+    contact_email: "direct@noormexa.com",
+    contact_phone: "+966 800 124 6677",
+    cr_number: "CR-NRX-HQ-2026",
+    tax_number: "VAT-NRX-310029384",
+    bank_name: "حساب خزينة المنصة الرئيسي (Central Treasury)",
+    iban: "SA0000000000000000000000",
+    return_policy: "إرجاع واستبدال مجاني فوري لمدة 30 يوماً مع ضمان ذهبي شامل من المنصة",
+    created_at: "2026-01-01T00:00:00Z",
+  },
+  {
     id: "store-techcraft",
     owner_id: "owner-1",
     name: "TechCraft Global Innovations",
@@ -317,6 +343,73 @@ export const INITIAL_PAYOUTS: StorePayout[] = [
     bank_name: "البنك الأهلي السعودي (SNB)",
     iban: "SA1210000001234567890123",
     notes: "طلب سحب الأرباح المتاحة",
+  },
+];
+
+export const INITIAL_MARKETING_POSTS: MarketingPost[] = [
+  {
+    id: "post-1",
+    store_id: "store-noormexa-official",
+    store_name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
+    store_logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
+    title: "🔥 إطلاق التشكيلة الرسمية المباشرة لعام 2026 مع شحن مجاني لجميع الطلبات!",
+    content: "يسر إدارة منصة نورميكسا الإعلان عن إطلاق منتجاتنا الحصرية مباشرة من المستودع المركزي. استمتع بضمان الوكيل الشامل لمدة سنتين وخصومات حصرية تبدأ من 15% على جميع الفئات.",
+    image_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop&q=80",
+    promo_code: "NOOR10",
+    discount_percent: 10,
+    featured_product_id: "prod-titan-smartphone",
+    likes_count: 342,
+    views_count: 1850,
+    is_pinned: true,
+    status: "published",
+    created_at: "2026-02-18T10:00:00Z",
+  },
+  {
+    id: "post-2",
+    store_id: "store-techcraft",
+    store_name: "TechCraft Global Innovations",
+    store_logo: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=200&auto=format&fit=crop&q=80",
+    title: "⚡ تخفيضات الفلاش الأسبوعية: خصم 20% على سماعات NOORMEXA Pro اللاسلكية",
+    content: "لفترة محدودة حتى نهاية عطلة الأسبوع! احصل على سماعات NOORMEXA Pro ANC بصوت Hi-Res وبطارية 55 ساعة مع تغليف هدايا مجاني وكود خصم إضافي.",
+    image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
+    promo_code: "WELCOME20",
+    discount_percent: 20,
+    featured_product_id: "prod-aurora-headphones",
+    likes_count: 189,
+    views_count: 940,
+    is_pinned: false,
+    status: "published",
+    created_at: "2026-02-19T14:30:00Z",
+  },
+  {
+    id: "post-3",
+    store_id: "store-royaloils",
+    store_name: "Royal Oud & Perfumery",
+    store_logo: "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?w=200&auto=format&fit=crop&q=80",
+    title: "🌿 إشعار وصول شحنة دهن العود الكمبودي المعتق 25 سنة",
+    content: "وصلتنا الآن دفعة محدودة جداً من دهن العود الكمبودي الفاخر المعتق. ثبات فائق لأكثر من 48 ساعة مع فوحان استثنائي. الكميات محدودة للطلب الفوري.",
+    image_url: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=800&auto=format&fit=crop&q=80",
+    promo_code: "GLOBAL15",
+    discount_percent: 15,
+    likes_count: 245,
+    views_count: 1210,
+    is_pinned: false,
+    status: "published",
+    created_at: "2026-02-20T09:15:00Z",
+  },
+  {
+    id: "post-4",
+    store_id: "store-noorcouture",
+    store_name: "Noor Couture Atelier",
+    store_logo: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&auto=format&fit=crop&q=80",
+    title: "👗 تدشين مجموعة العبايات الكشميرية وحقائب الجلد الإيطالي المصنوعة يدوياً",
+    content: "قطع فريدة مصممة لتبرز أناقتك الملكية. كل قطعة مشغولة يدوياً بعناية فائقة وتأتي مع شهادة أصالة وضمان استبدال.",
+    image_url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80",
+    likes_count: 178,
+    views_count: 890,
+    is_pinned: false,
+    status: "published",
+    created_at: "2026-02-20T16:45:00Z",
   },
 ];
 
@@ -733,6 +826,9 @@ interface MarketplaceContextType {
   categories: Category[];
   stores: Store[];
   products: Product[];
+  currentStoreId: string;
+  setCurrentStoreId: (storeId: string) => void;
+  createOfficialStore: (name: string, description: string, slug?: string) => Store;
   addProduct: (product: Omit<Product, "id" | "created_at">) => Product;
   updateProductItem: (id: string, updates: Partial<Product>) => void;
   deleteProductItem: (id: string) => void;
@@ -755,6 +851,13 @@ interface MarketplaceContextType {
   updateStoreStatusItem: (storeId: string, status: Store["status"]) => void;
   toggleStoreVerified: (storeId: string) => void;
   updateStoreCommissionRate: (storeId: string, rate: number) => void;
+
+  // Marketing & Social Posts
+  marketingPosts: MarketingPost[];
+  addMarketingPost: (post: Omit<MarketingPost, "id" | "created_at" | "likes_count" | "views_count">) => MarketingPost;
+  updateMarketingPost: (id: string, updates: Partial<MarketingPost>) => void;
+  deleteMarketingPost: (id: string) => void;
+  likeMarketingPost: (id: string) => void;
 
   // Payouts & Merchant Ledger
   payouts: StorePayout[];
@@ -819,6 +922,8 @@ const STORAGE_KEYS = {
   ORDERS: "noormexa_orders_v2",
   CURRENCIES: "noormexa_currencies_v2",
   PAYOUTS: "noormexa_payouts_v2",
+  CURRENT_STORE: "noormexa_active_store_id_v2",
+  MARKETING_POSTS: "noormexa_marketing_posts_v2",
 };
 
 export function MarketplaceProvider({ children }: { children: ReactNode }) {
@@ -827,7 +932,9 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [settings, setSettingsState] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
   const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [stores, setStoresState] = useState<Store[]>(INITIAL_STORES);
+  const [currentStoreId, setCurrentStoreIdState] = useState<string>("store-noormexa-official");
   const [products, setProductsState] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [marketingPosts, setMarketingPostsState] = useState<MarketingPost[]>(INITIAL_MARKETING_POSTS);
   const [payouts, setPayoutsState] = useState<StorePayout[]>(INITIAL_PAYOUTS);
   const [wishlist, setWishlistState] = useState<string[]>([]);
   const [cartItems, setCartItemsState] = useState<CartItem[]>([]);
@@ -872,6 +979,15 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(parsed) && parsed.length > 0) setStoresState(parsed);
         }
 
+        const savedActiveStore = window.localStorage.getItem(STORAGE_KEYS.CURRENT_STORE);
+        if (savedActiveStore) setCurrentStoreIdState(savedActiveStore);
+
+        const savedPosts = window.localStorage.getItem(STORAGE_KEYS.MARKETING_POSTS);
+        if (savedPosts) {
+          const parsed = JSON.parse(savedPosts);
+          if (Array.isArray(parsed) && parsed.length > 0) setMarketingPostsState(parsed);
+        }
+
         const savedPayouts = window.localStorage.getItem(STORAGE_KEYS.PAYOUTS);
         if (savedPayouts) {
           const parsed = JSON.parse(savedPayouts);
@@ -903,6 +1019,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
       window.localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       window.localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify(stores));
+      window.localStorage.setItem(STORAGE_KEYS.CURRENT_STORE, currentStoreId);
+      window.localStorage.setItem(STORAGE_KEYS.MARKETING_POSTS, JSON.stringify(marketingPosts));
       window.localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(payouts));
       window.localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
       if (appliedPromo) {
@@ -913,7 +1031,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Failed to persist marketplace state:", err);
     }
-  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, payouts, orders, appliedPromo]);
+  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, currentStoreId, marketingPosts, payouts, orders, appliedPromo]);
 
   // Currency helpers
   const setCurrency = useCallback((newCur: CurrencyCode) => {
@@ -1083,6 +1201,77 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
 
   const updateStoreCommissionRate = useCallback((storeId: string, rate: number) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, commission_rate: rate } : s)));
+  }, []);
+
+  const setCurrentStoreId = useCallback((storeId: string) => {
+    setCurrentStoreIdState(storeId);
+  }, []);
+
+  const createOfficialStore = useCallback(
+    (name: string, description: string, customSlug?: string): Store => {
+      const cleanSlug = (customSlug || name)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      const newOfficialStore: Store = {
+        id: `store-official-${Date.now()}`,
+        owner_id: "owner-platform-admin",
+        name: name || "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
+        slug: cleanSlug || `noormexa-official-${Date.now()}`,
+        description: description || "المتجر الرسمي لعلامة المنصة العالمية، منتجات أصلية وشحن فوري.",
+        country: "المملكة العربية السعودية / مصر / الإمارات",
+        plan: "platform_owner",
+        commission_rate: 0,
+        status: "approved",
+        is_verified: true,
+        is_official: true,
+        rating: 5.0,
+        total_sales: 0,
+        cr_number: "CR-NRX-HQ-2026",
+        tax_number: "VAT-NRX-310029384",
+        bank_name: "حساب خزينة المنصة المركزي (Central Platform Treasury)",
+        iban: "SA0000000000000000000000",
+        contact_email: "direct@noormexa.com",
+        contact_phone: "+966 800 124 6677",
+        logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
+        banner_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&auto=format&fit=crop&q=80",
+        created_at: new Date().toISOString(),
+      };
+      setStoresState((prev) => [newOfficialStore, ...prev]);
+      setCurrentStoreIdState(newOfficialStore.id);
+      return newOfficialStore;
+    },
+    []
+  );
+
+  const addMarketingPost = useCallback(
+    (postData: Omit<MarketingPost, "id" | "created_at" | "likes_count" | "views_count">): MarketingPost => {
+      const newPost: MarketingPost = {
+        ...postData,
+        id: `post-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        likes_count: 0,
+        views_count: 1,
+        created_at: new Date().toISOString(),
+      };
+      setMarketingPostsState((prev) => [newPost, ...prev]);
+      return newPost;
+    },
+    []
+  );
+
+  const updateMarketingPost = useCallback((id: string, updates: Partial<MarketingPost>) => {
+    setMarketingPostsState((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+  }, []);
+
+  const deleteMarketingPost = useCallback((id: string) => {
+    setMarketingPostsState((prev) => prev.filter((p) => p.id !== id));
+  }, []);
+
+  const likeMarketingPost = useCallback((id: string) => {
+    setMarketingPostsState((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, likes_count: (p.likes_count || 0) + 1 } : p))
+    );
   }, []);
 
   // Payout actions
@@ -1421,6 +1610,9 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         categories,
         stores,
         products,
+        currentStoreId,
+        setCurrentStoreId,
+        createOfficialStore,
         addProduct,
         updateProductItem,
         deleteProductItem,
@@ -1429,6 +1621,11 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         updateStoreStatusItem,
         toggleStoreVerified,
         updateStoreCommissionRate,
+        marketingPosts,
+        addMarketingPost,
+        updateMarketingPost,
+        deleteMarketingPost,
+        likeMarketingPost,
         payouts,
         requestStorePayout,
         updatePayoutStatus,

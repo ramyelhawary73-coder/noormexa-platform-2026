@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Coins,
   CreditCard,
+  Crown,
   Eye,
   EyeOff,
   Megaphone,
@@ -28,6 +29,7 @@ import {
   TrendingUp,
   Truck,
   Wallet,
+  X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { CurrencyCode, Store, Order } from "@/types/marketplace";
@@ -108,6 +110,7 @@ export default function SuperAdminPage() {
     stores,
     orders,
     payouts,
+    marketingPosts,
     settings,
     updateSettings,
     toggleGateway,
@@ -121,11 +124,18 @@ export default function SuperAdminPage() {
     deleteProductItem,
     updateOrderStatus,
     updatePayoutStatus,
+    createOfficialStore,
+    deleteMarketingPost,
   } = useMarketplace();
 
   const [activeTab, setActiveTab] = useState<
     "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders" | "payouts" | "promotions"
   >("overview");
+
+  // Official Flagship Store Modal State
+  const [showOfficialModal, setShowOfficialModal] = useState(false);
+  const [newOfficialName, setNewOfficialName] = useState("متجر نورمكسا بريميوم المباشر (NOORMEXA Direct)");
+  const [newOfficialDesc, setNewOfficialDesc] = useState("المتجر الرسمي المباشر للمنصة - أعلى معايير الجودة وشحن فوري");
 
   // Promotional Codes & Marketing State
   const [coupons, setCoupons] = useState([
@@ -418,13 +428,24 @@ export default function SuperAdminPage() {
                 <p className="text-xs text-muted">{isAr ? "فحص السجلات التجارية، الحسابات البنكية، وتعيين عمولات المتاجر" : "Inspect merchant legal records, bank accounts, and set custom fee rates"}</p>
               </div>
 
-              <Link
-                href="/seller/register"
-                className="px-4 py-2 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all self-start sm:self-auto"
-              >
-                <Plus size={14} />
-                <span>{isAr ? "تسجيل بائع يدوي" : "Manual Onboard"}</span>
-              </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOfficialModal(true)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Crown size={14} className="fill-white" />
+                  <span>{isAr ? "إنشاء متجر رسمي للمنصة" : "Create Official Store"}</span>
+                </button>
+
+                <Link
+                  href="/seller/register"
+                  className="px-4 py-2 rounded-xl bg-surface border border-line hover:border-gold text-foreground font-bold text-xs flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Plus size={14} />
+                  <span>{isAr ? "تسجيل بائع يدوي" : "Manual Onboard"}</span>
+                </Link>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -432,14 +453,24 @@ export default function SuperAdminPage() {
                 <div key={s.id} className="p-5 rounded-2xl bg-surface-soft border border-line space-y-4 text-xs">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-surface border border-line shrink-0">
+                      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-surface border border-line shrink-0 relative">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={s.logo_url || ""} alt="" className="w-full h-full object-cover" />
+                        {s.is_official && (
+                          <div className="absolute top-0.5 right-0.5 bg-amber-500 text-white p-0.5 rounded-full shadow-xs">
+                            <Crown size={10} className="fill-white" />
+                          </div>
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-black text-sm text-foreground">{s.name}</span>
-                          {s.is_verified ? (
+                          {s.is_official ? (
+                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-gold font-black text-[10px] flex items-center gap-1 border border-amber-500/30">
+                              <Crown size={11} className="fill-amber-500 text-amber-500" />
+                              <span>{isAr ? "متجر المنصة الرسمي" : "Official Flagship"}</span>
+                            </span>
+                          ) : s.is_verified ? (
                             <span className="px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 font-bold text-[10px] flex items-center gap-1">
                               <BadgeCheck size={12} />
                               <span>{isAr ? "بائع موثق" : "Verified"}</span>
@@ -451,13 +482,27 @@ export default function SuperAdminPage() {
                           )}
                         </div>
                         <p className="text-xs text-muted line-clamp-1 mt-0.5">{s.description}</p>
-                        <div className="text-[11px] text-muted mt-0.5">
-                          <span>noormexa.com/store/{s.slug}</span>
+                        <div className="text-[11px] text-muted mt-0.5 flex items-center gap-2">
+                          <Link href={`/store/${s.slug}`} className="text-gold hover:underline font-semibold">
+                            noormexa.com/store/{s.slug}
+                          </Link>
+                          {s.is_official && (
+                            <span className="text-[10px] bg-gold/10 text-navy dark:text-gold px-2 py-0.5 rounded font-black">
+                              {isAr ? "عمولة 0% (متجر المالك)" : "0% Commission (Owner Store)"}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/store/${s.slug}`}
+                        className="px-3 py-1.5 rounded-xl font-bold text-xs bg-surface border border-line hover:border-gold text-foreground transition-all"
+                      >
+                        {isAr ? "معاينة الواجهة" : "Visit Store"}
+                      </Link>
+
                       {/* Toggle Verified Badge */}
                       <button
                         type="button"
@@ -507,9 +552,9 @@ export default function SuperAdminPage() {
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <input
                           type="number"
-                          min="1"
+                          min="0"
                           max="30"
-                          value={s.commission_rate || 8}
+                          value={s.commission_rate || 0}
                           onChange={(e) => updateStoreCommissionRate(s.id, Number(e.target.value))}
                           className="w-14 p-1 rounded-lg bg-surface-soft border border-line font-mono font-bold text-center text-xs text-foreground focus:outline-none focus:border-gold"
                         />
@@ -1096,6 +1141,69 @@ export default function SuperAdminPage() {
                 </div>
               </div>
             </div>
+
+            {/* Vendor Marketing Posts Oversight */}
+            <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-foreground flex items-center justify-between border-b border-line pb-3">
+                <span className="flex items-center gap-2">
+                  <Megaphone size={18} className="text-gold" />
+                  <span>{isAr ? `منشورات وعروض المتاجر التسويقية (${marketingPosts.length})` : `Store Marketing Campaigns (${marketingPosts.length})`}</span>
+                </span>
+              </h2>
+
+              {marketingPosts.length === 0 ? (
+                <div className="text-center py-8 text-muted text-xs bg-surface-soft rounded-2xl border border-line">
+                  {isAr ? "لا توجد منشورات تسويقية مسجلة حالياً." : "No store marketing campaigns active."}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {marketingPosts.map((post) => {
+                    const postStore = stores.find((s) => s.id === post.store_id);
+                    return (
+                      <div key={post.id} className="p-4 rounded-2xl bg-surface-soft border border-line space-y-3 text-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-foreground">{postStore?.name || post.store_id}</span>
+                            {postStore?.is_official && (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-gold font-bold text-[10px] flex items-center gap-1">
+                                <Crown size={10} className="fill-amber-500" />
+                                <span>{isAr ? "رسمي" : "Official"}</span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-muted">{new Date(post.created_at).toLocaleDateString(isAr ? "ar-EG" : "en-US")}</span>
+                        </div>
+
+                        <div>
+                          <h4 className="font-bold text-foreground">{post.title}</h4>
+                          <p className="text-muted text-[11px] mt-0.5 line-clamp-2">{post.content}</p>
+                        </div>
+
+                        {post.promo_code && (
+                          <div className="inline-block px-2.5 py-1 rounded-lg bg-emerald-600/15 text-emerald-600 font-mono font-bold text-xs">
+                            {isAr ? "كود خصم:" : "Code:"} {post.promo_code}
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between pt-2 border-t border-line/60">
+                          <span className="text-muted text-[11px]">
+                            {post.likes_count || 0} {isAr ? "إعجاب" : "likes"} • {post.views_count || 0} {isAr ? "مشاهدة" : "views"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => deleteMarketingPost(post.id)}
+                            className="text-red-500 hover:text-red-600 font-bold text-[11px] flex items-center gap-1"
+                          >
+                            <Trash2 size={13} />
+                            <span>{isAr ? "حذف المنشور" : "Delete Post"}</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -1230,6 +1338,83 @@ export default function SuperAdminPage() {
           </form>
         )}
       </div>
+
+      {/* Super Admin Create Official Platform Store Modal */}
+      {showOfficialModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-surface border border-line p-6 sm:p-8 rounded-3xl max-w-lg w-full shadow-2xl space-y-6 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-line pb-4">
+              <div className="flex items-center gap-2">
+                <Crown size={20} className="text-amber-500 fill-amber-500" />
+                <h3 className="font-black text-base text-foreground">
+                  {isAr ? "تدشين متجر رسمي معتمد للمنصة" : "Establish Official Flagship Store"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowOfficialModal(false)}
+                className="text-muted hover:text-foreground p-1"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-xs text-muted leading-relaxed">
+              {isAr
+                ? "سوف يتم إنشاء متجر رسمي يحمل شارة التاج الذهبي وتعيين نسبة عمولة المنصة 0% تلقائياً، ليكون الواجهة التجارية الحصرية لمنتجات المنصة المباشرة مع ميزات الترويج الأولوية."
+                : "This creates an Official Flagship Store with a Crown badge, 0% platform commission, and priority catalog placement for direct sales."}
+            </p>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-foreground block mb-1.5">
+                  {isAr ? "اسم المتجر الرسمي للمنصة:" : "Official Store Name:"}
+                </label>
+                <input
+                  type="text"
+                  value={newOfficialName}
+                  onChange={(e) => setNewOfficialName(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line text-foreground font-bold focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1.5">
+                  {isAr ? "الوصف التعريفي والشعار:" : "Description & Slogan:"}
+                </label>
+                <textarea
+                  rows={3}
+                  value={newOfficialDesc}
+                  onChange={(e) => setNewOfficialDesc(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line text-foreground text-xs leading-relaxed focus:outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setShowOfficialModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-line text-muted hover:text-foreground text-xs font-bold transition-all"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  createOfficialStore(newOfficialName, newOfficialDesc);
+                  setShowOfficialModal(false);
+                }}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs shadow-md transition-all flex items-center gap-2"
+              >
+                <Crown size={15} className="fill-white" />
+                <span>{isAr ? "تأكيد وإنشاء المتجر" : "Confirm & Launch Store"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
