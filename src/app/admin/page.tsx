@@ -39,14 +39,14 @@ const copy = {
   ar: {
     hubTitle: "مركز تحكم المالك الشامل (Super Admin Hub)",
     hubSubtitle: "إدارة المؤشرات المالية، إعدادات المنصة، بوابات الدفع، وتوثيق المتاجر والطلبات",
-    tabOverview: "لوحة المؤشرات العامة",
-    tabSettings: "إعدادات المنصة والعمولات",
-    tabGateways: "بوابات الدفع العالمية",
-    tabCurrencies: "محول أسعار الصرف",
-    tabStores: "إدارة وتوثيق المتاجر",
-    tabProducts: "الكتالوج والمنتجات",
-    tabOrders: "إدارة الطلبات والشحن",
-    tabPromotions: "العروض والترويج",
+    tabOverview: "لوحة المؤشرات",
+    tabSettings: "إعدادات المنصة",
+    tabGateways: "بوابات الدفع",
+    tabCurrencies: "أسعار الصرف",
+    tabStores: "توثيق المتاجر",
+    tabProducts: "كتالوج المنتجات",
+    tabOrders: "إدارة الطلبات",
+    tabPromotions: "العروض والخصومات",
     gmvLabel: "إجمالي قيمة التداول (GMV)",
     netCommissionLabel: "صافي أرباح المنصة (Commissions)",
     activeStoresLabel: "المتاجر المعتمدة النشطة",
@@ -243,15 +243,15 @@ export default function SuperAdminPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center justify-between gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all border select-none w-full min-h-[48px] sm:min-h-[52px] ${
+                  className={`flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all border select-none w-full min-h-[48px] sm:min-h-[52px] ${
                     active
                       ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-black dark:bg-navy dark:text-gold dark:border-gold dark:shadow-none ring-2 ring-amber-500/20 dark:ring-gold/20"
-                      : "bg-surface text-foreground/85 border-line hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-foreground"
+                      : "bg-surface text-foreground/90 border-line hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-foreground"
                   }`}
                 >
-                  <div className="flex items-center gap-2 truncate">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 text-start">
                     <Icon size={16} className={`shrink-0 ${active ? "text-white dark:text-gold" : "text-amber-600 dark:text-gold"}`} />
-                    <span className="truncate">{tab.label}</span>
+                    <span className="text-[11px] sm:text-xs font-bold leading-tight whitespace-nowrap">{tab.label}</span>
                   </div>
                   {tab.count !== null && (
                     <span
