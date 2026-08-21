@@ -662,13 +662,17 @@ export default function HomePage() {
               <HeroImageSlider language={language} />
 
               {/* Floating Social Proof Pill */}
-              <div className="absolute bottom-4 start-4 z-20 bg-surface/90 backdrop-blur-md border border-line px-4 py-2 rounded-2xl shadow-lg flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-gold font-black">
+              <div className="absolute bottom-4 start-4 z-20 bg-surface/95 backdrop-blur-md border border-line px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-gold font-black shrink-0">
                   <Star size={18} className="fill-amber-500" />
                 </div>
-                <div>
-                  <div className="text-xs font-black text-foreground">4.9 / 5.0 Rating</div>
-                  <div className="text-[10px] text-muted">{isAr ? "من أكثر من 120,000 عميل" : "120k+ Verified Orders"}</div>
+                <div className="min-w-0">
+                  <div className="text-xs font-black text-foreground flex items-center gap-1.5 whitespace-nowrap">
+                    <span dir="ltr">4.9 / 5.0</span>
+                    <span className="text-amber-500">★</span>
+                    <span className="text-[10px] text-muted font-normal">({isAr ? "تقييم عام" : "Score"})</span>
+                  </div>
+                  <div className="text-[10px] text-muted whitespace-nowrap">{isAr ? "أكثر من 120,000 عميل موثق" : "120k+ Verified Orders"}</div>
                 </div>
               </div>
             </div>
@@ -689,13 +693,16 @@ export default function HomePage() {
                     <Crown size={36} className="fill-amber-500 text-gold" />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-gold font-black text-[10px] border border-amber-500/30">
                       <Sparkles size={11} />
                       <span>{text.officialSection.tag}</span>
                     </div>
-                    <h2 className="text-lg sm:text-2xl font-black text-foreground">
-                      {officialStore.name || text.officialSection.title}
+                    <h2 className="text-lg sm:text-2xl font-black text-foreground flex flex-wrap items-center gap-2">
+                      <span>{isAr ? "متجر نورميكسا الرسمي" : "NOORMEXA Flagship Store"}</span>
+                      <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-gold bg-amber-500/15 px-2.5 py-0.5 rounded-lg border border-amber-500/20" dir="ltr">
+                        Flagship Direct
+                      </span>
                     </h2>
                     <p className="text-xs sm:text-sm text-muted max-w-2xl leading-relaxed">
                       {officialStore.description || text.officialSection.desc}
@@ -706,7 +713,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-3 shrink-0">
                   <Link
                     href={`/store/${officialStore.slug}`}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs sm:text-sm shadow-md transition-all flex items-center gap-2"
+                    className="noormexa-gold-button text-xs sm:text-sm font-black shadow-lg flex items-center justify-center gap-2 px-6 py-3 rounded-2xl whitespace-nowrap"
                   >
                     <span>{text.officialSection.visitStore}</span>
                     <DirectionIcon size={14} />
@@ -728,7 +735,7 @@ export default function HomePage() {
                 <Flame size={14} className="fill-red-500 text-red-500 animate-bounce" />
                 <span>{text.flashDeals.badge}</span>
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              <h2 className="text-xl sm:text-3xl font-black text-foreground tracking-tight break-words">
                 {text.flashDeals.title}
               </h2>
               <p className="text-xs sm:text-sm text-muted">{text.flashDeals.subtitle}</p>
@@ -764,7 +771,7 @@ export default function HomePage() {
                   key={prod.id}
                   className="group rounded-3xl bg-surface border border-line hover:border-gold hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
                 >
-                  <div className="relative aspect-square overflow-hidden bg-surface-soft">
+                  <div className="relative aspect-square overflow-hidden bg-surface-soft shrink-0">
                     <img
                       src={prod.image_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"}
                       alt={prod.name}
@@ -772,16 +779,16 @@ export default function HomePage() {
                     />
 
                     {/* Discount Badge */}
-                    <div className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-red-600 text-white font-black text-[11px] shadow-md flex items-center gap-1">
+                    <div className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-red-600 text-white font-black text-[11px] shadow-md flex items-center gap-1 z-10 whitespace-nowrap">
                       <Percent size={11} />
-                      <span>-{discount}%</span>
+                      <span dir="ltr">-{discount}%</span>
                     </div>
 
                     {/* Wishlist Button */}
                     <button
                       type="button"
                       onClick={() => toggleWishlist(prod.id)}
-                      className="absolute top-3 end-3 w-8 h-8 rounded-full bg-surface/90 backdrop-blur-xs border border-line flex items-center justify-center text-muted hover:text-red-500 hover:scale-110 transition-all shadow-sm"
+                      className="absolute top-3 end-3 w-8 h-8 rounded-full bg-surface/90 backdrop-blur-xs border border-line flex items-center justify-center text-muted hover:text-red-500 hover:scale-110 transition-all shadow-sm z-10"
                       aria-label="Wishlist"
                     >
                       <Heart size={15} className={isWishlisted ? "fill-red-500 text-red-500" : ""} />
@@ -789,16 +796,16 @@ export default function HomePage() {
                   </div>
 
                   <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       {/* Store Attribution */}
                       <div className="flex items-center gap-1.5 text-[11px] text-muted">
-                        <Store size={12} className="text-amber-500" />
+                        <Store size={12} className="text-amber-500 shrink-0" />
                         <span className="truncate font-bold text-foreground/80">{store?.name || "Official Store"}</span>
                         {store?.is_official && <Crown size={11} className="text-amber-500 fill-amber-500 shrink-0" />}
                       </div>
 
                       <Link href={`/product/${prod.id}`} className="block">
-                        <h3 className="font-bold text-foreground text-sm line-clamp-1 group-hover:text-gold transition-colors">
+                        <h3 className="font-bold text-foreground text-sm line-clamp-2 min-h-[2.6rem] group-hover:text-gold transition-colors leading-snug">
                           {prod.name}
                         </h3>
                       </Link>
@@ -806,16 +813,16 @@ export default function HomePage() {
 
                     {/* Price & Progress Bar */}
                     <div className="space-y-2 pt-2 border-t border-line/60">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-base sm:text-lg font-black text-foreground">{formatPrice(prod.price)}</span>
-                        <span className="text-xs text-muted line-through">{formatPrice(originalPrice)}</span>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-base sm:text-lg font-black text-foreground whitespace-nowrap">{formatPrice(prod.price)}</span>
+                        <span className="text-xs text-muted line-through whitespace-nowrap">{formatPrice(originalPrice)}</span>
                       </div>
 
                       {/* Stock Claimed Bar */}
                       <div className="space-y-1 text-[10px]">
                         <div className="flex justify-between text-muted font-bold">
                           <span>{text.flashDeals.claimed} 78%</span>
-                          <span className="text-amber-600 dark:text-gold font-black">{isAr ? "متبقي 6 قطع فقط" : "6 left"}</span>
+                          <span className="text-amber-600 dark:text-gold font-black whitespace-nowrap">{isAr ? "متبقي 6 قطع فقط" : "6 left"}</span>
                         </div>
                         <div className="w-full h-1.5 rounded-full bg-surface-soft border border-line overflow-hidden">
                           <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full" style={{ width: "78%" }} />
@@ -826,9 +833,9 @@ export default function HomePage() {
                       <button
                         type="button"
                         onClick={() => handleQuickAdd(prod)}
-                        className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
+                        className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs whitespace-nowrap transition-all flex items-center justify-center gap-1.5 ${
                           isAdded
-                            ? "bg-emerald-600 text-white"
+                            ? "bg-emerald-600 text-white shadow-sm"
                             : "bg-surface-soft hover:bg-gold hover:text-navy border border-line text-foreground"
                         }`}
                       >

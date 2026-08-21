@@ -384,7 +384,7 @@ export default function SellerDashboardPage() {
             <button
               type="button"
               onClick={() => setShowOfficialStoreModal(true)}
-              className="px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-gold font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
+              className="px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px]"
             >
               <Crown size={15} />
               <span>{isAr ? "إنشاء متجر رسمي للمنصة" : "New Flagship Store"}</span>
@@ -392,7 +392,7 @@ export default function SellerDashboardPage() {
 
             <Link
               href={`/store/${currentStore.slug}`}
-              className="px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
+              className="px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px]"
             >
               <Eye size={15} className="text-gold" />
               <span>{isAr ? "واجهة المتجر العامة" : "View Storefront"}</span>
@@ -401,7 +401,7 @@ export default function SellerDashboardPage() {
             <button
               type="button"
               onClick={() => setShowAddMarketingModal(true)}
-              className="px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px]"
             >
               <Megaphone size={15} className="text-amber-500" />
               <span>{isAr ? "نشر عرض تسويقي" : "New Campaign"}</span>
@@ -410,7 +410,7 @@ export default function SellerDashboardPage() {
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
-              className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-sm transition-all"
+              className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px]"
             >
               <Plus size={16} />
               <span>{isAr ? "إضافة منتج جديد" : "Add Product"}</span>
@@ -427,8 +427,8 @@ export default function SellerDashboardPage() {
         )}
 
         {/* Navigation Tabs - 6 Items */}
-        <div className="bg-surface/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5">
+        <div className="bg-surface/95 backdrop-blur-md p-2 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {[
               { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null },
               { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}` },
@@ -444,21 +444,21 @@ export default function SellerDashboardPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center justify-between gap-2 px-3 py-3 rounded-xl sm:rounded-2xl font-bold text-xs transition-all border select-none w-full min-h-[50px] ${
+                  className={`flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs transition-all border select-none w-full min-h-[50px] ${
                     active
-                      ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-black dark:bg-navy dark:text-gold dark:border-gold dark:shadow-none ring-2 ring-amber-500/20 dark:ring-gold/20"
-                      : "bg-surface text-foreground/90 border-line hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-foreground"
+                      ? "bg-navy text-gold border-gold shadow-md font-black dark:bg-gold dark:text-navy dark:border-gold ring-2 ring-gold/20"
+                      : "bg-surface text-foreground border-line hover:border-gold/50 hover:bg-surface-soft"
                   }`}
                 >
-                  <div className="flex items-center gap-2 min-w-0 text-start">
-                    <Icon size={16} className={`shrink-0 ${active ? "text-white dark:text-gold" : "text-amber-600 dark:text-gold"}`} />
-                    <span className="text-xs font-bold leading-tight truncate">{isAr ? tab.labelAr : tab.labelEn}</span>
+                  <div className="flex items-center gap-1.5 min-w-0 text-start">
+                    <Icon size={16} className={`shrink-0 ${active ? "text-gold dark:text-navy" : "text-amber-600 dark:text-gold"}`} />
+                    <span className="text-xs font-bold leading-tight whitespace-nowrap">{isAr ? tab.labelAr : tab.labelEn}</span>
                   </div>
                   {tab.count !== null && (
                     <span
-                      className={`text-[11px] px-2 py-0.5 rounded-lg font-black shrink-0 ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded-md font-black shrink-0 ${
                         active
-                          ? "bg-white/25 text-white dark:bg-gold dark:text-navy"
+                          ? "bg-gold/20 text-gold dark:bg-navy/20 dark:text-navy"
                           : "bg-surface-soft text-muted border border-line"
                       }`}
                     >

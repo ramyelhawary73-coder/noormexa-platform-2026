@@ -621,12 +621,12 @@ function MarketplaceContent() {
                           type="button"
                           disabled={product.stock <= 0}
                           onClick={(e) => handleQuickAdd(product, e)}
-                          className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                          className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shrink-0 whitespace-nowrap min-h-[40px] ${
                             isAdded
                               ? "bg-emerald-600 text-white"
                               : product.stock > 0
-                              ? "bg-amber-500 text-white hover:bg-amber-600 dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
-                              : "bg-surface-soft text-muted cursor-not-allowed"
+                              ? "bg-gold text-navy hover:bg-gold-strong dark:bg-gold dark:text-navy dark:hover:bg-amber-400 border border-gold/40"
+                              : "bg-surface-soft text-muted cursor-not-allowed border border-line"
                           }`}
                         >
                           {isAdded ? (
