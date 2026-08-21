@@ -13,7 +13,9 @@ import {
   CreditCard,
   Eye,
   EyeOff,
+  Megaphone,
   Percent,
+  Plus,
   Settings,
   ShieldCheck,
   ShoppingBag,
@@ -21,6 +23,7 @@ import {
   Smartphone,
   Sparkles,
   Store as StoreIcon,
+  Tag,
   Trash2,
   TrendingUp,
   Truck,
@@ -43,6 +46,7 @@ const copy = {
     tabStores: "إدارة وتوثيق المتاجر",
     tabProducts: "الكتالوج والمنتجات",
     tabOrders: "إدارة الطلبات والشحن",
+    tabPromotions: "العروض والترويج",
     gmvLabel: "إجمالي قيمة التداول (GMV)",
     netCommissionLabel: "صافي أرباح المنصة (Commissions)",
     activeStoresLabel: "المتاجر المعتمدة النشطة",
@@ -62,6 +66,7 @@ const copy = {
     tabStores: "Store Verification & Merchants",
     tabProducts: "Catalog & Products",
     tabOrders: "Orders & Shipping Dispatch",
+    tabPromotions: "Promotions & Marketing",
     gmvLabel: "Gross Merchandise Value (GMV)",
     netCommissionLabel: "Platform Net Commission",
     activeStoresLabel: "Active Verified Stores",
@@ -113,8 +118,49 @@ export default function SuperAdminPage() {
   } = useMarketplace();
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders"
+    "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders" | "promotions"
   >("overview");
+
+  // Promotional Codes & Marketing State
+  const [coupons, setCoupons] = useState([
+    { id: "c1", code: "NOORMEXA2026", discount: 20, type: "percent", usageCount: 142, maxUsage: 500, active: true, minOrder: 50 },
+    { id: "c2", code: "RAMADAN20", discount: 20, type: "percent", usageCount: 88, maxUsage: 200, active: true, minOrder: 100 },
+    { id: "c3", code: "WELCOME50", discount: 50, type: "fixed", usageCount: 231, maxUsage: 1000, active: true, minOrder: 150 },
+    { id: "c4", code: "FREESHIP", discount: 100, type: "shipping", usageCount: 64, maxUsage: 300, active: true, minOrder: 200 },
+  ]);
+  const [newCouponCode, setNewCouponCode] = useState("");
+  const [newCouponDiscount, setNewCouponDiscount] = useState(15);
+  const [newCouponType, setNewCouponType] = useState<"percent" | "fixed">("percent");
+
+  const [promoBannerText, setPromoBannerText] = useState("عروض الموسم الكبرى: خصم يصل إلى 40% + شحن مجاني للطلبات فوق 200 ج.م!");
+  const [promoBannerActive, setPromoBannerActive] = useState(true);
+
+  const toggleCouponStatus = (id: string) => {
+    setCoupons((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, active: !c.active } : c))
+    );
+  };
+
+  const handleAddCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCouponCode.trim()) return;
+    const newCoupon = {
+      id: `c_${Date.now()}`,
+      code: newCouponCode.trim().toUpperCase(),
+      discount: Number(newCouponDiscount),
+      type: newCouponType,
+      usageCount: 0,
+      maxUsage: 500,
+      active: true,
+      minOrder: 50,
+    };
+    setCoupons((prev) => [newCoupon, ...prev]);
+    setNewCouponCode("");
+  };
+
+  const handleDeleteCoupon = (id: string) => {
+    setCoupons((prev) => prev.filter((c) => c.id !== id));
+  };
 
   // Local Form state for settings
   const [localCommission, setLocalCommission] = useState(settings.defaultCommissionRate);
@@ -156,8 +202,8 @@ export default function SuperAdminPage() {
         {/* Hub Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-navy text-gold border border-gold/30 text-xs font-black mb-2 shadow-xs">
-              <ShieldCheck size={14} className="text-gold" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 dark:bg-navy dark:text-gold border border-amber-500/30 dark:border-gold/30 text-xs font-black mb-2 shadow-xs">
+              <ShieldCheck size={14} className="text-amber-600 dark:text-gold" />
               <span>Super Administrator Access</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
@@ -169,43 +215,59 @@ export default function SuperAdminPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/marketplace"
-              className="px-4 py-2 rounded-xl bg-surface border border-line hover:border-gold text-xs font-bold text-foreground flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-gold text-xs sm:text-sm font-bold text-foreground flex items-center gap-2 transition-all shadow-xs"
             >
-              <ShoppingBag size={14} />
+              <ShoppingBag size={15} className="text-amber-600 dark:text-gold" />
               <span>عرض المتجر</span>
             </Link>
           </div>
         </div>
 
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-line scrollbar-none">
-          {[
-            { id: "overview", label: text.tabOverview, icon: Activity },
-            { id: "settings", label: text.tabSettings, icon: Settings },
-            { id: "gateways", label: text.tabGateways, icon: CreditCard },
-            { id: "currencies", label: text.tabCurrencies, icon: Coins },
-            { id: "stores", label: text.tabStores, icon: StoreIcon },
-            { id: "products", label: text.tabProducts, icon: Boxes },
-            { id: "orders", label: text.tabOrders, icon: Truck },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all border ${
-                  active
-                    ? "bg-navy text-gold border-gold shadow-sm font-black"
-                    : "bg-surface text-muted border-line hover:border-gold/50"
-                }`}
-              >
-                <Icon size={15} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        {/* Navigation Tabs Bar - 100% Symmetrical 8-Tab Grid on Desktop (4x2) and Mobile (2x4) */}
+        <div className="bg-surface/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+            {[
+              { id: "overview", label: text.tabOverview, icon: Activity, count: null },
+              { id: "settings", label: text.tabSettings, icon: Settings, count: null },
+              { id: "gateways", label: text.tabGateways, icon: CreditCard, count: null },
+              { id: "currencies", label: text.tabCurrencies, icon: Coins, count: `${Object.keys(currencies).length}` },
+              { id: "stores", label: text.tabStores, icon: StoreIcon, count: `${stores.length}` },
+              { id: "products", label: text.tabProducts, icon: Boxes, count: `${products.length}` },
+              { id: "orders", label: text.tabOrders, icon: Truck, count: `${totalOrdersCount}` },
+              { id: "promotions", label: text.tabPromotions, icon: Megaphone, count: `${coupons.length}` },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`flex items-center justify-between gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all border select-none w-full min-h-[48px] sm:min-h-[52px] ${
+                    active
+                      ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-black dark:bg-navy dark:text-gold dark:border-gold dark:shadow-none ring-2 ring-amber-500/20 dark:ring-gold/20"
+                      : "bg-surface text-foreground/85 border-line hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-foreground"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Icon size={16} className={`shrink-0 ${active ? "text-white dark:text-gold" : "text-amber-600 dark:text-gold"}`} />
+                    <span className="truncate">{tab.label}</span>
+                  </div>
+                  {tab.count !== null && (
+                    <span
+                      className={`text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-lg font-black shrink-0 ${
+                        active
+                          ? "bg-white/25 text-white dark:bg-gold dark:text-navy"
+                          : "bg-surface-soft text-muted border border-line"
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Tab 1: Financial Overview & KPIs */}
@@ -735,6 +797,242 @@ export default function SuperAdminPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Tab 8: Promotions, Coupons & Marketing Campaigns */}
+        {activeTab === "promotions" && (
+          <div className="space-y-6 animate-in fade-in">
+            {/* Promo KPIs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-sm space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>كوبونات الخصم النشطة</span>
+                  <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-gold">
+                    <Tag size={16} />
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {coupons.filter((c) => c.active).length} / {coupons.length}
+                </div>
+                <div className="text-[11px] text-emerald-600 font-bold">
+                  متاحة للاستخدام الفوري
+                </div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-sm space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>إجمالي الاستخدامات</span>
+                  <span className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
+                    <TrendingUp size={16} />
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {coupons.reduce((sum, c) => sum + c.usageCount, 0)} عملية
+                </div>
+                <div className="text-[11px] text-blue-600 font-bold">
+                  +34 عملية هذا الأسبوع
+                </div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-sm space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>شريط الإعلانات العام</span>
+                  <span className="p-2 rounded-xl bg-purple-500/10 text-purple-600">
+                    <Megaphone size={16} />
+                  </span>
+                </div>
+                <div className="text-lg font-black text-foreground">
+                  {promoBannerActive ? "مفعل وظاهر للزوار" : "معطل مؤقتاً"}
+                </div>
+                <div className="text-[11px] text-muted font-bold">
+                  شريط أعلى الموقع
+                </div>
+              </div>
+
+              <div className="p-5 rounded-3xl bg-surface border border-line shadow-sm space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>مبيعات الحملات</span>
+                  <span className="p-2 rounded-xl bg-emerald-600/10 text-emerald-600">
+                    <Percent size={16} />
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {formatPrice(48200)}
+                </div>
+                <div className="text-[11px] text-emerald-600 font-bold">
+                  عائد تسويقي 12.8x
+                </div>
+              </div>
+            </div>
+
+            {/* Create New Coupon Form */}
+            <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2 border-b border-line pb-3">
+                <Plus size={18} className="text-amber-600 dark:text-gold" />
+                <span>إصدار كود خصم جديد (Promo Code)</span>
+              </h2>
+
+              <form onSubmit={handleAddCoupon} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-muted mb-1">رمز الكوبون (Code)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="مثال: EID2026"
+                    value={newCouponCode}
+                    onChange={(e) => setNewCouponCode(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-soft border border-line text-foreground font-mono font-bold text-xs focus:border-amber-500 focus:outline-hidden uppercase"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-muted mb-1">نوع الخصم</label>
+                  <select
+                    value={newCouponType}
+                    onChange={(e) => setNewCouponType(e.target.value as "percent" | "fixed")}
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-soft border border-line text-foreground font-bold text-xs focus:border-amber-500 focus:outline-hidden"
+                  >
+                    <option value="percent">نسبة مئوية (%)</option>
+                    <option value="fixed">مبلغ مالي ثابت (ج.م / ر.س)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-muted mb-1">قيمة الخصم</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max={newCouponType === "percent" ? 100 : 10000}
+                    value={newCouponDiscount}
+                    onChange={(e) => setNewCouponDiscount(Number(e.target.value))}
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-soft border border-line text-foreground font-bold text-xs focus:border-amber-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div className="flex items-end">
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                  >
+                    <Plus size={15} />
+                    <span>إضافة الكوبون</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Coupons List */}
+            <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-foreground flex items-center justify-between border-b border-line pb-3">
+                <span className="flex items-center gap-2">
+                  <Tag size={18} className="text-amber-600 dark:text-gold" />
+                  <span>قائمة الكوبونات النشطة والمؤرشفة ({coupons.length})</span>
+                </span>
+              </h2>
+
+              <div className="divide-y divide-line">
+                {coupons.map((c) => (
+                  <div key={c.id} className="py-3.5 first:pt-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-gold font-mono font-black text-sm tracking-wider border border-amber-500/20">
+                        {c.code}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-sm text-foreground">
+                            {c.type === "percent" ? `خصم ${c.discount}%` : c.type === "shipping" ? "شحن مجاني 100%" : `خصم ${c.discount} ج.م`}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            c.active ? "bg-emerald-600/10 text-emerald-600" : "bg-surface-soft text-muted border border-line"
+                          }`}>
+                            {c.active ? "نشط ومتاح" : "معطل"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[11px] text-muted mt-0.5">
+                          <span>الاستخدام: <strong className="text-foreground">{c.usageCount} / {c.maxUsage}</strong></span>
+                          <span>•</span>
+                          <span>الحد الأدنى للطلب: <strong className="text-foreground">{c.minOrder} ج.م</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleCouponStatus(c.id)}
+                        className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all ${
+                          c.active
+                            ? "bg-emerald-600/10 text-emerald-600 border-emerald-600/30 hover:bg-emerald-600/20"
+                            : "bg-surface text-muted border-line hover:border-amber-500"
+                        }`}
+                      >
+                        {c.active ? "تعطيل الكوبون" : "تفعيل الكوبون"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCoupon(c.id)}
+                        className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors"
+                        title="حذف الكوبون"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Global Announcement Banner Manager */}
+            <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-foreground flex items-center justify-between border-b border-line pb-3">
+                <span className="flex items-center gap-2">
+                  <Megaphone size={18} className="text-amber-600 dark:text-gold" />
+                  <span>إدارة البانر الترويجي العام (Top Announcement Banner)</span>
+                </span>
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                  <input
+                    type="checkbox"
+                    checked={promoBannerActive}
+                    onChange={(e) => setPromoBannerActive(e.target.checked)}
+                    className="w-4 h-4 rounded text-amber-500 accent-amber-500"
+                  />
+                  <span>إظهار البانر أعلى الموقع</span>
+                </label>
+              </h2>
+
+              <div className="space-y-3">
+                <label className="block text-xs font-bold text-muted">نص الإعلان الترويجي</label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={promoBannerText}
+                    onChange={(e) => setPromoBannerText(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-surface-soft border border-line text-foreground text-xs font-bold focus:border-amber-500 focus:outline-hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSavedNotice(true);
+                      setTimeout(() => setSavedNotice(false), 2000);
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors shadow-xs"
+                  >
+                    تحديث البانر
+                  </button>
+                </div>
+
+                {/* Live Banner Preview */}
+                <div className="pt-2">
+                  <span className="text-[11px] font-bold text-muted block mb-1">معاينة حية لشريط الإعلان:</span>
+                  <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs text-center">
+                    <Sparkles size={14} className="shrink-0" />
+                    <span>{promoBannerText}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

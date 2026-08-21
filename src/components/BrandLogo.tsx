@@ -140,58 +140,58 @@ export function NoormexaEmblemSvg({
         strokeLinecap="round"
         opacity="0.95"
       >
-        <line x1="120" y1="56" x2="114" y2="42" />
-        <line x1="134" y1="50" x2="134" y2="34" />
-        <line x1="148" y1="52" x2="156" y2="38" />
-        <line x1="160" y1="60" x2="172" y2="50" />
-        <line x1="166" y1="74" x2="180" y2="70" />
+        <line x1="120" y1="38" x2="112" y2="22" />
+        <line x1="136" y1="32" x2="136" y2="14" />
+        <line x1="152" y1="34" x2="160" y2="18" />
+        <line x1="166" y1="42" x2="178" y2="32" />
+        <line x1="172" y1="56" x2="188" y2="52" />
       </g>
 
       {/* 3. Sun Core Disc */}
       <circle
-        cx="142"
-        cy="66"
-        r="12"
+        cx="145"
+        cy="48"
+        r="14"
         fill={`url(#nmxGold_${uniqueId})`}
       />
       <circle
-        cx="142"
-        cy="66"
+        cx="145"
+        cy="48"
         r="8"
         fill={isDark ? "#FFFBEB" : "#F59E0B"}
-        opacity="0.9"
+        opacity="0.95"
       />
 
       {/* 4. Letter 'N' Straight Left Vertical Pillar */}
       <rect
-        x="42"
-        y="56"
-        width="22"
-        height="92"
-        rx="9"
+        x="44"
+        y="48"
+        width="24"
+        height="104"
+        rx="10"
         fill={`url(#nmxGold_${uniqueId})`}
       />
 
       {/* 5. Letter 'N' Straight Right Vertical Pillar */}
       <rect
-        x="131"
-        y="72"
-        width="22"
-        height="76"
-        rx="9"
+        x="133"
+        y="68"
+        width="24"
+        height="84"
+        rx="10"
         fill={`url(#nmxGold_${uniqueId})`}
       />
 
-      {/* 6. Precision Diagonal Ribbon Connecting The Pillars */}
-      <path
-        d="M 46 62 C 50 60, 62 62, 68 70 L 132 134 C 138 140, 148 142, 152 136 C 154 132, 152 124, 146 118 L 82 54 C 76 48, 66 46, 54 52 Z"
+      {/* 6. Precision Diagonal Straight Connecting Beam */}
+      <polygon
+        points="44,48 68,48 157,144 133,152 44,58"
         fill={`url(#nmxGold_${uniqueId})`}
       />
 
       {/* 7. Subtle Light Accent Flare */}
       <circle
-        cx="53"
-        cy="65"
+        cx="56"
+        cy="58"
         r="4"
         fill="#FFFFFF"
         opacity={isDark ? "0.85" : "0.5"}

@@ -290,7 +290,7 @@ export default function CheckoutPage() {
             <div className="flex flex-wrap gap-3 pt-2 print:hidden">
               <Link
                 href={`/orders?track=${completedOrder.trackingNumber}`}
-                className="flex-1 py-3 px-4 rounded-xl bg-navy text-gold hover:bg-gold hover:text-navy font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all text-center"
+                className="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all text-center dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
               >
                 <Truck size={15} />
                 <span>{text.trackOrderBtn}</span>
@@ -524,12 +524,16 @@ export default function CheckoutPage() {
                       onClick={() => setSelectedGateway(gw.key)}
                       className={`w-full p-4 rounded-2xl border text-start flex items-center justify-between gap-3 transition-all ${
                         active
-                          ? "bg-navy text-gold border-gold shadow-md scale-101"
-                          : "bg-surface-soft border-line text-foreground hover:border-gold/50"
+                          ? "bg-amber-500 text-white border-amber-600 shadow-md scale-101 dark:bg-navy dark:text-gold dark:border-gold"
+                          : "bg-surface-soft border-line text-foreground hover:border-amber-500/50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-surface border border-line text-gold">
+                        <div className={`p-2 rounded-xl border ${
+                          active
+                            ? "bg-white/20 text-white border-white/30 dark:bg-surface dark:border-line dark:text-gold"
+                            : "bg-surface border border-line text-amber-600 dark:text-gold"
+                        }`}>
                           {gw.key === "applePayMada" ? (
                             <Smartphone size={18} />
                           ) : gw.key === "stripe" ? (
@@ -549,19 +553,25 @@ export default function CheckoutPage() {
                               {language === "ar" ? gw.nameAr : gw.nameEn}
                             </span>
                             {gw.badge && (
-                              <span className="px-2 py-0.5 rounded-full bg-gold-soft text-gold-strong text-[10px] font-black">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                active
+                                  ? "bg-white/25 text-white dark:bg-gold-soft dark:text-gold-strong"
+                                  : "bg-amber-500/10 text-amber-800 dark:bg-gold-soft dark:text-gold-strong"
+                              }`}>
                                 {gw.badge}
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-muted line-clamp-1 mt-0.5">
+                          <p className={`text-[11px] line-clamp-1 mt-0.5 ${
+                            active ? "text-white/90 dark:text-gold/80" : "text-muted"
+                          }`}>
                             {language === "ar" ? gw.descriptionAr : gw.descriptionEn}
                           </p>
                         </div>
                       </div>
 
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                        active ? "border-gold bg-gold text-navy" : "border-line"
+                        active ? "border-white bg-white text-amber-600 dark:border-gold dark:bg-gold dark:text-navy" : "border-line"
                       }`}>
                         {active && <Check size={12} strokeWidth={3} />}
                       </div>

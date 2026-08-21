@@ -321,13 +321,15 @@ function OrdersTrackingContent() {
                       onClick={() => setSelectedOrder(ord)}
                       className={`w-full p-4 rounded-2xl border text-start space-y-2 transition-all ${
                         isSelected
-                          ? "bg-navy text-gold border-gold shadow-md"
-                          : "bg-surface text-foreground border-line hover:border-gold/50"
+                          ? "bg-amber-500 text-white border-amber-600 shadow-md dark:bg-navy dark:text-gold dark:border-gold"
+                          : "bg-surface text-foreground border-line hover:border-amber-500/50"
                       }`}
                     >
                       <div className="flex items-center justify-between text-xs font-bold">
                         <span className="font-mono">{ord.orderNumber}</span>
-                        <span className="text-gold">{formatPrice(ord.total_amount)}</span>
+                        <span className={isSelected ? "text-white dark:text-gold font-black" : "text-amber-600 dark:text-gold font-black"}>
+                          {formatPrice(ord.total_amount)}
+                        </span>
                       </div>
 
                       <div className="flex items-center justify-between text-[11px] opacity-80">

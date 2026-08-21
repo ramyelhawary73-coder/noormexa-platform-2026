@@ -498,7 +498,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   type="button"
                   disabled={product.stock <= 0}
                   onClick={handleBuyNow}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-navy text-gold hover:bg-gold hover:text-navy font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
                 >
                   <Zap size={17} />
                   <span>{text.buyNow}</span>
@@ -540,7 +540,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               onClick={() => setActiveTab("specs")}
               className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
                 activeTab === "specs"
-                  ? "bg-navy text-gold border border-gold/30 shadow-sm"
+                  ? "bg-amber-500 text-white border border-amber-600 shadow-sm dark:bg-navy dark:text-gold dark:border-gold/30"
                   : "text-muted hover:text-foreground"
               }`}
             >
@@ -551,7 +551,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               onClick={() => setActiveTab("desc")}
               className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
                 activeTab === "desc"
-                  ? "bg-navy text-gold border border-gold/30 shadow-sm"
+                  ? "bg-amber-500 text-white border border-amber-600 shadow-sm dark:bg-navy dark:text-gold dark:border-gold/30"
                   : "text-muted hover:text-foreground"
               }`}
             >
@@ -562,7 +562,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               onClick={() => setActiveTab("reviews")}
               className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
                 activeTab === "reviews"
-                  ? "bg-navy text-gold border border-gold/30 shadow-sm"
+                  ? "bg-amber-500 text-white border border-amber-600 shadow-sm dark:bg-navy dark:text-gold dark:border-gold/30"
                   : "text-muted hover:text-foreground"
               }`}
             >

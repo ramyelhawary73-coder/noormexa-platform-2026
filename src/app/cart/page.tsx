@@ -145,7 +145,7 @@ export default function CartPage() {
           <p className="text-xs sm:text-sm text-muted leading-relaxed">{text.emptyCartDesc}</p>
           <Link
             href="/marketplace"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-navy text-gold hover:bg-gold hover:text-navy font-bold text-xs sm:text-sm transition-all shadow-md"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm transition-all shadow-md dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
           >
             <ShoppingBag size={16} />
             <span>{text.startShopping}</span>
@@ -337,7 +337,7 @@ export default function CartPage() {
                   </div>
                   <button
                     type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-navy text-gold hover:bg-gold hover:text-navy text-xs font-bold transition-all shadow-sm"
+                    className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy text-xs font-bold transition-all shadow-sm"
                   >
                     {text.apply}
                   </button>

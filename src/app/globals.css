@@ -1979,13 +1979,20 @@ html[dir="rtl"] .noormexa-password-shell {
 
 .noormexa-ai-widget {
   position: fixed;
-  inset-block-end: 20px;
-  inset-inline-end: 20px;
+  inset-block-end: 84px;
+  inset-inline-end: 18px;
   z-index: 60;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+}
+
+@media (min-width: 769px) {
+  .noormexa-ai-widget {
+    inset-block-end: 24px;
+    inset-inline-end: 24px;
+  }
 }
 
 .noormexa-ai-fab {
@@ -2717,7 +2724,7 @@ html[dir="rtl"] .noormexa-password-shell {
 
 @media (max-width: 480px) {
   .noormexa-ai-widget {
-    inset-block-end: 14px;
+    inset-block-end: 80px;
     inset-inline-end: 14px;
   }
 

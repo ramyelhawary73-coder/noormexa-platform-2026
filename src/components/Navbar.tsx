@@ -205,11 +205,11 @@ export default function Navbar() {
               href="/admin"
               className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/admin")
-                  ? "bg-[#131921] text-[#FF9900] shadow-sm border border-[#FF9900]/40"
-                  : "text-[#D97706] dark:text-[#FF9900] hover:bg-gold-soft/50"
+                  ? "bg-amber-500/15 text-amber-900 border border-amber-500/40 shadow-xs dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40"
+                  : "text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
               }`}
             >
-              <ShieldCheck size={14} className="text-[#FF9900]" />
+              <ShieldCheck size={14} className="text-amber-600 dark:text-amber-400" />
               <span>{text.adminHub}</span>
             </Link>
           )}
@@ -436,9 +436,9 @@ export default function Navbar() {
               <Link
                 href="/admin"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-navy border border-gold/40 text-gold text-xs font-black transition-all"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-500/10 dark:bg-navy border border-amber-500/30 dark:border-gold/40 text-amber-900 dark:text-gold text-xs font-black transition-all"
               >
-                <div className="w-8 h-8 rounded-xl bg-gold/20 text-gold flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 dark:bg-gold/20 text-amber-700 dark:text-gold flex items-center justify-center">
                   <ShieldCheck size={16} />
                 </div>
                 <span>{text.adminHub}</span>

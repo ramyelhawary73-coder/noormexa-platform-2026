@@ -224,32 +224,47 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-line pb-2 overflow-x-auto">
-          {[
-            { id: "analytics", label: text.tabAnalytics, icon: TrendingUp },
-            { id: "products", label: `${text.tabProducts} (${storeProducts.length})`, icon: Boxes },
-            { id: "orders", label: `${text.tabOrders} (${storeOrders.length})`, icon: Truck },
-            { id: "settings", label: text.tabSettings, icon: Settings },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all border ${
-                  active
-                    ? "bg-navy text-gold border-gold shadow-sm font-black"
-                    : "bg-surface text-muted border-line hover:border-gold/50"
-                }`}
-              >
-                <Icon size={15} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        {/* Navigation Tabs - 100% Symmetrical 4-Column Grid */}
+        <div className="bg-surface/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+            {[
+              { id: "analytics", label: text.tabAnalytics, icon: TrendingUp, count: null },
+              { id: "products", label: text.tabProducts, icon: Boxes, count: `${storeProducts.length}` },
+              { id: "orders", label: text.tabOrders, icon: Truck, count: `${storeOrders.length}` },
+              { id: "settings", label: text.tabSettings, icon: Settings, count: null },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`flex items-center justify-between gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all border select-none w-full min-h-[48px] sm:min-h-[52px] ${
+                    active
+                      ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-black dark:bg-navy dark:text-gold dark:border-gold dark:shadow-none ring-2 ring-amber-500/20 dark:ring-gold/20"
+                      : "bg-surface text-foreground/85 border-line hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-foreground"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Icon size={16} className={`shrink-0 ${active ? "text-white dark:text-gold" : "text-amber-600 dark:text-gold"}`} />
+                    <span className="truncate">{tab.label}</span>
+                  </div>
+                  {tab.count !== null && (
+                    <span
+                      className={`text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-lg font-black shrink-0 ${
+                        active
+                          ? "bg-white/25 text-white dark:bg-gold dark:text-navy"
+                          : "bg-surface-soft text-muted border border-line"
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Tab 1: Analytics & Net Payouts */}

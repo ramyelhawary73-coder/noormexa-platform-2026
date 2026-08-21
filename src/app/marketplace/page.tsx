@@ -277,7 +277,7 @@ function MarketplaceContent() {
 
             <button
               type="button"
-              className="md:hidden flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-navy text-gold border border-gold/30"
+              className="md:hidden flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white dark:bg-navy dark:text-gold border border-amber-600 dark:border-gold/30 shadow-xs"
               onClick={() => setMobileFilterOpen(true)}
             >
               <Filter size={15} />
@@ -625,7 +625,7 @@ function MarketplaceContent() {
                             isAdded
                               ? "bg-emerald-600 text-white"
                               : product.stock > 0
-                              ? "bg-navy text-gold hover:bg-gold hover:text-navy"
+                              ? "bg-amber-500 text-white hover:bg-amber-600 dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
                               : "bg-surface-soft text-muted cursor-not-allowed"
                           }`}
                         >
