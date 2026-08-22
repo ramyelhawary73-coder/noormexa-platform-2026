@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useMemo, useSyncExternalStore, Suspense } from "react";
+import { useState, useMemo, useEffect, useSyncExternalStore, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   BadgeCheck,
+  Building2,
   Check,
+  Copy,
+  Crown,
   Filter,
   Flame,
+  Gift,
   Heart,
   Package,
+  Percent,
   Search,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Star,
@@ -145,6 +151,20 @@ function MarketplaceContent() {
   const [freeShippingOnly, setFreeShippingOnly] = useState<boolean>(false);
   const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
   const [wishlistOnly, setWishlistOnly] = useState<boolean>(initialWishlistOnly);
+  const [dealsOnly, setDealsOnly] = useState<boolean>(false);
+  const [officialOnly, setOfficialOnly] = useState<boolean>(false);
+  const [showBrandsDirectory, setShowBrandsDirectory] = useState<boolean>(false);
+  const [couponsModalOpen, setCouponsModalOpen] = useState<boolean>(false);
+  const [b2bModalOpen, setB2bModalOpen] = useState<boolean>(false);
+  const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
+  const [b2bSuccess, setB2bSuccess] = useState<boolean>(false);
+  const [b2bForm, setB2bForm] = useState({
+    companyName: "",
+    category: "all",
+    quantity: "50",
+    phone: "",
+    notes: "",
+  });
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "newest">("featured");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [addedItemMap, setAddedItemMap] = useState<Record<string, boolean>>({});
@@ -162,8 +182,195 @@ function MarketplaceContent() {
     setFreeShippingOnly(false);
     setVerifiedOnly(false);
     setWishlistOnly(false);
+    setDealsOnly(false);
+    setOfficialOnly(false);
+    setShowBrandsDirectory(false);
     setSortBy("featured");
   };
+
+  // Sync navigation actions, hash links and searchParams dynamically
+  useEffect(() => {
+    const handleUrlTarget = (urlTarget?: string) => {
+      const currentUrl = urlTarget || (typeof window !== "undefined" ? window.location.href : "");
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      const search = typeof window !== "undefined" ? window.location.search : "";
+
+      if (
+        hash === "#coupons" ||
+        hash === "#coupon" ||
+        search.includes("view=coupons") ||
+        currentUrl.includes("#coupons")
+      ) {
+        setCouponsModalOpen(true);
+      } else if (
+        hash === "#b2b" ||
+        hash === "#wholesale" ||
+        search.includes("view=b2b") ||
+        currentUrl.includes("#b2b")
+      ) {
+        setB2bModalOpen(true);
+      } else if (
+        hash === "#brands" ||
+        hash === "#brand" ||
+        search.includes("view=brands") ||
+        currentUrl.includes("#brands")
+      ) {
+        setShowBrandsDirectory(true);
+        setTimeout(() => {
+          const el = document.getElementById("brands-section");
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      } else if (
+        search.includes("filter=deals") ||
+        hash === "#deals" ||
+        hash === "#flash" ||
+        currentUrl.includes("filter=deals")
+      ) {
+        setDealsOnly(true);
+        setTimeout(() => {
+          const el = document.getElementById("deals-section");
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      } else if (
+        search.includes("official=true") ||
+        hash === "#official" ||
+        currentUrl.includes("official=true")
+      ) {
+        setOfficialOnly(true);
+      } else if (currentUrl.endsWith("/marketplace") || currentUrl.endsWith("/marketplace/")) {
+        // "جميع الأقسام" clicked: reset specific views
+        setShowBrandsDirectory(false);
+        setDealsOnly(false);
+        setOfficialOnly(false);
+        setSelectedBrand("all");
+      }
+    };
+
+    handleUrlTarget();
+
+    const onHashChange = () => handleUrlTarget();
+    const onNavAction = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      handleUrlTarget(customEvent.detail);
+    };
+
+    window.addEventListener("hashchange", onHashChange);
+    window.addEventListener("noormexa-nav-action", onNavAction);
+
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
+      window.removeEventListener("noormexa-nav-action", onNavAction);
+    };
+  }, []);
+
+  // Listen for Next.js searchParams changes
+  useEffect(() => {
+    const filterParam = searchParams.get("filter");
+    const officialParam = searchParams.get("official");
+    const viewParam = searchParams.get("view");
+    const catParam = searchParams.get("category");
+    const brandParam = searchParams.get("brand");
+    const searchParam = searchParams.get("search");
+
+    if (filterParam === "deals") {
+      setDealsOnly(true);
+    }
+    if (officialParam === "true") {
+      setOfficialOnly(true);
+    }
+    if (viewParam === "coupons") {
+      setCouponsModalOpen(true);
+    }
+    if (viewParam === "b2b") {
+      setB2bModalOpen(true);
+    }
+    if (viewParam === "brands") {
+      setShowBrandsDirectory(true);
+    }
+    if (catParam) {
+      setSelectedCategory(catParam);
+    }
+    if (brandParam) {
+      setSelectedBrand(brandParam);
+    }
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [searchParams]);
+
+  // Copy coupon handler
+  const handleCopyCoupon = (code: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+    }
+    setCopiedCoupon(code);
+    setTimeout(() => setCopiedCoupon(null), 2500);
+  };
+
+  // Submit B2B RFQ
+  const handleB2bSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setB2bSuccess(true);
+    setTimeout(() => {
+      setB2bSuccess(false);
+      setB2bModalOpen(false);
+      setB2bForm({ companyName: "", category: "all", quantity: "50", phone: "", notes: "" });
+    }, 2800);
+  };
+
+  // Active Promo Coupons List
+  const activeCoupons = [
+    {
+      code: "NOOR20",
+      discount: "20%",
+      titleAr: "خصم 20% على جميع المنتجات الفاخرة",
+      titleEn: "20% OFF on all luxury products",
+      minSpend: "200 ر.س",
+      badge: "الأكثر استخداماً",
+      badgeEn: "Most Popular",
+      color: "from-amber-500/20 to-orange-500/20 border-orange-500/40 text-orange-500",
+    },
+    {
+      code: "WELCOME10",
+      discount: "10%",
+      titleAr: "خصم ترحيبي 10% للعملاء الجدد",
+      titleEn: "10% Welcome discount for new members",
+      minSpend: "لا يوجد حد أدنى",
+      badge: "هدية تسجيل",
+      badgeEn: "Welcome Gift",
+      color: "from-blue-500/20 to-indigo-500/20 border-blue-500/40 text-blue-500",
+    },
+    {
+      code: "VIP50",
+      discount: "50 ر.س",
+      titleAr: "قسيمة فورية 50 ر.س للطلبات المؤهلة",
+      titleEn: "Instant 50 SAR/AED voucher on qualified orders",
+      minSpend: "500 ر.س",
+      badge: "عملاء VIP",
+      badgeEn: "VIP Exclusive",
+      color: "from-purple-500/20 to-pink-500/20 border-purple-500/40 text-purple-500",
+    },
+    {
+      code: "FREESHIP",
+      discount: "100%",
+      titleAr: "شحن جوي ودولي مجاني بالكامل",
+      titleEn: "100% Free Express Global & Local Shipping",
+      minSpend: "150 ر.س",
+      badge: "شحن مجاني",
+      badgeEn: "Free Shipping",
+      color: "from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-500",
+    },
+    {
+      code: "FLASH35",
+      discount: "35%",
+      titleAr: "كود إضافي 35% خاص بعروض الفلاش",
+      titleEn: "Extra 35% OFF on Flash Deals items",
+      minSpend: "300 ر.س",
+      badge: "عرض محدود",
+      badgeEn: "Flash Special",
+      color: "from-red-500/20 to-rose-500/20 border-red-500/40 text-red-500",
+    },
+  ];
 
   // Available Brands list
   const availableBrands = [
@@ -249,6 +456,24 @@ function MarketplaceContent() {
           if (!store?.is_verified) return false;
         }
 
+        // Flash Deals 50% filter
+        if (dealsOnly) {
+          const hasDiscount = prod.original_price && prod.original_price > prod.price;
+          const isDeal = prod.is_featured || hasDiscount;
+          if (!isDeal) return false;
+        }
+
+        // Official Flagship filter
+        if (officialOnly) {
+          const store = stores.find((s) => s.id === prod.store_id);
+          const isOfficial =
+            prod.store_id === "store-noormexa-official" ||
+            store?.is_official ||
+            store?.is_verified ||
+            prod.is_featured;
+          if (!isOfficial) return false;
+        }
+
         // Wishlist filter
         if (wishlistOnly && !wishlist.includes(prod.id)) return false;
 
@@ -274,6 +499,8 @@ function MarketplaceContent() {
     inStockOnly,
     freeShippingOnly,
     verifiedOnly,
+    dealsOnly,
+    officialOnly,
     wishlistOnly,
     sortBy,
     categories,
@@ -427,7 +654,205 @@ function MarketplaceContent() {
               </button>
             ))}
           </div>
+
+          {/* Quick Sub-Navigation Feature Badges Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+            <button
+              type="button"
+              id="deals"
+              onClick={() => setDealsOnly(!dealsOnly)}
+              className={`p-3 rounded-2xl border transition-all text-start flex items-center gap-3 cursor-pointer ${
+                dealsOnly
+                  ? "bg-red-500/15 border-red-500/50 text-red-600 dark:text-red-400 shadow-xs"
+                  : "bg-surface border-line hover:border-red-400/40"
+              }`}
+            >
+              <div className="w-9 h-9 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
+                <Flame size={18} className="animate-pulse" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-black truncate">{language === "ar" ? "عروض الفلاش 50%" : "Flash Deals 50%"}</div>
+                <div className="text-[10px] text-muted truncate">{dealsOnly ? (language === "ar" ? "مفعل (انقر للإلغاء)" : "Active (Click to reset)") : (language === "ar" ? "خصومات حصرية محدودة" : "Limited Discounts")}</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              id="official"
+              onClick={() => setOfficialOnly(!officialOnly)}
+              className={`p-3 rounded-2xl border transition-all text-start flex items-center gap-3 cursor-pointer ${
+                officialOnly
+                  ? "bg-amber-500/15 border-amber-500/50 text-amber-600 dark:text-amber-400 shadow-xs"
+                  : "bg-surface border-line hover:border-amber-400/40"
+              }`}
+            >
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <Crown size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-black truncate">{language === "ar" ? "المتجر المعتمد" : "Flagship Store"}</div>
+                <div className="text-[10px] text-muted truncate">{officialOnly ? (language === "ar" ? "مفعل (انقر للإلغاء)" : "Active (Click to reset)") : (language === "ar" ? "ضمان أصالة 100%" : "100% Guaranteed")}</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              id="coupons"
+              onClick={() => setCouponsModalOpen(true)}
+              className="p-3 rounded-2xl border bg-surface border-line hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all text-start flex items-center gap-3 cursor-pointer"
+            >
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                <Tag size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-black truncate text-emerald-600 dark:text-emerald-400">{language === "ar" ? "نادي الكوبونات" : "Coupons Club"}</div>
+                <div className="text-[10px] text-muted truncate">{language === "ar" ? "5 قسائم نشطة للنسخ" : "5 Active Vouchers"}</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              id="b2b"
+              onClick={() => setB2bModalOpen(true)}
+              className="p-3 rounded-2xl border bg-surface border-line hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-start flex items-center gap-3 cursor-pointer"
+            >
+              <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+                <Building2 size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-black truncate text-blue-600 dark:text-blue-400">{language === "ar" ? "تجارة الجملة B2B" : "B2B Wholesale"}</div>
+                <div className="text-[10px] text-muted truncate">{language === "ar" ? "خصم يصل إلى 35%" : "Up to 35% Discount"}</div>
+              </div>
+            </button>
+          </div>
         </div>
+
+        {/* Top Brands Directory Showcase (#brands-section) */}
+        {(showBrandsDirectory || selectedBrand !== "all") && (
+          <section id="brands-section" className="mb-8 p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+              <div className="flex items-center gap-2 font-black text-base text-foreground">
+                <Sparkles size={18} className="text-purple-500" />
+                <span>{language === "ar" ? "دليل الماركات العالمية الفاخرة (Top Brands Hub)" : "Luxury Global Brands Hub"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedBrand !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBrand("all");
+                      setSelectedBrandSection("all");
+                    }}
+                    className="px-3 py-1 rounded-xl text-xs font-bold bg-surface-soft text-orange-500 border border-orange-500/30 hover:bg-orange-500/10 cursor-pointer"
+                  >
+                    {language === "ar" ? "عرض كل المنتجات" : "View All Products"}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowBrandsDirectory(false)}
+                  className="p-1 rounded-lg text-muted hover:text-foreground"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {availableBrands.map((b) => {
+                const isActive = selectedBrand === b.id;
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBrand(b.id);
+                      setSelectedBrandSection("all");
+                    }}
+                    className={`p-3.5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${
+                      isActive
+                        ? "bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-300 shadow-xs ring-2 ring-purple-500/30"
+                        : "bg-surface-soft/60 hover:bg-surface-soft border-line hover:border-purple-400/40 text-foreground"
+                    }`}
+                  >
+                    <span className="text-3xl">{b.icon}</span>
+                    <div className="text-xs font-extrabold">{b.name}</div>
+                    <div className="text-[10px] text-muted">{b.nameAr}</div>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-surface border border-line text-muted font-bold">
+                      {isActive ? (language === "ar" ? "محدد حالياً" : "Selected") : (language === "ar" ? "تصفح الماركة" : "Explore")}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Flash Deals Active Banner (#deals-section) */}
+        {dealsOnly && (
+          <div id="deals-section" className="mb-8 p-5 sm:p-6 rounded-3xl bg-linear-to-r from-red-600 via-rose-600 to-orange-600 text-white shadow-lg space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black backdrop-blur-md">
+                  <Flame size={14} className="animate-bounce text-amber-300" />
+                  <span>{language === "ar" ? "عروض الفلاش الحصرية نشطة الآن" : "Flash Deals 50% Active Now"}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black">{language === "ar" ? "تخفيضات كبرى تصل إلى 50% لفترة محدودة" : "Mega Discounts Up To 50% OFF For A Limited Time"}</h2>
+                <p className="text-xs text-white/90 max-w-xl">
+                  {language === "ar"
+                    ? "يتم الآن عرض جميع المنتجات التي تحتوي على خصومات كبرى ومميزات ترويجية خاصة مع إمكانية استخدام كود FLASH35 الإضافي."
+                    : "Showing all items with high discounts and special promotions. You can combine coupon FLASH35 at checkout."}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setCouponsModalOpen(true)}
+                  className="px-4 py-2.5 rounded-xl bg-white text-red-600 font-extrabold text-xs shadow-md hover:bg-slate-100 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Tag size={13} />
+                  <span>{language === "ar" ? "نسخ كوبون الفلاش" : "Copy Flash Coupon"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDealsOnly(false)}
+                  className="px-4 py-2.5 rounded-xl bg-black/30 hover:bg-black/40 text-white font-bold text-xs border border-white/20 transition-all cursor-pointer"
+                >
+                  {language === "ar" ? "عرض كل المنتجات" : "View All"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Flagship Store Active Banner */}
+        {officialOnly && (
+          <div id="official-section" className="mb-8 p-5 sm:p-6 rounded-3xl bg-linear-to-r from-amber-600 via-amber-700 to-slate-900 text-white shadow-lg space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black backdrop-blur-md">
+                  <Crown size={14} className="text-amber-300" />
+                  <span>{language === "ar" ? "تصفية المتاجر الرسمية المعتمدة" : "Official Flagship Stores Only"}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black">{language === "ar" ? "منتجات معتمدة وموثقة 100% مع ضمان الوكالة" : "100% Certified Authentic with Official Warranty"}</h2>
+                <p className="text-xs text-white/90 max-w-xl">
+                  {language === "ar"
+                    ? "تصفح حصري لمنتجات متاجر NOORMEXA Flagship والمتاجر العالمية المعتمدة مع فحص دقيق للجودة وشحن سريع ومؤمّن."
+                    : "Exclusively browsing products from verified flagship stores with quality certification and insured express delivery."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setOfficialOnly(false)}
+                className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/30 transition-all cursor-pointer whitespace-nowrap"
+              >
+                {language === "ar" ? "إلغاء التصفية" : "Clear Filter"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Layout: Sidebar Filters + Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -886,6 +1311,276 @@ function MarketplaceContent() {
           </div>
         </div>
       </div>
+
+      {/* Interactive Coupons Club Modal */}
+      {couponsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-xl bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-line pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center">
+                  <Gift size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-foreground">
+                    {language === "ar" ? "نادي الكوبونات وقسائم التخفيض" : "Coupons & Promo Codes Club"}
+                  </h3>
+                  <p className="text-xs text-muted">
+                    {language === "ar" ? "انسخ أي كود وطبّقه مباشرة عند إتمام الطلب للحصول على خصم إضافي" : "Copy any code and apply at checkout for instant extra savings"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCouponsModalOpen(false)}
+                className="p-1.5 rounded-xl bg-surface-soft text-muted hover:text-foreground cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {activeCoupons.map((c) => {
+                const isCopied = copiedCoupon === c.code;
+                return (
+                  <div
+                    key={c.code}
+                    className={`p-4 rounded-2xl border bg-linear-to-r ${c.color} flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs`}
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-base font-black tracking-wider bg-surface px-3 py-1 rounded-xl border border-line text-foreground">
+                          {c.code}
+                        </span>
+                        <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-surface text-foreground border border-line">
+                          {language === "ar" ? c.badge : c.badgeEn}
+                        </span>
+                      </div>
+                      <div className="text-xs font-bold text-foreground">
+                        {language === "ar" ? c.titleAr : c.titleEn}
+                      </div>
+                      <div className="text-[10px] text-muted">
+                        {language === "ar" ? `الحد الأدنى للطلب: ${c.minSpend}` : `Min spend: ${c.minSpend}`}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCopyCoupon(c.code)}
+                      className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer shrink-0 ${
+                        isCopied
+                          ? "bg-emerald-600 text-white"
+                          : "bg-surface hover:bg-surface-soft text-foreground border border-line"
+                      }`}
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check size={14} />
+                          <span>{language === "ar" ? "تم النسخ بنجاح!" : "Copied!"}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} />
+                          <span>{language === "ar" ? "نسخ الكود" : "Copy Code"}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="p-4 rounded-2xl bg-surface-soft border border-line text-xs text-muted flex items-start gap-2.5">
+              <ShieldCheck size={18} className="text-emerald-500 shrink-0 mt-0.5" />
+              <span>
+                {language === "ar"
+                  ? "جميع الكوبونات معتمدة وتعمل بنسبة 100% على كافة المنتجات المؤهلة في السوق العالمي مع ضمان استرداد فوري وتوفير مضمون."
+                  : "All coupons are verified and 100% operational on eligible global marketplace items with immediate discount."}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setCouponsModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-orange-500 text-white font-extrabold text-xs shadow-xs hover:bg-orange-600 transition-all cursor-pointer"
+              >
+                {language === "ar" ? "متابعة التسوق" : "Continue Shopping"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive B2B Wholesale Hub Modal */}
+      {b2bModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-2xl bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-line pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/15 text-blue-500 flex items-center justify-center">
+                  <Building2 size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-foreground">
+                    {language === "ar" ? "بوابة تجارة الجملة والشركات (B2B Wholesale Hub)" : "B2B Wholesale & Enterprise Hub"}
+                  </h3>
+                  <p className="text-xs text-muted">
+                    {language === "ar" ? "أسعار خاصة للكميات، فواتير ضريبية معتمدة، وتوريد مباشر من المصانع العالمية" : "Volume tiered discounts, tax-compliant invoicing, and direct factory procurement"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setB2bModalOpen(false)}
+                className="p-1.5 rounded-xl bg-surface-soft text-muted hover:text-foreground cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Wholesale Tier Discounts */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-2xl border border-line bg-surface-soft space-y-1 text-center">
+                <div className="text-xs font-bold text-muted">{language === "ar" ? "كميات 10 - 49 قطعة" : "Tier 1: 10 - 49 pcs"}</div>
+                <div className="text-xl font-black text-blue-500">15% {language === "ar" ? "خصم مباشر" : "OFF"}</div>
+                <div className="text-[10px] text-muted">{language === "ar" ? "شحن قياسي سريع" : "Fast Standard Shipping"}</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl border border-blue-500/40 bg-blue-500/10 space-y-1 text-center">
+                <div className="text-xs font-bold text-blue-500">{language === "ar" ? "كميات 50 - 99 قطعة" : "Tier 2: 50 - 99 pcs"}</div>
+                <div className="text-xl font-black text-blue-600 dark:text-blue-400">25% {language === "ar" ? "خصم جملة" : "OFF"}</div>
+                <div className="text-[10px] text-muted">{language === "ar" ? "شحن جوي مجاني" : "Free Air Freight"}</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl border border-amber-500/40 bg-amber-500/10 space-y-1 text-center">
+                <div className="text-xs font-bold text-amber-600 dark:text-amber-400">{language === "ar" ? "كميات 100+ قطعة" : "Tier 3: 100+ pcs"}</div>
+                <div className="text-xl font-black text-amber-600 dark:text-amber-300">35% {language === "ar" ? "خصم توريد VIP" : "OFF"}</div>
+                <div className="text-[10px] text-muted">{language === "ar" ? "مدير حساب مخصص" : "Dedicated Account Manager"}</div>
+              </div>
+            </div>
+
+            {/* RFQ Quotation Form */}
+            <form onSubmit={handleB2bSubmit} className="space-y-4 border-t border-line pt-4">
+              <h4 className="text-sm font-extrabold text-foreground">
+                {language === "ar" ? "طلب عرض سعر رسمي (RFQ Instant Quotation)" : "Request Formal Quote (RFQ)"}
+              </h4>
+
+              {b2bSuccess ? (
+                <div className="p-5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 text-center space-y-2 animate-in zoom-in-95">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                    <Check size={24} />
+                  </div>
+                  <div className="text-base font-black">
+                    {language === "ar" ? "تم استلام طلب التوريد بنجاح!" : "Quotation Request Received!"}
+                  </div>
+                  <p className="text-xs max-w-md mx-auto">
+                    {language === "ar"
+                      ? "سيقوم مستشار توريد الشركات بالتواصل معك خلال 4 ساعات مع عرض السعر المفصل والفاتورة المبدئية."
+                      : "Our B2B corporate specialist will contact you within 4 hours with detailed pricing."}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-foreground mb-1">
+                        {language === "ar" ? "اسم المؤسسة / الشركة / التاجر" : "Company / Business Name"}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={b2bForm.companyName}
+                        onChange={(e) => setB2bForm({ ...b2bForm, companyName: e.target.value })}
+                        placeholder={language === "ar" ? "مثال: مؤسسة النور التجارية" : "e.g. Al Noor Enterprises"}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-foreground focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground mb-1">
+                        {language === "ar" ? "رقم الهاتف / الواتساب للتواصل" : "Phone / WhatsApp Contact"}
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={b2bForm.phone}
+                        onChange={(e) => setB2bForm({ ...b2bForm, phone: e.target.value })}
+                        placeholder="+966 5x xxx xxxx"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-foreground focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-foreground mb-1">
+                        {language === "ar" ? "الفئة المستهدفة للتوريد" : "Target Category"}
+                      </label>
+                      <select
+                        value={b2bForm.category}
+                        onChange={(e) => setB2bForm({ ...b2bForm, category: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-foreground focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="all">{language === "ar" ? "جميع المنتجات المتنوعة" : "General Multi-category"}</option>
+                        {categories.map((c) => (
+                          <option key={c.id} value={c.slug}>
+                            {language === "ar" ? c.name_ar : c.name_en}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground mb-1">
+                        {language === "ar" ? "الكمية التقديرية (قطعة)" : "Estimated Quantity (Units)"}
+                      </label>
+                      <input
+                        type="number"
+                        min="10"
+                        max="50000"
+                        required
+                        value={b2bForm.quantity}
+                        onChange={(e) => setB2bForm({ ...b2bForm, quantity: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-foreground focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-foreground mb-1">
+                      {language === "ar" ? "مواصفات أو ملاحظات إضافية (اختياري)" : "Additional Requirements / Specifications"}
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={b2bForm.notes}
+                      onChange={(e) => setB2bForm({ ...b2bForm, notes: e.target.value })}
+                      placeholder={language === "ar" ? "حدد أرقام الموديلات أو متطلبات التخليص الجمركي والتغليف..." : "Specify model numbers, custom packaging, or clearance needs..."}
+                      className="w-full px-3.5 py-2 rounded-xl bg-surface border border-line text-xs text-foreground focus:outline-none focus:border-blue-500 resize-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setB2bModalOpen(false)}
+                      className="px-4 py-2.5 rounded-xl border border-line text-xs font-bold text-muted hover:text-foreground cursor-pointer"
+                    >
+                      {language === "ar" ? "إلغاء" : "Cancel"}
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                    >
+                      {language === "ar" ? "إرسال طلب عرض السعر" : "Submit RFQ"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Drawer Filter Modal */}
       {mobileFilterOpen && (

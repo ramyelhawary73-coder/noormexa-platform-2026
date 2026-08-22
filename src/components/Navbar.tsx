@@ -587,6 +587,11 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(new CustomEvent("noormexa-nav-action", { detail: item.href }));
+                    }
+                  }}
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all text-[11px] sm:text-xs ${
                     item.highlight
                       ? "bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 font-black border border-red-500/30 hover:bg-red-500/20"
