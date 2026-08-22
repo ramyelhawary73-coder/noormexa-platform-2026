@@ -20,6 +20,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import SmartImageUploadField from "@/components/SmartImageUploadField";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -295,22 +296,24 @@ export default function SellerRegisterPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-foreground">{isAr ? "رابط الشعار (Logo URL)" : "Store Logo URL"}</label>
-                  <input
-                    type="url"
+                  <SmartImageUploadField
+                    label={isAr ? "شعار المتجر الرسمي (Logo)" : "Store Logo"}
                     value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                    onChange={setLogoUrl}
+                    aspectRatio="1:1"
+                    isAr={isAr}
+                    helperText={isAr ? "شعار مربع 1:1 مع أداة قص ومعالجة ذكية" : "Square 1:1 with smart cropper & auto-enhancement"}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-foreground">{isAr ? "رابط غلاف المتجر (Banner URL)" : "Store Banner URL"}</label>
-                  <input
-                    type="url"
+                  <SmartImageUploadField
+                    label={isAr ? "غلاف وبانر المتجر (Store Banner)" : "Store Header Banner"}
                     value={bannerUrl}
-                    onChange={(e) => setBannerUrl(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                    onChange={setBannerUrl}
+                    aspectRatio="12:5"
+                    isAr={isAr}
+                    helperText={isAr ? "بانر أفقي عريض 12:5 بدقة 1200x500 بكسل" : "Wide 12:5 header banner (1200x500px)"}
                   />
                 </div>
               </div>

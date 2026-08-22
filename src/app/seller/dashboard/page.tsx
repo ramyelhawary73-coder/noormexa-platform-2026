@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { Order, Store } from "@/types/marketplace";
+import SmartImageUploadField from "@/components/SmartImageUploadField";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -163,6 +164,8 @@ export default function SellerDashboardPage() {
   const [profilePhone, setProfilePhone] = useState(currentStore.contact_phone || "");
   const [profileIban, setProfileIban] = useState(currentStore.iban || "");
   const [profileBank, setProfileBank] = useState(currentStore.bank_name || "");
+  const [profileLogoUrl, setProfileLogoUrl] = useState(currentStore.logo_url || "");
+  const [profileBannerUrl, setProfileBannerUrl] = useState(currentStore.banner_url || "");
 
   // Filter products for active store
   const storeProducts = useMemo(() => {
@@ -327,6 +330,8 @@ export default function SellerDashboardPage() {
       contact_phone: profilePhone,
       iban: profileIban,
       bank_name: profileBank,
+      logo_url: profileLogoUrl || currentStore.logo_url,
+      banner_url: profileBannerUrl || currentStore.banner_url,
     });
     showToast(isAr ? "تم حفظ إعدادات وهوية المتجر بنجاح!" : "Store profile updated successfully!");
   };
@@ -1211,6 +1216,30 @@ export default function SellerDashboardPage() {
                 />
               </div>
 
+              {/* Store Logo with Smart Crop */}
+              <div className="space-y-1.5">
+                <SmartImageUploadField
+                  label={isAr ? "شعار المتجر الرسمي (Logo)" : "Store Logo"}
+                  value={profileLogoUrl}
+                  onChange={setProfileLogoUrl}
+                  aspectRatio="1:1"
+                  isAr={isAr}
+                  helperText={isAr ? "المقاس الموصى به: مربع 1:1 بدقة 800x800 بكسل" : "Recommended: Square 1:1, 800x800px"}
+                />
+              </div>
+
+              {/* Store Header Banner with Smart Crop */}
+              <div className="space-y-1.5">
+                <SmartImageUploadField
+                  label={isAr ? "غلاف وبانر المتجر (Header Banner)" : "Header Banner"}
+                  value={profileBannerUrl}
+                  onChange={setProfileBannerUrl}
+                  aspectRatio="12:5"
+                  isAr={isAr}
+                  helperText={isAr ? "المقاس الموصى به: عريض 12:5 بدقة 1200x500 بكسل" : "Recommended: Wide 12:5, 1200x500px"}
+                />
+              </div>
+
               <div className="space-y-1.5">
                 <label className="font-bold text-foreground">{isAr ? "اسم البنك لتحويل الأرباح" : "Bank Name"}</label>
                 <input
@@ -1353,14 +1382,16 @@ export default function SellerDashboardPage() {
                 />
               </div>
 
+              {/* Smart Image Studio for Campaign Banner */}
               <div className="space-y-1">
-                <label className="font-bold text-foreground">{isAr ? "رابط صورة الغلاف / البانر الترويجي *" : "Banner Image URL *"}</label>
-                <input
-                  type="url"
-                  required
+                <SmartImageUploadField
+                  label={isAr ? "صورة الغلاف / البانر الترويجي للمنشور" : "Campaign Cover Banner"}
                   value={postImageUrl}
-                  onChange={(e) => setPostImageUrl(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                  onChange={setPostImageUrl}
+                  aspectRatio="16:9"
+                  isAr={isAr}
+                  required
+                  helperText={isAr ? "يدعم الرفع المباشر والقص التلقائي بدقة 16:9 أو 1200x675 وإضافة شارات التوثيق والخصومات" : "Supports direct upload, smart auto-crop (16:9), and luxury overlay badges"}
                 />
               </div>
 
@@ -1529,13 +1560,14 @@ export default function SellerDashboardPage() {
                 </div>
 
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "رابط الصورة الرئيسية للمنتج *" : "Main Image URL *"}</label>
-                  <input
-                    type="url"
-                    required
+                  <SmartImageUploadField
+                    label={isAr ? "الصورة الرئيسية للمنتج (المعرض الأولي)" : "Primary Product Image"}
                     value={newProdImageUrl}
-                    onChange={(e) => setNewProdImageUrl(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                    onChange={setNewProdImageUrl}
+                    aspectRatio="1:1"
+                    isAr={isAr}
+                    required
+                    helperText={isAr ? "نسبة العرض المثالية للمنتجات 1:1 مربع بدقة 800x800 أو أعلى، مع إمكانية تحسين التباين والسطوع وقص الحواف الذكي" : "Ideal 1:1 square ratio with smart auto-centering, clarity boost, and overlay options"}
                   />
                 </div>
 
