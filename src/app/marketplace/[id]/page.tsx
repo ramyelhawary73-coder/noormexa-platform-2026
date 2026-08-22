@@ -22,6 +22,7 @@ import {
   Store as StoreIcon,
   Truck,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { SelectedVariant } from "@/types/marketplace";
@@ -289,6 +290,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
               {/* Badges */}
               <div className="absolute top-4 start-4 flex flex-col gap-2">
+                {product.is_preorder && (
+                  <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-black shadow-md flex items-center gap-1.5">
+                    <Sparkles size={13} className="animate-pulse" />
+                    <span>{product.preorder_label || (language === "ar" ? "حجز مسبق واستيراد VIP" : "VIP Pre-Order")}</span>
+                  </span>
+                )}
                 {discountPercent && (
                   <span className="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-black shadow-md">
                     {discountPercent}% {text.saveDiscount}
@@ -491,7 +498,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   className="w-full py-3.5 px-6 rounded-2xl bg-surface border-2 border-orange-500 text-foreground hover:bg-orange-500/10 font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart size={17} className="text-orange-500" />
-                  <span className="font-black text-foreground">{text.addToCart}</span>
+                  <span className="font-black text-foreground">
+                    {product.is_preorder ? (language === "ar" ? "حجز مسبق في السلة" : "Pre-Order in Cart") : text.addToCart}
+                  </span>
                 </button>
 
                 <button
@@ -501,9 +510,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   className="w-full py-3.5 px-6 rounded-2xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-orange-500/25 active:scale-98 cursor-pointer border border-orange-400/40 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Zap size={17} className="fill-white text-white" />
-                  <span className="!text-white font-black">{text.buyNow}</span>
+                  <span className="!text-white font-black">
+                    {product.is_preorder ? (language === "ar" ? "إتمام الحجز المسبق VIP" : "Complete VIP Pre-Order") : text.buyNow}
+                  </span>
                 </button>
               </div>
+
+              {product.is_preorder && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const refCode = `VIP-${Math.floor(100000 + Math.random() * 900000)}`;
+                    const msg = `*طلب حجز مسبق VIP من المتجر العالمي* 🌟
+- المنتج: ${product.name}
+- السعر التقريبي: ${formatPrice(calculatedPrice)}
+- الكمية: ${quantity}
+- كود الحجز المرجعي: ${refCode}
+
+أرغب في الاستفسار عن تفاصيل الحجز وموعد الوصول والضمان.`;
+                    window.open(`https://wa.me/201000000000?text=${encodeURIComponent(msg)}`, "_blank");
+                  }}
+                  className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+                >
+                  <MessageCircle size={16} />
+                  <span>
+                    {language === "ar"
+                      ? "طلب استيراد فوري عبر واتساب مباشرة (خدمة الكونسيرج)"
+                      : "Direct WhatsApp VIP Concierge Sourcing"}
+                  </span>
+                </button>
+              )}
 
               {addedNotice && (
                 <div className="p-3 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center justify-between animate-in fade-in">

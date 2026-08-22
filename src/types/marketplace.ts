@@ -117,6 +117,8 @@ export type Product = {
   rating?: number;
   reviews_count?: number;
   is_featured?: boolean;
+  is_preorder?: boolean;
+  preorder_label?: string;
   free_shipping?: boolean;
   variants?: ProductVariant[];
   specs?: ProductSpec[];

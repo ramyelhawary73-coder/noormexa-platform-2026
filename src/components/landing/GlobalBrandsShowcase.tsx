@@ -13,9 +13,12 @@ import {
   ExternalLink,
   X,
   CheckCircle2,
-  Truck,
   RotateCcw,
   Zap,
+  MessageCircle,
+  Send,
+  Check,
+  Clock,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { Product } from "@/types/marketplace";
@@ -364,28 +367,33 @@ export const GLOBAL_BRANDS: GlobalBrand[] = [
   },
 ];
 
-// 100% Vector Official Brand Logos with Razor-Sharp Precision & Authentic Brand Geometry
+// 100% Vector Official Brand Badges & Logos with Razor-Sharp Precision & Luxury Styling
 export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }) {
   switch (brandId) {
     case "apple":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-950 dark:text-white transition-transform">
-          <svg viewBox="0 0 170 170" className="w-11 h-11 object-contain drop-shadow-xs" fill="currentColor">
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-800/80 flex flex-col items-center justify-center relative overflow-hidden shadow-xs group-hover:border-slate-600 transition-colors">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
+          <svg viewBox="0 0 170 170" className="w-8 h-8 text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.3)] relative z-10" fill="currentColor">
             {/* Apple Leaf */}
             <path d="M119.22 31.84c0-7.39 2.65-14.34 7.95-20.85 5.3-6.51 11.95-10.58 19.95-12.2 0 1.09.07 2.06.07 2.93 0 7.18-2.82 14.28-8.46 21.3-5.64 7.02-12.39 10.82-20.25 11.41-.43-.87-.66-1.74-.66-2.59z" />
             {/* Apple Body with Bite */}
             <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.85-11.71-14.44-6.3-10.08-11.19-21.2-14.67-33.36-3.48-12.16-5.22-23.73-5.22-34.7 0-14.12 3.65-25.79 10.96-35 7.31-9.21 16.48-13.91 27.52-14.1 4.57 0 9.77 1.25 15.6 3.75 5.83 2.5 9.74 3.79 11.74 3.79 1.79 0 5.86-1.34 12.22-4.02 6.36-2.68 11.89-3.88 16.59-3.6 12.63.65 22.58 5.62 29.86 14.9-11.07 6.72-16.5 16.14-16.3 28.25.22 9.55 3.96 17.5 11.22 23.86 7.26 6.36 15.79 9.87 25.59 10.53-.88 2.82-1.96 5.81-3.26 8.97z" />
           </svg>
+          <span className="text-[10px] font-black tracking-[0.25em] text-white font-sans mt-0.5 relative z-10">
+            Apple
+          </span>
         </div>
       );
 
     case "nike":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
-          <svg viewBox="0 0 120 48" className="w-20 h-9 object-contain drop-shadow-xs" fill="currentColor">
-            <path d="M117.2 4.1C101.4 16 79.8 31.7 53.6 41.2C38.9 46.5 26.5 47.7 16.3 44.8C8.5 42.6 3.6 37.6 1.7 29.8C-0.2 22 1.9 12.7 8 1.9C9.1 0 10.5 0.6 9.8 2.7C6.4 12.2 6.5 20.3 10.1 27C13.7 33.7 20.4 37.4 30.2 38.1C44.1 39.1 61.9 31.3 83.6 14.7C96.2 5.1 106.9 -0.9 115.6 -3.3C117.4 -3.8 118.9 -2.9 117.2 4.1Z" />
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs group-hover:border-orange-500/50 transition-colors">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
+          <svg viewBox="0 0 24 24" className="w-12 h-6 text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.35)] relative z-10" fill="currentColor">
+            <path d="M21.71 4.79C17.65 9.07 10.82 14.88 4.9 16.71C2.33 17.5 0.72 16.91 0.17 15.02C-0.34 13.26 0.44 11.08 2.37 8.86C2.65 8.54 3.09 8.76 2.87 9.14C1.72 11.13 1.54 13.06 2.45 14.15C3.39 15.27 5.56 15.06 8.44 13.46C13.56 10.62 19.38 4.67 21.05 2.82C21.46 2.37 22.04 4.44 21.71 4.79Z" />
           </svg>
-          <span className="text-[10px] font-black tracking-[0.3em] font-sans -mt-0.5 text-slate-900 dark:text-white">
+          <span className="text-[10px] font-black tracking-[0.35em] text-white font-sans mt-0.5 relative z-10">
             NIKE
           </span>
         </div>
@@ -393,30 +401,25 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "rolex":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center">
-          <svg viewBox="0 0 120 62" className="w-18 h-10 object-contain">
-            {/* Authentic Rolex 5-Point Crown */}
-            <g fill="url(#rolexGoldGrad)">
-              <defs>
-                <linearGradient id="rolexGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#F59E0B" />
-                  <stop offset="50%" stopColor="#D97706" />
-                  <stop offset="100%" stopColor="#B45309" />
-                </linearGradient>
-              </defs>
-              {/* 5 Pearls */}
-              <circle cx="16" cy="14" r="4.2" />
-              <circle cx="38" cy="6" r="4.8" />
-              <circle cx="60" cy="3" r="5.4" />
-              <circle cx="82" cy="6" r="4.8" />
-              <circle cx="104" cy="14" r="4.2" />
-              {/* Crown Rays */}
-              <path d="M16 19 L26 46 L38 46 L38 12 L49 46 L71 46 L60 9 L71 46 L82 12 L82 46 L94 46 L104 19 L96 52 L24 52 Z" />
-              {/* Crown Base Oval */}
-              <rect x="22" y="53" width="76" height="6.5" rx="3.25" />
-            </g>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#004d26] via-[#00381b] to-[#002412] border border-emerald-600/40 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,224,71,0.18),transparent_70%)] pointer-events-none" />
+          <svg viewBox="0 0 120 62" className="w-16 h-8 drop-shadow-sm relative z-10">
+            <defs>
+              <linearGradient id="rolexGoldGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FDE047" />
+                <stop offset="50%" stopColor="#F59E0B" />
+                <stop offset="100%" stopColor="#D97706" />
+              </linearGradient>
+            </defs>
+            <circle cx="16" cy="14" r="4.2" fill="url(#rolexGoldGradCard)" />
+            <circle cx="38" cy="6" r="4.8" fill="url(#rolexGoldGradCard)" />
+            <circle cx="60" cy="3" r="5.4" fill="url(#rolexGoldGradCard)" />
+            <circle cx="82" cy="6" r="4.8" fill="url(#rolexGoldGradCard)" />
+            <circle cx="104" cy="14" r="4.2" fill="url(#rolexGoldGradCard)" />
+            <path d="M16 19 L26 46 L38 46 L38 12 L49 46 L71 46 L60 9 L71 46 L82 12 L82 46 L94 46 L104 19 L96 52 L24 52 Z" fill="url(#rolexGoldGradCard)" />
+            <rect x="22" y="53" width="76" height="6.5" rx="3.25" fill="url(#rolexGoldGradCard)" />
           </svg>
-          <span className="text-[10px] font-serif font-black tracking-[0.3em] text-[#006039] dark:text-[#4ade80] -mt-0.5">
+          <span className="text-[11px] font-serif font-black tracking-[0.3em] text-[#FDE047] drop-shadow-xs relative z-10 -mt-0.5">
             ROLEX
           </span>
         </div>
@@ -424,239 +427,146 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "samsung":
       return (
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="px-3.5 py-1.5 rounded-xl bg-[#034EA2]/10 dark:bg-[#034EA2]/25 border border-[#034EA2]/20 flex items-center justify-center shadow-xs">
-            <svg viewBox="0 0 150 28" className="w-24 h-6 object-contain">
-              <g fill="#034EA2" className="dark:fill-[#38BDF8]">
-                {/* S */}
-                <path d="M14 6.5 C8.5 6.5 4.5 9 4.5 12.5 C4.5 18 16 16.5 16 20 C16 21.8 14 23 10.5 23 C6.5 23 3.5 21 2.5 18.5 L0 20.5 C1.5 24 6 26 10.5 26 C16.5 26 20 23.5 20 19.5 C20 13.8 8.5 15.2 8.5 12 C8.5 10.5 10.5 9.5 13.5 9.5 C16.5 9.5 19 10.8 20 12.8 L22.5 10.5 C21 7.8 17.5 6.5 14 6.5 Z" />
-                {/* A (Crossbar-less stylized Lambda) */}
-                <path d="M26 25.5 L34.5 6.5 L39.5 6.5 L48 25.5 L43 25.5 L37 11.5 L31 25.5 Z" />
-                {/* M */}
-                <path d="M51 6.5 L55.5 6.5 L61.5 18.5 L67.5 6.5 L72 6.5 L72 25.5 L68 25.5 L68 12.5 L63 22.5 L60 22.5 L55 12.5 L55 25.5 L51 25.5 Z" />
-                {/* S */}
-                <path d="M85 6.5 C79.5 6.5 75.5 9 75.5 12.5 C75.5 18 87 16.5 87 20 C87 21.8 85 23 81.5 23 C77.5 23 74.5 21 73.5 18.5 L71 20.5 C72.5 24 77 26 81.5 26 C87.5 26 91 23.5 91 19.5 C91 13.8 79.5 15.2 79.5 12 C79.5 10.5 81.5 9.5 84.5 9.5 C87.5 9.5 90 10.8 91 12.8 L93.5 10.5 C92 7.8 88.5 6.5 85 6.5 Z" />
-                {/* U */}
-                <path d="M96 6.5 L100.5 6.5 L100.5 18 C100.5 21 102.5 23 105.5 23 C108.5 23 110.5 21 110.5 18 L110.5 6.5 L115 6.5 L115 18 C115 23.5 111 26 105.5 26 C100 26 96 23.5 96 18 Z" />
-                {/* N */}
-                <path d="M120 6.5 L124.5 6.5 L132.5 19 L132.5 6.5 L137 6.5 L137 25.5 L132.5 25.5 L124.5 13 L124.5 25.5 L120 25.5 Z" />
-                {/* G */}
-                <path d="M148 6.5 C141.5 6.5 137.5 11 137.5 16.5 C137.5 22.2 141.8 26 148 26 C153 26 156.5 23.5 157.5 19.5 L149 19.5 L149 16.5 L161.5 16.5 L161.5 24.5 C158.5 26 153.5 27 148 27 C139.5 27 133 22 133 16.5 C133 10.5 139.5 5.5 148 5.5 C153.5 5.5 157.5 7.5 160 10.5 L157 12.8 C155 10.2 152 6.5 148 6.5 Z" />
-              </g>
-            </svg>
-          </div>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#034EA2] via-[#023c7d] to-[#00224d] border border-blue-500/40 flex items-center justify-center relative overflow-hidden shadow-xs px-2">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.22),transparent_60%)] pointer-events-none" />
+          <svg viewBox="0 0 190 36" className="w-28 h-7 text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.2)] relative z-10" fill="currentColor">
+            {/* S */}
+            <path d="M18 9c-5.5 0-9.5 2.8-9.5 7 0 8.5 13 5.5 13 10.5 0 2.2-2.2 4-6 4-4 0-7-1.8-8.5-4.8L2 28.5C4 32.5 8.5 35 14.5 35c7.5 0 12-4 12-9 0-9-13-6-13-11 0-1.8 1.8-3.2 5-3.2 3.5 0 6 1.4 7.2 3.5l4.8-2.8C38.2 9 34.5 9 18 9z" />
+            {/* A (Authentic Samsung Lambda) */}
+            <path d="M35 34h5.8l10-25h-5.8l-7.2 18.5L30.6 9H24.8l10.2 25z" />
+            {/* M */}
+            <path d="M54 9h5.5l7.5 15.5L74.5 9H80v25h-5V17l-6 12.5h-3.8L59 17v17h-5V9z" />
+            {/* S */}
+            <path d="M96 9c-5.5 0-9.5 2.8-9.5 7 0 8.5 13 5.5 13 10.5 0 2.2-2.2 4-6 4-4 0-7-1.8-8.5-4.8L80 28.5C82 32.5 86.5 35 92.5 35c7.5 0 12-4 12-9 0-9-13-6-13-11 0-1.8 1.8-3.2 5-3.2 3.5 0 6 1.4 7.2 3.5l4.8-2.8C116.2 9 112.5 9 96 9z" />
+            {/* U */}
+            <path d="M112 9h5.2v16c0 3.2 2.2 5 5.5 5s5.5-1.8 5.5-5V9h5.2v16c0 6.5-4.5 9.8-10.7 9.8s-10.7-3.3-10.7-9.8V9z" />
+            {/* N */}
+            <path d="M139 9h5.2l12 17V9h5.2v25h-5.2l-12-17v17H139V9z" />
+            {/* G */}
+            <path d="M178 9c-8 0-13.5 5.5-13.5 13s5.5 13 13.5 13c5.5 0 9.8-2.8 11.5-6.8l-4.5-2.2c-1.2 2.8-4 4.5-7 4.5-5 0-8.2-3.8-8.2-8.5s3.2-8.5 8.2-8.5c3.2 0 5.8 1.8 7 4l4.5-2.2C187.8 11.5 183.5 9 178 9zm5 10v4.5h7.2V19H183z" />
+          </svg>
         </div>
       );
 
     case "sony":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-950 dark:text-white">
-          <svg viewBox="0 0 160 40" className="w-22 h-8 object-contain" fill="currentColor">
-            <text
-              x="80"
-              y="30"
-              fontSize="30"
-              fontWeight="900"
-              fontFamily="'Times New Roman', 'Clarendon', 'Georgia', serif"
-              textAnchor="middle"
-              letterSpacing="6"
-            >
-              SONY
-            </text>
-          </svg>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-slate-800 flex items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+          <span className="text-2xl font-serif font-black tracking-[0.25em] text-white drop-shadow-sm relative z-10">
+            SONY
+          </span>
         </div>
       );
 
     case "dior":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
-          <svg viewBox="0 0 130 52" className="w-20 h-10 object-contain" fill="currentColor">
-            <text
-              x="65"
-              y="32"
-              fontSize="34"
-              fontWeight="700"
-              fontFamily="'Didot', 'Bodoni MT', 'Baskerville', 'Playfair Display', serif"
-              textAnchor="middle"
-              letterSpacing="4"
-            >
-              Dior
-            </text>
-            <text
-              x="65"
-              y="48"
-              fontSize="8.5"
-              fontWeight="900"
-              fontFamily="'Montserrat', sans-serif"
-              textAnchor="middle"
-              letterSpacing="6"
-              opacity="0.8"
-            >
-              PARIS
-            </text>
-          </svg>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-stone-900 via-neutral-950 to-black border border-stone-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(253,230,138,0.12),transparent_70%)] pointer-events-none" />
+          <span className="text-2xl font-serif font-bold tracking-[0.2em] text-white relative z-10">
+            Dior
+          </span>
+          <span className="text-[8px] font-sans font-black tracking-[0.45em] text-amber-200/90 uppercase -mt-0.5 relative z-10">
+            PARIS
+          </span>
         </div>
       );
 
     case "chanel":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
-          <svg viewBox="0 0 110 65" className="w-16 h-10 object-contain" fill="currentColor">
-            {/* Official Interlocking Double CC Monogram */}
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-zinc-900 via-black to-zinc-950 border border-zinc-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+          <svg viewBox="0 0 110 65" className="w-14 h-8 text-white drop-shadow-sm relative z-10" fill="currentColor">
             <g transform="translate(55, 23)">
-              {/* Left C */}
               <path d="M-6 -14 C1 -14 7 -10 10 -4 L5 -1 C3 -4 0 -7 -6 -7 C-14 -7 -19 -1 -19 6 C-19 13 -14 19 -6 19 C0 19 3 16 5 13 L10 16 C7 22 1 26 -6 26 C-17 26 -26 17 -26 6 C-26 -5 -17 -14 -6 -14 Z" />
-              {/* Right C */}
               <path d="M6 -14 C13 -14 19 -10 22 -4 L17 -1 C15 -4 12 -7 6 -7 C-2 -7 -7 -1 -7 6 C-7 13 -2 19 6 19 C12 19 15 16 17 13 L22 16 C19 22 13 26 6 26 C-5 26 -14 17 -14 6 C-14 -5 -5 -14 6 -14 Z" />
             </g>
-            <text
-              x="55"
-              y="59"
-              fontSize="10"
-              fontWeight="900"
-              fontFamily="sans-serif"
-              textAnchor="middle"
-              letterSpacing="4"
-            >
-              CHANEL
-            </text>
           </svg>
+          <span className="text-[10px] font-sans font-black tracking-[0.4em] text-white -mt-0.5 relative z-10">
+            CHANEL
+          </span>
         </div>
       );
 
     case "adidas":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
-          <svg viewBox="0 0 100 62" className="w-16 h-10 object-contain" fill="currentColor">
-            {/* 3 Authentic Performance Mountain Angled Bars */}
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+          <svg viewBox="0 0 100 55" className="w-13 h-7 text-white relative z-10" fill="currentColor">
             <path d="M12 36 L24 36 L43 14 L31 14 Z" />
             <path d="M35 36 L47 36 L72 3 L60 3 Z" />
             <path d="M58 36 L70 36 L102 -9 L90 -9 Z" transform="translate(-6, 0)" />
-            <text
-              x="48"
-              y="55"
-              fontSize="14"
-              fontWeight="900"
-              fontFamily="'Helvetica Neue', Arial, sans-serif"
-              textAnchor="middle"
-              letterSpacing="1.5"
-            >
-              adidas
-            </text>
           </svg>
+          <span className="text-[11px] font-sans font-black tracking-[0.2em] text-white lowercase -mt-0.5 relative z-10">
+            adidas
+          </span>
         </div>
       );
 
     case "gucci":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center">
-          <svg viewBox="0 0 110 62" className="w-18 h-10 object-contain">
-            <g fill="url(#gucciGoldGrad)">
-              <defs>
-                <linearGradient id="gucciGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#D97706" />
-                  <stop offset="50%" stopColor="#B45309" />
-                  <stop offset="100%" stopColor="#78350F" />
-                </linearGradient>
-              </defs>
-              {/* Interlocking GG */}
-              <path d="M43 22c0-7 5.2-12.5 12.2-12.5 3.8 0 7.2 1.7 9.4 4.5l-3.5 3c-1.5-1.9-3.6-3.1-5.9-3.1-4.5 0-7.8 3.7-7.8 8.4s3.3 8.4 7.8 8.4c2.5 0 4.6-1.2 6.1-3.2h-6.1v-4.2h10.5v11c-2.9 3-6.8 5-11.1 5-7.7 0-11.6-6-11.6-12.7z" />
-              <path d="M67 22c0-7-5.2-12.5-12.2-12.5-3.8 0-7.2 1.7-9.4 4.5l3.5 3c1.5-1.9 3.6-3.1 5.9-3.1 4.5 0 7.8 3.7 7.8 8.4s-3.3 8.4-7.8 8.4c-2.5 0-4.6-1.2-6.1-3.2h6.1v-4.2h-10.5v11c2.9 3 6.8 5 11.1 5 7.7 0 11.6-6 11.6-12.7z" />
-            </g>
-            <text
-              x="55"
-              y="54"
-              fontSize="12"
-              fontWeight="900"
-              fontFamily="serif"
-              textAnchor="middle"
-              letterSpacing="5"
-              fill="currentColor"
-              className="text-slate-950 dark:text-white"
-            >
-              GUCCI
-            </text>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#2D1B08] via-[#1F1205] to-[#120A03] border border-amber-900/50 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.18),transparent_70%)] pointer-events-none" />
+          <svg viewBox="0 0 110 50" className="w-14 h-7 relative z-10">
+            <defs>
+              <linearGradient id="gucciGoldGradBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FDE68A" />
+                <stop offset="50%" stopColor="#D97706" />
+                <stop offset="100%" stopColor="#92400E" />
+              </linearGradient>
+            </defs>
+            <path d="M43 22c0-7 5.2-12.5 12.2-12.5 3.8 0 7.2 1.7 9.4 4.5l-3.5 3c-1.5-1.9-3.6-3.1-5.9-3.1-4.5 0-7.8 3.7-7.8 8.4s3.3 8.4 7.8 8.4c2.5 0 4.6-1.2 6.1-3.2h-6.1v-4.2h10.5v11c-2.9 3-6.8 5-11.1 5-7.7 0-11.6-6-11.6-12.7z" fill="url(#gucciGoldGradBadge)" />
+            <path d="M67 22c0-7-5.2-12.5-12.2-12.5-3.8 0-7.2 1.7-9.4 4.5l3.5 3c1.5-1.9 3.6-3.1 5.9-3.1 4.5 0 7.8 3.7 7.8 8.4s-3.3 8.4-7.8 8.4c-2.5 0-4.6-1.2-6.1-3.2h6.1v-4.2h-10.5v11c2.9 3 6.8 5 11.1 5 7.7 0 11.6-6 11.6-12.7z" fill="url(#gucciGoldGradBadge)" />
           </svg>
+          <span className="text-[11px] font-serif font-black tracking-[0.35em] text-[#FDE68A] uppercase -mt-0.5 relative z-10">
+            GUCCI
+          </span>
         </div>
       );
 
     case "lv":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center">
-          <svg viewBox="0 0 110 65" className="w-16 h-10 object-contain">
-            <g fill="url(#lvGoldGrad)">
-              <defs>
-                <linearGradient id="lvGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#D97706" />
-                  <stop offset="50%" stopColor="#92400E" />
-                  <stop offset="100%" stopColor="#78350F" />
-                </linearGradient>
-              </defs>
-              {/* Interlocking LV Monogram */}
-              <path d="M36 8 h8 v26 h16 v7 h-24 z" />
-              <path d="M44 8 h8 l12 33 h-8 l-7.5 -22 l-7.5 22 h-8 z" />
-            </g>
-            <text
-              x="55"
-              y="59"
-              fontSize="8"
-              fontWeight="900"
-              fontFamily="sans-serif"
-              textAnchor="middle"
-              letterSpacing="3"
-              fill="currentColor"
-              className="text-slate-950 dark:text-white"
-            >
-              LOUIS VUITTON
-            </text>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#381E0F] via-[#24130A] to-[#140A05] border border-amber-900/50 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.18),transparent_70%)] pointer-events-none" />
+          <svg viewBox="0 0 110 50" className="w-13 h-7 relative z-10">
+            <defs>
+              <linearGradient id="lvGoldGradBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FDE68A" />
+                <stop offset="50%" stopColor="#D97706" />
+                <stop offset="100%" stopColor="#92400E" />
+              </linearGradient>
+            </defs>
+            <path d="M36 8 h8 v26 h16 v7 h-24 z" fill="url(#lvGoldGradBadge)" />
+            <path d="M44 8 h8 l12 33 h-8 l-7.5 -22 l-7.5 22 h-8 z" fill="url(#lvGoldGradBadge)" />
           </svg>
+          <span className="text-[8px] font-sans font-black tracking-[0.35em] text-[#FDE68A] uppercase -mt-0.5 relative z-10">
+            LOUIS VUITTON
+          </span>
         </div>
       );
 
     case "dyson":
       return (
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="px-3 py-1.5 rounded-xl bg-fuchsia-500/10 dark:bg-fuchsia-500/20 border border-fuchsia-500/20 flex items-center justify-center">
-            <svg viewBox="0 0 130 36" className="w-22 h-7 object-contain">
-              <text
-                x="65"
-                y="26"
-                fontSize="28"
-                fontWeight="900"
-                fontFamily="'Century Gothic', 'Montserrat', sans-serif"
-                textAnchor="middle"
-                letterSpacing="3"
-                className="fill-fuchsia-600 dark:fill-fuchsia-400"
-              >
-                dyson
-              </text>
-            </svg>
-          </div>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-900 via-[#1E102A] to-slate-950 border border-fuchsia-900/40 flex items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(217,70,239,0.2),transparent_60%)] pointer-events-none" />
+          <span className="text-xl font-sans font-black tracking-wider text-fuchsia-400 drop-shadow-[0_2px_8px_rgba(217,70,239,0.4)] lowercase relative z-10">
+            dyson
+          </span>
         </div>
       );
 
     case "zara":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-950 dark:text-white">
-          <svg viewBox="0 0 130 44" className="w-22 h-8 object-contain" fill="currentColor">
-            <text
-              x="65"
-              y="32"
-              fontSize="34"
-              fontWeight="900"
-              fontFamily="'Bodoni MT', 'Didot', 'Times New Roman', serif"
-              textAnchor="middle"
-              letterSpacing="-2"
-            >
-              ZARA
-            </text>
-          </svg>
+        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-black to-neutral-950 border border-neutral-800 flex items-center justify-center relative overflow-hidden shadow-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+          <span className="text-2xl font-serif font-black tracking-[-0.12em] text-white drop-shadow-sm relative z-10">
+            ZARA
+          </span>
         </div>
       );
 
     default:
       return (
-        <div className="w-12 h-12 rounded-xl bg-orange-500/15 text-orange-500 font-black text-sm flex items-center justify-center font-mono">
+        <div className="w-full h-full rounded-xl bg-slate-900 text-white font-black text-sm flex items-center justify-center font-mono">
           {brandId.slice(0, 3).toUpperCase()}
         </div>
       );
@@ -668,6 +578,16 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
   const [selectedBrandModal, setSelectedBrandModal] = useState<GlobalBrand | null>(null);
   const [modalActiveSection, setModalActiveSection] = useState<string>("all");
   const [addedItemMap, setAddedItemMap] = useState<Record<string, boolean>>({});
+
+  // VIP Concierge & Sourcing Request Modal State
+  const [conciergeProduct, setConciergeProduct] = useState<Product | null>(null);
+  const [showCustomSourcing, setShowCustomSourcing] = useState<boolean>(false);
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [requestedSpec, setRequestedSpec] = useState("");
+  const [conciergeNotes, setConciergeNotes] = useState("");
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [orderConfirmed, setOrderConfirmed] = useState<string | null>(null);
 
   const { products, formatPrice, addToCart } = useMarketplace();
 
@@ -698,6 +618,7 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
     e.preventDefault();
     setSelectedBrandModal(brand);
     setModalActiveSection("all");
+    setOrderConfirmed(null);
   };
 
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
@@ -708,6 +629,68 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
     setTimeout(() => {
       setAddedItemMap((prev) => ({ ...prev, [product.id]: false }));
     }, 1800);
+  };
+
+  const handleOpenConciergeForProduct = (prod: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setConciergeProduct(prod);
+    setShowCustomSourcing(false);
+    setRequestedSpec("");
+    setConciergeNotes("");
+    setOrderConfirmed(null);
+  };
+
+  const handleOpenCustomSourcing = () => {
+    setConciergeProduct(null);
+    setShowCustomSourcing(true);
+    setRequestedSpec("");
+    setConciergeNotes("");
+    setOrderConfirmed(null);
+  };
+
+  const handleSendWhatsApp = (itemTitle: string, brandName: string, priceStr?: string) => {
+    const refCode = `VIP-${Math.floor(100000 + Math.random() * 900000)}`;
+    const msg = `*طلب كونسيرج واستيراد مخصص (حجز مسبق VIP)* 🌟
+- الماركة: ${brandName}
+- المنتج / الموديل: ${itemTitle}
+${priceStr ? `- السعر التقريبي: ${priceStr}` : ""}
+${clientName ? `- اسم العميل: ${clientName}` : ""}
+${clientPhone ? `- رقم الهاتف: ${clientPhone}` : ""}
+${requestedSpec ? `- المواصفات المطلوبة: ${requestedSpec}` : ""}
+${conciergeNotes ? `- ملاحظات: ${conciergeNotes}` : ""}
+- كود الحجز المرجعي: ${refCode}
+
+أرغب في تأكيد التوافر وموعد الاستلام والضمان الرسمي المعتمد.`;
+
+    const encoded = encodeURIComponent(msg);
+    window.open(`https://wa.me/201000000000?text=${encoded}`, "_blank");
+    setOrderConfirmed(refCode);
+  };
+
+  const handleConfirmInternalPreOrder = (itemTitle: string, brandName: string) => {
+    setIsSubmittingOrder(true);
+    setTimeout(() => {
+      const refCode = `VIP-${Math.floor(100000 + Math.random() * 900000)}`;
+      try {
+        const existing = JSON.parse(localStorage.getItem("noormexa-vip-inquiries") || "[]");
+        existing.push({
+          refCode,
+          itemTitle,
+          brandName,
+          clientName,
+          clientPhone,
+          requestedSpec,
+          conciergeNotes,
+          createdAt: new Date().toISOString(),
+        });
+        localStorage.setItem("noormexa-vip-inquiries", JSON.stringify(existing));
+      } catch (err) {
+        console.error("Failed to save inquiry to localStorage", err);
+      }
+      setOrderConfirmed(refCode);
+      setIsSubmittingOrder(false);
+    }, 600);
   };
 
   return (
@@ -781,12 +764,9 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
                 </span>
               </div>
 
-              {/* 3D Showcase Plinth / Stage */}
-              <div className="my-2.5 flex items-center justify-center h-22 w-full rounded-2xl bg-gradient-to-b from-surface-soft via-surface-soft/80 to-surface-soft/40 dark:from-slate-800/60 dark:via-slate-900/80 dark:to-slate-950 border border-line/90 group-hover:border-orange-500/40 transition-all px-2 py-2 relative overflow-hidden shadow-[inset_0_2px_6px_rgba(0,0,0,0.04)]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.2),transparent_70%)] pointer-events-none" />
-                <div className="transition-transform duration-300 group-hover:scale-108 flex items-center justify-center w-full h-full">
-                  <BrandVectorLogo brandId={brand.logoType} theme={brand.badgeTheme} />
-                </div>
+              {/* 3D Showcase Stage */}
+              <div className="my-2.5 flex items-center justify-center h-20 w-full transition-transform duration-300 group-hover:scale-104">
+                <BrandVectorLogo brandId={brand.logoType} theme={brand.badgeTheme} />
               </div>
 
               {/* Real Clean Brand Name */}
@@ -862,21 +842,26 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
 
       {/* Interactive Dedicated Brand Hub Modal & Sections */}
       {selectedBrandModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-surface dark:bg-[#0c1424] border border-line shadow-2xl flex flex-col p-6 sm:p-8 space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl bg-surface dark:bg-[#0c1424] border border-line shadow-2xl flex flex-col p-5 sm:p-8 space-y-6">
             
             {/* Close Button */}
             <button
               type="button"
-              onClick={() => setSelectedBrandModal(null)}
-              className="absolute top-5 start-5 p-2 rounded-full bg-surface-soft hover:bg-slate-200 dark:hover:bg-slate-800 text-muted hover:text-foreground transition-colors cursor-pointer"
+              onClick={() => {
+                setSelectedBrandModal(null);
+                setConciergeProduct(null);
+                setShowCustomSourcing(false);
+              }}
+              className="absolute top-5 start-5 p-2 rounded-full bg-surface-soft hover:bg-slate-200 dark:hover:bg-slate-800 text-muted hover:text-foreground transition-colors cursor-pointer z-10"
+              aria-label="Close Modal"
             >
               <X size={18} />
             </button>
 
             {/* Modal Header: Brand Emblem, Real Name & Authorized Info */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pt-4 sm:pt-0 text-center sm:text-start border-b border-line pb-6">
-              <div className="w-20 h-20 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line p-3 flex items-center justify-center shrink-0 shadow-inner">
+              <div className="w-24 h-20 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 shadow-md">
                 <BrandVectorLogo brandId={selectedBrandModal.logoType} theme={selectedBrandModal.badgeTheme} />
               </div>
 
@@ -887,7 +872,7 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
                   </h3>
                   <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                     <BadgeCheck size={14} className="fill-emerald-500 text-white" />
-                    <span>{isAr ? "متجر معتمد رسمي 100%" : "Official Authorized Flagship"}</span>
+                    <span>{isAr ? "كتالوج رسمي معتمد 100%" : "Official Authorized Catalog"}</span>
                   </span>
                   <span className="text-xs font-bold text-muted bg-surface-soft px-2 py-0.5 rounded-full border border-line">
                     {selectedBrandModal.flag} {isAr ? selectedBrandModal.originAr : selectedBrandModal.originEn}
@@ -914,6 +899,37 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Exclusive VIP Marketing & Pre-Order Sourcing Notice */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row items-center justify-between gap-3 text-start">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <Sparkles size={18} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-foreground flex items-center gap-1.5">
+                    <span>{isAr ? "خدمة الحجز المسبق والاستيراد المباشر VIP" : "VIP Pre-Order & Sourcing Concierge"}</span>
+                    <span className="text-[10px] px-2 py-0.2 rounded-full bg-orange-500 text-white font-bold">
+                      {isAr ? "حصري" : "Exclusive"}
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-muted mt-0.5">
+                    {isAr
+                      ? "نوفر جميع منتجات وموديلات الماركة الأصلية عند الطلب مباشرة مع فحص الرقم التسلسلي والضمان الكامل."
+                      : "We source authentic products directly from certified distributors on-demand with full serial verification."}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleOpenCustomSourcing}
+                className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 font-bold text-xs border border-amber-500/40 transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+              >
+                <Send size={13} />
+                <span>{isAr ? "طلب موديل مخصص" : "Custom Sourcing"}</span>
+              </button>
             </div>
 
             {/* Brand Sections Tabs */}
@@ -947,73 +963,106 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
 
             {/* Live Brand Products in this Section */}
             <div className="space-y-3">
-              <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
-                {isAr ? `منتجات ${selectedBrandModal.nameAr} المتوفرة للطلب الفوري` : `Available ${selectedBrandModal.name} Products`}
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
+                  {isAr
+                    ? `منتجات ${selectedBrandModal.nameAr} المتاحة للحجز والطلب الفوري`
+                    : `Available ${selectedBrandModal.name} Products for Instant Pre-Order`}
+                </h4>
+                <span className="text-[11px] text-muted font-bold">
+                  {modalBrandProducts.length} {isAr ? "منتج معروض" : "Items Listed"}
+                </span>
+              </div>
 
               {modalBrandProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-72 overflow-y-auto p-1 scrollbar-thin">
                   {modalBrandProducts.map((prod) => (
                     <div
                       key={prod.id}
-                      className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line flex items-center justify-between gap-3 hover:border-orange-500/50 transition-all shadow-xs"
+                      className="p-3.5 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line flex flex-col justify-between gap-3 hover:border-orange-500/50 transition-all shadow-xs"
                     >
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-start gap-3 min-w-0">
                         {prod.image_url ? (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={prod.image_url}
                             alt={prod.name}
-                            className="w-14 h-14 rounded-xl object-cover border border-line shrink-0"
+                            className="w-16 h-16 rounded-xl object-cover border border-line shrink-0"
                           />
                         ) : (
-                          <div className="w-14 h-14 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xs shrink-0">
+                          <div className="w-16 h-16 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xs shrink-0">
                             {selectedBrandModal.name.slice(0, 2)}
                           </div>
                         )}
-                        <div className="min-w-0">
-                          <h5 className="text-xs font-bold text-foreground line-clamp-1">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[9px] font-black border border-amber-500/25">
+                              {prod.preorder_label || (isAr ? "حجز مسبق VIP" : "VIP Pre-Order")}
+                            </span>
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
+                              <BadgeCheck size={11} />
+                              <span>{isAr ? "أصلي 100%" : "Authentic"}</span>
+                            </span>
+                          </div>
+                          <h5 className="text-xs font-bold text-foreground line-clamp-2 mt-1">
                             {prod.name}
                           </h5>
-                          <div className="text-xs font-black text-orange-600 dark:text-orange-400 mt-0.5">
+                          <div className="text-xs font-black text-orange-600 dark:text-orange-400 mt-1">
                             {formatPrice(prod.price)}
                           </div>
-                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
-                            <Truck size={10} />
-                            <span>{isAr ? "متوفر بالمخزون المركزي" : "In Central Stock"}</span>
-                          </span>
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={(e) => handleAddToCart(prod, e)}
-                        className={`px-3 py-1.5 rounded-xl font-bold text-xs shrink-0 transition-all cursor-pointer flex items-center gap-1 ${
-                          addedItemMap[prod.id]
-                            ? "bg-emerald-500 text-white"
-                            : "bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
-                        }`}
-                      >
-                        {addedItemMap[prod.id] ? (
-                          <>
-                            <CheckCircle2 size={12} />
-                            <span>{isAr ? "تمت الإضافة!" : "Added!"}</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag size={12} />
-                            <span>{isAr ? "شراء" : "Add"}</span>
-                          </>
-                        )}
-                      </button>
+                      {/* Action Buttons Row */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-line/50">
+                        <button
+                          type="button"
+                          onClick={(e) => handleOpenConciergeForProduct(prod, e)}
+                          className="px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1 bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                        >
+                          <Sparkles size={12} />
+                          <span>{isAr ? "حجز مسبق VIP" : "VIP Order"}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleAddToCart(prod, e)}
+                          className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                            addedItemMap[prod.id]
+                              ? "bg-emerald-500 text-white"
+                              : "bg-surface dark:bg-slate-800 border border-line hover:border-orange-500 text-foreground hover:text-orange-500"
+                          }`}
+                        >
+                          {addedItemMap[prod.id] ? (
+                            <>
+                              <CheckCircle2 size={12} className="text-white" />
+                              <span>{isAr ? "تمت الإضافة!" : "Added!"}</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag size={12} />
+                              <span>{isAr ? "إضافة للسلة" : "Add to Cart"}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-6 rounded-2xl bg-surface-soft text-center text-xs text-muted border border-dashed border-line">
-                  {isAr
-                    ? `اضغط بالأسفل لفتح جميع منتجات ${selectedBrandModal.nameAr} في السوق المفتوح المعتمد.`
-                    : `Click below to browse full ${selectedBrandModal.name} catalog in marketplace.`}
+                <div className="p-6 rounded-2xl bg-surface-soft text-center text-xs text-muted border border-dashed border-line space-y-2">
+                  <p>
+                    {isAr
+                      ? `جميع منتجات علامة ${selectedBrandModal.nameAr} متاحة للاستيراد المخصص الفوري مع خدمة الكونسيرج.`
+                      : `All ${selectedBrandModal.name} models are available via our VIP Concierge Sourcing service.`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleOpenCustomSourcing}
+                    className="px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow-xs hover:bg-orange-600 transition-all cursor-pointer"
+                  >
+                    {isAr ? "طلب استيراد قطعة مخصصة الآن" : "Request Custom Sourcing Now"}
+                  </button>
                 </div>
               )}
             </div>
@@ -1021,13 +1070,17 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
             {/* Bottom Actions: Enter Full Brand Hub in Marketplace */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-line">
               <span className="text-xs text-muted">
-                {isAr ? "شحن مجاني لكافة طلبات الماركات المؤهلة" : "Free express shipping on eligible brand orders"}
+                {isAr ? "شحن مؤمن وسريع لكافة طلبات الماركات المؤهلة" : "Insured express shipping on all brand orders"}
               </span>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={() => setSelectedBrandModal(null)}
+                  onClick={() => {
+                    setSelectedBrandModal(null);
+                    setConciergeProduct(null);
+                    setShowCustomSourcing(false);
+                  }}
                   className="px-4 py-2.5 rounded-2xl bg-surface-soft hover:bg-slate-200 dark:hover:bg-slate-800 text-muted hover:text-foreground text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-none"
                 >
                   {isAr ? "إغلاق النافذة" : "Close"}
@@ -1038,11 +1091,230 @@ export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }
                   className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !text-white text-xs font-black shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none cursor-pointer"
                 >
                   <Zap size={14} />
-                  <span>{isAr ? `تصفح متجر ${selectedBrandModal.nameAr} بالكامل في السوق` : `Shop Full ${selectedBrandModal.name} Flagship`}</span>
+                  <span>{isAr ? `تصفح متجر ${selectedBrandModal.nameAr} في السوق` : `Shop ${selectedBrandModal.name} Flagship`}</span>
                   {isAr ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
                 </Link>
               </div>
             </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* VIP Concierge / Pre-Order Dedicated Request Sheet */}
+      {(conciergeProduct || showCustomSourcing) && selectedBrandModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="relative w-full max-w-lg rounded-3xl bg-surface dark:bg-[#0c1424] border border-amber-500/40 shadow-2xl p-6 sm:p-7 space-y-5">
+            
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setConciergeProduct(null);
+                setShowCustomSourcing(false);
+                setOrderConfirmed(null);
+              }}
+              className="absolute top-5 start-5 p-2 rounded-full bg-surface-soft hover:bg-slate-200 dark:hover:bg-slate-800 text-muted hover:text-foreground transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+
+            {/* Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Sparkles size={20} />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-foreground">
+                  {isAr ? "طلب حجز مسبق واستيراد كونسيرج VIP" : "VIP Concierge Sourcing Request"}
+                </h3>
+                <p className="text-[11px] text-muted">
+                  {isAr
+                    ? `توفير رسمي مباشر من وكلاء ${selectedBrandModal.nameAr} المعتمدين`
+                    : `Direct sourcing from certified ${selectedBrandModal.name} distributors`}
+                </p>
+              </div>
+            </div>
+
+            {orderConfirmed ? (
+              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
+                  <Check size={24} />
+                </div>
+                <h4 className="text-sm font-black text-foreground">
+                  {isAr ? "تم تسجيل طلب الحجز المسبق بنجاح!" : "Pre-Order Request Confirmed!"}
+                </h4>
+                <p className="text-xs text-muted">
+                  {isAr
+                    ? "رقم الحجز المرجعي الخاص بك:"
+                    : "Your Reference Tracking Code:"}
+                </p>
+                <div className="font-mono text-sm font-black text-orange-600 dark:text-orange-400 bg-surface px-4 py-2 rounded-xl border border-line inline-block">
+                  {orderConfirmed}
+                </div>
+                <p className="text-[11px] text-muted">
+                  {isAr
+                    ? "سيتواصل معك ممثل خدمة الكونسيرج خلال 30 دقيقة لتأكيد تفاصيل الشحن والضمان."
+                    : "A VIP Concierge specialist will contact you within 30 minutes to confirm dispatch and warranty."}
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConciergeProduct(null);
+                      setShowCustomSourcing(false);
+                      setOrderConfirmed(null);
+                    }}
+                    className="px-6 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold shadow-xs hover:bg-orange-600 cursor-pointer"
+                  >
+                    {isAr ? "تم، العودة للماركات" : "Done, Back to Brands"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Product Summary Box */}
+                {conciergeProduct ? (
+                  <div className="p-3 rounded-2xl bg-surface-soft border border-line flex items-center gap-3">
+                    {conciergeProduct.image_url ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={conciergeProduct.image_url}
+                        alt={conciergeProduct.name}
+                        className="w-14 h-14 rounded-xl object-cover border border-line shrink-0"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xs shrink-0">
+                        {selectedBrandModal.name.slice(0, 2)}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-foreground line-clamp-1">
+                        {conciergeProduct.name}
+                      </h4>
+                      <div className="text-xs font-black text-orange-600 dark:text-orange-400 mt-0.5">
+                        {formatPrice(conciergeProduct.price)}
+                      </div>
+                      <span className="text-[10px] text-muted flex items-center gap-1 mt-0.5">
+                        <Clock size={10} />
+                        <span>{isAr ? "مدة التوفير: 2 - 4 أيام عمل" : "Lead time: 2 - 4 business days"}</span>
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-2xl bg-surface-soft border border-line space-y-1">
+                    <label className="text-[11px] font-bold text-foreground">
+                      {isAr ? `الموديل المطلوب من ${selectedBrandModal.nameAr}:` : `Requested ${selectedBrandModal.name} Model:`}
+                    </label>
+                    <input
+                      type="text"
+                      value={requestedSpec}
+                      onChange={(e) => setRequestedSpec(e.target.value)}
+                      placeholder={isAr ? "مثال: iPhone 16 Pro Max سعة 512GB لون صحراوي" : "e.g. iPhone 16 Pro Max 512GB Desert Titanium"}
+                      className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                )}
+
+                {/* Form Fields */}
+                <div className="space-y-3 text-start">
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">
+                      {isAr ? "اسمك الكامل:" : "Full Name:"}
+                    </label>
+                    <input
+                      type="text"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      placeholder={isAr ? "الاسم الكريم" : "Your Name"}
+                      className="w-full px-3 py-2 rounded-xl bg-surface-soft border border-line text-xs focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">
+                      {isAr ? "رقم الهاتف / واتساب:" : "Phone / WhatsApp:"}
+                    </label>
+                    <input
+                      type="tel"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      placeholder="+20 100 000 0000"
+                      className="w-full px-3 py-2 rounded-xl bg-surface-soft border border-line text-xs focus:outline-none focus:border-orange-500 font-mono"
+                    />
+                  </div>
+
+                  {conciergeProduct && (
+                    <div>
+                      <label className="block text-[11px] font-bold text-foreground mb-1">
+                        {isAr ? "المقاس أو اللون المفضل (اختياري):" : "Preferred Size or Color (Optional):"}
+                      </label>
+                      <input
+                        type="text"
+                        value={requestedSpec}
+                        onChange={(e) => setRequestedSpec(e.target.value)}
+                        placeholder={isAr ? "مثال: مقاس 43 أو لون تيتانيوم طبيعي" : "e.g. Size 43 or Natural Titanium"}
+                        className="w-full px-3 py-2 rounded-xl bg-surface-soft border border-line text-xs focus:outline-none focus:border-orange-500"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">
+                      {isAr ? "ملاحظات إضافية:" : "Additional Notes:"}
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={conciergeNotes}
+                      onChange={(e) => setConciergeNotes(e.target.value)}
+                      placeholder={isAr ? "أي متطلبات أو مواصفات إضافية..." : "Any special requirements..."}
+                      className="w-full px-3 py-2 rounded-xl bg-surface-soft border border-line text-xs focus:outline-none focus:border-orange-500 resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Instant Actions */}
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleSendWhatsApp(
+                        conciergeProduct?.name || requestedSpec || "موديل مخصص",
+                        selectedBrandModal.nameAr,
+                        conciergeProduct ? formatPrice(conciergeProduct.price) : undefined
+                      )
+                    }
+                    className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <MessageCircle size={16} />
+                    <span>{isAr ? "إرسال طلب الحجز عبر واتساب مباشرة (فوري)" : "Send Pre-Order via WhatsApp"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSubmittingOrder}
+                    onClick={() =>
+                      handleConfirmInternalPreOrder(
+                        conciergeProduct?.name || requestedSpec || "موديل مخصص",
+                        selectedBrandModal.nameAr
+                      )
+                    }
+                    className="w-full py-2.5 rounded-2xl bg-surface-soft hover:bg-slate-200 dark:hover:bg-slate-800 text-foreground text-xs font-bold border border-line transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Zap size={14} className="text-orange-500" />
+                    <span>
+                      {isSubmittingOrder
+                        ? isAr
+                          ? "جاري تسجيل الطلب..."
+                          : "Registering..."
+                        : isAr
+                        ? "تسجيل طلب الحجز المسبق في النظام"
+                        : "Register Pre-Order in System"}
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
 
           </div>
         </div>
