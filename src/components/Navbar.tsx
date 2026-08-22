@@ -238,7 +238,7 @@ export default function Navbar() {
       <TopUtilityBar />
 
       {/* 2. Main Executive Header Bar */}
-      <div className="w-full bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-b border-line shadow-xs">
+      <div className="relative z-30 w-full bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-b border-line shadow-xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-17 sm:h-18 flex items-center justify-between gap-2 sm:gap-4">
           
           {/* Left / RTL Start: Official Brand Identity & Logo */}
@@ -576,7 +576,7 @@ export default function Navbar() {
       {/* 3. Sub-Navigation / Secondary Quick Strip (Amazon / Noon / Farfetch Style) */}
       <nav
         aria-label={isAr ? "أقسام التسوق السريعة" : "Category and deals quick navigation"}
-        className="w-full bg-surface-soft/90 dark:bg-[#070c17]/90 border-b border-line backdrop-blur-md overflow-x-auto no-scrollbar py-1 px-3 sm:px-6 lg:px-8 transition-colors"
+        className="relative z-10 w-full bg-surface-soft/90 dark:bg-[#070c17]/90 border-b border-line backdrop-blur-md overflow-x-auto no-scrollbar py-1 px-3 sm:px-6 lg:px-8 transition-colors"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 text-xs font-bold text-muted min-w-max">
           {/* Quick Links List */}
@@ -620,7 +620,7 @@ export default function Navbar() {
 
       {/* 4. Sleek Mobile Slide-Down Drawer */}
       {open && (
-        <div className="lg:hidden border-t border-line bg-surface/98 dark:bg-[#0b1322]/98 backdrop-blur-2xl px-4 py-6 shadow-2xl animate-in slide-in-from-top-3 duration-200">
+        <div className="relative z-40 lg:hidden border-t border-line bg-surface/98 dark:bg-[#0b1322]/98 backdrop-blur-2xl px-4 py-6 shadow-2xl animate-in slide-in-from-top-3 duration-200">
           <div className="max-w-md mx-auto space-y-4">
             
             {/* VIP Site Owner & Admin Management Box */}
