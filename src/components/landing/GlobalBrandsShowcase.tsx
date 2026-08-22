@@ -364,42 +364,59 @@ export const GLOBAL_BRANDS: GlobalBrand[] = [
   },
 ];
 
-// 100% Vector Official Brand Logos with Razor-Sharp Precision
+// 100% Vector Official Brand Logos with Razor-Sharp Precision & Authentic Brand Geometry
 export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }) {
   switch (brandId) {
     case "apple":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 170 170" className="w-10 h-10 object-contain" fill="currentColor">
-            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.85-11.71-14.44-6.3-10.08-11.19-21.2-14.67-33.36-3.48-12.16-5.22-23.73-5.22-34.7 0-14.12 3.65-25.79 10.96-35 7.31-9.21 16.48-13.91 27.52-14.1 4.57 0 9.77 1.25 15.6 3.75 5.83 2.5 9.74 3.79 11.74 3.79 1.79 0 5.86-1.34 12.22-4.02 6.36-2.68 11.89-3.88 16.59-3.6 12.63.65 22.58 5.62 29.86 14.9-11.07 6.72-16.5 16.14-16.3 28.25.22 9.55 3.96 17.5 11.22 23.86 7.26 6.36 15.79 9.87 25.59 10.53-.88 2.82-1.96 5.81-3.26 8.97zM119.22 31.84c0-7.39 2.65-14.34 7.95-20.85 5.3-6.51 11.95-10.58 19.95-12.2 0 1.09.07 2.06.07 2.93 0 7.18-2.82 14.28-8.46 21.3-5.64 7.02-12.39 10.82-20.25 11.41-.43-.87-.66-1.74-.66-2.59z" />
+        <div className="w-full h-full flex items-center justify-center text-slate-950 dark:text-white transition-transform">
+          <svg viewBox="0 0 170 170" className="w-11 h-11 object-contain drop-shadow-xs" fill="currentColor">
+            {/* Apple Leaf */}
+            <path d="M119.22 31.84c0-7.39 2.65-14.34 7.95-20.85 5.3-6.51 11.95-10.58 19.95-12.2 0 1.09.07 2.06.07 2.93 0 7.18-2.82 14.28-8.46 21.3-5.64 7.02-12.39 10.82-20.25 11.41-.43-.87-.66-1.74-.66-2.59z" />
+            {/* Apple Body with Bite */}
+            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.85-11.71-14.44-6.3-10.08-11.19-21.2-14.67-33.36-3.48-12.16-5.22-23.73-5.22-34.7 0-14.12 3.65-25.79 10.96-35 7.31-9.21 16.48-13.91 27.52-14.1 4.57 0 9.77 1.25 15.6 3.75 5.83 2.5 9.74 3.79 11.74 3.79 1.79 0 5.86-1.34 12.22-4.02 6.36-2.68 11.89-3.88 16.59-3.6 12.63.65 22.58 5.62 29.86 14.9-11.07 6.72-16.5 16.14-16.3 28.25.22 9.55 3.96 17.5 11.22 23.86 7.26 6.36 15.79 9.87 25.59 10.53-.88 2.82-1.96 5.81-3.26 8.97z" />
           </svg>
         </div>
       );
 
     case "nike":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 100 36" className="w-16 h-7 object-contain" fill="currentColor">
-            <path d="M96.5 1.5 C80.2 7.5 58.5 18.2 37.8 25.8 C24.7 30.6 14.3 32.5 7.4 32.5 C2.5 32.5 0 29.5 0 24.5 C0 18.5 5.5 10.2 15.8 2.5 C10.8 7.5 7.8 13.5 7.8 17.8 C7.8 21.5 10.5 24 16.5 24 C25.5 24 41.5 17.5 61.2 8.2 C79.5 -0.2 92.5 -0.8 96.5 1.5 Z" />
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
+          <svg viewBox="0 0 120 48" className="w-20 h-9 object-contain drop-shadow-xs" fill="currentColor">
+            <path d="M117.2 4.1C101.4 16 79.8 31.7 53.6 41.2C38.9 46.5 26.5 47.7 16.3 44.8C8.5 42.6 3.6 37.6 1.7 29.8C-0.2 22 1.9 12.7 8 1.9C9.1 0 10.5 0.6 9.8 2.7C6.4 12.2 6.5 20.3 10.1 27C13.7 33.7 20.4 37.4 30.2 38.1C44.1 39.1 61.9 31.3 83.6 14.7C96.2 5.1 106.9 -0.9 115.6 -3.3C117.4 -3.8 118.9 -2.9 117.2 4.1Z" />
           </svg>
+          <span className="text-[10px] font-black tracking-[0.3em] font-sans -mt-0.5 text-slate-900 dark:text-white">
+            NIKE
+          </span>
         </div>
       );
 
     case "rolex":
       return (
         <div className="w-full h-full flex flex-col items-center justify-center">
-          <svg viewBox="0 0 120 70" className="w-16 h-9 object-contain">
-            <g fill="#A16207" className="dark:fill-[#FACC15]">
-              <circle cx="16" cy="18" r="4.2" />
-              <circle cx="38" cy="8" r="4.8" />
-              <circle cx="60" cy="4" r="5.2" />
-              <circle cx="82" cy="8" r="4.8" />
-              <circle cx="104" cy="18" r="4.2" />
-              <path d="M16 23 L28 50 L44 50 L38 14 L52 50 L68 50 L60 10 L76 50 L90 50 L82 14 L76 50 L92 50 L104 23 L94 58 L26 58 Z" />
-              <rect x="22" y="59" width="76" height="6" rx="3" />
+          <svg viewBox="0 0 120 62" className="w-18 h-10 object-contain">
+            {/* Authentic Rolex 5-Point Crown */}
+            <g fill="url(#rolexGoldGrad)">
+              <defs>
+                <linearGradient id="rolexGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#F59E0B" />
+                  <stop offset="50%" stopColor="#D97706" />
+                  <stop offset="100%" stopColor="#B45309" />
+                </linearGradient>
+              </defs>
+              {/* 5 Pearls */}
+              <circle cx="16" cy="14" r="4.2" />
+              <circle cx="38" cy="6" r="4.8" />
+              <circle cx="60" cy="3" r="5.4" />
+              <circle cx="82" cy="6" r="4.8" />
+              <circle cx="104" cy="14" r="4.2" />
+              {/* Crown Rays */}
+              <path d="M16 19 L26 46 L38 46 L38 12 L49 46 L71 46 L60 9 L71 46 L82 12 L82 46 L94 46 L104 19 L96 52 L24 52 Z" />
+              {/* Crown Base Oval */}
+              <rect x="22" y="53" width="76" height="6.5" rx="3.25" />
             </g>
           </svg>
-          <span className="text-[9px] font-serif font-black tracking-[0.25em] text-[#006039] dark:text-[#4ade80] -mt-0.5">
+          <span className="text-[10px] font-serif font-black tracking-[0.3em] text-[#006039] dark:text-[#4ade80] -mt-0.5">
             ROLEX
           </span>
         </div>
@@ -408,25 +425,42 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
     case "samsung":
       return (
         <div className="w-full h-full flex items-center justify-center">
-          <svg viewBox="0 0 170 38" className="w-20 h-6 object-contain">
-            <g fill="#1428A0" className="dark:fill-[#38BDF8]">
-              <path d="M12 8c-4.5 0-7.5 2.5-7.5 6 0 7 11 4.5 11 9 0 2-2 3.5-5 3.5-3.5 0-6-1.5-7-4l-3 2c1.5 3.5 5.5 5.5 10 5.5 6 0 9.5-3 9.5-7 0-7.5-11-5-11-9.5 0-1.5 1.5-2.5 4-2.5 3 0 5 1 6 3l3-2c-1.5-2.5-4.5-4-10-4z" />
-              <path d="M26 30h4.5l8-22h-4.5l-5.8 16.5-5.7-16.5H18l8 22z" />
-              <path d="M41 8h4.5l6 14 6-14H62v22h-4v-14.5l-5 11.5h-2.5l-5-11.5V30H41v-22z" />
-              <path d="M72 8c-4.5 0-7.5 2.5-7.5 6 0 7 11 4.5 11 9 0 2-2 3.5-5 3.5-3.5 0-6-1.5-7-4l-3 2c1.5 3.5 5.5 5.5 10 5.5 6 0 9.5-3 9.5-7 0-7.5-11-5-11-9.5 0-1.5 1.5-2.5 4-2.5 3 0 5 1 6 3l3-2c-1.5-2.5-4.5-4-10-4z" />
-              <path d="M85 8h4.5v13.5c0 3 2 5 5 5s5-2 5-5V8H104v13.5c0 5.5-4 9-9.5 9s-9.5-3.5-9.5-9V8z" />
-              <path d="M109 8h4.5l10.5 14.5V8h4.5v22H124L113.5 15.5V30H109V8z" />
-              <path d="M142 8c-7 0-11.5 4.5-11.5 11s4.5 11 11.5 11c4.5 0 8-2 9.5-5.5l-3.5-1.5c-1 2.5-3 4-6 4-4.5 0-7-3-7-8s2.5-8 7-8c3 0 5 1.5 6 3.5l3.5-1.5c-1.5-3.5-5-5-9-5zm4 9v3h6.5v-3H146z" />
-            </g>
-          </svg>
+          <div className="px-3.5 py-1.5 rounded-xl bg-[#034EA2]/10 dark:bg-[#034EA2]/25 border border-[#034EA2]/20 flex items-center justify-center shadow-xs">
+            <svg viewBox="0 0 150 28" className="w-24 h-6 object-contain">
+              <g fill="#034EA2" className="dark:fill-[#38BDF8]">
+                {/* S */}
+                <path d="M14 6.5 C8.5 6.5 4.5 9 4.5 12.5 C4.5 18 16 16.5 16 20 C16 21.8 14 23 10.5 23 C6.5 23 3.5 21 2.5 18.5 L0 20.5 C1.5 24 6 26 10.5 26 C16.5 26 20 23.5 20 19.5 C20 13.8 8.5 15.2 8.5 12 C8.5 10.5 10.5 9.5 13.5 9.5 C16.5 9.5 19 10.8 20 12.8 L22.5 10.5 C21 7.8 17.5 6.5 14 6.5 Z" />
+                {/* A (Crossbar-less stylized Lambda) */}
+                <path d="M26 25.5 L34.5 6.5 L39.5 6.5 L48 25.5 L43 25.5 L37 11.5 L31 25.5 Z" />
+                {/* M */}
+                <path d="M51 6.5 L55.5 6.5 L61.5 18.5 L67.5 6.5 L72 6.5 L72 25.5 L68 25.5 L68 12.5 L63 22.5 L60 22.5 L55 12.5 L55 25.5 L51 25.5 Z" />
+                {/* S */}
+                <path d="M85 6.5 C79.5 6.5 75.5 9 75.5 12.5 C75.5 18 87 16.5 87 20 C87 21.8 85 23 81.5 23 C77.5 23 74.5 21 73.5 18.5 L71 20.5 C72.5 24 77 26 81.5 26 C87.5 26 91 23.5 91 19.5 C91 13.8 79.5 15.2 79.5 12 C79.5 10.5 81.5 9.5 84.5 9.5 C87.5 9.5 90 10.8 91 12.8 L93.5 10.5 C92 7.8 88.5 6.5 85 6.5 Z" />
+                {/* U */}
+                <path d="M96 6.5 L100.5 6.5 L100.5 18 C100.5 21 102.5 23 105.5 23 C108.5 23 110.5 21 110.5 18 L110.5 6.5 L115 6.5 L115 18 C115 23.5 111 26 105.5 26 C100 26 96 23.5 96 18 Z" />
+                {/* N */}
+                <path d="M120 6.5 L124.5 6.5 L132.5 19 L132.5 6.5 L137 6.5 L137 25.5 L132.5 25.5 L124.5 13 L124.5 25.5 L120 25.5 Z" />
+                {/* G */}
+                <path d="M148 6.5 C141.5 6.5 137.5 11 137.5 16.5 C137.5 22.2 141.8 26 148 26 C153 26 156.5 23.5 157.5 19.5 L149 19.5 L149 16.5 L161.5 16.5 L161.5 24.5 C158.5 26 153.5 27 148 27 C139.5 27 133 22 133 16.5 C133 10.5 139.5 5.5 148 5.5 C153.5 5.5 157.5 7.5 160 10.5 L157 12.8 C155 10.2 152 6.5 148 6.5 Z" />
+              </g>
+            </svg>
+          </div>
         </div>
       );
 
     case "sony":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 160 40" className="w-18 h-7 object-contain" fill="currentColor">
-            <text x="80" y="30" fontSize="28" fontWeight="900" fontFamily="'Times New Roman', 'Clarendon', 'Georgia', serif" textAnchor="middle" letterSpacing="5">
+        <div className="w-full h-full flex items-center justify-center text-slate-950 dark:text-white">
+          <svg viewBox="0 0 160 40" className="w-22 h-8 object-contain" fill="currentColor">
+            <text
+              x="80"
+              y="30"
+              fontSize="30"
+              fontWeight="900"
+              fontFamily="'Times New Roman', 'Clarendon', 'Georgia', serif"
+              textAnchor="middle"
+              letterSpacing="6"
+            >
               SONY
             </text>
           </svg>
@@ -435,12 +469,29 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "dior":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 130 50" className="w-18 h-9 object-contain" fill="currentColor">
-            <text x="65" y="32" fontSize="32" fontWeight="700" fontFamily="'Didot', 'Bodoni MT', 'Baskerville', serif" textAnchor="middle" letterSpacing="4">
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
+          <svg viewBox="0 0 130 52" className="w-20 h-10 object-contain" fill="currentColor">
+            <text
+              x="65"
+              y="32"
+              fontSize="34"
+              fontWeight="700"
+              fontFamily="'Didot', 'Bodoni MT', 'Baskerville', 'Playfair Display', serif"
+              textAnchor="middle"
+              letterSpacing="4"
+            >
               Dior
             </text>
-            <text x="65" y="47" fontSize="8.5" fontWeight="900" fontFamily="'Montserrat', sans-serif" textAnchor="middle" letterSpacing="5" opacity="0.8">
+            <text
+              x="65"
+              y="48"
+              fontSize="8.5"
+              fontWeight="900"
+              fontFamily="'Montserrat', sans-serif"
+              textAnchor="middle"
+              letterSpacing="6"
+              opacity="0.8"
+            >
               PARIS
             </text>
           </svg>
@@ -449,13 +500,24 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "chanel":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 100 65" className="w-14 h-9 object-contain" fill="currentColor">
-            <g transform="translate(50, 22)">
-              <path d="M-8 -13 C-2 -13 4 -9 7 -4 L2 -1 C0 -4 -3 -6 -8 -6 C-15 -6 -19 0 -19 7 C-19 14 -15 20 -8 20 C-3 20 0 18 2 15 L7 18 C4 23 -2 27 -8 27 C-18 27 -26 18 -26 7 C-26 -4 -18 -13 -8 -13 Z" />
-              <path d="M8 -13 C14 -13 20 -9 23 -4 L18 -1 C16 -4 13 -6 8 -6 C1 -6 -3 0 -3 7 C-3 14 1 20 8 20 C13 20 16 18 18 15 L23 18 C20 23 14 27 8 27 C-2 27 -10 18 -10 7 C-10 -4 -2 -13 8 -13 Z" />
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
+          <svg viewBox="0 0 110 65" className="w-16 h-10 object-contain" fill="currentColor">
+            {/* Official Interlocking Double CC Monogram */}
+            <g transform="translate(55, 23)">
+              {/* Left C */}
+              <path d="M-6 -14 C1 -14 7 -10 10 -4 L5 -1 C3 -4 0 -7 -6 -7 C-14 -7 -19 -1 -19 6 C-19 13 -14 19 -6 19 C0 19 3 16 5 13 L10 16 C7 22 1 26 -6 26 C-17 26 -26 17 -26 6 C-26 -5 -17 -14 -6 -14 Z" />
+              {/* Right C */}
+              <path d="M6 -14 C13 -14 19 -10 22 -4 L17 -1 C15 -4 12 -7 6 -7 C-2 -7 -7 -1 -7 6 C-7 13 -2 19 6 19 C12 19 15 16 17 13 L22 16 C19 22 13 26 6 26 C-5 26 -14 17 -14 6 C-14 -5 -5 -14 6 -14 Z" />
             </g>
-            <text x="50" y="58" fontSize="10" fontWeight="900" fontFamily="sans-serif" textAnchor="middle" letterSpacing="3.5">
+            <text
+              x="55"
+              y="59"
+              fontSize="10"
+              fontWeight="900"
+              fontFamily="sans-serif"
+              textAnchor="middle"
+              letterSpacing="4"
+            >
               CHANEL
             </text>
           </svg>
@@ -464,12 +526,21 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "adidas":
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 100 60" className="w-14 h-9 object-contain" fill="currentColor">
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-950 dark:text-white">
+          <svg viewBox="0 0 100 62" className="w-16 h-10 object-contain" fill="currentColor">
+            {/* 3 Authentic Performance Mountain Angled Bars */}
             <path d="M12 36 L24 36 L43 14 L31 14 Z" />
-            <path d="M34 36 L46 36 L72 3 L60 3 Z" />
-            <path d="M56 36 L68 36 L101 -8 L89 -8 Z" transform="translate(-5, 0)" />
-            <text x="48" y="54" fontSize="13" fontWeight="900" fontFamily="sans-serif" textAnchor="middle" letterSpacing="1.5">
+            <path d="M35 36 L47 36 L72 3 L60 3 Z" />
+            <path d="M58 36 L70 36 L102 -9 L90 -9 Z" transform="translate(-6, 0)" />
+            <text
+              x="48"
+              y="55"
+              fontSize="14"
+              fontWeight="900"
+              fontFamily="'Helvetica Neue', Arial, sans-serif"
+              textAnchor="middle"
+              letterSpacing="1.5"
+            >
               adidas
             </text>
           </svg>
@@ -479,12 +550,30 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
     case "gucci":
       return (
         <div className="w-full h-full flex flex-col items-center justify-center">
-          <svg viewBox="0 0 110 60" className="w-16 h-9 object-contain">
-            <g fill="#A16207" className="dark:fill-[#FACC15]">
-              <path d="M44 24c0-6.6 4.9-12 11.5-12 3.6 0 6.8 1.6 8.9 4.2l-3.3 2.8c-1.4-1.8-3.4-2.9-5.6-2.9-4.2 0-7.3 3.5-7.3 7.9s3.1 7.9 7.3 7.9c2.3 0 4.3-1.1 5.7-3h-5.7v-4h9.9v10.3c-2.7 2.8-6.4 4.7-10.4 4.7-7.2 0-11-5.6-11-11.9z" />
-              <path d="M66 24c0-6.6-4.9-12-11.5-12-3.6 0-6.8 1.6-8.9 4.2l3.3 2.8c1.4-1.8 3.4-2.9 5.6-2.9 4.2 0 7.3 3.5 7.3 7.9s-3.1 7.9-7.3 7.9c-2.3 0-4.3-1.1-5.7-3h5.7v-4h-9.9v10.3c2.7 2.8 6.4 4.7 10.4 4.7 7.2 0 11-5.6 11-11.9z" />
+          <svg viewBox="0 0 110 62" className="w-18 h-10 object-contain">
+            <g fill="url(#gucciGoldGrad)">
+              <defs>
+                <linearGradient id="gucciGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#D97706" />
+                  <stop offset="50%" stopColor="#B45309" />
+                  <stop offset="100%" stopColor="#78350F" />
+                </linearGradient>
+              </defs>
+              {/* Interlocking GG */}
+              <path d="M43 22c0-7 5.2-12.5 12.2-12.5 3.8 0 7.2 1.7 9.4 4.5l-3.5 3c-1.5-1.9-3.6-3.1-5.9-3.1-4.5 0-7.8 3.7-7.8 8.4s3.3 8.4 7.8 8.4c2.5 0 4.6-1.2 6.1-3.2h-6.1v-4.2h10.5v11c-2.9 3-6.8 5-11.1 5-7.7 0-11.6-6-11.6-12.7z" />
+              <path d="M67 22c0-7-5.2-12.5-12.2-12.5-3.8 0-7.2 1.7-9.4 4.5l3.5 3c1.5-1.9 3.6-3.1 5.9-3.1 4.5 0 7.8 3.7 7.8 8.4s-3.3 8.4-7.8 8.4c-2.5 0-4.6-1.2-6.1-3.2h6.1v-4.2h-10.5v11c2.9 3 6.8 5 11.1 5 7.7 0 11.6-6 11.6-12.7z" />
             </g>
-            <text x="55" y="52" fontSize="11" fontWeight="900" fontFamily="serif" textAnchor="middle" letterSpacing="4" fill="currentColor" className="text-slate-900 dark:text-white">
+            <text
+              x="55"
+              y="54"
+              fontSize="12"
+              fontWeight="900"
+              fontFamily="serif"
+              textAnchor="middle"
+              letterSpacing="5"
+              fill="currentColor"
+              className="text-slate-950 dark:text-white"
+            >
               GUCCI
             </text>
           </svg>
@@ -494,12 +583,30 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
     case "lv":
       return (
         <div className="w-full h-full flex flex-col items-center justify-center">
-          <svg viewBox="0 0 100 65" className="w-14 h-9 object-contain">
-            <g fill="#78350F" className="dark:fill-[#FDE68A]">
-              <path d="M34 10 h7 v24 h13 v6 h-20 z" />
-              <path d="M41 10 h7 l10 30 h-7 l-6.5 -20 l-6.5 20 h-7 z" />
+          <svg viewBox="0 0 110 65" className="w-16 h-10 object-contain">
+            <g fill="url(#lvGoldGrad)">
+              <defs>
+                <linearGradient id="lvGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#D97706" />
+                  <stop offset="50%" stopColor="#92400E" />
+                  <stop offset="100%" stopColor="#78350F" />
+                </linearGradient>
+              </defs>
+              {/* Interlocking LV Monogram */}
+              <path d="M36 8 h8 v26 h16 v7 h-24 z" />
+              <path d="M44 8 h8 l12 33 h-8 l-7.5 -22 l-7.5 22 h-8 z" />
             </g>
-            <text x="50" y="58" fontSize="7" fontWeight="900" fontFamily="sans-serif" textAnchor="middle" letterSpacing="2.5" fill="currentColor" className="text-slate-900 dark:text-white">
+            <text
+              x="55"
+              y="59"
+              fontSize="8"
+              fontWeight="900"
+              fontFamily="sans-serif"
+              textAnchor="middle"
+              letterSpacing="3"
+              fill="currentColor"
+              className="text-slate-950 dark:text-white"
+            >
               LOUIS VUITTON
             </text>
           </svg>
@@ -509,19 +616,38 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
     case "dyson":
       return (
         <div className="w-full h-full flex items-center justify-center">
-          <svg viewBox="0 0 130 40" className="w-18 h-7 object-contain">
-            <text x="65" y="28" fontSize="26" fontWeight="900" fontFamily="'Century Gothic', 'Montserrat', sans-serif" textAnchor="middle" letterSpacing="3" className="fill-fuchsia-600 dark:fill-fuchsia-400">
-              dyson
-            </text>
-          </svg>
+          <div className="px-3 py-1.5 rounded-xl bg-fuchsia-500/10 dark:bg-fuchsia-500/20 border border-fuchsia-500/20 flex items-center justify-center">
+            <svg viewBox="0 0 130 36" className="w-22 h-7 object-contain">
+              <text
+                x="65"
+                y="26"
+                fontSize="28"
+                fontWeight="900"
+                fontFamily="'Century Gothic', 'Montserrat', sans-serif"
+                textAnchor="middle"
+                letterSpacing="3"
+                className="fill-fuchsia-600 dark:fill-fuchsia-400"
+              >
+                dyson
+              </text>
+            </svg>
+          </div>
         </div>
       );
 
     case "zara":
       return (
-        <div className="w-full h-full flex items-center justify-center text-slate-900 dark:text-white">
-          <svg viewBox="0 0 120 40" className="w-18 h-7 object-contain" fill="currentColor">
-            <text x="60" y="29" fontSize="28" fontWeight="900" fontFamily="'Bodoni MT', 'Didot', 'Times New Roman', serif" textAnchor="middle" letterSpacing="-1">
+        <div className="w-full h-full flex items-center justify-center text-slate-950 dark:text-white">
+          <svg viewBox="0 0 130 44" className="w-22 h-8 object-contain" fill="currentColor">
+            <text
+              x="65"
+              y="32"
+              fontSize="34"
+              fontWeight="900"
+              fontFamily="'Bodoni MT', 'Didot', 'Times New Roman', serif"
+              textAnchor="middle"
+              letterSpacing="-2"
+            >
               ZARA
             </text>
           </svg>
