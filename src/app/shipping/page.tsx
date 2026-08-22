@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
-import Link from "next/link";
+import { useState, useMemo, useSyncExternalStore, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Truck,
@@ -11,40 +10,24 @@ import {
   Clock,
   MapPin,
   Building2,
-  ShieldCheck,
   Phone,
   MessageSquare,
   Printer,
-  QrCode,
-  ArrowRight,
-  ExternalLink,
   Plus,
-  Compass,
-  AlertTriangle,
-  RotateCcw,
   Sparkles,
-  Share2,
   Copy,
   Check,
   Key,
-  Globe,
   Sliders,
-  Send,
   UserCheck,
-  ChevronRight,
-  ChevronLeft,
   Navigation,
-  Barcode,
-  Calendar,
   Layers,
   Zap,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type {
   Shipment,
-  ShippingCarrier,
   ShipmentStatus,
-  CarrierStatus,
   CarrierType,
 } from "@/types/marketplace";
 
@@ -65,7 +48,7 @@ function subscribeToLanguage(callback: () => void) {
   };
 }
 
-export default function ShippingLogisticsPage() {
+function ShippingLogisticsContent() {
   const language = useSyncExternalStore(subscribeToLanguage, getLanguageSnapshot, () => "ar");
   const isAr = language === "ar";
   const searchParams = useSearchParams();
@@ -74,10 +57,8 @@ export default function ShippingLogisticsPage() {
   const {
     shipments,
     carriers,
-    orders,
     formatPrice,
     registerCarrier,
-    updateCarrier,
     toggleCarrierStatus,
     createShipment,
     updateShipmentStatus,
@@ -92,9 +73,13 @@ export default function ShippingLogisticsPage() {
 
   // Search & Tracking state
   const [searchQuery, setSearchQuery] = useState(trackParam);
-  const [activeShipmentId, setActiveShipmentId] = useState<string>(
-    shipments[0]?.id || ""
-  );
+  const [activeShipmentId, setActiveShipmentId] = useState<string>(() => {
+    if (trackParam) {
+      const found = getShipmentByAwb(trackParam);
+      if (found) return found.id;
+    }
+    return shipments[0]?.id || "";
+  });
 
   // Filter state for merchant view
   const [merchantStatusFilter, setMerchantStatusFilter] = useState<string>("all");
@@ -133,8 +118,8 @@ export default function ShippingLogisticsPage() {
     trackingUrlTemplate: "https://example.com/track?id={TRACKING_NUMBER}",
     descriptionAr: "خدمات الشحن السريع والتوزيع الداخلي مع ضمان الجودة.",
     descriptionEn: "Express logistics and fulfillment services with tracking.",
-    apiKey: "SANDBOX_KEY_" + Math.random().toString(36).slice(2, 8).toUpperCase(),
-    accountNumber: "ACC-" + Math.floor(1000 + Math.random() * 9000),
+    apiKey: "SANDBOX_KEY_NRX2026",
+    accountNumber: "ACC-8821",
   });
 
   // New shipment form state
@@ -181,18 +166,6 @@ export default function ShippingLogisticsPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
-
-  // Sync track query param
-  useEffect(() => {
-    if (trackParam) {
-      setSearchQuery(trackParam);
-      const found = getShipmentByAwb(trackParam);
-      if (found) {
-        setActiveShipmentId(found.id);
-        setActiveTab("track");
-      }
-    }
-  }, [trackParam, getShipmentByAwb]);
 
   // Selected Active Shipment for Tracking View
   const currentShipment = useMemo(() => {
@@ -1500,7 +1473,7 @@ export default function ShippingLogisticsPage() {
                       <button
                         key={sp.id}
                         type="button"
-                        onClick={() => setCalcSpeed(sp.id as any)}
+                        onClick={() => setCalcSpeed(sp.id as "standard" | "priority" | "same_day")}
                         className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           calcSpeed === sp.id
                             ? "bg-orange-500 text-white shadow-sm"
@@ -1701,7 +1674,7 @@ export default function ShippingLogisticsPage() {
                   <label className="font-bold text-slate-300">{isAr ? "طريقة التحصيل:" : "Payment:"}</label>
                   <select
                     value={newShipmentData.paymentType}
-                    onChange={(e) => setNewShipmentData({ ...newShipmentData, paymentType: e.target.value as any })}
+                    onChange={(e) => setNewShipmentData({ ...newShipmentData, paymentType: e.target.value as "prepaid" | "cod" })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold focus:outline-none focus:border-orange-500"
                   >
                     <option value="prepaid">{isAr ? "مدفوع مسبقاً (Prepaid)" : "Prepaid"}</option>
@@ -1810,7 +1783,7 @@ export default function ShippingLogisticsPage() {
                   <label className="font-bold text-slate-300">{isAr ? "التصنيف:" : "Type:"}</label>
                   <select
                     value={newCarrierData.type}
-                    onChange={(e) => setNewCarrierData({ ...newCarrierData, type: e.target.value as any })}
+                    onChange={(e) => setNewCarrierData({ ...newCarrierData, type: e.target.value as CarrierType })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold focus:outline-none focus:border-orange-500"
                   >
                     <option value="domestic">{isAr ? "شحن محلي داخلي" : "Domestic"}</option>
@@ -2078,7 +2051,7 @@ export default function ShippingLogisticsPage() {
                 <label className="text-slate-300 font-bold">{isAr ? "الحالة الجديدة:" : "New State:"}</label>
                 <select
                   value={statusUpdateForm.status}
-                  onChange={(e) => setStatusUpdateForm({ ...statusUpdateForm, status: e.target.value as any })}
+                  onChange={(e) => setStatusUpdateForm({ ...statusUpdateForm, status: e.target.value as ShipmentStatus })}
                   className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold focus:outline-none focus:border-orange-500"
                 >
                   <option value="ready_to_ship">{isAr ? "جاهز للشحن (Ready to Ship)" : "Ready to Ship"}</option>
@@ -2133,5 +2106,20 @@ export default function ShippingLogisticsPage() {
       )}
 
     </div>
+  );
+}
+
+export default function ShippingLogisticsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-20 text-center text-xs text-muted flex items-center justify-center gap-2">
+          <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+          <span>جاري تحميل بيانات الشحن واللوجستيات...</span>
+        </div>
+      }
+    >
+      <ShippingLogisticsContent />
+    </Suspense>
   );
 }

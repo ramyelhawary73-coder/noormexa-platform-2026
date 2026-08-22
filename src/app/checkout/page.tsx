@@ -126,7 +126,6 @@ export default function CheckoutPage() {
     calculatedGrandTotal,
     formatPrice,
     settings,
-    carriers,
     createOrder,
   } = useMarketplace();
 

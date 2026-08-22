@@ -27,7 +27,7 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order, Store } from "@/types/marketplace";
+import type { Order, Store, ShipmentStatus } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 
 type Language = "ar" | "en";
@@ -63,7 +63,6 @@ export default function SellerDashboardPage() {
     payouts,
     marketingPosts,
     shipments,
-    carriers,
     formatPrice,
     addProduct,
     deleteProductItem,
@@ -1083,7 +1082,7 @@ export default function SellerDashboardPage() {
                         <select
                           value={shp.status}
                           onChange={(e) => {
-                            updateShipmentStatus(shp.id, e.target.value as any);
+                            updateShipmentStatus(shp.id, e.target.value as ShipmentStatus);
                             showToast(isAr ? "تم تحديث حالة الشحنة بنجاح" : "Shipment status updated");
                           }}
                           className="px-2.5 py-1 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none"

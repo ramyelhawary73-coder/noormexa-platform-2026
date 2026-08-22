@@ -1,4 +1,4 @@
-import type { ShippingCarrier, Shipment, TrackingCheckpoint, ShippingRateQuote, ShipmentStatus } from "@/types/marketplace";
+import type { ShippingCarrier, Shipment, ShippingRateQuote } from "@/types/marketplace";
 
 export const INITIAL_CARRIERS: ShippingCarrier[] = [
   {

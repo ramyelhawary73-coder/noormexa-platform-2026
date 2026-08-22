@@ -2592,7 +2592,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
             current: true,
           };
 
-          const updatedCheckpoints = shp.checkpoints.map((cp) => ({ ...cp, current: false }));
+          const updatedCheckpoints: TrackingCheckpoint[] = shp.checkpoints.map((cp) => ({ ...cp, current: false }));
           updatedCheckpoints.push(newCp);
 
           return {
@@ -2619,7 +2619,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
             passed: true,
             current: true,
           };
-          const updatedCheckpoints = shp.checkpoints.map((c) => ({ ...c, current: false }));
+          const updatedCheckpoints: TrackingCheckpoint[] = shp.checkpoints.map((c) => ({ ...c, current: false }));
           updatedCheckpoints.push(newCp);
           return {
             ...shp,

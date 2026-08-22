@@ -86,6 +86,7 @@ function OrdersTrackingContent() {
   const searchParams = useSearchParams();
   const initialTrackParam = searchParams.get("track") || "";
   const language = useNoormexaLanguage();
+  const isAr = language === "ar";
   const text = copy[language];
 
   const { orders, formatPrice } = useMarketplace();
