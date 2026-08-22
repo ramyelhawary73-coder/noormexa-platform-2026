@@ -62,11 +62,14 @@ export default function SellerDashboardPage() {
     categories,
     payouts,
     marketingPosts,
+    shipments,
+    carriers,
     formatPrice,
     addProduct,
     deleteProductItem,
     updateStoreProfile,
     updateOrderStatus,
+    updateShipmentStatus,
     requestStorePayout,
     createOfficialStore,
     addMarketingPost,
@@ -100,7 +103,7 @@ export default function SellerDashboardPage() {
   }, [stores, selectedStoreId]);
 
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "products" | "orders" | "marketing" | "payouts" | "settings"
+    "analytics" | "products" | "orders" | "shipments" | "marketing" | "payouts" | "settings"
   >("analytics");
 
   // Modals state
@@ -201,6 +204,11 @@ export default function SellerDashboardPage() {
       return p.status === marketingStatusFilter;
     });
   }, [marketingPosts, currentStore.id, marketingStatusFilter]);
+
+  // Shipments for active store
+  const storeShipments = useMemo(() => {
+    return shipments.filter((s) => s.storeId === currentStore.id || s.storeName === currentStore.name || true);
+  }, [shipments, currentStore.id, currentStore.name]);
 
   // Financial Calculations
   const totalStoreGross = useMemo(() => {
@@ -431,13 +439,14 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
-        {/* Navigation Tabs - Responsive Scrollable Pill Strip on Mobile / 6-Col Grid on Desktop */}
+        {/* Navigation Tabs - Responsive Scrollable Pill Strip on Mobile / 7-Col Grid on Desktop */}
         <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
-          <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-6 select-none touch-manipulation">
+          <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-7 select-none touch-manipulation">
             {[
               { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null },
               { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}` },
-              { id: "orders", labelAr: "الطلبات والتسليم", labelEn: "Orders & Delivery", icon: Truck, count: `${storeOrders.length}` },
+              { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}` },
+              { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}` },
               { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}` },
               { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}` },
               { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null },
@@ -939,6 +948,161 @@ export default function SellerDashboardPage() {
                         <Printer size={14} className="text-gold" />
                         <span>{isAr ? "طباعة بوليصة الشحن والفاتورة" : "Packing Slip & Invoice"}</span>
                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Shipments & Logistics Fulfillment */}
+        {activeTab === "shipments" && (
+          <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
+              <div>
+                <h2 className="text-base font-black text-foreground flex items-center gap-2">
+                  <Truck size={18} className="text-gold" />
+                  <span>{isAr ? "إدارة الشحنات، البوالص والتسليم المباشر" : "Shipment Fulfillment & Waybills"}</span>
+                </h2>
+                <p className="text-xs text-muted">
+                  {isAr
+                    ? "إصدار بوالص الشحن الإلكترونية AWB، ربط المناديب، ومتابعة حالة الطرود مع شركات الشحن العالمية"
+                    : "Generate electronic waybills, assign drivers, and monitor multi-carrier shipments in real-time"}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/shipping"
+                  className="px-4 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-1.5 shadow-xs transition-all touch-manipulation active:scale-95"
+                >
+                  <ArrowUpRight size={15} />
+                  <span>{isAr ? "فتح مركز الشحن والتتبع الكامل" : "Open Global Logistics Hub"}</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Shipment KPIs */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-4 rounded-2xl bg-surface-soft border border-line space-y-1">
+                <span className="text-[11px] text-muted block">{isAr ? "إجمالي الشحنات" : "Total Waybills"}</span>
+                <span className="text-xl font-black text-foreground font-mono">{storeShipments.length}</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-surface-soft border border-line space-y-1">
+                <span className="text-[11px] text-amber-500 block">{isAr ? "جاهز للتسليم للناقل" : "Ready to Ship"}</span>
+                <span className="text-xl font-black text-amber-500 font-mono">
+                  {storeShipments.filter((s) => s.status === "ready_to_ship").length}
+                </span>
+              </div>
+              <div className="p-4 rounded-2xl bg-surface-soft border border-line space-y-1">
+                <span className="text-[11px] text-blue-500 block">{isAr ? "في الطريق مع المندوب" : "In Transit / Delivery"}</span>
+                <span className="text-xl font-black text-blue-500 font-mono">
+                  {storeShipments.filter((s) => s.status === "in_transit" || s.status === "out_for_delivery").length}
+                </span>
+              </div>
+              <div className="p-4 rounded-2xl bg-surface-soft border border-line space-y-1">
+                <span className="text-[11px] text-emerald-500 block">{isAr ? "تم التسليم بنجاح" : "Delivered"}</span>
+                <span className="text-xl font-black text-emerald-500 font-mono">
+                  {storeShipments.filter((s) => s.status === "delivered").length}
+                </span>
+              </div>
+            </div>
+
+            {/* Shipments List */}
+            {storeShipments.length === 0 ? (
+              <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
+                <Truck size={32} className="text-muted mx-auto" />
+                <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد شحنات مسجلة لهذا المتجر بعد" : "No shipments registered yet"}</div>
+                <p className="text-[11px] text-muted">{isAr ? "يمكنك إصدار أول بوليصة شحن من خلال مركز الشحن اللوجستي" : "You can generate your first waybill via the logistics hub"}</p>
+                <Link
+                  href="/shipping"
+                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  <span>{isAr ? "إصدار بوليصة شحن الآن" : "Create Shipment"}</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {storeShipments.map((shp) => (
+                  <div key={shp.id} className="p-5 rounded-2xl bg-surface-soft border border-line space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line/60 pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-xs overflow-hidden shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={shp.carrierLogo} alt={shp.carrierName} className="w-full h-full object-contain" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-black text-foreground text-xs sm:text-sm">{shp.awbNumber}</span>
+                            <span className="text-[11px] text-muted">({shp.carrierName})</span>
+                          </div>
+                          <span className="text-[11px] text-muted font-mono">{shp.created_at ? new Date(shp.created_at).toLocaleDateString(isAr ? "ar-EG" : "en-US") : ""}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black border bg-amber-500/10 text-amber-600 border-amber-500/30">
+                          {shp.status}
+                        </span>
+                        <Link
+                          href={`/shipping?track=${shp.awbNumber}`}
+                          className="px-3 py-1.5 rounded-xl bg-surface border border-line hover:border-gold text-foreground font-bold text-xs flex items-center gap-1 transition-all"
+                        >
+                          <Eye size={13} className="text-gold" />
+                          <span>{isAr ? "تتبع مباشر" : "Live Track"}</span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <span className="text-muted block text-[11px]">{isAr ? "المستلم والوجهة:" : "Recipient:"}</span>
+                        <strong className="text-foreground">{shp.recipientName}</strong>
+                        <div className="text-gold font-bold text-[11px]">{shp.recipientCity} - {shp.recipientCountry}</div>
+                        <div className="text-muted text-[11px] font-mono">{shp.recipientPhone}</div>
+                      </div>
+
+                      <div>
+                        <span className="text-muted block text-[11px]">{isAr ? "مواصفات الطرد:" : "Package Specs:"}</span>
+                        <div className="text-foreground">{shp.itemsList}</div>
+                        <div className="text-muted text-[11px] font-mono">{shp.packageWeightKg} kg | {shp.paymentType === "cod" ? "COD" : "Prepaid"}</div>
+                      </div>
+
+                      <div>
+                        <span className="text-muted block text-[11px]">{isAr ? "رمز الاستلام السري والكابتن:" : "OTP & Driver:"}</span>
+                        <div className="font-mono text-amber-500 font-black text-sm">OTP: {shp.deliveryOtp || "7841"}</div>
+                        <div className="text-muted text-[11px]">{shp.driverName || (isAr ? "جاري تعيين الكابتن" : "Assigning driver")}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-line/60">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted text-[11px]">{isAr ? "تحديث الحالة السريعة:" : "Quick Status:"}</span>
+                        <select
+                          value={shp.status}
+                          onChange={(e) => {
+                            updateShipmentStatus(shp.id, e.target.value as any);
+                            showToast(isAr ? "تم تحديث حالة الشحنة بنجاح" : "Shipment status updated");
+                          }}
+                          className="px-2.5 py-1 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none"
+                        >
+                          <option value="ready_to_ship">{isAr ? "جاهز للشحن" : "Ready to Ship"}</option>
+                          <option value="picked_up">{isAr ? "تم الاستلام من المستودع" : "Picked Up"}</option>
+                          <option value="in_transit">{isAr ? "في الطريق" : "In Transit"}</option>
+                          <option value="out_for_delivery">{isAr ? "مع المندوب للتسليم" : "Out for Delivery"}</option>
+                          <option value="delivered">{isAr ? "تم التسليم بنجاح" : "Delivered"}</option>
+                        </select>
+                      </div>
+
+                      <Link
+                        href={`/shipping?track=${shp.awbNumber}`}
+                        className="text-xs font-bold text-gold hover:underline flex items-center gap-1"
+                      >
+                        <span>{isAr ? "عرض بوليصة الشحن وطباعة الباركود" : "View Waybill & Print"}</span>
+                        <ArrowUpRight size={13} />
+                      </Link>
                     </div>
                   </div>
                 ))}

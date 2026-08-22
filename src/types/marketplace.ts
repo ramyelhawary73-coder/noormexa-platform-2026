@@ -226,3 +226,122 @@ export type Order = {
   created_at: string;
   carrier?: string;
 };
+
+export type CarrierStatus = "active" | "inactive" | "maintenance";
+export type CarrierType = "international" | "domestic" | "express" | "hyperlocal" | "platform_fleet";
+
+export type ShippingCarrier = {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  code: string; // e.g. ARAMEX, DHL, SMSA, BOSTA, FEDEX, ZAJIL, NRX_DIRECT
+  logoUrl: string;
+  status: CarrierStatus;
+  type: CarrierType;
+  trackingUrlTemplate: string; // e.g. https://www.aramex.com/track?q={TRACKING_NUMBER}
+  apiKey?: string;
+  apiSecret?: string;
+  accountNumber?: string;
+  supportedCountries: string[];
+  baseCost: number; // EGP
+  perKgRate: number; // EGP
+  slaDaysMin: number;
+  slaDaysMax: number;
+  onTimeRate: number; // e.g. 98.6%
+  hasLiveGps: boolean;
+  contactPhone: string;
+  contactEmail: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  webhookUrl?: string;
+  isOfficialPartner?: boolean;
+};
+
+export type CheckpointStatus =
+  | "label_created"
+  | "picked_up"
+  | "sorting_facility"
+  | "customs_cleared"
+  | "in_transit"
+  | "out_for_delivery"
+  | "delivered"
+  | "delayed"
+  | "failed_attempt";
+
+export type TrackingCheckpoint = {
+  id: string;
+  status: CheckpointStatus;
+  titleAr: string;
+  titleEn: string;
+  locationAr: string;
+  locationEn: string;
+  timestamp: string;
+  detailsAr: string;
+  detailsEn: string;
+  coordinates?: { lat: number; lng: number };
+  passed: boolean;
+  current?: boolean;
+};
+
+export type ShipmentStatus =
+  | "ready_to_ship"
+  | "picked_up"
+  | "in_transit"
+  | "out_for_delivery"
+  | "delivered"
+  | "exception"
+  | "returned";
+
+export type Shipment = {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  awbNumber: string; // Air Waybill / Barcode number
+  carrierId: string;
+  carrierName: string;
+  carrierLogo?: string;
+  storeId: string;
+  storeName: string;
+  recipientName: string;
+  recipientPhone: string;
+  recipientEmail?: string;
+  recipientCountry: string;
+  recipientCity: string;
+  recipientAddress: string;
+  originCountry: string;
+  originCity: string;
+  originWarehouse: string;
+  packageWeightKg: number;
+  dimensions: { length: number; width: number; height: number };
+  itemCount: number;
+  itemsList: string;
+  declaredValue: number; // base EGP
+  paymentType: "prepaid" | "cod";
+  codAmount?: number;
+  shippingSpeed: "standard" | "priority" | "same_day";
+  status: ShipmentStatus;
+  driverName?: string;
+  driverPhone?: string;
+  driverVehicle?: string;
+  driverAvatar?: string;
+  deliveryOtp?: string;
+  estimatedDelivery: string;
+  dispatchedAt?: string;
+  deliveredAt?: string;
+  checkpoints: TrackingCheckpoint[];
+  notes?: string;
+  customerSignatureUrl?: string;
+  created_at: string;
+};
+
+export type ShippingRateQuote = {
+  carrierId: string;
+  carrierName: string;
+  carrierCode: string;
+  logoUrl: string;
+  costEgp: number;
+  deliveryEstimateDays: string;
+  serviceType: string;
+  isFastest?: boolean;
+  isCheapest?: boolean;
+};

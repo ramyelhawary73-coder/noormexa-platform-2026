@@ -288,7 +288,15 @@ function OrdersTrackingContent() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <Link
+                      href={`/shipping?track=${activeOrder.trackingNumber}`}
+                      className="px-4 py-2 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                    >
+                      <Truck size={14} />
+                      <span>{isAr ? "مركز تتبع الشحنات وبوالص الشحن الدولية" : "Global Logistics Tracking & Waybill Hub"}</span>
+                    </Link>
+
                     <button
                       type="button"
                       onClick={() => {

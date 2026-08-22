@@ -230,6 +230,13 @@ export default function Navbar() {
       icon: Building2,
       color: "text-blue-500",
     },
+    {
+      nameAr: "إدارة وتتبع الشحنات",
+      nameEn: "Live Shipments & Tracking",
+      href: "/shipping",
+      icon: Truck,
+      color: "text-orange-500",
+    },
   ];
 
   return (
@@ -283,15 +290,15 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/orders"
+              href="/shipping"
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                pathname.startsWith("/orders")
+                pathname.startsWith("/shipping")
                   ? "bg-surface dark:bg-slate-800 text-foreground shadow-xs border border-line"
                   : "text-muted hover:text-foreground hover:bg-surface/50 dark:hover:bg-slate-800/50"
               }`}
             >
               <Truck size={14} className="text-orange-500" />
-              <span>{text.orders}</span>
+              <span>{isAr ? "إدارة الشحنات والتتبع" : "Logistics Hub"}</span>
             </Link>
 
             {isAdmin && (
@@ -516,6 +523,15 @@ export default function Navbar() {
                         >
                           <StoreIcon size={14} className="text-amber-500" />
                           <span>{text.sellerHub}</span>
+                        </Link>
+
+                        <Link
+                          href="/shipping"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
+                        >
+                          <Truck size={14} className="text-orange-500" />
+                          <span>{isAr ? "إدارة وتتبع الشحنات اللوجستية" : "Logistics & Shipments"}</span>
                         </Link>
 
                         {isAdmin && (

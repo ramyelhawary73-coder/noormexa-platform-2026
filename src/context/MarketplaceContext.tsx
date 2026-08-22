@@ -23,7 +23,14 @@ import type {
   PaymentGatewayKey,
   ShippingAddress,
   SelectedVariant,
+  ShippingCarrier,
+  Shipment,
+  TrackingCheckpoint,
+  ShippingRateQuote,
+  CarrierStatus,
+  ShipmentStatus,
 } from "@/types/marketplace";
+import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
   EGP: {
@@ -1751,6 +1758,41 @@ interface MarketplaceContextType {
   updateOrderStatus: (orderId: string, status: Order["status"], trackingNumber?: string) => void;
   getOrderById: (orderId: string) => Order | undefined;
   getOrderByTracking: (trackingNumber: string) => Order | undefined;
+
+  // Logistics, Carriers & Shipment Tracking
+  carriers: ShippingCarrier[];
+  shipments: Shipment[];
+  registerCarrier: (data: Omit<ShippingCarrier, "id">) => ShippingCarrier;
+  updateCarrier: (id: string, updates: Partial<ShippingCarrier>) => void;
+  toggleCarrierStatus: (id: string, status: CarrierStatus) => void;
+  createShipment: (
+    data: Omit<Shipment, "id" | "awbNumber" | "created_at" | "checkpoints">
+  ) => Shipment;
+  updateShipmentStatus: (
+    id: string,
+    status: ShipmentStatus,
+    note?: string,
+    location?: string
+  ) => void;
+  addShipmentCheckpoint: (
+    shipmentId: string,
+    checkpoint: Omit<TrackingCheckpoint, "id" | "passed">
+  ) => void;
+  assignShipmentDriver: (
+    shipmentId: string,
+    driver: { name: string; phone: string; vehicle?: string; avatar?: string }
+  ) => void;
+  dispatchBulkShipments: (
+    shipmentIds: string[],
+    carrierId: string
+  ) => { count: number; awbList: string[] };
+  calculateShippingQuotes: (
+    originCountry: string,
+    destCountry: string,
+    weightKg?: number,
+    speed?: "standard" | "priority" | "same_day"
+  ) => ShippingRateQuote[];
+  getShipmentByAwb: (awbOrOrder: string) => Shipment | undefined;
 }
 
 const MarketplaceContext = createContext<MarketplaceContextType | undefined>(undefined);
@@ -1768,6 +1810,8 @@ const STORAGE_KEYS = {
   PAYOUTS: "noormexa_payouts_v2",
   CURRENT_STORE: "noormexa_active_store_id_v2",
   MARKETING_POSTS: "noormexa_marketing_posts_v2",
+  CARRIERS: "noormexa_carriers_v1",
+  SHIPMENTS: "noormexa_shipments_v1",
 };
 
 export function MarketplaceProvider({ children }: { children: ReactNode }) {
@@ -1784,6 +1828,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItemsState] = useState<CartItem[]>([]);
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [orders, setOrdersState] = useState<Order[]>([]);
+  const [carriers, setCarriersState] = useState<ShippingCarrier[]>(INITIAL_CARRIERS);
+  const [shipments, setShipmentsState] = useState<Shipment[]>(INITIAL_SHIPMENTS);
   const [hydrated, setHydrated] = useState(false);
 
   // Read initial local storage safely
@@ -1840,6 +1886,18 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
 
         const savedOrders = window.localStorage.getItem(STORAGE_KEYS.ORDERS);
         if (savedOrders) setOrdersState(JSON.parse(savedOrders));
+
+        const savedCarriers = window.localStorage.getItem(STORAGE_KEYS.CARRIERS);
+        if (savedCarriers) {
+          const parsed = JSON.parse(savedCarriers);
+          if (Array.isArray(parsed) && parsed.length > 0) setCarriersState(parsed);
+        }
+
+        const savedShipments = window.localStorage.getItem(STORAGE_KEYS.SHIPMENTS);
+        if (savedShipments) {
+          const parsed = JSON.parse(savedShipments);
+          if (Array.isArray(parsed) && parsed.length > 0) setShipmentsState(parsed);
+        }
       } catch (err) {
         console.error("Failed to load saved marketplace state:", err);
       } finally {
@@ -1867,6 +1925,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(STORAGE_KEYS.MARKETING_POSTS, JSON.stringify(marketingPosts));
       window.localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(payouts));
       window.localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+      window.localStorage.setItem(STORAGE_KEYS.CARRIERS, JSON.stringify(carriers));
+      window.localStorage.setItem(STORAGE_KEYS.SHIPMENTS, JSON.stringify(shipments));
       if (appliedPromo) {
         window.localStorage.setItem(STORAGE_KEYS.PROMO, JSON.stringify(appliedPromo));
       } else {
@@ -1875,7 +1935,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Failed to persist marketplace state:", err);
     }
-  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, currentStoreId, marketingPosts, payouts, orders, appliedPromo]);
+  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, currentStoreId, marketingPosts, payouts, orders, carriers, shipments, appliedPromo]);
 
   // Currency helpers
   const setCurrency = useCallback((newCur: CurrencyCode) => {
@@ -2439,6 +2499,220 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     [orders]
   );
 
+  // --- Logistics & Carriers Engine ---
+  const registerCarrier = useCallback((data: Omit<ShippingCarrier, "id">) => {
+    const newCarrier: ShippingCarrier = {
+      ...data,
+      id: `carrier-${Math.random().toString(36).slice(2, 8)}`,
+    };
+    setCarriersState((prev) => [newCarrier, ...prev]);
+    return newCarrier;
+  }, []);
+
+  const updateCarrier = useCallback((id: string, updates: Partial<ShippingCarrier>) => {
+    setCarriersState((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  }, []);
+
+  const toggleCarrierStatus = useCallback((id: string, status: CarrierStatus) => {
+    setCarriersState((prev) => prev.map((c) => (c.id === id ? { ...c, status } : c)));
+  }, []);
+
+  const createShipment = useCallback(
+    (data: Omit<Shipment, "id" | "awbNumber" | "created_at" | "checkpoints">) => {
+      const now = new Date().toISOString();
+      const carrier = carriers.find((c) => c.id === data.carrierId) || carriers[0];
+      const awbNumber = `AWB-${carrier.code || "NRX"}-${Math.floor(100000 + Math.random() * 900000)}`;
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+      const initialCheckpoint: TrackingCheckpoint = {
+        id: `cp-${Math.random().toString(36).slice(2, 7)}`,
+        status: "label_created",
+        titleAr: `تم إنشاء بوليصة الشحن (${awbNumber}) لدى ${carrier.nameAr}`,
+        titleEn: `Waybill created (${awbNumber}) via ${carrier.nameEn}`,
+        locationAr: data.originCity,
+        locationEn: data.originCity,
+        timestamp: new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }),
+        detailsAr: "تم حجز الشحنة وجاري التجهيز للتسليم لمندوب شركة الشحن.",
+        detailsEn: "Shipment registered and ready for carrier pickup.",
+        passed: true,
+        current: true,
+      };
+
+      const newShipment: Shipment = {
+        ...data,
+        id: `shp-${Math.random().toString(36).slice(2, 8)}`,
+        awbNumber,
+        deliveryOtp: otp,
+        carrierName: carrier.nameAr,
+        carrierLogo: carrier.logoUrl,
+        checkpoints: [initialCheckpoint],
+        created_at: now,
+      };
+
+      setShipmentsState((prev) => [newShipment, ...prev]);
+
+      // Also update linked order if found
+      if (data.orderId) {
+        updateOrderStatus(data.orderId, "processing", awbNumber);
+      }
+
+      return newShipment;
+    },
+    [carriers, updateOrderStatus]
+  );
+
+  const updateShipmentStatus = useCallback(
+    (id: string, status: ShipmentStatus, note?: string, location?: string) => {
+      setShipmentsState((prev) =>
+        prev.map((shp) => {
+          if (shp.id !== id) return shp;
+
+          const loc = location || shp.recipientCity;
+          const statusTitles: Record<ShipmentStatus, { ar: string; en: string }> = {
+            ready_to_ship: { ar: "جاهزة للشحن والتسليم للمندوب", en: "Ready for Carrier Pickup" },
+            picked_up: { ar: "تم استلام الشحنة من المستودع", en: "Picked Up by Courier" },
+            in_transit: { ar: "الشحنة في طريقها بين المحطات اللوجستية", en: "In Transit between Hubs" },
+            out_for_delivery: { ar: "الشحنة مع مندوب التوصيل للتسليم النهائي", en: "Out for Final Doorstep Delivery" },
+            delivered: { ar: "تم تسليم الشحنة للعميل بنجاح", en: "Successfully Delivered to Customer" },
+            exception: { ar: "تأخير استثنائي / محاولة تسليم مؤجلة", en: "Delivery Exception / Rescheduled" },
+            returned: { ar: "تم إرجاع الشحنة للمستودع", en: "Returned to Origin Warehouse" },
+          };
+
+          const newCp: TrackingCheckpoint = {
+            id: `cp-${Math.random().toString(36).slice(2, 7)}`,
+            status: status === "delivered" ? "delivered" : status === "out_for_delivery" ? "out_for_delivery" : "in_transit",
+            titleAr: statusTitles[status]?.ar || status,
+            titleEn: statusTitles[status]?.en || status,
+            locationAr: loc,
+            locationEn: loc,
+            timestamp: new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }),
+            detailsAr: note || `تم تحديث مسار الشحنة (${shp.awbNumber}) في ${loc}.`,
+            detailsEn: note || `Status updated for shipment (${shp.awbNumber}) at ${loc}.`,
+            passed: true,
+            current: true,
+          };
+
+          const updatedCheckpoints = shp.checkpoints.map((cp) => ({ ...cp, current: false }));
+          updatedCheckpoints.push(newCp);
+
+          return {
+            ...shp,
+            status,
+            deliveredAt: status === "delivered" ? new Date().toISOString() : shp.deliveredAt,
+            dispatchedAt: status === "in_transit" || status === "picked_up" ? shp.dispatchedAt || new Date().toISOString() : shp.dispatchedAt,
+            checkpoints: updatedCheckpoints,
+          };
+        })
+      );
+    },
+    []
+  );
+
+  const addShipmentCheckpoint = useCallback(
+    (shipmentId: string, checkpoint: Omit<TrackingCheckpoint, "id" | "passed">) => {
+      setShipmentsState((prev) =>
+        prev.map((shp) => {
+          if (shp.id !== shipmentId) return shp;
+          const newCp: TrackingCheckpoint = {
+            ...checkpoint,
+            id: `cp-${Math.random().toString(36).slice(2, 7)}`,
+            passed: true,
+            current: true,
+          };
+          const updatedCheckpoints = shp.checkpoints.map((c) => ({ ...c, current: false }));
+          updatedCheckpoints.push(newCp);
+          return {
+            ...shp,
+            checkpoints: updatedCheckpoints,
+          };
+        })
+      );
+    },
+    []
+  );
+
+  const assignShipmentDriver = useCallback(
+    (shipmentId: string, driver: { name: string; phone: string; vehicle?: string; avatar?: string }) => {
+      setShipmentsState((prev) =>
+        prev.map((shp) => {
+          if (shp.id !== shipmentId) return shp;
+          return {
+            ...shp,
+            driverName: driver.name,
+            driverPhone: driver.phone,
+            driverVehicle: driver.vehicle || shp.driverVehicle,
+            driverAvatar: driver.avatar || shp.driverAvatar,
+          };
+        })
+      );
+    },
+    []
+  );
+
+  const dispatchBulkShipments = useCallback(
+    (shipmentIds: string[], carrierId: string) => {
+      const carrier = carriers.find((c) => c.id === carrierId) || carriers[0];
+      const awbList: string[] = [];
+
+      setShipmentsState((prev) =>
+        prev.map((shp) => {
+          if (!shipmentIds.includes(shp.id)) return shp;
+          const awb = shp.awbNumber || `AWB-${carrier.code}-${Math.floor(100000 + Math.random() * 900000)}`;
+          awbList.push(awb);
+
+          const dispatchCp: TrackingCheckpoint = {
+            id: `cp-${Math.random().toString(36).slice(2, 7)}`,
+            status: "picked_up",
+            titleAr: `تم التسليم لشركة الشحن ${carrier.nameAr}`,
+            titleEn: `Dispatched to Carrier ${carrier.nameEn}`,
+            locationAr: shp.originCity,
+            locationEn: shp.originCity,
+            timestamp: new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }),
+            detailsAr: `تم إدراج الشحنة في كشف الإرسال المجمع (Manifest) وجاري النقل.`,
+            detailsEn: `Included in carrier bulk dispatch manifest.`,
+            passed: true,
+            current: true,
+          };
+
+          return {
+            ...shp,
+            status: "picked_up" as ShipmentStatus,
+            carrierId: carrier.id,
+            carrierName: carrier.nameAr,
+            carrierLogo: carrier.logoUrl,
+            dispatchedAt: new Date().toISOString(),
+            checkpoints: [...shp.checkpoints.map((c) => ({ ...c, current: false })), dispatchCp],
+          };
+        })
+      );
+
+      return { count: shipmentIds.length, awbList };
+    },
+    [carriers]
+  );
+
+  const calculateShippingQuotes = useCallback(
+    (originCountry: string, destCountry: string, weightKg = 1, speed: "standard" | "priority" | "same_day" = "standard") => {
+      return getShippingQuotes(originCountry, destCountry, weightKg, speed);
+    },
+    []
+  );
+
+  const getShipmentByAwb = useCallback(
+    (query: string) => {
+      const q = query.trim().toLowerCase();
+      if (!q) return undefined;
+      return shipments.find(
+        (s) =>
+          s.awbNumber.toLowerCase() === q ||
+          s.orderNumber.toLowerCase() === q ||
+          s.orderId.toLowerCase() === q ||
+          s.recipientPhone.replace(/\s+/g, "").includes(q.replace(/\s+/g, ""))
+      );
+    },
+    [shipments]
+  );
+
   return (
     <MarketplaceContext.Provider
       value={{
@@ -2496,6 +2770,18 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         updateOrderStatus,
         getOrderById,
         getOrderByTracking,
+        carriers,
+        shipments,
+        registerCarrier,
+        updateCarrier,
+        toggleCarrierStatus,
+        createShipment,
+        updateShipmentStatus,
+        addShipmentCheckpoint,
+        assignShipmentDriver,
+        dispatchBulkShipments,
+        calculateShippingQuotes,
+        getShipmentByAwb,
       }}
     >
       {children}

@@ -126,6 +126,7 @@ export default function CheckoutPage() {
     calculatedGrandTotal,
     formatPrice,
     settings,
+    carriers,
     createOrder,
   } = useMarketplace();
 
@@ -289,11 +290,11 @@ export default function CheckoutPage() {
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 pt-2 print:hidden">
               <Link
-                href={`/orders?track=${completedOrder.trackingNumber}`}
-                className="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all text-center dark:bg-navy dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
+                href={`/shipping?track=${completedOrder.trackingNumber}`}
+                className="flex-1 py-3 px-4 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-all text-center"
               >
                 <Truck size={15} />
-                <span>{text.trackOrderBtn}</span>
+                <span>{text.trackOrderBtn} ({completedOrder.carrier || "Global Logistics Hub"})</span>
               </Link>
 
               <button
