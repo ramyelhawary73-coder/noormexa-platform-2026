@@ -103,12 +103,17 @@ export default function PwaInstallPrompt() {
     // Register Service Worker for PWA
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
-        .register("/sw.js")
+        .register("/service-worker.js")
+        .catch(() => {
+          return navigator.serviceWorker.register("/sw.js");
+        })
         .then((reg) => {
-          console.log("[NOORMEXA] PWA Service Worker active with scope:", reg.scope);
+          if (reg) {
+            console.log("[PWA] Service Worker active with scope:", reg.scope);
+          }
         })
         .catch((err) => {
-          console.log("[NOORMEXA] Service Worker registration note:", err);
+          console.log("[PWA] Service Worker registration note:", err);
         });
     }
 

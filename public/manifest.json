@@ -1,50 +1,38 @@
 {
-  "name": "NOORMEXA | Global E-Commerce Marketplace",
-  "short_name": "NOORMEXA",
-  "description": "NOORMEXA — منصة وسوق التجارة الإلكترونية العالمية للمتسوقين والتجار والمتاجر الرسمية والمعلنين",
+  "name": "AURUM ERP",
+  "short_name": "AURUM ERP",
+  "description": "AURUM ERP — نظام ومنصة التجارة والأعمال المتكاملة",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "background_color": "#0b1322",
-  "theme_color": "#f97316",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
   "orientation": "any",
   "dir": "auto",
   "lang": "ar",
   "prefer_related_applications": false,
-  "categories": ["shopping", "business", "lifestyle", "finance"],
+  "categories": ["business", "productivity", "shopping", "finance"],
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
     {
       "name": "السوق المفتوح | Marketplace",
       "short_name": "السوق",
-      "description": "تصفح وشراء آلاف المنتجات العالمية بخصومات حصرية",
+      "description": "تصفح وشراء آلاف المنتجات والعروض الحصرية",
       "url": "/marketplace",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
@@ -56,23 +44,16 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "تتبع الطلبات | Track Orders",
-      "short_name": "طلباتي",
-      "description": "متابعة حالة شحن وتوصيل طلباتك لحظة بلحظة",
-      "url": "/orders",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
       "name": "بوابة التجار | Seller Hub",
       "short_name": "التجار",
-      "description": "إدارة المنتجات والمبيعات والأرباح للتجار والمتاجر",
+      "description": "إدارة المنتجات والمبيعات والأرباح",
       "url": "/seller/dashboard",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "مركز إدارة المالك | Admin Hub",
       "short_name": "الإدارة",
-      "description": "التحكم الكامل في المنصة والإشراف العام",
+      "description": "التحكم الكامل في النظام والإشراف العام",
       "url": "/admin",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }

@@ -11,14 +11,14 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "NOORMEXA | Global E-Commerce Marketplace",
-  description: "NOORMEXA — سوق تجارة إلكترونية عالمي للمتسوقين والبائعين والمتاجر والمعلنين.",
+  title: "AURUM ERP | NOORMEXA Platform",
+  description: "AURUM ERP — نظام ومنصة التجارة والأعمال المتكاملة.",
   manifest: "/manifest.json",
-  applicationName: "NOORMEXA",
+  applicationName: "AURUM ERP",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "NOORMEXA",
+    title: "AURUM ERP",
   },
   formatDetection: {
     telephone: false,
@@ -39,7 +39,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
-  themeColor: "#0b1322",
+  themeColor: "#0d1117",
 };
 
 export default function RootLayout({
@@ -73,7 +73,9 @@ export default function RootLayout({
               });
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(function() {});
+                  navigator.serviceWorker.register('/service-worker.js').catch(function() {
+                    navigator.serviceWorker.register('/sw.js').catch(function() {});
+                  });
                 });
               }
             `,
