@@ -106,12 +106,10 @@ export default function PwaInstallPrompt() {
         .register("/sw.js")
         .then((reg) => {
           if (reg) {
-            console.log("[PWA] Service Worker active with scope:", reg.scope);
+            reg.update().catch(() => {});
           }
         })
-        .catch((err) => {
-          console.log("[PWA] Service Worker registration note:", err);
-        });
+        .catch(() => {});
     }
 
     // Check if already in standalone PWA mode
