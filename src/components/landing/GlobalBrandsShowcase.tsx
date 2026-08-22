@@ -706,13 +706,13 @@ ${conciergeNotes ? `- ملاحظات: ${conciergeNotes}` : ""}
         </div>
 
         {/* Interactive Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 select-none touch-manipulation">
           {categories.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer touch-manipulation active:scale-95 ${
                 activeCategory === cat.id
                   ? "bg-orange-500 text-white shadow-xs font-black scale-102"
                   : "bg-surface dark:bg-slate-900 border border-line text-muted hover:text-foreground hover:border-slate-400"
@@ -724,49 +724,49 @@ ${conciergeNotes ? `- ملاحظات: ${conciergeNotes}` : ""}
         </div>
 
         {/* Global Brands Grid with 3D Embossed Cards & Clickable Hubs */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-5">
           {filteredBrands.map((brand) => (
             <div
               key={brand.id}
               onClick={(e) => handleOpenBrandModal(brand, e)}
-              className={`group relative p-4 sm:p-5 rounded-3xl bg-surface dark:bg-[#0c1424] border border-line/80 hover:border-orange-500/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden hover:-translate-y-1 cursor-pointer ${brand.glowColor}`}
+              className={`group relative p-3 sm:p-5 rounded-2xl sm:rounded-3xl bg-surface dark:bg-[#0c1424] border border-line/80 hover:border-orange-500/60 shadow-sm hover:shadow-xl transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer touch-manipulation active:scale-96 select-none ${brand.glowColor}`}
             >
               {/* Top Row: Origin Flag & Verified Badge */}
-              <div className="flex items-center justify-between gap-1 mb-2">
-                <span className="text-[11px] font-semibold text-muted flex items-center gap-1 bg-surface-soft dark:bg-slate-800/80 px-2 py-0.5 rounded-full border border-line">
+              <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-muted flex items-center gap-1 bg-surface-soft dark:bg-slate-800/80 px-2 py-0.5 rounded-full border border-line">
                   <span>{brand.flag}</span>
-                  <span className="text-[10px] hidden xs:inline">{isAr ? brand.originAr : brand.originEn}</span>
+                  <span className="text-[9px] sm:text-[10px] hidden xs:inline">{isAr ? brand.originAr : brand.originEn}</span>
                 </span>
 
-                <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/20 shadow-2xs">
+                <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-bold text-[9px] sm:text-[10px] bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/20 shadow-2xs">
                   <BadgeCheck size={12} className="fill-emerald-500 text-white" />
                   <span className="hidden sm:inline">{isAr ? "موثق" : "Verified"}</span>
                 </span>
               </div>
 
               {/* 3D Showcase Stage */}
-              <div className="my-2.5 flex items-center justify-center h-20 w-full transition-transform duration-300 group-hover:scale-104">
+              <div className="my-1.5 sm:my-2.5 flex items-center justify-center h-16 sm:h-20 w-full transition-transform duration-200 group-hover:scale-104">
                 <BrandVectorLogo brandId={brand.logoType} theme={brand.badgeTheme} />
               </div>
 
               {/* Real Clean Brand Name */}
-              <div className="space-y-1 text-center mt-1">
-                <h3 className="font-black text-sm sm:text-base text-foreground group-hover:text-orange-500 transition-colors flex items-center justify-center gap-1">
+              <div className="space-y-0.5 sm:space-y-1 text-center mt-1">
+                <h3 className="font-black text-xs sm:text-base text-foreground group-hover:text-orange-500 transition-colors flex items-center justify-center gap-1">
                   <span>{isAr ? brand.nameAr : brand.name}</span>
                 </h3>
-                <p className="text-[10px] sm:text-[11px] text-muted line-clamp-1 font-medium">
+                <p className="text-[9px] sm:text-[11px] text-muted line-clamp-1 font-medium">
                   {isAr ? brand.categoryAr : brand.categoryEn}
                 </p>
               </div>
 
               {/* Tagline / Certified Value */}
-              <div className="mt-2.5 pt-2 border-t border-line/60 text-center">
-                <p className="text-[10px] text-slate-600 dark:text-slate-400 font-medium line-clamp-2 leading-relaxed">
+              <div className="mt-1.5 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-line/60 text-center">
+                <p className="text-[9px] sm:text-[10px] text-slate-600 dark:text-slate-400 font-medium line-clamp-2 leading-relaxed hidden xs:block">
                   {isAr ? brand.taglineAr : brand.taglineEn}
                 </p>
 
                 {/* Rating & Product Count Footer */}
-                <div className="mt-2 flex items-center justify-between text-[10px] font-bold text-muted pt-1">
+                <div className="mt-1 sm:mt-2 flex items-center justify-between text-[9px] sm:text-[10px] font-bold text-muted pt-0.5">
                   <span className="flex items-center gap-0.5 text-amber-500">
                     <Star size={10} className="fill-amber-500" />
                     <span>{brand.rating}</span>
@@ -778,9 +778,9 @@ ${conciergeNotes ? `- ملاحظات: ${conciergeNotes}` : ""}
               </div>
 
               {/* Hover Click Action Label */}
-              <div className="mt-2 text-center pt-1 border-t border-line/40">
-                <span className="text-[10px] font-black text-orange-500 flex items-center justify-center gap-1 group-hover:underline">
-                  <span>{isAr ? "فتح أقسام الماركة" : "Open Brand Hub"}</span>
+              <div className="mt-1.5 sm:mt-2 text-center pt-1 border-t border-line/40">
+                <span className="text-[9px] sm:text-[10px] font-black text-orange-500 flex items-center justify-center gap-1 group-hover:underline">
+                  <span>{isAr ? "فتح الأقسام" : "Open Hub"}</span>
                   <ExternalLink size={10} />
                 </span>
               </div>

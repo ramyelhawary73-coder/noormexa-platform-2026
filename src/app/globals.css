@@ -74,6 +74,8 @@ html {
   overflow-x: hidden;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 body {
@@ -87,6 +89,8 @@ body {
   font-family: "Montserrat", "Cairo", Arial, Helvetica, sans-serif;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 html[lang="ar"] body {
@@ -115,18 +119,49 @@ body::before {
 /* Universal Button Text Containment & Anti-Breaking Rules */
 button,
 a[role="button"],
+input[type="button"],
+input[type="submit"],
 .noormexa-primary-button,
 .noormexa-secondary-button,
 .noormexa-pill-button,
-.noormexa-icon-button {
+.noormexa-icon-button,
+.noormexa-gold-button {
   white-space: nowrap !important;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+button:active:not(:disabled),
+a[role="button"]:active,
+.noormexa-primary-button:active,
+.noormexa-secondary-button:active,
+.noormexa-pill-button:active,
+.noormexa-icon-button:active,
+.noormexa-gold-button:active {
+  transform: scale(0.96);
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 button span,
 a[role="button"] span {
   white-space: nowrap;
+}
+
+/* Smooth horizontal scroll containers on mobile */
+.no-scrollbar,
+.scrollbar-none {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-x: contain !important;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
 }
 
 /* Ensure badges and chips never wrap or break */
@@ -143,6 +178,8 @@ select {
   font: inherit;
   background-color: var(--surface);
   color: var(--foreground);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -154,10 +191,6 @@ select option {
   color: var(--foreground);
 }
 
-button {
-  cursor: pointer;
-}
-
 button:disabled {
   cursor: not-allowed;
   opacity: 0.68;
@@ -166,6 +199,8 @@ button:disabled {
 a {
   color: inherit;
   text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img,
@@ -203,7 +238,7 @@ footer {
 
 .noormexa-app-shell {
   min-height: 100dvh;
-  padding-bottom: 72px;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 16px));
 }
 
 @media (min-width: 768px) {
@@ -2082,13 +2117,14 @@ html[dir="rtl"] .noormexa-password-shell {
 
 .noormexa-ai-widget {
   position: fixed;
-  inset-block-end: 84px;
-  inset-inline-end: 18px;
-  z-index: 60;
+  inset-block-end: calc(76px + env(safe-area-inset-bottom, 12px));
+  inset-inline-end: 14px;
+  z-index: 50;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+  pointer-events: none;
 }
 
 @media (min-width: 769px) {
@@ -2099,26 +2135,41 @@ html[dir="rtl"] .noormexa-password-shell {
 }
 
 .noormexa-ai-fab {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: none;
+  border: 1px solid rgba(249, 115, 22, 0.3);
   background: var(--navy);
   color: var(--gold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--safe-shadow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+@media (min-width: 769px) {
+  .noormexa-ai-fab {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.noormexa-ai-fab:active {
+  transform: scale(0.92);
 }
 
 .dark .noormexa-ai-fab {
   background: var(--gold);
   color: var(--navy);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .noormexa-ai-panel {
-  width: min(360px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 28px));
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -2127,6 +2178,7 @@ html[dir="rtl"] .noormexa-password-shell {
   background: var(--surface);
   box-shadow: var(--safe-shadow);
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .noormexa-ai-panel-header {

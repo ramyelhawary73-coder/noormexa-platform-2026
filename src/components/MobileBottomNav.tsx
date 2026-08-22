@@ -85,8 +85,8 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-line shadow-2xl transition-transform pb-[env(safe-area-inset-bottom,0px)]">
-      <nav className="flex items-center justify-around h-16 px-1.5 max-w-lg mx-auto">
+    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-t border-line shadow-2xl transition-transform pb-[env(safe-area-inset-bottom,0px)] select-none">
+      <nav className="flex items-center justify-around h-16 px-1 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.active;
@@ -96,13 +96,13 @@ export default function MobileBottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center group"
+                className="relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center group touch-manipulation active:scale-90 transition-transform duration-100"
               >
                 <div
-                  className={`relative -top-2 w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 ${
+                  className={`relative -top-2 w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-150 ${
                     isActive
-                      ? "bg-orange-500 text-white shadow-orange-500/30 scale-105 ring-2 ring-orange-400"
-                      : "bg-navy text-white hover:scale-105 border border-slate-700"
+                      ? "bg-orange-500 text-white shadow-orange-500/40 scale-105 ring-2 ring-orange-400"
+                      : "bg-navy text-white hover:scale-105 border border-slate-700 active:scale-95"
                   }`}
                 >
                   <Icon size={20} className="fill-current stroke-[2]" />
@@ -123,7 +123,7 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center transition-colors ${
+              className={`relative flex flex-col items-center justify-center flex-1 h-full py-1 text-center touch-manipulation active:scale-90 transition-all duration-100 ${
                 isActive
                   ? "text-orange-500 font-black"
                   : "text-muted hover:text-foreground font-bold"

@@ -582,32 +582,32 @@ function MarketplaceContent() {
     <main className="noormexa-main py-8 md:py-12">
       <div className="noormexa-container">
         {/* Marketplace Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-line pb-6">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-line pb-4 sm:pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-soft text-gold-strong text-xs font-bold mb-2">
-              <Sparkles size={14} />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-soft text-gold-strong text-xs font-bold mb-1.5">
+              <Sparkles size={13} />
               <span>NOORMEXA Global Exchange</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
               {text.title}
             </h1>
-            <p className="text-sm sm:text-base text-muted mt-1 max-w-2xl">
+            <p className="text-xs sm:text-sm text-muted mt-0.5 max-w-2xl hidden sm:block">
               {text.subtitle}
             </p>
           </div>
 
-          {/* Quick Wishlist / Total Counts badge */}
-          <div className="flex items-center gap-3">
+          {/* Quick Action Bar for Filters & Wishlist */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               type="button"
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all touch-manipulation active:scale-95 cursor-pointer min-h-[40px] ${
                 wishlistOnly
-                  ? "bg-red-500 text-white border-red-500 shadow-sm"
+                  ? "bg-red-500 text-white border-red-500 shadow-sm font-extrabold"
                   : "bg-surface text-foreground border-line hover:border-red-400"
               }`}
               onClick={() => setWishlistOnly(!wishlistOnly)}
             >
-              <Heart size={15} className={wishlistOnly ? "fill-white" : "text-red-500"} />
+              <Heart size={16} className={wishlistOnly ? "fill-white" : "text-red-500"} />
               <span>
                 {language === "ar" ? "المفضلة" : "Wishlist"} ({wishlist.length})
               </span>
@@ -615,31 +615,34 @@ function MarketplaceContent() {
 
             <button
               type="button"
-              className="md:hidden flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white dark:bg-navy dark:text-gold border border-amber-600 dark:border-gold/30 shadow-xs"
+              className="flex-1 sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black bg-orange-500 text-white border border-orange-600 shadow-sm touch-manipulation active:scale-95 cursor-pointer min-h-[40px]"
               onClick={() => setMobileFilterOpen(true)}
             >
-              <Filter size={15} />
+              <Filter size={16} />
               <span>{text.filterTitle}</span>
+              {(selectedBrand !== "all" || selectedCategory !== "all" || dealsOnly || officialOnly) && (
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Search Bar & Category Pills Bar */}
-        <div className="mb-8 space-y-4">
+        <div className="mb-6 space-y-3">
           <div className="relative">
-            <Search size={20} className="absolute start-4 top-1/2 -translate-y-1/2 text-muted" />
+            <Search size={18} className="absolute start-4 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={text.searchPlaceholder}
-              className="w-full ps-12 pe-10 py-3.5 rounded-2xl bg-surface border border-line focus:outline-none focus:border-gold shadow-sm text-sm"
+              className="w-full ps-11 pe-10 py-3 rounded-2xl bg-surface border border-line focus:outline-none focus:border-orange-500 shadow-sm text-sm sm:text-sm text-foreground touch-manipulation"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute end-4 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+                className="absolute end-4 top-1/2 -translate-y-1/2 text-muted hover:text-foreground touch-manipulation p-1"
               >
                 <X size={16} />
               </button>
@@ -647,13 +650,13 @@ function MarketplaceContent() {
           </div>
 
           {/* Category Quick Scroll Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar touch-manipulation overscroll-contain select-none">
             <button
               type="button"
               onClick={() => setSelectedCategory("all")}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer touch-manipulation active:scale-95 shrink-0 ${
                 selectedCategory === "all"
-                  ? "bg-orange-500 text-white border-orange-500 shadow-sm font-extrabold"
+                  ? "bg-orange-500 text-white border-orange-500 shadow-xs font-extrabold"
                   : "bg-surface text-muted border-line hover:border-orange-500/50 hover:text-foreground"
               }`}
             >
@@ -664,9 +667,9 @@ function MarketplaceContent() {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.slug)}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer touch-manipulation active:scale-95 shrink-0 ${
                   selectedCategory === cat.slug
-                    ? "bg-orange-500 text-white border-orange-500 shadow-sm font-extrabold"
+                    ? "bg-orange-500 text-white border-orange-500 shadow-xs font-extrabold"
                     : "bg-surface text-muted border-line hover:border-orange-500/50 hover:text-foreground"
                 }`}
               >
@@ -676,10 +679,10 @@ function MarketplaceContent() {
           </div>
 
           {/* Official Brands Quick Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-t border-line/60 pt-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-t border-line/60 pt-2.5 touch-manipulation overscroll-contain select-none">
             <span className="text-[11px] font-bold text-muted whitespace-nowrap shrink-0 flex items-center gap-1">
               <BadgeCheck size={13} className="text-emerald-500" />
-              <span>{language === "ar" ? "الماركات المعتمدة:" : "Official Brands:"}</span>
+              <span>{language === "ar" ? "الماركات:" : "Brands:"}</span>
             </span>
             <button
               type="button"
@@ -687,20 +690,20 @@ function MarketplaceContent() {
                 setSelectedBrand("all");
                 setSelectedBrandSection("all");
               }}
-              className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer touch-manipulation active:scale-95 shrink-0 ${
                 selectedBrand === "all"
                   ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 shadow-2xs font-extrabold"
                   : "bg-surface text-muted border-line hover:border-slate-400"
               }`}
             >
-              {language === "ar" ? "الكل" : "All Brands"}
+              {language === "ar" ? "الكل" : "All"}
             </button>
             {AVAILABLE_BRANDS.map((b) => (
               <button
                 key={b.id}
                 type="button"
                 onClick={() => handleSelectBrand(b.id)}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer touch-manipulation active:scale-95 shrink-0 flex items-center gap-1.5 ${
                   selectedBrand === b.id
                     ? "bg-orange-500 text-white border-orange-500 shadow-xs font-extrabold ring-1 ring-orange-500/40"
                     : "bg-surface text-muted border-line hover:border-orange-500/40 hover:text-foreground"
@@ -715,23 +718,23 @@ function MarketplaceContent() {
           </div>
 
           {/* Quick Sub-Navigation Feature Badges Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1.5">
             <button
               type="button"
               id="deals"
               onClick={() => setDealsOnly(!dealsOnly)}
-              className={`p-3 rounded-2xl border transition-all text-start flex items-center gap-3 cursor-pointer ${
+              className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-start flex items-center gap-2.5 cursor-pointer touch-manipulation active:scale-95 ${
                 dealsOnly
                   ? "bg-red-500/15 border-red-500/50 text-red-600 dark:text-red-400 shadow-xs"
                   : "bg-surface border-line hover:border-red-400/40"
               }`}
             >
-              <div className="w-9 h-9 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
-                <Flame size={18} className="animate-pulse" />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
+                <Flame size={16} className="animate-pulse" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-black truncate">{language === "ar" ? "عروض الفلاش 50%" : "Flash Deals 50%"}</div>
-                <div className="text-[10px] text-muted truncate">{dealsOnly ? (language === "ar" ? "مفعل (انقر للإلغاء)" : "Active (Click to reset)") : (language === "ar" ? "خصومات حصرية محدودة" : "Limited Discounts")}</div>
+                <div className="text-[10px] text-muted truncate">{dealsOnly ? (language === "ar" ? "مفعل" : "Active") : (language === "ar" ? "خصومات حصرية" : "Discounts")}</div>
               </div>
             </button>
 
@@ -739,18 +742,18 @@ function MarketplaceContent() {
               type="button"
               id="official"
               onClick={() => setOfficialOnly(!officialOnly)}
-              className={`p-3 rounded-2xl border transition-all text-start flex items-center gap-3 cursor-pointer ${
+              className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-start flex items-center gap-2.5 cursor-pointer touch-manipulation active:scale-95 ${
                 officialOnly
                   ? "bg-amber-500/15 border-amber-500/50 text-amber-600 dark:text-amber-400 shadow-xs"
                   : "bg-surface border-line hover:border-amber-400/40"
               }`}
             >
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                <Crown size={18} />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <Crown size={16} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-black truncate">{language === "ar" ? "المتجر المعتمد" : "Flagship Store"}</div>
-                <div className="text-[10px] text-muted truncate">{officialOnly ? (language === "ar" ? "مفعل (انقر للإلغاء)" : "Active (Click to reset)") : (language === "ar" ? "ضمان أصالة 100%" : "100% Guaranteed")}</div>
+                <div className="text-[10px] text-muted truncate">{officialOnly ? (language === "ar" ? "مفعل" : "Active") : (language === "ar" ? "ضمان أصالة 100%" : "Guaranteed")}</div>
               </div>
             </button>
 
@@ -1191,7 +1194,7 @@ function MarketplaceContent() {
               </div>
             </div>
 
-            {/* Products Grid */}
+            {/* Products Grid - 2 columns on mobile, 3 columns on desktop */}
             {filteredProducts.length === 0 ? (
               <div className="text-center py-16 px-4 bg-surface rounded-3xl border border-line space-y-4">
                 <Package size={48} className="mx-auto text-muted" />
@@ -1204,13 +1207,13 @@ function MarketplaceContent() {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="px-6 py-2.5 rounded-full bg-gold text-navy text-xs font-bold hover:bg-gold-strong transition-all shadow-sm"
+                  className="px-6 py-2.5 rounded-full bg-orange-500 text-white text-xs font-bold hover:bg-orange-600 transition-all shadow-sm touch-manipulation active:scale-95 cursor-pointer"
                 >
                   {text.resetFilters}
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5">
                 {filteredProducts.map((product) => {
                   const inWish = isInWishlist(product.id);
                   const isAdded = addedItemMap[product.id];
@@ -1222,10 +1225,10 @@ function MarketplaceContent() {
                   return (
                     <div
                       key={product.id}
-                      className="group relative flex flex-col justify-between rounded-3xl bg-surface border border-line p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gold/50"
+                      className="group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl bg-surface border border-line p-2.5 sm:p-4 shadow-2xs hover:shadow-md transition-all duration-200 hover:border-orange-500/50"
                     >
                       {/* Product Image & Badges */}
-                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface-soft mb-3.5">
+                      <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-surface-soft mb-2 sm:mb-3.5">
                         <Link href={`/marketplace/${product.id}`} className="block w-full h-full">
                           {product.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1235,30 +1238,30 @@ function MarketplaceContent() {
                               onError={(e) => {
                                 e.currentTarget.src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80";
                               }}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-muted">
-                              <Package size={36} />
+                              <Package size={28} />
                             </div>
                           )}
                         </Link>
 
                         {/* Top Badges (Discount & Featured) */}
-                        <div className="absolute top-2.5 start-2.5 flex flex-col gap-1.5">
+                        <div className="absolute top-1.5 start-1.5 sm:top-2.5 sm:start-2.5 flex flex-col gap-1">
                           {discountPercent && (
-                            <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold shadow-sm">
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-full bg-red-600 text-white text-[9px] sm:text-[10px] font-extrabold shadow-sm">
                               {discountPercent}% {text.saveDiscount}
                             </span>
                           )}
                           {product.is_featured && (
-                            <span className="px-2 py-0.5 rounded-full bg-navy text-gold border border-gold/40 text-[10px] font-extrabold flex items-center gap-1 shadow-sm">
-                              <Flame size={11} className="text-gold" />
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-full bg-navy text-gold border border-gold/40 text-[9px] sm:text-[10px] font-extrabold flex items-center gap-0.5 sm:gap-1 shadow-sm">
+                              <Flame size={10} className="text-gold" />
                               <span>مميز</span>
                             </span>
                           )}
                           {product.free_shipping && (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold flex items-center gap-1 shadow-sm">
+                            <span className="hidden sm:flex px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold items-center gap-1 shadow-sm">
                               <Truck size={10} />
                               <span>{text.freeShippingBadge}</span>
                             </span>
@@ -1270,24 +1273,25 @@ function MarketplaceContent() {
                           type="button"
                           onClick={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             toggleWishlist(product.id);
                           }}
-                          className="absolute top-2.5 end-2.5 p-2 rounded-full bg-surface/80 backdrop-blur-md text-foreground hover:text-red-500 shadow-sm transition-all"
+                          className="absolute top-1.5 end-1.5 sm:top-2.5 sm:end-2.5 p-1.5 sm:p-2 rounded-full bg-surface/90 backdrop-blur-md text-foreground hover:text-red-500 shadow-xs transition-all touch-manipulation active:scale-90 cursor-pointer z-10"
                           aria-label="Wishlist"
                         >
-                          <Heart size={15} className={inWish ? "fill-red-500 text-red-500" : ""} />
+                          <Heart size={14} className={inWish ? "fill-red-500 text-red-500" : "text-muted"} />
                         </button>
                       </div>
 
                       {/* Store Name & Rating */}
-                      <div className="space-y-1.5 flex-1 flex flex-col">
-                        <div className="flex items-center justify-between text-[11px] text-muted">
-                          <span className="flex items-center gap-1 truncate max-w-[150px]">
-                            <StoreIcon size={12} className="text-gold" />
+                      <div className="space-y-1 sm:space-y-1.5 flex-1 flex flex-col">
+                        <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-muted">
+                          <span className="flex items-center gap-1 truncate max-w-[90px] sm:max-w-[150px]">
+                            <StoreIcon size={11} className="text-orange-500" />
                             <span className="truncate">{product.store_name}</span>
                           </span>
-                          <span className="flex items-center gap-1 text-gold font-bold">
-                            <Star size={12} className="fill-gold" />
+                          <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                            <Star size={11} className="fill-amber-500" />
                             <span>{product.rating?.toFixed(1) || "5.0"}</span>
                           </span>
                         </div>
@@ -1295,40 +1299,40 @@ function MarketplaceContent() {
                         {/* Product Title */}
                         <Link
                           href={`/marketplace/${product.id}`}
-                          className="font-bold text-sm text-foreground hover:text-gold line-clamp-2 transition-colors flex-1"
+                          className="font-bold text-xs sm:text-sm text-foreground hover:text-orange-500 line-clamp-2 transition-colors flex-1 leading-snug"
                         >
                           {language === "ar" ? product.name : product.name_en || product.name}
                         </Link>
 
                         {/* Price Row */}
-                        <div className="pt-2 flex items-baseline justify-between gap-2 border-t border-line/60 mt-2">
+                        <div className="pt-1.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-t border-line/60 mt-1 sm:mt-2">
                           <div>
-                            <span className="text-base font-extrabold text-foreground tracking-tight">
+                            <span className="text-sm sm:text-base font-extrabold text-foreground tracking-tight">
                               {formatPrice(product.price)}
                             </span>
                             {product.original_price && product.original_price > product.price && (
-                              <span className="ms-1.5 text-xs text-muted line-through">
+                              <span className="block sm:inline sm:ms-1.5 text-[10px] sm:text-xs text-muted line-through">
                                 {formatPrice(product.original_price)}
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] text-muted font-medium">
-                            {product.stock > 0 ? `${product.stock} متاح` : text.outOfStock}
+                          <span className="text-[9px] sm:text-[10px] text-muted font-medium">
+                            {product.stock > 0 ? `${product.stock} ${language === "ar" ? "متاح" : "left"}` : text.outOfStock}
                           </span>
                         </div>
                       </div>
 
                       {/* Action Button */}
-                      <div className="pt-3">
+                      <div className="pt-2 sm:pt-3">
                         <button
                           type="button"
                           disabled={product.stock <= 0}
                           onClick={(e) => handleQuickAdd(product, e)}
-                          className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shrink-0 whitespace-nowrap min-h-[40px] ${
+                          className={`w-full py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[38px] sm:min-h-[40px] touch-manipulation active:scale-95 cursor-pointer ${
                             isAdded
                               ? "bg-emerald-600 text-white"
                               : product.stock > 0
-                              ? "bg-orange-500 hover:bg-orange-600 !text-white shadow-xs active:scale-[0.98]"
+                              ? "bg-orange-500 hover:bg-orange-600 !text-white shadow-xs"
                               : "bg-surface-soft text-muted cursor-not-allowed border border-line"
                           }`}
                         >
@@ -1339,7 +1343,7 @@ function MarketplaceContent() {
                             </>
                           ) : (
                             <>
-                              <Tag size={13} />
+                              <Tag size={12} className="shrink-0" />
                               <span>{product.stock > 0 ? text.quickAdd : text.outOfStock}</span>
                             </>
                           )}
@@ -1626,118 +1630,146 @@ function MarketplaceContent() {
 
       {/* Mobile Drawer Filter Modal */}
       {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end md:hidden">
-          <div className="w-4/5 max-w-sm h-full bg-surface p-6 overflow-y-auto space-y-6 animate-in slide-in-from-end">
-            <div className="flex items-center justify-between border-b border-line pb-4">
-              <div className="flex items-center gap-2 font-bold text-foreground text-base">
-                <Filter size={18} className="text-gold" />
-                <span>{text.filterTitle}</span>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end md:hidden animate-in fade-in duration-200">
+          <div className="w-4/5 max-w-sm h-full bg-surface dark:bg-slate-900 p-5 overflow-y-auto space-y-5 animate-in slide-in-from-end duration-200 border-s border-line flex flex-col justify-between">
+            <div className="space-y-5">
+              <div className="flex items-center justify-between border-b border-line pb-3.5">
+                <div className="flex items-center gap-2 font-black text-foreground text-base">
+                  <Filter size={18} className="text-orange-500" />
+                  <span>{text.filterTitle}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="p-1.5 rounded-full bg-surface-soft text-muted hover:text-foreground touch-manipulation active:scale-90"
+                  aria-label="Close filters"
+                >
+                  <X size={18} />
+                </button>
               </div>
-              <button type="button" onClick={() => setMobileFilterOpen(false)} className="p-1 text-muted">
-                <X size={20} />
-              </button>
-            </div>
 
-            {/* Brand Filter */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-foreground flex items-center justify-between">
-                <span>{language === "ar" ? "الماركة العالمية" : "Global Brand"}</span>
-                {selectedBrand !== "all" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedBrand("all");
-                      setSelectedBrandSection("all");
-                    }}
-                    className="text-[10px] text-orange-500 font-bold hover:underline"
-                  >
-                    {language === "ar" ? "إلغاء التحديد" : "Clear"}
-                  </button>
-                )}
-              </span>
-              <select
-                value={selectedBrand}
-                onChange={(e) => {
-                  setSelectedBrand(e.target.value);
-                  setSelectedBrandSection("all");
-                }}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-surface border border-line text-foreground focus:outline-none focus:border-orange-500"
-              >
-                <option value="all">{language === "ar" ? "جميع الماركات" : "All Brands"}</option>
-                {AVAILABLE_BRANDS.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {language === "ar" ? `${b.nameAr} (${b.name})` : b.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Price Slider */}
-            <div className="space-y-2 border-t border-line pt-4">
-              <div className="flex justify-between text-xs font-semibold text-foreground">
-                <span>{text.priceRange}</span>
-                <span className="text-orange-500 font-bold">{formatPrice(maxPrice)}</span>
+              {/* Category Filter */}
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-foreground">
+                  {language === "ar" ? "القسم الرئيسي" : "Main Category"}
+                </span>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl text-xs bg-surface-soft border border-line text-foreground focus:outline-none focus:border-orange-500 touch-manipulation"
+                >
+                  <option value="all">{text.allCategories}</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.slug}>
+                      {language === "ar" ? c.name_ar : c.name_en}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <input
-                type="range"
-                min="200"
-                max="500000"
-                step="1000"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-orange-500"
-              />
-              <div className="flex justify-between text-[10px] text-muted">
-                <span>{formatPrice(200)}</span>
-                <span>{formatPrice(500000)}</span>
+
+              {/* Brand Filter */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground">
+                    {language === "ar" ? "الماركة العالمية" : "Global Brand"}
+                  </span>
+                  {selectedBrand !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedBrand("all");
+                        setSelectedBrandSection("all");
+                      }}
+                      className="text-[10px] text-orange-500 font-bold hover:underline touch-manipulation"
+                    >
+                      {language === "ar" ? "إلغاء التحديد" : "Clear"}
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => {
+                    setSelectedBrand(e.target.value);
+                    setSelectedBrandSection("all");
+                  }}
+                  className="w-full px-3 py-2.5 rounded-xl text-xs bg-surface-soft border border-line text-foreground focus:outline-none focus:border-orange-500 touch-manipulation"
+                >
+                  <option value="all">{language === "ar" ? "جميع الماركات" : "All Brands"}</option>
+                  {AVAILABLE_BRANDS.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {language === "ar" ? `${b.nameAr} (${b.name})` : b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Price Slider */}
+              <div className="space-y-2 border-t border-line pt-3.5">
+                <div className="flex justify-between text-xs font-bold text-foreground">
+                  <span>{text.priceRange}</span>
+                  <span className="text-orange-500 font-black">{formatPrice(maxPrice)}</span>
+                </div>
+                <input
+                  type="range"
+                  min="200"
+                  max="500000"
+                  step="1000"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full accent-orange-500 touch-manipulation"
+                />
+                <div className="flex justify-between text-[10px] text-muted font-bold">
+                  <span>{formatPrice(200)}</span>
+                  <span>{formatPrice(500000)}</span>
+                </div>
+              </div>
+
+              {/* Checkboxes */}
+              <div className="space-y-2.5 border-t border-line pt-3.5">
+                <label className="flex items-center gap-2.5 text-xs font-semibold text-foreground cursor-pointer select-none touch-manipulation">
+                  <input
+                    type="checkbox"
+                    checked={inStockOnly}
+                    onChange={(e) => setInStockOnly(e.target.checked)}
+                    className="accent-orange-500 rounded w-4 h-4"
+                  />
+                  <span>{text.inStockOnly}</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 text-xs font-semibold text-foreground cursor-pointer select-none touch-manipulation">
+                  <input
+                    type="checkbox"
+                    checked={freeShippingOnly}
+                    onChange={(e) => setFreeShippingOnly(e.target.checked)}
+                    className="accent-orange-500 rounded w-4 h-4"
+                  />
+                  <span>{text.freeShippingOnly}</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 text-xs font-semibold text-foreground cursor-pointer select-none touch-manipulation">
+                  <input
+                    type="checkbox"
+                    checked={verifiedOnly}
+                    onChange={(e) => setVerifiedOnly(e.target.checked)}
+                    className="accent-orange-500 rounded w-4 h-4"
+                  />
+                  <span>{text.verifiedStoresOnly}</span>
+                </label>
               </div>
             </div>
 
-            {/* Checkboxes */}
-            <div className="space-y-3 border-t border-line pt-4">
-              <label className="flex items-center gap-2 text-xs text-foreground">
-                <input
-                  type="checkbox"
-                  checked={inStockOnly}
-                  onChange={(e) => setInStockOnly(e.target.checked)}
-                  className="accent-[#d4af37]"
-                />
-                <span>{text.inStockOnly}</span>
-              </label>
-
-              <label className="flex items-center gap-2 text-xs text-foreground">
-                <input
-                  type="checkbox"
-                  checked={freeShippingOnly}
-                  onChange={(e) => setFreeShippingOnly(e.target.checked)}
-                  className="accent-[#d4af37]"
-                />
-                <span>{text.freeShippingOnly}</span>
-              </label>
-
-              <label className="flex items-center gap-2 text-xs text-foreground">
-                <input
-                  type="checkbox"
-                  checked={verifiedOnly}
-                  onChange={(e) => setVerifiedOnly(e.target.checked)}
-                  className="accent-[#d4af37]"
-                />
-                <span>{text.verifiedStoresOnly}</span>
-              </label>
-            </div>
-
-            <div className="pt-4 space-y-2">
+            <div className="pt-4 space-y-2 border-t border-line">
               <button
                 type="button"
                 onClick={() => setMobileFilterOpen(false)}
-                className="w-full py-3 rounded-xl bg-gold text-navy font-bold text-xs shadow-sm"
+                className="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-md touch-manipulation active:scale-95 cursor-pointer"
               >
-                {language === "ar" ? "تطبيق الفلاتر" : "Apply Filters"}
+                {language === "ar" ? "تطبيق الفلاتر" : "Apply Filters"} ({filteredProducts.length})
               </button>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="w-full py-2.5 rounded-xl border border-line text-muted font-medium text-xs"
+                className="w-full py-2.5 rounded-xl border border-line text-muted hover:text-foreground font-bold text-xs touch-manipulation active:scale-95 cursor-pointer"
               >
                 {text.resetFilters}
               </button>
