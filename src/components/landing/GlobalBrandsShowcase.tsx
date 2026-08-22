@@ -372,38 +372,31 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
   switch (brandId) {
     case "apple":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-800/80 flex flex-col items-center justify-center relative overflow-hidden shadow-xs group-hover:border-slate-600 transition-colors">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
-          <svg viewBox="0 0 170 170" className="w-8 h-8 text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.3)] relative z-10" fill="currentColor">
-            {/* Apple Leaf */}
-            <path d="M119.22 31.84c0-7.39 2.65-14.34 7.95-20.85 5.3-6.51 11.95-10.58 19.95-12.2 0 1.09.07 2.06.07 2.93 0 7.18-2.82 14.28-8.46 21.3-5.64 7.02-12.39 10.82-20.25 11.41-.43-.87-.66-1.74-.66-2.59z" />
-            {/* Apple Body with Bite */}
-            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.85-11.71-14.44-6.3-10.08-11.19-21.2-14.67-33.36-3.48-12.16-5.22-23.73-5.22-34.7 0-14.12 3.65-25.79 10.96-35 7.31-9.21 16.48-13.91 27.52-14.1 4.57 0 9.77 1.25 15.6 3.75 5.83 2.5 9.74 3.79 11.74 3.79 1.79 0 5.86-1.34 12.22-4.02 6.36-2.68 11.89-3.88 16.59-3.6 12.63.65 22.58 5.62 29.86 14.9-11.07 6.72-16.5 16.14-16.3 28.25.22 9.55 3.96 17.5 11.22 23.86 7.26 6.36 15.79 9.87 25.59 10.53-.88 2.82-1.96 5.81-3.26 8.97z" />
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#1c1d21] via-[#111215] to-[#08080a] border border-neutral-700/60 flex items-center justify-center relative overflow-hidden shadow-md group-hover:border-slate-400/60 transition-colors">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.25),transparent_65%)] pointer-events-none" />
+          <svg viewBox="0 0 24 24" className="w-10 h-10 text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.3)] relative z-10" fill="currentColor">
+            {/* Apple Official Vector Path */}
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.98c.61-.75 1.04-1.8 1.01-2.98-1.01.04-2.22.68-2.88 1.46-.57.67-.99 1.74-.95 2.91 1.13.09 2.21-.64 2.82-1.39z" />
           </svg>
-          <span className="text-[10px] font-black tracking-[0.25em] text-white font-sans mt-0.5 relative z-10">
-            Apple
-          </span>
         </div>
       );
 
     case "nike":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs group-hover:border-orange-500/50 transition-colors">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
-          <svg viewBox="0 0 24 24" className="w-12 h-6 text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.35)] relative z-10" fill="currentColor">
-            <path d="M21.71 4.79C17.65 9.07 10.82 14.88 4.9 16.71C2.33 17.5 0.72 16.91 0.17 15.02C-0.34 13.26 0.44 11.08 2.37 8.86C2.65 8.54 3.09 8.76 2.87 9.14C1.72 11.13 1.54 13.06 2.45 14.15C3.39 15.27 5.56 15.06 8.44 13.46C13.56 10.62 19.38 4.67 21.05 2.82C21.46 2.37 22.04 4.44 21.71 4.79Z" />
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#1c1d21] via-[#111215] to-[#08080a] border border-neutral-700/60 flex items-center justify-center relative overflow-hidden shadow-md group-hover:border-orange-500/60 transition-colors">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.22),transparent_65%)] pointer-events-none" />
+          <svg viewBox="0 0 100 40" className="w-18 h-8 text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.35)] relative z-10" fill="currentColor">
+            {/* Nike Official Iconic Swoosh */}
+            <path d="M96 2.5C78.5 13.8 55.2 26.2 29.5 32.5 16.8 35.7 7.4 34.3 3.2 29.3-1.1 24.3.7 16.7 6.7 9c.7-.9 1.6-.6 1.2.3-3.7 7-3.2 12.8.8 16.5 4.3 3.9 12.7 3.5 24.5-.2C55.4 18.7 78.7 7.4 94.2-.8c2.4-1.3 4.2 1.1 1.8 3.3z" />
           </svg>
-          <span className="text-[10px] font-black tracking-[0.35em] text-white font-sans mt-0.5 relative z-10">
-            NIKE
-          </span>
         </div>
       );
 
     case "rolex":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#004d26] via-[#00381b] to-[#002412] border border-emerald-600/40 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,224,71,0.18),transparent_70%)] pointer-events-none" />
-          <svg viewBox="0 0 120 62" className="w-16 h-8 drop-shadow-sm relative z-10">
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#004d26] via-[#00381b] to-[#002010] border border-emerald-500/40 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,224,71,0.2),transparent_70%)] pointer-events-none" />
+          <svg viewBox="0 0 100 45" className="w-14 h-7 relative z-10">
             <defs>
               <linearGradient id="rolexGoldGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#FDE047" />
@@ -411,15 +404,15 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
                 <stop offset="100%" stopColor="#D97706" />
               </linearGradient>
             </defs>
-            <circle cx="16" cy="14" r="4.2" fill="url(#rolexGoldGradCard)" />
-            <circle cx="38" cy="6" r="4.8" fill="url(#rolexGoldGradCard)" />
-            <circle cx="60" cy="3" r="5.4" fill="url(#rolexGoldGradCard)" />
-            <circle cx="82" cy="6" r="4.8" fill="url(#rolexGoldGradCard)" />
-            <circle cx="104" cy="14" r="4.2" fill="url(#rolexGoldGradCard)" />
-            <path d="M16 19 L26 46 L38 46 L38 12 L49 46 L71 46 L60 9 L71 46 L82 12 L82 46 L94 46 L104 19 L96 52 L24 52 Z" fill="url(#rolexGoldGradCard)" />
-            <rect x="22" y="53" width="76" height="6.5" rx="3.25" fill="url(#rolexGoldGradCard)" />
+            <circle cx="10" cy="10" r="3.5" fill="url(#rolexGoldGradCard)" />
+            <circle cx="30" cy="4" r="4" fill="url(#rolexGoldGradCard)" />
+            <circle cx="50" cy="2" r="4.5" fill="url(#rolexGoldGradCard)" />
+            <circle cx="70" cy="4" r="4" fill="url(#rolexGoldGradCard)" />
+            <circle cx="90" cy="10" r="3.5" fill="url(#rolexGoldGradCard)" />
+            <path d="M10 14 L20 38 L30 38 L30 8 L40 38 L60 38 L50 6 L60 38 L70 8 L70 38 L80 38 L90 14 L82 42 L18 42 Z" fill="url(#rolexGoldGradCard)" />
+            <rect x="18" y="42" width="64" height="4" rx="2" fill="url(#rolexGoldGradCard)" />
           </svg>
-          <span className="text-[11px] font-serif font-black tracking-[0.3em] text-[#FDE047] drop-shadow-xs relative z-10 -mt-0.5">
+          <span className="text-[10px] font-serif font-black tracking-[0.35em] text-[#FDE047] drop-shadow-xs relative z-10 mt-0.5">
             ROLEX
           </span>
         </div>
@@ -427,32 +420,19 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "samsung":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#034EA2] via-[#023c7d] to-[#00224d] border border-blue-500/40 flex items-center justify-center relative overflow-hidden shadow-xs px-2">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.22),transparent_60%)] pointer-events-none" />
-          <svg viewBox="0 0 190 36" className="w-28 h-7 text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.2)] relative z-10" fill="currentColor">
-            {/* S */}
-            <path d="M18 9c-5.5 0-9.5 2.8-9.5 7 0 8.5 13 5.5 13 10.5 0 2.2-2.2 4-6 4-4 0-7-1.8-8.5-4.8L2 28.5C4 32.5 8.5 35 14.5 35c7.5 0 12-4 12-9 0-9-13-6-13-11 0-1.8 1.8-3.2 5-3.2 3.5 0 6 1.4 7.2 3.5l4.8-2.8C38.2 9 34.5 9 18 9z" />
-            {/* A (Authentic Samsung Lambda) */}
-            <path d="M35 34h5.8l10-25h-5.8l-7.2 18.5L30.6 9H24.8l10.2 25z" />
-            {/* M */}
-            <path d="M54 9h5.5l7.5 15.5L74.5 9H80v25h-5V17l-6 12.5h-3.8L59 17v17h-5V9z" />
-            {/* S */}
-            <path d="M96 9c-5.5 0-9.5 2.8-9.5 7 0 8.5 13 5.5 13 10.5 0 2.2-2.2 4-6 4-4 0-7-1.8-8.5-4.8L80 28.5C82 32.5 86.5 35 92.5 35c7.5 0 12-4 12-9 0-9-13-6-13-11 0-1.8 1.8-3.2 5-3.2 3.5 0 6 1.4 7.2 3.5l4.8-2.8C116.2 9 112.5 9 96 9z" />
-            {/* U */}
-            <path d="M112 9h5.2v16c0 3.2 2.2 5 5.5 5s5.5-1.8 5.5-5V9h5.2v16c0 6.5-4.5 9.8-10.7 9.8s-10.7-3.3-10.7-9.8V9z" />
-            {/* N */}
-            <path d="M139 9h5.2l12 17V9h5.2v25h-5.2l-12-17v17H139V9z" />
-            {/* G */}
-            <path d="M178 9c-8 0-13.5 5.5-13.5 13s5.5 13 13.5 13c5.5 0 9.8-2.8 11.5-6.8l-4.5-2.2c-1.2 2.8-4 4.5-7 4.5-5 0-8.2-3.8-8.2-8.5s3.2-8.5 8.2-8.5c3.2 0 5.8 1.8 7 4l4.5-2.2C187.8 11.5 183.5 9 178 9zm5 10v4.5h7.2V19H183z" />
-          </svg>
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#034EA2] via-[#023c7d] to-[#00224d] border border-blue-400/40 flex items-center justify-center relative overflow-hidden shadow-md px-2">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.25),transparent_60%)] pointer-events-none" />
+          <span className="text-xl sm:text-2xl font-sans font-black tracking-[0.16em] text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.3)] relative z-10 select-none">
+            SAMSUNG
+          </span>
         </div>
       );
 
     case "sony":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-slate-800 flex items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
-          <span className="text-2xl font-serif font-black tracking-[0.25em] text-white drop-shadow-sm relative z-10">
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-slate-700/60 flex items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
+          <span className="text-2xl font-serif font-black tracking-[0.25em] text-white drop-shadow-sm relative z-10 select-none">
             SONY
           </span>
         </div>
@@ -460,9 +440,9 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "dior":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-stone-900 via-neutral-950 to-black border border-stone-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(253,230,138,0.12),transparent_70%)] pointer-events-none" />
-          <span className="text-2xl font-serif font-bold tracking-[0.2em] text-white relative z-10">
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-stone-900 via-neutral-950 to-black border border-stone-700/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(253,230,138,0.15),transparent_70%)] pointer-events-none" />
+          <span className="text-2xl font-serif font-bold tracking-[0.2em] text-white relative z-10 select-none">
             Dior
           </span>
           <span className="text-[8px] font-sans font-black tracking-[0.45em] text-amber-200/90 uppercase -mt-0.5 relative z-10">
@@ -473,8 +453,8 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "chanel":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-zinc-900 via-black to-zinc-950 border border-zinc-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-zinc-900 via-black to-zinc-950 border border-zinc-700/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
           <svg viewBox="0 0 110 65" className="w-14 h-8 text-white drop-shadow-sm relative z-10" fill="currentColor">
             <g transform="translate(55, 23)">
               <path d="M-6 -14 C1 -14 7 -10 10 -4 L5 -1 C3 -4 0 -7 -6 -7 C-14 -7 -19 -1 -19 6 C-19 13 -14 19 -6 19 C0 19 3 16 5 13 L10 16 C7 22 1 26 -6 26 C-17 26 -26 17 -26 6 C-26 -5 -17 -14 -6 -14 Z" />
@@ -489,8 +469,8 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "adidas":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-800 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-700/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
           <svg viewBox="0 0 100 55" className="w-13 h-7 text-white relative z-10" fill="currentColor">
             <path d="M12 36 L24 36 L43 14 L31 14 Z" />
             <path d="M35 36 L47 36 L72 3 L60 3 Z" />
@@ -504,8 +484,8 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "gucci":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#2D1B08] via-[#1F1205] to-[#120A03] border border-amber-900/50 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.18),transparent_70%)] pointer-events-none" />
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#2D1B08] via-[#1F1205] to-[#120A03] border border-amber-900/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.2),transparent_70%)] pointer-events-none" />
           <svg viewBox="0 0 110 50" className="w-14 h-7 relative z-10">
             <defs>
               <linearGradient id="gucciGoldGradBadge" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -525,8 +505,8 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "lv":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#381E0F] via-[#24130A] to-[#140A05] border border-amber-900/50 flex flex-col items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.18),transparent_70%)] pointer-events-none" />
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#381E0F] via-[#24130A] to-[#140A05] border border-amber-900/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.2),transparent_70%)] pointer-events-none" />
           <svg viewBox="0 0 110 50" className="w-13 h-7 relative z-10">
             <defs>
               <linearGradient id="lvGoldGradBadge" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -546,9 +526,9 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "dyson":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-900 via-[#1E102A] to-slate-950 border border-fuchsia-900/40 flex items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(217,70,239,0.2),transparent_60%)] pointer-events-none" />
-          <span className="text-xl font-sans font-black tracking-wider text-fuchsia-400 drop-shadow-[0_2px_8px_rgba(217,70,239,0.4)] lowercase relative z-10">
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-slate-900 via-[#1E102A] to-slate-950 border border-fuchsia-900/50 flex items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(217,70,239,0.22),transparent_60%)] pointer-events-none" />
+          <span className="text-xl font-sans font-black tracking-wider text-fuchsia-400 drop-shadow-[0_2px_8px_rgba(217,70,239,0.4)] lowercase relative z-10 select-none">
             dyson
           </span>
         </div>
@@ -556,9 +536,9 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     case "zara":
       return (
-        <div className="w-full h-full rounded-xl bg-gradient-to-br from-neutral-900 via-black to-neutral-950 border border-neutral-800 flex items-center justify-center relative overflow-hidden shadow-xs">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
-          <span className="text-2xl font-serif font-black tracking-[-0.12em] text-white drop-shadow-sm relative z-10">
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-neutral-900 via-black to-neutral-950 border border-neutral-700/60 flex items-center justify-center relative overflow-hidden shadow-md">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
+          <span className="text-2xl font-serif font-black tracking-[-0.12em] text-white drop-shadow-sm relative z-10 select-none">
             ZARA
           </span>
         </div>
@@ -566,7 +546,7 @@ export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }
 
     default:
       return (
-        <div className="w-full h-full rounded-xl bg-slate-900 text-white font-black text-sm flex items-center justify-center font-mono">
+        <div className="w-full h-full rounded-2xl bg-slate-900 text-white font-black text-sm flex items-center justify-center font-mono">
           {brandId.slice(0, 3).toUpperCase()}
         </div>
       );
