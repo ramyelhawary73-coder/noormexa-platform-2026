@@ -1,19 +1,19 @@
 {
-  "name": "AURUM ERP",
-  "short_name": "AURUM ERP",
-  "description": "AURUM ERP — نظام ومنصة التجارة والأعمال المتكاملة",
+  "name": "NOORMEXA",
+  "short_name": "NOORMEXA",
+  "description": "NOORMEXA — منصة وسوق التجارة الإلكترونية العالمية الذكية",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
+  "background_color": "#0b1322",
+  "theme_color": "#0b1322",
   "orientation": "any",
   "dir": "auto",
   "lang": "ar",
   "prefer_related_applications": false,
-  "categories": ["business", "productivity", "shopping", "finance"],
+  "categories": ["shopping", "business", "productivity", "finance"],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -65,7 +65,7 @@
     {
       "name": "مركز إدارة المالك | Admin Hub",
       "short_name": "الإدارة",
-      "description": "التحكم الكامل في النظام والإشراف العام",
+      "description": "التحكم الكامل في المنصة والإشراف العام",
       "url": "/admin",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }

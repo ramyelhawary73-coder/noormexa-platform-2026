@@ -11,14 +11,14 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "AURUM ERP | NOORMEXA Platform",
-  description: "AURUM ERP — نظام ومنصة التجارة والأعمال المتكاملة.",
+  title: "NOORMEXA | منصة التجارة العالمية الذكية",
+  description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تجارة ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
   manifest: "/manifest.json",
-  applicationName: "AURUM ERP",
+  applicationName: "NOORMEXA",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "AURUM ERP",
+    title: "NOORMEXA",
   },
   formatDetection: {
     telephone: false,
