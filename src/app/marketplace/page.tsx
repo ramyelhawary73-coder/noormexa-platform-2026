@@ -14,7 +14,6 @@ import {
   Gift,
   Heart,
   Package,
-  Percent,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -27,6 +26,77 @@ import {
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { Product } from "@/types/marketplace";
+import { BrandLogo } from "@/components/marketplace/BrandLogo";
+
+// Available Brands list (module-level constant)
+export const AVAILABLE_BRANDS = [
+  { id: "apple", name: "Apple", nameAr: "أبل", tag: "Tech & Mobile", color: "from-slate-800 to-slate-950" },
+  { id: "nike", name: "Nike", nameAr: "نايكي", tag: "Sport & Lifestyle", color: "from-amber-700 to-slate-900" },
+  { id: "rolex", name: "Rolex", nameAr: "رولكس", tag: "Haute Horlogerie", color: "from-emerald-900 to-slate-950" },
+  { id: "dior", name: "Dior", nameAr: "ديور", tag: "Paris Haute Couture", color: "from-slate-900 to-zinc-950" },
+  { id: "samsung", name: "Samsung", nameAr: "سامسونج", tag: "Galaxy AI Devices", color: "from-blue-900 to-slate-950" },
+  { id: "sony", name: "Sony", nameAr: "سوني", tag: "Audio & PlayStation", color: "from-slate-900 to-neutral-950" },
+  { id: "chanel", name: "Chanel", nameAr: "شانيل", tag: "Paris Luxury", color: "from-zinc-900 to-black" },
+  { id: "adidas", name: "Adidas", nameAr: "أديداس", tag: "Originals & Sports", color: "from-blue-950 to-slate-900" },
+  { id: "gucci", name: "Gucci", nameAr: "غوتشي", tag: "Firenze Luxury", color: "from-stone-900 to-neutral-950" },
+  { id: "louis-vuitton", name: "Louis Vuitton", nameAr: "لويس فيتون", tag: "Maison Paris 1854", color: "from-amber-950 to-slate-950" },
+  { id: "dyson", name: "Dyson", nameAr: "دايسون", tag: "Smart Hair & Care", color: "from-purple-950 to-slate-950" },
+  { id: "zara", name: "ZARA", nameAr: "زارا", tag: "European Fashion", color: "from-neutral-900 to-stone-950" },
+];
+
+// Specific sub-sections for every brand (module-level constant)
+export const BRAND_SECTIONS: Record<string, { id: string; nameAr: string; nameEn: string; keywords: string[] }[]> = {
+  apple: [
+    { id: "iphone", nameAr: "هواتف iPhone", nameEn: "iPhones", keywords: ["iphone", "ايفون", "آيفون"] },
+    { id: "watch", nameAr: "ساعات Apple Watch", nameEn: "Apple Watch", keywords: ["watch", "ساعة", "الترا"] },
+    { id: "airpods", nameAr: "سماعات AirPods", nameEn: "AirPods", keywords: ["airpod", "سماعة", "برو"] },
+  ],
+  nike: [
+    { id: "jordan", nameAr: "أحذية Jordan", nameEn: "Air Jordan", keywords: ["jordan", "جوردان"] },
+    { id: "dunk", nameAr: "أحذية Dunk Low", nameEn: "Dunk Low", keywords: ["dunk", "دانك"] },
+    { id: "running", nameAr: "أحذية Pegasus للجري", nameEn: "Pegasus Running", keywords: ["pegasus", "running", "جري", "حذاء"] },
+  ],
+  rolex: [
+    { id: "submariner", nameAr: "صبمارينر Submariner", nameEn: "Submariner", keywords: ["submariner", "صبمارينر"] },
+    { id: "daytona", nameAr: "دايتونا Daytona", nameEn: "Daytona", keywords: ["daytona", "دايتونا"] },
+  ],
+  dior: [
+    { id: "sauvage", nameAr: "عطور Sauvage Elixir", nameEn: "Sauvage Fragrance", keywords: ["sauvage", "سواج", "عطر", "elixir"] },
+    { id: "saddle", nameAr: "حقائب Saddle Bag", nameEn: "Saddle Bags", keywords: ["saddle", "حقيبة"] },
+  ],
+  samsung: [
+    { id: "s24", nameAr: "جالكسي S24 Ultra", nameEn: "Galaxy S24 Ultra", keywords: ["s24", "ultra", "الترا", "galaxy s24"] },
+    { id: "fold", nameAr: "جالكسي Z Fold 6", nameEn: "Galaxy Z Fold 6", keywords: ["fold", "فولد", "طي"] },
+  ],
+  sony: [
+    { id: "audio", nameAr: "سماعات WH-1000XM5", nameEn: "WH-1000XM5 ANC", keywords: ["wh1000xm5", "wh-1000xm5", "1000xm5", "سماعة", "عزل"] },
+    { id: "ps5", nameAr: "بلايستيشن PlayStation 5 Pro", nameEn: "PS5 Pro Edition", keywords: ["ps5", "playstation", "بلايستيشن", "ألعاب"] },
+  ],
+  chanel: [
+    { id: "bleu", nameAr: "عطور Bleu de Chanel", nameEn: "Bleu de Chanel", keywords: ["bleu", "عطر", "parfum"] },
+    { id: "flap", nameAr: "حقائب Classic Flap", nameEn: "Classic Flap Bags", keywords: ["flap", "حقيبة", "classic"] },
+  ],
+  adidas: [
+    { id: "samba", nameAr: "أحذية Samba OG", nameEn: "Samba OG", keywords: ["samba", "سامبا"] },
+    { id: "ultraboost", nameAr: "أحذية Ultraboost Light", nameEn: "Ultraboost Light", keywords: ["ultraboost", "الترا بوست", "boost"] },
+  ],
+  gucci: [
+    { id: "marmont-bag", nameAr: "حقائب GG Marmont", nameEn: "GG Marmont Shoulder Bags", keywords: ["marmont", "حقيبة", "matelassé"] },
+    { id: "belt", nameAr: "أحزمة جلد GG Marmont", nameEn: "GG Leather Belts", keywords: ["belt", "حزام"] },
+  ],
+  "louis-vuitton": [
+    { id: "neverfull", nameAr: "حقائب Neverfull MM", nameEn: "Neverfull MM Bags", keywords: ["neverfull", "توت", "كانفاس"] },
+    { id: "keepall", nameAr: "حقائب سفر Keepall 50", nameEn: "Keepall 50 Duffle", keywords: ["keepall", "سفر", "دفل"] },
+  ],
+  dyson: [
+    { id: "airwrap", nameAr: "مصفف Airwrap Complete", nameEn: "Airwrap Styler", keywords: ["airwrap", "مصفف", "coanda"] },
+    { id: "supersonic", nameAr: "مجفف Supersonic Nural", nameEn: "Supersonic Nural", keywords: ["supersonic", "مجفف", "شعر"] },
+  ],
+  zara: [
+    { id: "blazer", nameAr: "بليزرات صوف مهيكلة", nameEn: "Wool Blazers", keywords: ["blazer", "بليزر", "صوف"] },
+    { id: "dress", nameAr: "فساتين حرير Studio", nameEn: "Silk Studio Dresses", keywords: ["dress", "فستان", "حرير"] },
+  ],
+};
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -124,9 +194,16 @@ function MarketplaceContent() {
   const language = useNoormexaLanguage();
   const text = copy[language];
   const searchParams = useSearchParams();
-  const initialWishlistOnly = searchParams.get("wishlist") === "true";
-  const initialBrand = searchParams.get("brand") || "all";
+
   const initialSearch = searchParams.get("search") || "";
+  const initialCategory = searchParams.get("category") || "all";
+  const initialBrand = searchParams.get("brand") || "all";
+  const initialWishlistOnly = searchParams.get("wishlist") === "true";
+  const initialDealsOnly = searchParams.get("filter") === "deals";
+  const initialOfficialOnly = searchParams.get("official") === "true";
+  const initialCouponsModal = searchParams.get("view") === "coupons";
+  const initialB2bModal = searchParams.get("view") === "b2b";
+  const initialBrandsDirectory = searchParams.get("view") === "brands" || initialBrand !== "all";
 
   const {
     products,
@@ -141,7 +218,7 @@ function MarketplaceContent() {
 
   // Local Filter States
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedBrand, setSelectedBrand] = useState<string>(initialBrand);
   const [selectedBrandSection, setSelectedBrandSection] = useState<string>("all");
   const [selectedStore, setSelectedStore] = useState<string>("all");
@@ -151,11 +228,11 @@ function MarketplaceContent() {
   const [freeShippingOnly, setFreeShippingOnly] = useState<boolean>(false);
   const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
   const [wishlistOnly, setWishlistOnly] = useState<boolean>(initialWishlistOnly);
-  const [dealsOnly, setDealsOnly] = useState<boolean>(false);
-  const [officialOnly, setOfficialOnly] = useState<boolean>(false);
-  const [showBrandsDirectory, setShowBrandsDirectory] = useState<boolean>(false);
-  const [couponsModalOpen, setCouponsModalOpen] = useState<boolean>(false);
-  const [b2bModalOpen, setB2bModalOpen] = useState<boolean>(false);
+  const [dealsOnly, setDealsOnly] = useState<boolean>(initialDealsOnly);
+  const [officialOnly, setOfficialOnly] = useState<boolean>(initialOfficialOnly);
+  const [showBrandsDirectory, setShowBrandsDirectory] = useState<boolean>(initialBrandsDirectory);
+  const [couponsModalOpen, setCouponsModalOpen] = useState<boolean>(initialCouponsModal);
+  const [b2bModalOpen, setB2bModalOpen] = useState<boolean>(initialB2bModal);
   const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
   const [b2bSuccess, setB2bSuccess] = useState<boolean>(false);
   const [b2bForm, setB2bForm] = useState({
@@ -188,7 +265,7 @@ function MarketplaceContent() {
     setSortBy("featured");
   };
 
-  // Sync navigation actions, hash links and searchParams dynamically
+  // Sync navigation actions, hash links dynamically
   useEffect(() => {
     const handleUrlTarget = (urlTarget?: string) => {
       const currentUrl = urlTarget || (typeof window !== "undefined" ? window.location.href : "");
@@ -262,41 +339,6 @@ function MarketplaceContent() {
       window.removeEventListener("noormexa-nav-action", onNavAction);
     };
   }, []);
-
-  // Listen for Next.js searchParams changes
-  useEffect(() => {
-    const filterParam = searchParams.get("filter");
-    const officialParam = searchParams.get("official");
-    const viewParam = searchParams.get("view");
-    const catParam = searchParams.get("category");
-    const brandParam = searchParams.get("brand");
-    const searchParam = searchParams.get("search");
-
-    if (filterParam === "deals") {
-      setDealsOnly(true);
-    }
-    if (officialParam === "true") {
-      setOfficialOnly(true);
-    }
-    if (viewParam === "coupons") {
-      setCouponsModalOpen(true);
-    }
-    if (viewParam === "b2b") {
-      setB2bModalOpen(true);
-    }
-    if (viewParam === "brands") {
-      setShowBrandsDirectory(true);
-    }
-    if (catParam) {
-      setSelectedCategory(catParam);
-    }
-    if (brandParam) {
-      setSelectedBrand(brandParam);
-    }
-    if (searchParam) {
-      setSearchQuery(searchParam);
-    }
-  }, [searchParams]);
 
   // Copy coupon handler
   const handleCopyCoupon = (code: string) => {
@@ -372,23 +414,27 @@ function MarketplaceContent() {
     },
   ];
 
-  // Available Brands list
-  const availableBrands = [
-    { id: "apple", name: "Apple", nameAr: "أبل", icon: "🍎" },
-    { id: "nike", name: "Nike", nameAr: "نايكي", icon: "⚡" },
-    { id: "rolex", name: "Rolex", nameAr: "رولكس", icon: "👑" },
-    { id: "dior", name: "Dior", nameAr: "ديور", icon: "✨" },
-    { id: "samsung", name: "Samsung", nameAr: "سامسونج", icon: "📱" },
-    { id: "sony", name: "Sony", nameAr: "سوني", icon: "🎧" },
-    { id: "chanel", name: "Chanel", nameAr: "شانيل", icon: "💎" },
-    { id: "adidas", name: "Adidas", nameAr: "أديداس", icon: "👟" },
-    { id: "gucci", name: "Gucci", nameAr: "غوتشي", icon: "👜" },
-    { id: "louis-vuitton", name: "Louis Vuitton", nameAr: "لويس فيتون", icon: "💼" },
-    { id: "dyson", name: "Dyson", nameAr: "دايسون", icon: "💨" },
-    { id: "zara", name: "ZARA", nameAr: "زارا", icon: "👗" },
-  ];
+  const currentBrandInfo = AVAILABLE_BRANDS.find((b) => b.id === selectedBrand);
 
-  const currentBrandInfo = availableBrands.find((b) => b.id === selectedBrand);
+  // Dedicated brand selector with auto smooth scroll
+  const handleSelectBrand = (brandId: string) => {
+    setSelectedBrand(brandId);
+    setSelectedBrandSection("all");
+    setShowBrandsDirectory(true);
+    if (selectedCategory !== "all") {
+      setSelectedCategory("all");
+    }
+    if (dealsOnly) {
+      setDealsOnly(false);
+    }
+    // Smooth scroll to catalog section so user sees filtered brand items immediately
+    setTimeout(() => {
+      const el = document.getElementById("products-catalog-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 80);
+  };
 
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
@@ -396,23 +442,37 @@ function MarketplaceContent() {
       .filter((prod) => {
         // Brand filter
         if (selectedBrand !== "all") {
+          const bId = selectedBrand.toLowerCase();
+          const prodBrandId = (prod.brand_id || "").toLowerCase();
+          const prodBrandName = (prod.brand_name || "").toLowerCase();
+          const prodName = prod.name.toLowerCase();
+          const prodNameEn = (prod.name_en || "").toLowerCase();
+
           const brandMatch =
-            prod.brand_id === selectedBrand ||
-            prod.name.toLowerCase().includes(selectedBrand) ||
-            (prod.name_en && prod.name_en.toLowerCase().includes(selectedBrand));
+            prodBrandId === bId ||
+            (bId === "louis-vuitton" && (prodBrandId === "lv" || prodBrandName.includes("louis"))) ||
+            (bId === "lv" && (prodBrandId === "louis-vuitton" || prodBrandName.includes("louis"))) ||
+            prodBrandName.includes(bId) ||
+            prodName.includes(bId) ||
+            prodNameEn.includes(bId);
+
           if (!brandMatch) return false;
 
           // Brand Section sub-filter
           if (selectedBrandSection !== "all") {
-            const sec = selectedBrandSection.toLowerCase();
-            const prodText = `${prod.name} ${prod.name_en || ""} ${prod.description || ""}`.toLowerCase();
-            if (!prodText.includes(sec)) {
-              // check common sub-keys
-              if (sec === "iphone" && !prodText.includes("iphone")) return false;
-              if (sec === "watch" && !prodText.includes("watch") && !prodText.includes("ساعة")) return false;
-              if (sec === "airpods" && !prodText.includes("airpod") && !prodText.includes("سماعة")) return false;
-              if (sec === "jordan" && !prodText.includes("jordan")) return false;
-              if (sec === "submariner" && !prodText.includes("submariner")) return false;
+            const sectionsForBrand = BRAND_SECTIONS[bId] || (bId === "lv" ? BRAND_SECTIONS["louis-vuitton"] : []);
+            const targetSec = sectionsForBrand.find((s) => s.id === selectedBrandSection);
+            const fullProdText = `${prod.name} ${prod.name_en || ""} ${prod.description || ""} ${prod.description_en || ""}`.toLowerCase();
+
+            if (targetSec) {
+              const matched = targetSec.keywords.some((kw) => fullProdText.includes(kw.toLowerCase()));
+              if (!matched && !fullProdText.includes(selectedBrandSection.toLowerCase())) {
+                return false;
+              }
+            } else {
+              if (!fullProdText.includes(selectedBrandSection.toLowerCase())) {
+                return false;
+              }
             }
           }
         }
@@ -635,21 +695,20 @@ function MarketplaceContent() {
             >
               {language === "ar" ? "الكل" : "All Brands"}
             </button>
-            {availableBrands.map((b) => (
+            {AVAILABLE_BRANDS.map((b) => (
               <button
                 key={b.id}
                 type="button"
-                onClick={() => {
-                  setSelectedBrand(b.id);
-                  setSelectedBrandSection("all");
-                }}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1 ${
+                onClick={() => handleSelectBrand(b.id)}
+                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${
                   selectedBrand === b.id
-                    ? "bg-orange-500 text-white border-orange-500 shadow-xs font-extrabold"
+                    ? "bg-orange-500 text-white border-orange-500 shadow-xs font-extrabold ring-1 ring-orange-500/40"
                     : "bg-surface text-muted border-line hover:border-orange-500/40 hover:text-foreground"
                 }`}
               >
-                <span>{b.icon}</span>
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <BrandLogo brandId={b.id} className="w-3.5 h-3.5" />
+                </div>
                 <span>{language === "ar" ? b.nameAr : b.name}</span>
               </button>
             ))}
@@ -758,28 +817,45 @@ function MarketplaceContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {availableBrands.map((b) => {
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+              {AVAILABLE_BRANDS.map((b) => {
                 const isActive = selectedBrand === b.id;
                 return (
                   <button
                     key={b.id}
                     type="button"
-                    onClick={() => {
-                      setSelectedBrand(b.id);
-                      setSelectedBrandSection("all");
-                    }}
-                    className={`p-3.5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${
+                    onClick={() => handleSelectBrand(b.id)}
+                    className={`group p-4 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer relative overflow-hidden ${
                       isActive
-                        ? "bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-300 shadow-xs ring-2 ring-purple-500/30"
-                        : "bg-surface-soft/60 hover:bg-surface-soft border-line hover:border-purple-400/40 text-foreground"
+                        ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-300 shadow-md ring-2 ring-purple-500/40"
+                        : "bg-surface-soft/60 hover:bg-surface border-line hover:border-purple-400/50 text-foreground hover:shadow-xs"
                     }`}
                   >
-                    <span className="text-3xl">{b.icon}</span>
-                    <div className="text-xs font-extrabold">{b.name}</div>
-                    <div className="text-[10px] text-muted">{b.nameAr}</div>
-                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-surface border border-line text-muted font-bold">
-                      {isActive ? (language === "ar" ? "محدد حالياً" : "Selected") : (language === "ar" ? "تصفح الماركة" : "Explore")}
+                    <div
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center p-2.5 transition-transform duration-200 group-hover:scale-110 ${
+                        isActive
+                          ? "bg-purple-500/20 text-purple-600 dark:text-purple-300 ring-2 ring-purple-500/50"
+                          : "bg-surface border border-line/80 shadow-2xs text-foreground"
+                      }`}
+                    >
+                      <BrandLogo brandId={b.id} className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-0.5 min-w-0 w-full">
+                      <div className="text-xs font-black truncate text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                        {b.name}
+                      </div>
+                      <div className="text-[10px] font-semibold text-muted truncate">
+                        {b.nameAr}
+                      </div>
+                    </div>
+                    <span
+                      className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold transition-all w-full truncate ${
+                        isActive
+                          ? "bg-purple-600 text-white shadow-xs"
+                          : "bg-surface border border-line text-muted group-hover:bg-purple-500/10 group-hover:text-purple-600 group-hover:border-purple-500/30"
+                      }`}
+                    >
+                      {isActive ? (language === "ar" ? "متجر نشط" : "Active Store") : (language === "ar" ? "تصفح الماركة" : "Explore Brand")}
                     </span>
                   </button>
                 );
@@ -899,7 +975,7 @@ function MarketplaceContent() {
                   className="w-full px-3 py-2 rounded-xl text-xs bg-surface border border-line text-foreground focus:outline-none focus:border-orange-500"
                 >
                   <option value="all">{language === "ar" ? "جميع الماركات" : "All Brands"}</option>
-                  {availableBrands.map((b) => (
+                  {AVAILABLE_BRANDS.map((b) => (
                     <option key={b.id} value={b.id}>
                       {language === "ar" ? `${b.nameAr} (${b.name})` : b.name}
                     </option>
@@ -1017,27 +1093,31 @@ function MarketplaceContent() {
           </aside>
 
           {/* Main Products Grid Column */}
-          <div className="md:col-span-3 space-y-6">
+          <div id="products-catalog-section" className="md:col-span-3 space-y-6">
             {/* Brand Flagship Official Banner (Shown when a brand is active) */}
             {selectedBrand !== "all" && currentBrandInfo && (
               <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-700/60 p-6 text-white shadow-lg">
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{currentBrandInfo.icon}</span>
-                      <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                        {language === "ar" ? `متجر ${currentBrandInfo.nameAr} (${currentBrandInfo.name}) الرسمي` : `${currentBrandInfo.name} Official Flagship`}
-                      </h2>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
-                        <BadgeCheck size={13} className="text-emerald-400" />
-                        <span>{language === "ar" ? "وكيل معتمد وموثق" : "Verified Authorized Store"}</span>
-                      </span>
+                  <div className="flex items-start sm:items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-2.5 flex items-center justify-center text-white shrink-0 shadow-md">
+                      <BrandLogo brandId={currentBrandInfo.id} className="w-9 h-9 text-white" />
                     </div>
-                    <p className="text-xs text-slate-300 max-w-xl">
-                      {language === "ar"
-                        ? `تصفح تشكيلة منتجات ${currentBrandInfo.nameAr} الأصلية بنسبة 100% مع ضمان الوكيل المعتمد، شحن دولي ومحلي سريع، وشهادات فحص ومطابقة حقيقية.`
-                        : `Explore 100% genuine ${currentBrandInfo.name} flagship products with authorized warranty, fast global shipping, and certified authenticity.`}
-                    </p>
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                          {language === "ar" ? `متجر ${currentBrandInfo.nameAr} (${currentBrandInfo.name}) الرسمي` : `${currentBrandInfo.name} Official Flagship`}
+                        </h2>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
+                          <BadgeCheck size={13} className="text-emerald-400" />
+                          <span>{language === "ar" ? "وكيل معتمد وموثق" : "Verified Authorized Store"}</span>
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 max-w-xl">
+                        {language === "ar"
+                          ? `تصفح تشكيلة منتجات ${currentBrandInfo.nameAr} الأصلية بنسبة 100% مع ضمان الوكيل المعتمد، شحن دولي ومحلي سريع، وشهادات فحص ومطابقة حقيقية.`
+                          : `Explore 100% genuine ${currentBrandInfo.name} flagship products with authorized warranty, fast global shipping, and certified authenticity.`}
+                      </p>
+                    </div>
                   </div>
 
                   <button
@@ -1053,76 +1133,38 @@ function MarketplaceContent() {
                 </div>
 
                 {/* Sub-sections quick tabs for the selected brand */}
-                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  <span className="text-[11px] font-semibold text-slate-400 whitespace-nowrap">
-                    {language === "ar" ? "الأقسام المتاحة:" : "Sections:"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedBrandSection("all")}
-                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      selectedBrandSection === "all"
-                        ? "bg-orange-500 text-white shadow-xs"
-                        : "bg-white/10 text-slate-300 hover:bg-white/20"
-                    }`}
-                  >
-                    {language === "ar" ? "جميع منتجات الماركة" : "All Brand Items"}
-                  </button>
-                  {selectedBrand === "apple" && (
-                    <>
-                      {["iPhone", "Watch", "AirPods"].map((sec) => (
-                        <button
-                          key={sec}
-                          type="button"
-                          onClick={() => setSelectedBrandSection(sec)}
-                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                            selectedBrandSection === sec
-                              ? "bg-orange-500 text-white shadow-xs"
-                              : "bg-white/10 text-slate-300 hover:bg-white/20"
-                          }`}
-                        >
-                          {sec}
-                        </button>
-                      ))}
-                    </>
-                  )}
-                  {selectedBrand === "nike" && (
-                    <>
-                      {["Jordan", "Dunk"].map((sec) => (
-                        <button
-                          key={sec}
-                          type="button"
-                          onClick={() => setSelectedBrandSection(sec)}
-                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                            selectedBrandSection === sec
-                              ? "bg-orange-500 text-white shadow-xs"
-                              : "bg-white/10 text-slate-300 hover:bg-white/20"
-                          }`}
-                        >
-                          {sec}
-                        </button>
-                      ))}
-                    </>
-                  )}
-                  {selectedBrand === "rolex" && (
-                    <>
-                      {["Submariner"].map((sec) => (
-                        <button
-                          key={sec}
-                          type="button"
-                          onClick={() => setSelectedBrandSection(sec)}
-                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                            selectedBrandSection === sec
-                              ? "bg-orange-500 text-white shadow-xs"
-                              : "bg-white/10 text-slate-300 hover:bg-white/20"
-                          }`}
-                        >
-                          {sec}
-                        </button>
-                      ))}
-                    </>
-                  )}
-                </div>
+                {BRAND_SECTIONS[selectedBrand] && BRAND_SECTIONS[selectedBrand].length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                    <span className="text-[11px] font-semibold text-slate-400 whitespace-nowrap">
+                      {language === "ar" ? "الأقسام المتاحة:" : "Sections:"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedBrandSection("all")}
+                      className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                        selectedBrandSection === "all"
+                          ? "bg-orange-500 text-white shadow-xs"
+                          : "bg-white/10 text-slate-300 hover:bg-white/20"
+                      }`}
+                    >
+                      {language === "ar" ? "جميع منتجات الماركة" : "All Brand Items"}
+                    </button>
+                    {BRAND_SECTIONS[selectedBrand].map((sec) => (
+                      <button
+                        key={sec.id}
+                        type="button"
+                        onClick={() => setSelectedBrandSection(sec.id)}
+                        className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                          selectedBrandSection === sec.id
+                            ? "bg-orange-500 text-white shadow-xs"
+                            : "bg-white/10 text-slate-300 hover:bg-white/20"
+                        }`}
+                      >
+                        {language === "ar" ? sec.nameAr : sec.nameEn}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -1622,7 +1664,7 @@ function MarketplaceContent() {
                 className="w-full px-3 py-2 rounded-xl text-xs bg-surface border border-line text-foreground focus:outline-none focus:border-orange-500"
               >
                 <option value="all">{language === "ar" ? "جميع الماركات" : "All Brands"}</option>
-                {availableBrands.map((b) => (
+                {AVAILABLE_BRANDS.map((b) => (
                   <option key={b.id} value={b.id}>
                     {language === "ar" ? `${b.nameAr} (${b.name})` : b.name}
                   </option>
