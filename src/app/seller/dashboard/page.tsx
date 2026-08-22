@@ -337,18 +337,18 @@ export default function SellerDashboardPage() {
   };
 
   return (
-    <main className="noormexa-main py-8 md:py-12">
-      <div className="noormexa-container space-y-8">
+    <main className="noormexa-main py-5 sm:py-8 md:py-12 pb-36 sm:pb-28">
+      <div className="noormexa-container space-y-6 sm:space-y-8">
         {/* Top Header & Store Selector */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-line pb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-line pb-5 sm:pb-6">
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Store Switcher Dropdown */}
-              <div className="relative inline-block">
+              <div className="relative inline-block w-full sm:w-auto">
                 <select
                   value={selectedStoreId}
                   onChange={(e) => setSelectedStoreId(e.target.value)}
-                  className="appearance-none bg-surface border border-line hover:border-gold px-4 py-2 pr-9 rounded-2xl font-black text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30 shadow-xs cursor-pointer"
+                  className="w-full sm:w-auto appearance-none bg-surface border border-line hover:border-gold px-4 py-2 pr-9 rounded-2xl font-black text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30 shadow-xs cursor-pointer"
                 >
                   {stores.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -384,41 +384,41 @@ export default function SellerDashboardPage() {
             </p>
           </div>
 
-          {/* Header Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          {/* Header Action Buttons - Responsive 2-Col on Mobile / Flex on Desktop */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto">
             <button
               type="button"
               onClick={() => setShowOfficialStoreModal(true)}
-              className="px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px]"
+              className="px-3 sm:px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
             >
               <Crown size={15} />
-              <span>{isAr ? "إنشاء متجر رسمي للمنصة" : "New Flagship Store"}</span>
+              <span className="truncate">{isAr ? "متجر رسمي" : "Flagship Store"}</span>
             </button>
 
             <Link
               href={`/store/${currentStore.slug}`}
-              className="px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px]"
+              className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
             >
               <Eye size={15} className="text-gold" />
-              <span>{isAr ? "واجهة المتجر العامة" : "View Storefront"}</span>
+              <span className="truncate">{isAr ? "معاينة المتجر" : "View Store"}</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setShowAddMarketingModal(true)}
-              className="px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px]"
+              className="px-3 sm:px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
             >
               <Megaphone size={15} className="text-amber-500" />
-              <span>{isAr ? "نشر عرض تسويقي" : "New Campaign"}</span>
+              <span className="truncate">{isAr ? "نشر عرض" : "Campaign"}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
-              className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px]"
+              className="px-3 sm:px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
             >
               <Plus size={16} />
-              <span>{isAr ? "إضافة منتج جديد" : "Add Product"}</span>
+              <span className="truncate">{isAr ? "إضافة منتج" : "Add Product"}</span>
             </button>
           </div>
         </div>
@@ -431,16 +431,16 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
-        {/* Navigation Tabs - 6 Items */}
-        <div className="bg-surface/95 backdrop-blur-md p-2 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {/* Navigation Tabs - Responsive Scrollable Pill Strip on Mobile / 6-Col Grid on Desktop */}
+        <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
+          <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-6 select-none touch-manipulation">
             {[
               { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null },
               { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}` },
               { id: "orders", labelAr: "الطلبات والتسليم", labelEn: "Orders & Delivery", icon: Truck, count: `${storeOrders.length}` },
               { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}` },
               { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}` },
-              { id: "settings", labelAr: "إعدادات وهوية المتجر", labelEn: "Store Settings", icon: Settings, count: null },
+              { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null },
             ].map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
@@ -449,7 +449,7 @@ export default function SellerDashboardPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs transition-all border select-none w-full min-h-[50px] ${
+                  className={`flex items-center justify-between gap-1.5 px-3 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs transition-all border select-none shrink-0 min-w-[140px] sm:min-w-[165px] lg:min-w-0 lg:w-full min-h-[46px] sm:min-h-[50px] touch-manipulation active:scale-95 ${
                     active
                       ? "bg-navy text-gold border-gold shadow-md font-black dark:bg-gold dark:text-navy dark:border-gold ring-2 ring-gold/20"
                       : "bg-surface text-foreground border-line hover:border-gold/50 hover:bg-surface-soft"
@@ -457,7 +457,7 @@ export default function SellerDashboardPage() {
                 >
                   <div className="flex items-center gap-1.5 min-w-0 text-start">
                     <Icon size={16} className={`shrink-0 ${active ? "text-gold dark:text-navy" : "text-amber-600 dark:text-gold"}`} />
-                    <span className="text-xs font-bold leading-tight whitespace-nowrap">{isAr ? tab.labelAr : tab.labelEn}</span>
+                    <span className="text-xs font-bold leading-tight truncate">{isAr ? tab.labelAr : tab.labelEn}</span>
                   </div>
                   {tab.count !== null && (
                     <span
@@ -625,7 +625,7 @@ export default function SellerDashboardPage() {
               </div>
             </div>
 
-            {/* Products Table */}
+            {/* Products Display: Responsive Mobile Cards + Desktop Table */}
             {filteredStoreProducts.length === 0 ? (
               <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
                 <Boxes size={32} className="text-muted mx-auto" />
@@ -633,49 +633,40 @@ export default function SellerDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5 touch-manipulation active:scale-95"
                 >
                   <Plus size={14} />
                   <span>{isAr ? "أضف أول منتج الآن" : "Add first product"}</span>
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-start">
-                  <thead className="bg-surface-soft text-muted border-b border-line font-bold">
-                    <tr>
-                      <th className="p-3 text-start">{isAr ? "المنتج" : "Product"}</th>
-                      <th className="p-3 text-start">{isAr ? "السعر" : "Price"}</th>
-                      <th className="p-3 text-start">{isAr ? "المخزون" : "Stock"}</th>
-                      <th className="p-3 text-start">{isAr ? "الشحن والمميزات" : "Shipping & Badge"}</th>
-                      <th className="p-3 text-center">{isAr ? "إجراءات" : "Actions"}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {filteredStoreProducts.map((p) => (
-                      <tr key={p.id} className="hover:bg-surface-soft/60 transition-colors">
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={p.image_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80"}
-                              alt={p.name}
-                              className="w-12 h-12 rounded-xl object-cover border border-line shrink-0"
-                            />
-                            <div className="space-y-0.5">
-                              <div className="font-bold text-foreground line-clamp-1">{p.name}</div>
-                              <div className="text-[11px] text-muted">{p.name_en || p.category_slug}</div>
-                            </div>
+              <>
+                {/* Mobile Products Cards Grid (< md) */}
+                <div className="block md:hidden space-y-3">
+                  {filteredStoreProducts.map((p) => (
+                    <div key={p.id} className="p-3.5 rounded-2xl bg-surface-soft border border-line space-y-3">
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={p.image_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80"}
+                          alt={p.name}
+                          className="w-16 h-16 rounded-xl object-cover border border-line shrink-0"
+                        />
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="font-bold text-foreground line-clamp-1 text-xs">{p.name}</div>
+                          <div className="text-[10px] text-muted truncate">{p.name_en || p.category_slug}</div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-amber-600 dark:text-gold text-xs">{formatPrice(p.price)}</span>
+                            {p.original_price && (
+                              <span className="text-[10px] text-muted line-through">{formatPrice(p.original_price)}</span>
+                            )}
                           </div>
-                        </td>
-                        <td className="p-3">
-                          <div className="font-black text-amber-600 dark:text-gold">{formatPrice(p.price)}</div>
-                          {p.original_price && (
-                            <div className="text-[10px] text-muted line-through">{formatPrice(p.original_price)}</div>
-                          )}
-                        </td>
-                        <td className="p-3">
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-line/60 text-[10px]">
+                        <div className="flex flex-wrap items-center gap-1">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
+                            className={`px-2 py-0.5 rounded-full font-bold ${
                               p.stock > 10
                                 ? "bg-emerald-600/15 text-emerald-600"
                                 : p.stock > 0
@@ -685,50 +676,136 @@ export default function SellerDashboardPage() {
                           >
                             {p.stock > 0 ? `${p.stock} قطعة` : "نفذت الكمية"}
                           </span>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            {p.free_shipping && (
-                              <span className="px-2 py-0.5 rounded-md bg-emerald-600/10 text-emerald-600 text-[10px] font-bold">
-                                {isAr ? "شحن مجاني" : "Free Ship"}
-                              </span>
-                            )}
-                            {p.is_featured && (
-                              <span className="px-2 py-0.5 rounded-md bg-gold/15 text-gold text-[10px] font-bold">
-                                {isAr ? "مميز" : "Featured"}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-3 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <Link
-                              href={`/product/${p.id}`}
-                              className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground"
-                              title={isAr ? "معاينة المنتج" : "View"}
-                            >
-                              <Eye size={14} />
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                  deleteProductItem(p.id);
-                                  showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
-                                }
-                              }}
-                              className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
-                              title={isAr ? "حذف المنتج" : "Delete"}
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </td>
+                          {p.free_shipping && (
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-600/10 text-emerald-600 font-bold">
+                              {isAr ? "شحن مجاني" : "Free Ship"}
+                            </span>
+                          )}
+                          {p.is_featured && (
+                            <span className="px-2 py-0.5 rounded-md bg-gold/15 text-gold font-bold">
+                              {isAr ? "مميز" : "Featured"}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <Link
+                            href={`/product/${p.id}`}
+                            className="p-2 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground touch-manipulation active:scale-95"
+                            title={isAr ? "معاينة المنتج" : "View"}
+                          >
+                            <Eye size={15} />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                deleteProductItem(p.id);
+                                showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                              }
+                            }}
+                            className="p-2 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
+                            title={isAr ? "حذف المنتج" : "Delete"}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Products Table (>= md) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-xs text-start">
+                    <thead className="bg-surface-soft text-muted border-b border-line font-bold">
+                      <tr>
+                        <th className="p-3 text-start">{isAr ? "المنتج" : "Product"}</th>
+                        <th className="p-3 text-start">{isAr ? "السعر" : "Price"}</th>
+                        <th className="p-3 text-start">{isAr ? "المخزون" : "Stock"}</th>
+                        <th className="p-3 text-start">{isAr ? "الشحن والمميزات" : "Shipping & Badge"}</th>
+                        <th className="p-3 text-center">{isAr ? "إجراءات" : "Actions"}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {filteredStoreProducts.map((p) => (
+                        <tr key={p.id} className="hover:bg-surface-soft/60 transition-colors">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={p.image_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80"}
+                                alt={p.name}
+                                className="w-12 h-12 rounded-xl object-cover border border-line shrink-0"
+                              />
+                              <div className="space-y-0.5">
+                                <div className="font-bold text-foreground line-clamp-1">{p.name}</div>
+                                <div className="text-[11px] text-muted">{p.name_en || p.category_slug}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="font-black text-amber-600 dark:text-gold">{formatPrice(p.price)}</div>
+                            {p.original_price && (
+                              <div className="text-[10px] text-muted line-through">{formatPrice(p.original_price)}</div>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
+                                p.stock > 10
+                                  ? "bg-emerald-600/15 text-emerald-600"
+                                  : p.stock > 0
+                                  ? "bg-amber-500/15 text-amber-600"
+                                  : "bg-red-500/15 text-red-600"
+                              }`}
+                            >
+                              {p.stock > 0 ? `${p.stock} قطعة` : "نفذت الكمية"}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {p.free_shipping && (
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-600/10 text-emerald-600 text-[10px] font-bold">
+                                  {isAr ? "شحن مجاني" : "Free Ship"}
+                                </span>
+                              )}
+                              {p.is_featured && (
+                                <span className="px-2 py-0.5 rounded-md bg-gold/15 text-gold text-[10px] font-bold">
+                                  {isAr ? "مميز" : "Featured"}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <Link
+                                href={`/product/${p.id}`}
+                                className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground touch-manipulation active:scale-95"
+                                title={isAr ? "معاينة المنتج" : "View"}
+                              >
+                                <Eye size={14} />
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                    deleteProductItem(p.id);
+                                    showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
+                                title={isAr ? "حذف المنتج" : "Delete"}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         )}
@@ -834,16 +911,16 @@ export default function SellerDashboardPage() {
                     </div>
 
                     {/* Action Controls & Delivery State Updater */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted text-[11px]">{isAr ? "تحديث حالة التسليم والشحن:" : "Update Fulfillment:"}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                        <span className="text-muted text-[11px] shrink-0">{isAr ? "تحديث حالة التسليم والشحن:" : "Update Fulfillment:"}</span>
                         <select
                           value={ord.status}
                           onChange={(e) => {
                             updateOrderStatus(ord.id, e.target.value as Order["status"]);
                             showToast(isAr ? `تم تحديث حالة الشحنة إلى ${e.target.value}` : `Shipment updated to ${e.target.value}`);
                           }}
-                          className="px-3 py-1.5 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none"
+                          className="w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none cursor-pointer"
                         >
                           <option value="pending">{isAr ? "قيد المراجعة (Pending)" : "Pending"}</option>
                           <option value="paid">{isAr ? "تم استلام الدفع (Paid)" : "Paid"}</option>
@@ -857,7 +934,7 @@ export default function SellerDashboardPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedOrderForInvoice(ord)}
-                        className="px-3.5 py-1.5 rounded-xl bg-surface border border-line hover:border-gold text-foreground font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                        className="w-full sm:w-auto justify-center px-3.5 py-2 sm:py-1.5 rounded-xl bg-surface border border-line hover:border-gold text-foreground font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs touch-manipulation active:scale-95"
                       >
                         <Printer size={14} className="text-gold" />
                         <span>{isAr ? "طباعة بوليصة الشحن والفاتورة" : "Packing Slip & Invoice"}</span>

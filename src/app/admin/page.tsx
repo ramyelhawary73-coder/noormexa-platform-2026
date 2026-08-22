@@ -219,10 +219,10 @@ export default function SuperAdminPage() {
   };
 
   return (
-    <main className="noormexa-main py-8 md:py-12">
-      <div className="noormexa-container space-y-8">
+    <main className="noormexa-main py-5 sm:py-8 md:py-12 pb-36 sm:pb-28">
+      <div className="noormexa-container space-y-6 sm:space-y-8">
         {/* Hub Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-5 sm:pb-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 dark:bg-navy dark:text-gold border border-amber-500/30 dark:border-gold/30 text-xs font-black mb-2 shadow-xs">
               <ShieldCheck size={14} className="text-amber-600 dark:text-gold" />
@@ -234,35 +234,35 @@ export default function SuperAdminPage() {
             <p className="text-xs sm:text-sm text-muted mt-1">{text.hubSubtitle}</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
             <button
               type="button"
               onClick={() => setShowOfficialModal(true)}
-              className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs sm:text-sm flex items-center gap-2 transition-all shadow-xs"
+              className="px-3 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs touch-manipulation active:scale-95 shrink-0"
             >
               <Crown size={15} className="fill-white" />
-              <span>{isAr ? "تدشين متجر رسمي" : "Launch Official Store"}</span>
+              <span className="truncate">{isAr ? "تدشين متجر رسمي" : "Launch Store"}</span>
             </button>
             <Link
               href="/seller/dashboard"
-              className="px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-gold text-xs sm:text-sm font-bold text-foreground flex items-center gap-2 transition-all shadow-xs"
+              className="px-3 sm:px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-gold text-xs sm:text-sm font-bold text-foreground flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs touch-manipulation active:scale-95 shrink-0"
             >
               <StoreIcon size={15} className="text-amber-600 dark:text-gold" />
-              <span>{isAr ? "لوحة التاجر" : "Seller Central"}</span>
+              <span className="truncate">{isAr ? "لوحة التاجر" : "Seller Central"}</span>
             </Link>
             <Link
               href="/marketplace"
-              className="px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-gold text-xs sm:text-sm font-bold text-foreground flex items-center gap-2 transition-all shadow-xs"
+              className="col-span-2 sm:col-span-1 px-3 sm:px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-gold text-xs sm:text-sm font-bold text-foreground flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs touch-manipulation active:scale-95 shrink-0"
             >
               <ShoppingBag size={15} className="text-amber-600 dark:text-gold" />
-              <span>{isAr ? "عرض المتجر" : "Marketplace"}</span>
+              <span className="truncate">{isAr ? "عرض المتجر" : "Marketplace"}</span>
             </Link>
           </div>
         </div>
 
-        {/* Navigation Tabs Bar - Symmetrical 10-Tab Grid (5 cols x 2 rows) */}
-        <div className="bg-surface/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5">
+        {/* Navigation Tabs Bar - Responsive Scrollable Pill Strip on Mobile / 5-Col Grid on Desktop */}
+        <div className="bg-surface/90 backdrop-blur-md p-1.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-line shadow-xs overflow-hidden">
+          <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2.5 lg:grid-cols-5 select-none touch-manipulation">
             {[
               { id: "overview", label: text.tabOverview, icon: Activity, count: null },
               { id: "stores", label: text.tabStores, icon: StoreIcon, count: `${stores.length}` },
@@ -282,7 +282,7 @@ export default function SuperAdminPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center justify-between gap-1.5 sm:gap-2 px-3 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all border select-none w-full min-h-[48px] sm:min-h-[52px] ${
+                  className={`flex items-center justify-between gap-1.5 sm:gap-2 px-3 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all border select-none shrink-0 min-w-[140px] sm:min-w-[160px] lg:min-w-0 lg:w-full min-h-[46px] sm:min-h-[52px] touch-manipulation active:scale-95 ${
                     active
                       ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/20 font-black dark:bg-navy dark:text-gold dark:border-gold dark:shadow-none ring-2 ring-amber-500/20 dark:ring-gold/20"
                       : "bg-surface text-foreground/90 border-line hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-foreground"
@@ -290,7 +290,7 @@ export default function SuperAdminPage() {
                 >
                   <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 text-start">
                     <Icon size={16} className={`shrink-0 ${active ? "text-white dark:text-gold" : "text-amber-600 dark:text-gold"}`} />
-                    <span className="text-[11px] sm:text-xs font-bold leading-tight whitespace-nowrap">{tab.label}</span>
+                    <span className="text-[11px] sm:text-xs font-bold leading-tight truncate">{tab.label}</span>
                   </div>
                   {tab.count !== null && (
                     <span
