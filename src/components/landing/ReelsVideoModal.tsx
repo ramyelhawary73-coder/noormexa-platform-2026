@@ -83,6 +83,7 @@ export default function ReelsVideoModal({
   const [currentTime, setCurrentTime] = useState("00:00");
   const [durationText, setDurationText] = useState("00:45");
   const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const [failedVideoIds, setFailedVideoIds] = useState<Record<string, boolean>>({});
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -94,6 +95,7 @@ export default function ReelsVideoModal({
 
   // Current Reel
   const currentReel = reels[currentIndex] || reels[0];
+  const videoError = !!failedVideoIds[currentReel?.id];
 
   // Handle Video Time Update
   const handleTimeUpdate = () => {
@@ -301,17 +303,30 @@ export default function ReelsVideoModal({
           className="relative flex-1 h-[60%] md:h-full bg-black flex items-center justify-center overflow-hidden cursor-pointer group"
           onClick={togglePlay}
         >
-          <video
-            ref={videoRef}
-            src={currentReel.videoUrl}
-            poster={currentReel.posterImage}
-            playsInline
-            autoPlay
-            loop
-            muted={isMuted}
-            onTimeUpdate={handleTimeUpdate}
-            className="w-full h-full object-cover md:object-contain"
-          />
+          {!videoError ? (
+            <video
+              ref={videoRef}
+              src={currentReel.videoUrl}
+              poster={currentReel.posterImage}
+              playsInline
+              autoPlay
+              loop
+              muted={isMuted}
+              onTimeUpdate={handleTimeUpdate}
+              onError={() => {
+                if (currentReel?.id) {
+                  setFailedVideoIds((prev) => ({ ...prev, [currentReel.id]: true }));
+                }
+              }}
+              className="w-full h-full object-cover md:object-contain"
+            />
+          ) : (
+            <img
+              src={currentReel.posterImage}
+              alt={currentReel.productNameAr}
+              className="w-full h-full object-cover md:object-contain"
+            />
+          )}
 
           {/* Vignette Gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />

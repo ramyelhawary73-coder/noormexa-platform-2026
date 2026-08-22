@@ -103,10 +103,7 @@ export default function PwaInstallPrompt() {
     // Register Service Worker for PWA
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
-        .register("/service-worker.js")
-        .catch(() => {
-          return navigator.serviceWorker.register("/sw.js");
-        })
+        .register("/sw.js")
         .then((reg) => {
           if (reg) {
             console.log("[PWA] Service Worker active with scope:", reg.scope);

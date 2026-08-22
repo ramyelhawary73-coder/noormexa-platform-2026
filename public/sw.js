@@ -1,5 +1,5 @@
 // NOORMEXA Global Marketplace - World-Class Progressive Web App Service Worker
-const CACHE_NAME = "noormexa-pwa-v1";
+const CACHE_NAME = "noormexa-pwa-v2";
 const OFFLINE_FALLBACK_PAGE = "/";
 
 const STATIC_ASSETS = [
@@ -9,6 +9,8 @@ const STATIC_ASSETS = [
   "/favicon.png",
   "/icon-192.png",
   "/icon-512.png",
+  "/icon-maskable-192.png",
+  "/icon-maskable-512.png",
 ];
 
 // Install Event: Precaches essential app assets safely
@@ -47,24 +49,19 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch Event: Network-first strategy with cache fallback for best live shopping experience
+// Fetch Event: Network-first strategy with cache fallback
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests and http/https schemes
   if (event.request.method !== "GET") return;
   if (!event.request.url.startsWith("http")) return;
-
-  // Ignore Next.js hot reload / dev endpoints
   if (event.request.url.includes("/_next/webpack-hmr")) return;
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // If response is valid, clone and cache static assets
         if (
           networkResponse &&
           networkResponse.status === 200 &&
-          (event.request.url.includes("/public/") ||
-            event.request.url.endsWith(".png") ||
+          (event.request.url.endsWith(".png") ||
             event.request.url.endsWith(".jpg") ||
             event.request.url.endsWith(".svg") ||
             event.request.url.endsWith(".ico") ||
@@ -72,19 +69,17 @@ self.addEventListener("fetch", (event) => {
         ) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            cache.put(event.request, responseToCache).catch(() => {});
           });
         }
         return networkResponse;
       })
       .catch(async () => {
-        // Offline recovery
         const cachedResponse = await caches.match(event.request);
         if (cachedResponse) {
           return cachedResponse;
         }
 
-        // Return offline page for navigational requests
         if (event.request.mode === "navigate") {
           const fallback = await caches.match(OFFLINE_FALLBACK_PAGE);
           if (fallback) return fallback;
