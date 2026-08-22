@@ -4,6 +4,7 @@ import { useState, useMemo, useSyncExternalStore, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  BadgeCheck,
   Check,
   Filter,
   Flame,
@@ -118,6 +119,8 @@ function MarketplaceContent() {
   const text = copy[language];
   const searchParams = useSearchParams();
   const initialWishlistOnly = searchParams.get("wishlist") === "true";
+  const initialBrand = searchParams.get("brand") || "all";
+  const initialSearch = searchParams.get("search") || "";
 
   const {
     products,
@@ -131,10 +134,12 @@ function MarketplaceContent() {
   } = useMarketplace();
 
   // Local Filter States
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedBrand, setSelectedBrand] = useState<string>(initialBrand);
+  const [selectedBrandSection, setSelectedBrandSection] = useState<string>("all");
   const [selectedStore, setSelectedStore] = useState<string>("all");
-  const [maxPrice, setMaxPrice] = useState<number>(10000);
+  const [maxPrice, setMaxPrice] = useState<number>(500000);
   const [minRating, setMinRating] = useState<number>(0);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [freeShippingOnly, setFreeShippingOnly] = useState<boolean>(false);
@@ -148,8 +153,10 @@ function MarketplaceContent() {
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedCategory("all");
+    setSelectedBrand("all");
+    setSelectedBrandSection("all");
     setSelectedStore("all");
-    setMaxPrice(10000);
+    setMaxPrice(500000);
     setMinRating(0);
     setInStockOnly(false);
     setFreeShippingOnly(false);
@@ -158,17 +165,59 @@ function MarketplaceContent() {
     setSortBy("featured");
   };
 
+  // Available Brands list
+  const availableBrands = [
+    { id: "apple", name: "Apple", nameAr: "أبل", icon: "🍎" },
+    { id: "nike", name: "Nike", nameAr: "نايكي", icon: "⚡" },
+    { id: "rolex", name: "Rolex", nameAr: "رولكس", icon: "👑" },
+    { id: "dior", name: "Dior", nameAr: "ديور", icon: "✨" },
+    { id: "samsung", name: "Samsung", nameAr: "سامسونج", icon: "📱" },
+    { id: "sony", name: "Sony", nameAr: "سوني", icon: "🎧" },
+    { id: "chanel", name: "Chanel", nameAr: "شانيل", icon: "💎" },
+    { id: "adidas", name: "Adidas", nameAr: "أديداس", icon: "👟" },
+    { id: "gucci", name: "Gucci", nameAr: "غوتشي", icon: "👜" },
+    { id: "louis-vuitton", name: "Louis Vuitton", nameAr: "لويس فيتون", icon: "💼" },
+    { id: "dyson", name: "Dyson", nameAr: "دايسون", icon: "💨" },
+    { id: "zara", name: "ZARA", nameAr: "زارا", icon: "👗" },
+  ];
+
+  const currentBrandInfo = availableBrands.find((b) => b.id === selectedBrand);
+
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
     return products
       .filter((prod) => {
+        // Brand filter
+        if (selectedBrand !== "all") {
+          const brandMatch =
+            prod.brand_id === selectedBrand ||
+            prod.name.toLowerCase().includes(selectedBrand) ||
+            (prod.name_en && prod.name_en.toLowerCase().includes(selectedBrand));
+          if (!brandMatch) return false;
+
+          // Brand Section sub-filter
+          if (selectedBrandSection !== "all") {
+            const sec = selectedBrandSection.toLowerCase();
+            const prodText = `${prod.name} ${prod.name_en || ""} ${prod.description || ""}`.toLowerCase();
+            if (!prodText.includes(sec)) {
+              // check common sub-keys
+              if (sec === "iphone" && !prodText.includes("iphone")) return false;
+              if (sec === "watch" && !prodText.includes("watch") && !prodText.includes("ساعة")) return false;
+              if (sec === "airpods" && !prodText.includes("airpod") && !prodText.includes("سماعة")) return false;
+              if (sec === "jordan" && !prodText.includes("jordan")) return false;
+              if (sec === "submariner" && !prodText.includes("submariner")) return false;
+            }
+          }
+        }
+
         // Search query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
           const matchTitle = prod.name.toLowerCase().includes(q) || (prod.name_en && prod.name_en.toLowerCase().includes(q));
           const matchDesc = prod.description?.toLowerCase().includes(q) || prod.description_en?.toLowerCase().includes(q);
           const matchStore = prod.store_name?.toLowerCase().includes(q);
-          if (!matchTitle && !matchDesc && !matchStore) return false;
+          const matchBrand = prod.brand_name?.toLowerCase().includes(q);
+          if (!matchTitle && !matchDesc && !matchStore && !matchBrand) return false;
         }
 
         // Category filter
@@ -215,6 +264,8 @@ function MarketplaceContent() {
       });
   }, [
     products,
+    selectedBrand,
+    selectedBrandSection,
     searchQuery,
     selectedCategory,
     selectedStore,
@@ -309,11 +360,11 @@ function MarketplaceContent() {
           </div>
 
           {/* Category Quick Scroll Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             <button
               type="button"
               onClick={() => setSelectedCategory("all")}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                 selectedCategory === "all"
                   ? "bg-orange-500 text-white border-orange-500 shadow-sm font-extrabold"
                   : "bg-surface text-muted border-line hover:border-orange-500/50 hover:text-foreground"
@@ -326,13 +377,53 @@ function MarketplaceContent() {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.slug)}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   selectedCategory === cat.slug
                     ? "bg-orange-500 text-white border-orange-500 shadow-sm font-extrabold"
                     : "bg-surface text-muted border-line hover:border-orange-500/50 hover:text-foreground"
                 }`}
               >
                 {language === "ar" ? cat.name_ar : cat.name_en}
+              </button>
+            ))}
+          </div>
+
+          {/* Official Brands Quick Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-t border-line/60 pt-2">
+            <span className="text-[11px] font-bold text-muted whitespace-nowrap shrink-0 flex items-center gap-1">
+              <BadgeCheck size={13} className="text-emerald-500" />
+              <span>{language === "ar" ? "الماركات المعتمدة:" : "Official Brands:"}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedBrand("all");
+                setSelectedBrandSection("all");
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                selectedBrand === "all"
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 shadow-2xs font-extrabold"
+                  : "bg-surface text-muted border-line hover:border-slate-400"
+              }`}
+            >
+              {language === "ar" ? "الكل" : "All Brands"}
+            </button>
+            {availableBrands.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => {
+                  setSelectedBrand(b.id);
+                  setSelectedBrandSection("all");
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1 ${
+                  selectedBrand === b.id
+                    ? "bg-orange-500 text-white border-orange-500 shadow-xs font-extrabold"
+                    : "bg-surface text-muted border-line hover:border-orange-500/40 hover:text-foreground"
+                }`}
+              >
+                <span>{b.icon}</span>
+                <span>{language === "ar" ? b.nameAr : b.name}</span>
               </button>
             ))}
           </div>
@@ -351,30 +442,64 @@ function MarketplaceContent() {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="text-xs text-muted hover:text-gold transition-colors font-medium"
+                  className="text-xs text-muted hover:text-gold transition-colors font-medium cursor-pointer"
                 >
                   {text.resetFilters}
                 </button>
               </div>
 
-              {/* Price Slider */}
+              {/* Brand Filter */}
               <div className="space-y-2">
+                <span className="text-xs font-semibold text-foreground flex items-center justify-between">
+                  <span>{language === "ar" ? "الماركة العالمية" : "Global Brand"}</span>
+                  {selectedBrand !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedBrand("all");
+                        setSelectedBrandSection("all");
+                      }}
+                      className="text-[10px] text-orange-500 font-bold hover:underline cursor-pointer"
+                    >
+                      {language === "ar" ? "إلغاء التحديد" : "Clear"}
+                    </button>
+                  )}
+                </span>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => {
+                    setSelectedBrand(e.target.value);
+                    setSelectedBrandSection("all");
+                  }}
+                  className="w-full px-3 py-2 rounded-xl text-xs bg-surface border border-line text-foreground focus:outline-none focus:border-orange-500"
+                >
+                  <option value="all">{language === "ar" ? "جميع الماركات" : "All Brands"}</option>
+                  {availableBrands.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {language === "ar" ? `${b.nameAr} (${b.name})` : b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Price Slider */}
+              <div className="space-y-2 border-t border-line pt-4">
                 <div className="flex justify-between text-xs font-semibold text-foreground">
                   <span>{text.priceRange}</span>
-                  <span className="text-gold font-bold">{formatPrice(maxPrice)}</span>
+                  <span className="text-orange-500 font-bold">{formatPrice(maxPrice)}</span>
                 </div>
                 <input
                   type="range"
                   min="200"
-                  max="15000"
-                  step="100"
+                  max="500000"
+                  step="1000"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-[#d4af37] cursor-pointer"
+                  className="w-full accent-orange-500 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-muted">
                   <span>{formatPrice(200)}</span>
-                  <span>{formatPrice(15000)}</span>
+                  <span>{formatPrice(500000)}</span>
                 </div>
               </div>
 
@@ -468,6 +593,114 @@ function MarketplaceContent() {
 
           {/* Main Products Grid Column */}
           <div className="md:col-span-3 space-y-6">
+            {/* Brand Flagship Official Banner (Shown when a brand is active) */}
+            {selectedBrand !== "all" && currentBrandInfo && (
+              <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-700/60 p-6 text-white shadow-lg">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{currentBrandInfo.icon}</span>
+                      <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                        {language === "ar" ? `متجر ${currentBrandInfo.nameAr} (${currentBrandInfo.name}) الرسمي` : `${currentBrandInfo.name} Official Flagship`}
+                      </h2>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
+                        <BadgeCheck size={13} className="text-emerald-400" />
+                        <span>{language === "ar" ? "وكيل معتمد وموثق" : "Verified Authorized Store"}</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 max-w-xl">
+                      {language === "ar"
+                        ? `تصفح تشكيلة منتجات ${currentBrandInfo.nameAr} الأصلية بنسبة 100% مع ضمان الوكيل المعتمد، شحن دولي ومحلي سريع، وشهادات فحص ومطابقة حقيقية.`
+                        : `Explore 100% genuine ${currentBrandInfo.name} flagship products with authorized warranty, fast global shipping, and certified authenticity.`}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBrand("all");
+                      setSelectedBrandSection("all");
+                    }}
+                    className="self-start md:self-auto px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    {language === "ar" ? "عرض جميع الماركات" : "View All Brands"}
+                  </button>
+                </div>
+
+                {/* Sub-sections quick tabs for the selected brand */}
+                <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  <span className="text-[11px] font-semibold text-slate-400 whitespace-nowrap">
+                    {language === "ar" ? "الأقسام المتاحة:" : "Sections:"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedBrandSection("all")}
+                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      selectedBrandSection === "all"
+                        ? "bg-orange-500 text-white shadow-xs"
+                        : "bg-white/10 text-slate-300 hover:bg-white/20"
+                    }`}
+                  >
+                    {language === "ar" ? "جميع منتجات الماركة" : "All Brand Items"}
+                  </button>
+                  {selectedBrand === "apple" && (
+                    <>
+                      {["iPhone", "Watch", "AirPods"].map((sec) => (
+                        <button
+                          key={sec}
+                          type="button"
+                          onClick={() => setSelectedBrandSection(sec)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                            selectedBrandSection === sec
+                              ? "bg-orange-500 text-white shadow-xs"
+                              : "bg-white/10 text-slate-300 hover:bg-white/20"
+                          }`}
+                        >
+                          {sec}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {selectedBrand === "nike" && (
+                    <>
+                      {["Jordan", "Dunk"].map((sec) => (
+                        <button
+                          key={sec}
+                          type="button"
+                          onClick={() => setSelectedBrandSection(sec)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                            selectedBrandSection === sec
+                              ? "bg-orange-500 text-white shadow-xs"
+                              : "bg-white/10 text-slate-300 hover:bg-white/20"
+                          }`}
+                        >
+                          {sec}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {selectedBrand === "rolex" && (
+                    <>
+                      {["Submariner"].map((sec) => (
+                        <button
+                          key={sec}
+                          type="button"
+                          onClick={() => setSelectedBrandSection(sec)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                            selectedBrandSection === sec
+                              ? "bg-orange-500 text-white shadow-xs"
+                              : "bg-white/10 text-slate-300 hover:bg-white/20"
+                          }`}
+                        >
+                          {sec}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Sorting & Result Counts Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface border border-line text-xs">
               <span className="text-muted">
@@ -480,7 +713,7 @@ function MarketplaceContent() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  className="bg-surface-soft border border-line rounded-xl px-3 py-1.5 text-xs font-semibold text-foreground focus:outline-none focus:border-gold"
+                  className="bg-surface-soft border border-line rounded-xl px-3 py-1.5 text-xs font-semibold text-foreground focus:outline-none focus:border-gold cursor-pointer"
                 >
                   <option value="featured">{text.sortFeatured}</option>
                   <option value="price-asc">{text.sortPriceAsc}</option>
@@ -668,21 +901,59 @@ function MarketplaceContent() {
               </button>
             </div>
 
-            {/* Price Slider */}
+            {/* Brand Filter */}
             <div className="space-y-2">
+              <span className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>{language === "ar" ? "الماركة العالمية" : "Global Brand"}</span>
+                {selectedBrand !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBrand("all");
+                      setSelectedBrandSection("all");
+                    }}
+                    className="text-[10px] text-orange-500 font-bold hover:underline"
+                  >
+                    {language === "ar" ? "إلغاء التحديد" : "Clear"}
+                  </button>
+                )}
+              </span>
+              <select
+                value={selectedBrand}
+                onChange={(e) => {
+                  setSelectedBrand(e.target.value);
+                  setSelectedBrandSection("all");
+                }}
+                className="w-full px-3 py-2 rounded-xl text-xs bg-surface border border-line text-foreground focus:outline-none focus:border-orange-500"
+              >
+                <option value="all">{language === "ar" ? "جميع الماركات" : "All Brands"}</option>
+                {availableBrands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {language === "ar" ? `${b.nameAr} (${b.name})` : b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Price Slider */}
+            <div className="space-y-2 border-t border-line pt-4">
               <div className="flex justify-between text-xs font-semibold text-foreground">
                 <span>{text.priceRange}</span>
-                <span className="text-gold font-bold">{formatPrice(maxPrice)}</span>
+                <span className="text-orange-500 font-bold">{formatPrice(maxPrice)}</span>
               </div>
               <input
                 type="range"
                 min="200"
-                max="15000"
-                step="100"
+                max="500000"
+                step="1000"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-[#d4af37]"
+                className="w-full accent-orange-500"
               />
+              <div className="flex justify-between text-[10px] text-muted">
+                <span>{formatPrice(200)}</span>
+                <span>{formatPrice(500000)}</span>
+              </div>
             </div>
 
             {/* Checkboxes */}

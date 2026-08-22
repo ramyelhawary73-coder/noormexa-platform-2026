@@ -100,6 +100,8 @@ export type Product = {
   id: string;
   store_id: string;
   store_name?: string;
+  brand_id?: string;
+  brand_name?: string;
   category_id: string | null;
   category_slug?: string;
   name: string;

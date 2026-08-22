@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import SmoothFlashTimer from "@/components/landing/SmoothFlashTimer";
+import GlobalBrandsShowcase from "@/components/landing/GlobalBrandsShowcase";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { NoormexaEmblemSvg } from "@/components/BrandLogo";
@@ -81,16 +82,6 @@ type PlanCard = {
   badge?: string;
   features: string[];
   highlight?: boolean;
-};
-
-type BrandItem = {
-  name: string;
-  category: string;
-  logoText: string;
-  country: string;
-  taglineAr: string;
-  taglineEn: string;
-  verified: boolean;
 };
 
 type CouponItem = {
@@ -709,64 +700,6 @@ export default function HomePage() {
     },
   ];
 
-  // Top Authorized Brands
-  const authorizedBrands: BrandItem[] = [
-    {
-      name: "Apple Direct",
-      category: "Tech & Mobiles",
-      logoText: "APPLE",
-      country: "USA",
-      taglineAr: "الأجهزة الأصلية مع ضمان الوكيل المعتمد",
-      taglineEn: "Genuine devices with authorized local warranty",
-      verified: true,
-    },
-    {
-      name: "Sony Pro Audio",
-      category: "Audio & Cameras",
-      logoText: "SONY",
-      country: "Japan",
-      taglineAr: "سماعات عزل الضوضاء وكاميرات احترافية",
-      taglineEn: "Industry-leading ANC audio and cinema gear",
-      verified: true,
-    },
-    {
-      name: "Dior & Guerlain",
-      category: "Luxury Fragrances",
-      logoText: "DIOR",
-      country: "France",
-      taglineAr: "العطور الباريسية والخلطات الخاصة النادرة",
-      taglineEn: "Rare private blends and Parisian perfumery",
-      verified: true,
-    },
-    {
-      name: "Rolex & Tudor",
-      category: "Timepieces",
-      logoText: "ROLEX",
-      country: "Switzerland",
-      taglineAr: "ساعات ميكانيكية سويسرية معتمدة الأرقام",
-      taglineEn: "Swiss certified chronometers with serial certificates",
-      verified: true,
-    },
-    {
-      name: "Nike Prime Gear",
-      category: "Sport & Footwear",
-      logoText: "NIKE",
-      country: "USA",
-      taglineAr: "أحدث إصدارات الأحذية والملابس الرياضية",
-      taglineEn: "Latest limited sneaker drops and athletic wear",
-      verified: true,
-    },
-    {
-      name: "Samsung Galaxy",
-      category: "Smartphones & TV",
-      logoText: "SAMSUNG",
-      country: "S. Korea",
-      taglineAr: "شاشات OLED وهواتف Ultra المدعومة بالذكاء الاصطناعي",
-      taglineEn: "AI-enhanced Galaxy phones and Neo QLED displays",
-      verified: true,
-    },
-  ];
-
   // Live Smart Coupons
   const smartCoupons: CouponItem[] = [
     {
@@ -1156,54 +1089,7 @@ export default function HomePage() {
       </section>
 
       {/* 5. Authorized Global Brands Showcase */}
-      <section className="py-10 md:py-16 border-b border-line bg-surface-soft/40">
-        <div className="noormexa-container space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-black text-xs border border-blue-500/20 mb-1">
-                <Award size={13} />
-                <span>{text.brandsSection.badge}</span>
-              </span>
-              <h2 className="text-xl sm:text-3xl font-black text-foreground tracking-tight">
-                {text.brandsSection.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-muted">{text.brandsSection.subtitle}</p>
-            </div>
-
-            <Link
-              href="/marketplace"
-              className="text-xs sm:text-sm font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 shrink-0"
-            >
-              <span>{text.brandsSection.viewAllBrands}</span>
-              <DirectionIcon size={14} />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {authorizedBrands.map((brand) => (
-              <Link
-                key={brand.name}
-                href={`/marketplace?search=${encodeURIComponent(brand.name)}`}
-                className="p-5 rounded-2xl bg-surface border border-line hover:border-orange-500/50 hover:shadow-md transition-all text-center space-y-2.5 group flex flex-col justify-between"
-              >
-                <div className="w-12 h-12 mx-auto rounded-xl bg-surface-soft border border-line flex items-center justify-center font-mono font-black text-sm text-foreground tracking-wider group-hover:scale-105 transition-transform">
-                  {brand.logoText.slice(0, 4)}
-                </div>
-                <div>
-                  <h3 className="font-black text-xs sm:text-sm text-foreground group-hover:text-orange-500 transition-colors flex items-center justify-center gap-1">
-                    <span>{brand.name}</span>
-                    <BadgeCheck size={12} className="text-emerald-500" />
-                  </h3>
-                  <span className="text-[10px] text-muted block">{brand.category}</span>
-                </div>
-                <div className="pt-2 border-t border-line/60 text-[10px] text-orange-600 dark:text-orange-400 font-bold">
-                  {isAr ? brand.taglineAr : brand.taglineEn}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <GlobalBrandsShowcase isAr={isAr} />
 
       {/* 6. Signature Categories Department Catalog */}
       <section className="py-12 md:py-16 border-b border-line bg-surface">
