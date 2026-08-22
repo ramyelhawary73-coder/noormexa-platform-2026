@@ -1,8 +1,7 @@
-// NOORMEXA Global Marketplace - World-Class Progressive Web App Service Worker
-const CACHE_NAME = "noormexa-pwa-v2";
-const OFFLINE_FALLBACK_PAGE = "/";
+// NOORMEXA Global Marketplace - Resilient Progressive Web App Service Worker
+const CACHE_NAME = "noormexa-pwa-v3";
 
-const STATIC_ASSETS = [
+const PRECACHE_ASSETS = [
   "/",
   "/manifest.json",
   "/favicon.svg",
@@ -13,34 +12,30 @@ const STATIC_ASSETS = [
   "/icon-maskable-512.png",
 ];
 
-// Install Event: Precaches essential app assets safely
+// Install: Pre-cache core static assets safely
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then(async (cache) => {
-        for (const url of STATIC_ASSETS) {
-          try {
-            await cache.add(url);
-          } catch {
-            // Ignore individual asset failure
-          }
-        }
-      })
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.allSettled(
+        PRECACHE_ASSETS.map((url) =>
+          cache.add(new Request(url, { cache: "reload" })).catch(() => {})
+        )
+      );
+    })
   );
 });
 
-// Activate Event: Cleans up old cache stores
+// Activate: Clean up old stale caches immediately
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((cacheNames) => {
+      .then((keys) => {
         return Promise.all(
-          cacheNames.map((cache) => {
-            if (cache !== CACHE_NAME) {
-              return caches.delete(cache);
+          keys.map((key) => {
+            if (key !== CACHE_NAME) {
+              return caches.delete(key);
             }
           })
         );
@@ -49,47 +44,72 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch Event: Network-first strategy with cache fallback
+// Fetch: Pure pass-through for Next.js internal calls, Cache-First for static icons/images
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  if (!event.request.url.startsWith("http")) return;
-  if (event.request.url.includes("/_next/webpack-hmr")) return;
+  const url = new URL(event.request.url);
 
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          (event.request.url.endsWith(".png") ||
-            event.request.url.endsWith(".jpg") ||
-            event.request.url.endsWith(".svg") ||
-            event.request.url.endsWith(".ico") ||
-            event.request.url.endsWith(".woff2"))
-        ) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache).catch(() => {});
-          });
-        }
-        return networkResponse;
-      })
-      .catch(async () => {
-        const cachedResponse = await caches.match(event.request);
+  // 1. Only handle GET requests with http/https schemes
+  if (event.request.method !== "GET" || !url.protocol.startsWith("http")) {
+    return;
+  }
+
+  // 2. NEVER intercept Next.js data routes, API routes, or React Server Components
+  if (
+    url.pathname.startsWith("/_next/") ||
+    url.pathname.startsWith("/api/") ||
+    url.searchParams.has("_rsc")
+  ) {
+    return;
+  }
+
+  // 3. For PWA icons and static images: Cache-first with Network Fallback
+  const isStaticImage =
+    url.pathname.endsWith(".png") ||
+    url.pathname.endsWith(".jpg") ||
+    url.pathname.endsWith(".jpeg") ||
+    url.pathname.endsWith(".svg") ||
+    url.pathname.endsWith(".webp") ||
+    url.pathname.endsWith(".ico");
+
+  if (isStaticImage) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {
           return cachedResponse;
         }
+        return fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseClone).catch(() => {});
+              });
+            }
+            return networkResponse;
+          })
+          .catch(() => {
+            return new Response(null, { status: 404, statusText: "Not Found" });
+          });
+      })
+    );
+    return;
+  }
 
-        if (event.request.mode === "navigate") {
-          const fallback = await caches.match(OFFLINE_FALLBACK_PAGE);
-          if (fallback) return fallback;
-        }
+  // 4. For page navigations: Network-first with graceful cache fallback (No synthetic 503s)
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        const cachedPage = await caches.match(event.request);
+        if (cachedPage) return cachedPage;
 
-        return new Response("NOORMEXA Offline - Please check your connection", {
-          status: 503,
-          statusText: "Service Unavailable",
-          headers: new Headers({ "Content-Type": "text/plain" }),
+        const homeFallback = await caches.match("/");
+        if (homeFallback) return homeFallback;
+
+        return new Response("NOORMEXA is offline. Please check your internet connection.", {
+          status: 200,
+          headers: { "Content-Type": "text/html; charset=utf-8" },
         });
       })
-  );
+    );
+  }
 });
