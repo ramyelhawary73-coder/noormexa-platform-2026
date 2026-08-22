@@ -882,38 +882,7 @@ export default function HomePage() {
 
   return (
     <main id="top" className="noormexa-main overflow-hidden">
-      {/* 1. Global Trust & Quality Assurance Strip */}
-      <div className="bg-slate-900 text-slate-100 border-b border-slate-800 py-2.5 px-4">
-        <div className="noormexa-container flex flex-wrap items-center justify-between gap-3 text-[11px] sm:text-xs">
-          <div className="flex items-center gap-2 text-orange-400 font-bold">
-            <Sparkles size={14} className="shrink-0 text-orange-400" />
-            <span className="truncate">{text.trustBar.guarantee}</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-6 text-slate-300 font-medium">
-            <span className="flex items-center gap-1.5">
-              <Truck size={13} className="text-orange-400" />
-              <span>{text.trustBar.freeShipping}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck size={13} className="text-emerald-400" />
-              <span>{text.trustBar.securePay}</span>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/marketplace?filter=deals"
-              className="px-3 py-1 rounded-full bg-orange-500 hover:bg-orange-600 !text-white font-black text-[10px] sm:text-[11px] transition-all flex items-center gap-1 shadow-xs"
-            >
-              <Flame size={12} className="text-white fill-white" />
-              <span>{isAr ? "فلاش ديلز 50% خصم" : "Flash Deals 50% OFF"}</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Hero Interactive Stage */}
+      {/* Hero Interactive Stage */}
       <section className="relative py-8 md:py-16 border-b border-line bg-gradient-to-b from-surface via-surface-soft to-surface">
         <div className="noormexa-container grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left / Primary Text Column */}
