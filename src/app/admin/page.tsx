@@ -121,6 +121,9 @@ export default function SuperAdminPage() {
     updateExchangeRate,
     formatPrice,
     updateStoreStatusItem,
+    deleteStoreItem,
+    bulkUpdateStoresStatus,
+    bulkDeleteStores,
     toggleStoreVerified,
     updateStoreCommissionRate,
     updateProductItem,
@@ -134,6 +137,11 @@ export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState<
     "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders" | "payouts" | "promotions" | "analytics"
   >("overview");
+
+  // Stores Bulk Selection & Management State
+  const [selectedStoreIds, setSelectedStoreIds] = useState<string[]>([]);
+  const [storeToDelete, setStoreToDelete] = useState<string | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   // Official Flagship Store Modal State
   const [showOfficialModal, setShowOfficialModal] = useState(false);
@@ -437,14 +445,14 @@ export default function SuperAdminPage() {
                   <StoreIcon size={18} className="text-gold" />
                   <span>{isAr ? "إدارة وتوثيق بائعي ومتاجر السوق (Store KYC Center)" : "Store KYC & Verification"}</span>
                 </h2>
-                <p className="text-xs text-muted">{isAr ? "فحص السجلات التجارية، الحسابات البنكية، وتعيين عمولات المتاجر" : "Inspect merchant legal records, bank accounts, and set custom fee rates"}</p>
+                <p className="text-xs text-muted">{isAr ? "فحص السجلات التجارية، الحسابات البنكية، وتعيين عمولات المتاجر والتحكم الجماعي" : "Inspect merchant legal records, bank accounts, set fee rates and perform bulk actions"}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowOfficialModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <Crown size={14} className="fill-white" />
                   <span>{isAr ? "إنشاء متجر رسمي للمنصة" : "Create Official Store"}</span>
@@ -460,122 +468,240 @@ export default function SuperAdminPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              {stores.map((s) => (
-                <div key={s.id} className="p-5 rounded-2xl bg-surface-soft border border-line space-y-4 text-xs">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-surface border border-line shrink-0 relative">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={s.logo_url || ""} alt="" className="w-full h-full object-cover" />
-                        {s.is_official && (
-                          <div className="absolute top-0.5 right-0.5 bg-amber-500 text-white p-0.5 rounded-full shadow-xs">
-                            <Crown size={10} className="fill-white" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-sm text-foreground">{s.name}</span>
-                          {s.is_official ? (
-                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-gold font-black text-[10px] flex items-center gap-1 border border-amber-500/30">
-                              <Crown size={11} className="fill-amber-500 text-amber-500" />
-                              <span>{isAr ? "متجر المنصة الرسمي" : "Official Flagship"}</span>
-                            </span>
-                          ) : s.is_verified ? (
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 font-bold text-[10px] flex items-center gap-1">
-                              <BadgeCheck size={12} />
-                              <span>{isAr ? "بائع موثق" : "Verified"}</span>
-                            </span>
-                          ) : (
-                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-gold font-bold text-[10px]">
-                              {isAr ? "غير موثق" : "Unverified"}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted line-clamp-1 mt-0.5">{s.description}</p>
-                        <div className="text-[11px] text-muted mt-0.5 flex items-center gap-2">
-                          <Link href={`/store/${s.slug}`} className="text-gold hover:underline font-semibold">
-                            noormexa.com/store/{s.slug}
-                          </Link>
-                          {s.is_official && (
-                            <span className="text-[10px] bg-gold/10 text-navy dark:text-gold px-2 py-0.5 rounded font-black">
-                              {isAr ? "عمولة 0% (متجر المالك)" : "0% Commission (Owner Store)"}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+            {/* Bulk Selection Header & Toolbar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-soft border border-line">
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={stores.length > 0 && selectedStoreIds.length === stores.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedStoreIds(stores.map((s) => s.id));
+                      } else {
+                        setSelectedStoreIds([]);
+                      }
+                    }}
+                    className="w-4 h-4 rounded text-gold focus:ring-gold border-line cursor-pointer accent-amber-500"
+                  />
+                  <span>
+                    {isAr
+                      ? `تحديد الكل (${selectedStoreIds.length} من ${stores.length} محدد)`
+                      : `Select All (${selectedStoreIds.length} of ${stores.length} selected)`}
+                  </span>
+                </label>
+              </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/store/${s.slug}`}
-                        className="px-3 py-1.5 rounded-xl font-bold text-xs bg-surface border border-line hover:border-gold text-foreground transition-all"
-                      >
-                        {isAr ? "معاينة الواجهة" : "Visit Store"}
-                      </Link>
+              {selectedStoreIds.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 animate-in fade-in">
+                  <span className="text-xs font-black text-amber-600 dark:text-gold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                    {isAr ? `تم تحديد ${selectedStoreIds.length} متجر` : `${selectedStoreIds.length} stores selected`}
+                  </span>
 
-                      {/* Toggle Verified Badge */}
-                      <button
-                        type="button"
-                        onClick={() => toggleStoreVerified(s.id)}
-                        className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all ${
-                          s.is_verified
-                            ? "bg-emerald-600/10 text-emerald-600 border-emerald-600/30"
-                            : "bg-surface text-muted border-line hover:border-gold"
-                        }`}
-                      >
-                        {s.is_verified ? (isAr ? "إلغاء التوثيق" : "Revoke Badge") : (isAr ? "منح شارة التوثيق" : "Grant Verified Badge")}
-                      </button>
+                  {/* Bulk Approve */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      bulkUpdateStoresStatus(selectedStoreIds, "approved");
+                      setSelectedStoreIds([]);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                  >
+                    <BadgeCheck size={14} />
+                    <span>{isAr ? "اعتماد جماعي" : "Bulk Approve"}</span>
+                  </button>
 
-                      {/* Status selector */}
-                      <select
-                        value={s.status}
-                        onChange={(e) => updateStoreStatusItem(s.id, e.target.value as Store["status"])}
-                        className="px-3 py-1.5 rounded-xl bg-surface border border-line text-foreground font-bold text-xs focus:outline-none"
-                      >
-                        <option value="approved">{isAr ? "معتمد (Approved)" : "Approved"}</option>
-                        <option value="pending">{isAr ? "قيد المراجعة (Pending)" : "Pending"}</option>
-                        <option value="suspended">{isAr ? "موقوف (Suspended)" : "Suspended"}</option>
-                      </select>
-                    </div>
-                  </div>
+                  {/* Bulk Suspend */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      bulkUpdateStoresStatus(selectedStoreIds, "suspended");
+                      setSelectedStoreIds([]);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                  >
+                    <ShieldCheck size={14} />
+                    <span>{isAr ? "إيقاف جماعي" : "Bulk Suspend"}</span>
+                  </button>
 
-                  {/* KYC & Banking Data Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 rounded-xl bg-surface border border-line/60 text-xs">
-                    <div>
-                      <span className="text-muted text-[11px] block">{isAr ? "السجل التجاري / الوثيقة:" : "CR / License:"}</span>
-                      <strong className="font-mono text-foreground">{s.cr_number || "CR-1010-88992"}</strong>
-                    </div>
+                  {/* Bulk Delete */}
+                  <button
+                    type="button"
+                    onClick={() => setShowBulkDeleteConfirm(true)}
+                    className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                  >
+                    <Trash2 size={14} />
+                    <span>{isAr ? "حذف جماعي" : "Bulk Delete"}</span>
+                  </button>
 
-                    <div>
-                      <span className="text-muted text-[11px] block">{isAr ? "الرقم الضريبي:" : "Tax Number:"}</span>
-                      <strong className="font-mono text-foreground">{s.tax_number || "30012938400003"}</strong>
-                    </div>
-
-                    <div>
-                      <span className="text-muted text-[11px] block">{isAr ? "الحساب البنكي (IBAN):" : "Bank & IBAN:"}</span>
-                      <strong className="font-mono text-foreground truncate block">{s.iban || "SA12 1000 0001 2345 6789"}</strong>
-                      <span className="text-[10px] text-muted">{s.bank_name || "مصرف الراجحي"}</span>
-                    </div>
-
-                    <div>
-                      <span className="text-muted text-[11px] block">{isAr ? "عمولة المنصة المخصصة:" : "Commission Rate:"}</span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <input
-                          type="number"
-                          min="0"
-                          max="30"
-                          value={s.commission_rate || 0}
-                          onChange={(e) => updateStoreCommissionRate(s.id, Number(e.target.value))}
-                          className="w-14 p-1 rounded-lg bg-surface-soft border border-line font-mono font-bold text-center text-xs text-foreground focus:outline-none focus:border-gold"
-                        />
-                        <span className="text-xs font-bold text-gold">%</span>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Clear selection */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedStoreIds([])}
+                    className="px-3 py-1.5 rounded-xl bg-surface border border-line text-muted hover:text-foreground font-bold text-xs transition-all cursor-pointer"
+                  >
+                    <X size={13} />
+                    <span>{isAr ? "إلغاء التحديد" : "Deselect"}</span>
+                  </button>
                 </div>
-              ))}
+              )}
+            </div>
+
+            {/* Stores List */}
+            <div className="space-y-4">
+              {stores.map((s) => {
+                const isSelected = selectedStoreIds.includes(s.id);
+                return (
+                  <div
+                    key={s.id}
+                    className={`p-5 rounded-2xl border space-y-4 text-xs transition-all ${
+                      isSelected
+                        ? "bg-amber-500/5 border-amber-500/50 shadow-xs"
+                        : "bg-surface-soft border-line hover:border-slate-300 dark:hover:border-slate-700"
+                    }`}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5">
+                        {/* Store Checkbox Selection */}
+                        <div className="flex items-center shrink-0 pr-1">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedStoreIds((prev) => [...prev, s.id]);
+                              } else {
+                                setSelectedStoreIds((prev) => prev.filter((id) => id !== s.id));
+                              }
+                            }}
+                            className="w-4 h-4 rounded text-gold focus:ring-gold border-line cursor-pointer accent-amber-500"
+                            aria-label={`Select ${s.name}`}
+                          />
+                        </div>
+
+                        <div className="w-14 h-14 rounded-2xl overflow-hidden bg-surface border border-line shrink-0 relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={s.logo_url || ""} alt="" className="w-full h-full object-cover" />
+                          {s.is_official && (
+                            <div className="absolute top-0.5 right-0.5 bg-amber-500 text-white p-0.5 rounded-full shadow-xs">
+                              <Crown size={10} className="fill-white" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-sm text-foreground">{s.name}</span>
+                            {s.is_official ? (
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-gold font-black text-[10px] flex items-center gap-1 border border-amber-500/30">
+                                <Crown size={11} className="fill-amber-500 text-amber-500" />
+                                <span>{isAr ? "متجر المنصة الرسمي" : "Official Flagship"}</span>
+                              </span>
+                            ) : s.is_verified ? (
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 font-bold text-[10px] flex items-center gap-1">
+                                <BadgeCheck size={12} />
+                                <span>{isAr ? "بائع موثق" : "Verified"}</span>
+                              </span>
+                            ) : (
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-gold font-bold text-[10px]">
+                                {isAr ? "غير موثق" : "Unverified"}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted line-clamp-1 mt-0.5">{s.description}</p>
+                          <div className="text-[11px] text-muted mt-0.5 flex items-center gap-2">
+                            <Link href={`/store/${s.slug}`} className="text-gold hover:underline font-semibold">
+                              noormexa.com/store/{s.slug}
+                            </Link>
+                            {s.is_official && (
+                              <span className="text-[10px] bg-gold/10 text-navy dark:text-gold px-2 py-0.5 rounded font-black">
+                                {isAr ? "عمولة 0% (متجر المالك)" : "0% Commission (Owner Store)"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          href={`/store/${s.slug}`}
+                          className="px-3 py-1.5 rounded-xl font-bold text-xs bg-surface border border-line hover:border-gold text-foreground transition-all"
+                        >
+                          {isAr ? "معاينة الواجهة" : "Visit Store"}
+                        </Link>
+
+                        {/* Toggle Verified Badge */}
+                        <button
+                          type="button"
+                          onClick={() => toggleStoreVerified(s.id)}
+                          className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
+                            s.is_verified
+                              ? "bg-emerald-600/10 text-emerald-600 border-emerald-600/30"
+                              : "bg-surface text-muted border-line hover:border-gold"
+                          }`}
+                        >
+                          {s.is_verified ? (isAr ? "إلغاء التوثيق" : "Revoke Badge") : (isAr ? "منح شارة التوثيق" : "Grant Verified Badge")}
+                        </button>
+
+                        {/* Status selector */}
+                        <select
+                          value={s.status}
+                          onChange={(e) => updateStoreStatusItem(s.id, e.target.value as Store["status"])}
+                          className="px-3 py-1.5 rounded-xl bg-surface border border-line text-foreground font-bold text-xs focus:outline-none cursor-pointer"
+                        >
+                          <option value="approved">{isAr ? "معتمد (Approved)" : "Approved"}</option>
+                          <option value="pending">{isAr ? "قيد المراجعة (Pending)" : "Pending"}</option>
+                          <option value="suspended">{isAr ? "موقوف (Suspended)" : "Suspended"}</option>
+                        </select>
+
+                        {/* Individual Delete Store Button */}
+                        <button
+                          type="button"
+                          onClick={() => setStoreToDelete(s.id)}
+                          className="p-1.5 rounded-xl bg-surface border border-line hover:border-red-500/50 hover:bg-red-500/10 text-muted hover:text-red-600 transition-all cursor-pointer"
+                          title={isAr ? "حذف المتجر" : "Delete Store"}
+                          aria-label={isAr ? "حذف المتجر" : "Delete Store"}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* KYC & Banking Data Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 rounded-xl bg-surface border border-line/60 text-xs">
+                      <div>
+                        <span className="text-muted text-[11px] block">{isAr ? "السجل التجاري / الوثيقة:" : "CR / License:"}</span>
+                        <strong className="font-mono text-foreground">{s.cr_number || "CR-1010-88992"}</strong>
+                      </div>
+
+                      <div>
+                        <span className="text-muted text-[11px] block">{isAr ? "الرقم الضريبي:" : "Tax Number:"}</span>
+                        <strong className="font-mono text-foreground">{s.tax_number || "30012938400003"}</strong>
+                      </div>
+
+                      <div>
+                        <span className="text-muted text-[11px] block">{isAr ? "الحساب البنكي (IBAN):" : "Bank & IBAN:"}</span>
+                        <strong className="font-mono text-foreground truncate block">{s.iban || "SA12 1000 0001 2345 6789"}</strong>
+                        <span className="text-[10px] text-muted">{s.bank_name || "مصرف الراجحي"}</span>
+                      </div>
+
+                      <div>
+                        <span className="text-muted text-[11px] block">{isAr ? "عمولة المنصة المخصصة:" : "Commission Rate:"}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="30"
+                            value={s.commission_rate || 0}
+                            onChange={(e) => updateStoreCommissionRate(s.id, Number(e.target.value))}
+                            className="w-14 p-1 rounded-lg bg-surface-soft border border-line font-mono font-bold text-center text-xs text-foreground focus:outline-none focus:border-gold"
+                          />
+                          <span className="text-xs font-bold text-gold">%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -1560,6 +1686,106 @@ export default function SuperAdminPage() {
               >
                 <Crown size={15} className="fill-white" />
                 <span>{isAr ? "تأكيد وإنشاء المتجر" : "Confirm & Launch Store"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Single Store Confirmation Modal */}
+      {storeToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-surface border border-line rounded-3xl p-6 sm:p-7 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center gap-3 text-red-500">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h3 className="font-black text-base text-foreground">
+                  {isAr ? "تأكيد حذف المتجر" : "Confirm Store Deletion"}
+                </h3>
+                <p className="text-xs text-muted">
+                  {isAr ? "هل أنت متأكد من رغبتك في حذف هذا المتجر؟" : "Are you sure you want to delete this store?"}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted bg-surface-soft p-3.5 rounded-xl border border-line leading-relaxed">
+              {isAr
+                ? "سيتم إزالة المتجر نهائياً من قائمة المتاجر النشطة وسجلات السوق."
+                : "The store will be permanently removed from the active merchant directory."}
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setStoreToDelete(null)}
+                className="px-4 py-2 rounded-xl border border-line text-xs font-bold text-muted hover:text-foreground transition-all cursor-pointer"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  deleteStoreItem(storeToDelete);
+                  setSelectedStoreIds((prev) => prev.filter((id) => id !== storeToDelete));
+                  setStoreToDelete(null);
+                }}
+                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Trash2 size={13} />
+                <span>{isAr ? "نعم، احذف المتجر" : "Yes, Delete Store"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Stores Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-surface border border-line rounded-3xl p-6 sm:p-7 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center gap-3 text-red-500">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h3 className="font-black text-base text-foreground">
+                  {isAr ? `تأكيد الحذف الجماعي (${selectedStoreIds.length} متاجر)` : `Confirm Bulk Delete (${selectedStoreIds.length} Stores)`}
+                </h3>
+                <p className="text-xs text-muted">
+                  {isAr ? "إجراء جماعي لا يمكن التراجع عنه" : "This bulk action cannot be undone"}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted bg-surface-soft p-3.5 rounded-xl border border-line leading-relaxed">
+              {isAr
+                ? `أنت على وشك حذف ${selectedStoreIds.length} متجر تم تحديدها بالكامل من سجلات المنصة.`
+                : `You are about to delete ${selectedStoreIds.length} selected stores completely from the platform.`}
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="px-4 py-2 rounded-xl border border-line text-xs font-bold text-muted hover:text-foreground transition-all cursor-pointer"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  bulkDeleteStores(selectedStoreIds);
+                  setSelectedStoreIds([]);
+                  setShowBulkDeleteConfirm(false);
+                }}
+                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Trash2 size={13} />
+                <span>{isAr ? "تأكيد الحذف الجماعي" : "Confirm Bulk Delete"}</span>
               </button>
             </div>
           </div>

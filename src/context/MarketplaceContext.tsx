@@ -1700,6 +1700,9 @@ interface MarketplaceContextType {
   }) => { store: Store; autoApproved: boolean };
   updateStoreProfile: (storeId: string, updates: Partial<Store>) => void;
   updateStoreStatusItem: (storeId: string, status: Store["status"]) => void;
+  deleteStoreItem: (storeId: string) => void;
+  bulkUpdateStoresStatus: (storeIds: string[], status: Store["status"]) => void;
+  bulkDeleteStores: (storeIds: string[]) => void;
   toggleStoreVerified: (storeId: string) => void;
   updateStoreCommissionRate: (storeId: string, rate: number) => void;
 
@@ -2095,6 +2098,24 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
 
   const updateStoreStatusItem = useCallback((storeId: string, status: Store["status"]) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, status } : s)));
+  }, []);
+
+  const deleteStoreItem = useCallback((storeId: string) => {
+    setStoresState((prev) => prev.filter((s) => s.id !== storeId));
+  }, []);
+
+  const bulkUpdateStoresStatus = useCallback((storeIds: string[], status: Store["status"]) => {
+    if (storeIds.length === 0) return;
+    const idSet = new Set(storeIds);
+    setStoresState((prev) =>
+      prev.map((s) => (idSet.has(s.id) ? { ...s, status, is_verified: status === "approved" ? true : s.is_verified } : s))
+    );
+  }, []);
+
+  const bulkDeleteStores = useCallback((storeIds: string[]) => {
+    if (storeIds.length === 0) return;
+    const idSet = new Set(storeIds);
+    setStoresState((prev) => prev.filter((s) => !idSet.has(s.id)));
   }, []);
 
   const toggleStoreVerified = useCallback((storeId: string) => {
@@ -2737,6 +2758,9 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         registerStore,
         updateStoreProfile,
         updateStoreStatusItem,
+        deleteStoreItem,
+        bulkUpdateStoresStatus,
+        bulkDeleteStores,
         toggleStoreVerified,
         updateStoreCommissionRate,
         marketingPosts,
