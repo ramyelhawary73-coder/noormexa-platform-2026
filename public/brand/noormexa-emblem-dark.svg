@@ -1,18 +1,93 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
-  <g id="noormexa-emblem" fill="#ffffff">
-    <!-- Left 4 Vertical Bars (Caps rx=4) -->
-    <rect x="16" y="14" width="8" height="172" rx="4" />
-    <rect x="32" y="14" width="8" height="172" rx="4" />
-    <rect x="48" y="14" width="8" height="172" rx="4" />
-    <rect x="64" y="14" width="8" height="172" rx="4" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 340" width="460" height="340" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+  <defs>
+    <linearGradient id="nmx-sq-grad-left" x1="0%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#005e6e" />
+      <stop offset="25%" stop-color="#007e90" />
+      <stop offset="55%" stop-color="#00a8bc" />
+      <stop offset="85%" stop-color="#24d2e5" />
+      <stop offset="100%" stop-color="#6be6f5" />
+    </linearGradient>
 
-    <!-- Center Point-Symmetric Diagonal Parallelogram ('N' Slash) -->
-    <polygon points="74,14 116,14 126,186 84,186" />
+    <linearGradient id="nmx-sq-grad-crest" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7bf0fd" />
+      <stop offset="60%" stop-color="#2bd8ec" />
+      <stop offset="100%" stop-color="#009eb0" />
+    </linearGradient>
 
-    <!-- Right 4 Vertical Bars (Caps rx=4) -->
-    <rect x="128" y="14" width="8" height="172" rx="4" />
-    <rect x="144" y="14" width="8" height="172" rx="4" />
-    <rect x="160" y="14" width="8" height="172" rx="4" />
-    <rect x="176" y="14" width="8" height="172" rx="4" />
+    <linearGradient id="nmx-sq-grad-crease" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003c46" />
+      <stop offset="40%" stop-color="#00505d" />
+      <stop offset="75%" stop-color="#007181" />
+      <stop offset="100%" stop-color="#0096a7" />
+    </linearGradient>
+
+    <linearGradient id="nmx-sq-grad-right" x1="20%" y1="100%" x2="85%" y2="0%">
+      <stop offset="0%" stop-color="#007c8e" />
+      <stop offset="35%" stop-color="#00a9bd" />
+      <stop offset="70%" stop-color="#22d0e3" />
+      <stop offset="100%" stop-color="#6ae4f3" />
+    </linearGradient>
+
+    <linearGradient id="nmx-sq-grad-wrap" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#008a9c" />
+      <stop offset="50%" stop-color="#55dfef" />
+      <stop offset="100%" stop-color="#a2f4fc" />
+    </linearGradient>
+
+    <filter id="nmx-sq-shadow" x="-15%" y="-15%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#00222a" flood-opacity="0.6" />
+      </filter>
+  </defs>
+
+  <g id="noormexa-vector-mark-sq" transform="translate(-20, 10)">
+    <path 
+      d="M 160,35 
+         C 200,35 240,65 270,120 
+         C 300,175 320,240 325,270 
+         C 320,270 295,245 275,210 
+         C 245,160 215,95 160,35 Z" 
+      fill="url(#nmx-sq-grad-crease)" 
+    />
+
+    <path 
+      d="M 235,270 
+         C 260,265 295,215 328,150 
+         C 355,95 385,38 420,38 
+         C 445,38 460,58 455,85 
+         C 448,120 405,185 365,240 
+         C 335,280 295,305 260,300 
+         C 245,298 235,285 235,270 Z" 
+      fill="url(#nmx-sq-grad-right)" 
+    />
+
+    <path 
+      d="M 225,272 
+         C 255,290 295,305 340,280 
+         C 350,274 340,265 325,262 
+         C 290,255 255,255 225,272 Z" 
+      fill="url(#nmx-sq-grad-wrap)" 
+      opacity="0.9"
+    />
+
+    <path 
+      d="M 160,35 
+         C 175,35 195,38 210,50 
+         C 225,62 230,85 225,115 
+         C 215,165 175,225 140,265 
+         C 120,288 95,298 75,288 
+         C 55,278 52,250 68,218 
+         C 90,175 125,110 145,60 
+         C 152,42 155,35 160,35 Z" 
+      fill="url(#nmx-sq-grad-left)" 
+      filter="url(#nmx-sq-shadow)"
+    />
+
+    <path 
+      d="M 160,35 
+         C 175,35 195,38 210,50 
+         C 200,45 185,42 170,42 
+         C 162,42 158,38 160,35 Z" 
+      fill="url(#nmx-sq-grad-crest)" 
+    />
   </g>
 </svg>

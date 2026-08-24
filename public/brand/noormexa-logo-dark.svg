@@ -1,25 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" width="480" height="120" fill="none">
-  <!-- Left Emblem -->
-  <g transform="translate(10, 8) scale(0.58)">
-    <rect x="14.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <rect x="28.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <rect x="42.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <rect x="56.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <polygon points="71,8 109,8 129,172 91,172" fill="#f4f4f5" />
-    <rect x="136.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <rect x="150.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <rect x="164.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
-    <rect x="178.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400" width="520" height="400" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+  <defs>
+    <!-- Left Ribbon Front Gradient (Rich Teal -> Luminous Cyan at top) -->
+    <linearGradient id="nmx-grad-left" x1="0%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#005e6e" />
+      <stop offset="25%" stop-color="#007e90" />
+      <stop offset="55%" stop-color="#00a8bc" />
+      <stop offset="85%" stop-color="#24d2e5" />
+      <stop offset="100%" stop-color="#6be6f5" />
+    </linearGradient>
+
+    <!-- Top Left Sharp Beak Highlight -->
+    <linearGradient id="nmx-grad-crest" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7bf0fd" />
+      <stop offset="60%" stop-color="#2bd8ec" />
+      <stop offset="100%" stop-color="#009eb0" />
+    </linearGradient>
+
+    <!-- Center Deep Crease / 3D Underside Gradient -->
+    <linearGradient id="nmx-grad-crease" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003c46" />
+      <stop offset="40%" stop-color="#00505d" />
+      <stop offset="75%" stop-color="#007181" />
+      <stop offset="100%" stop-color="#0096a7" />
+    </linearGradient>
+
+    <!-- Right Wing Ascending Gradient (Aqua-Cyan Petal) -->
+    <linearGradient id="nmx-grad-right" x1="20%" y1="100%" x2="85%" y2="0%">
+      <stop offset="0%" stop-color="#007c8e" />
+      <stop offset="35%" stop-color="#00a9bd" />
+      <stop offset="70%" stop-color="#22d0e3" />
+      <stop offset="100%" stop-color="#6ae4f3" />
+    </linearGradient>
+
+    <!-- Bottom Underbelly Wrap Gradient -->
+    <linearGradient id="nmx-grad-wrap" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#008a9c" />
+      <stop offset="50%" stop-color="#55dfef" />
+      <stop offset="100%" stop-color="#a2f4fc" />
+    </linearGradient>
+
+    <filter id="nmx-shadow" x="-15%" y="-15%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#00222a" flood-opacity="0.6" />
+      </filter>
+  </defs>
+
+  <!-- 3D Ribbon 'N' Master Vector Group -->
+  <g id="noormexa-vector-mark" transform="translate(0, -5)">
+
+    <!-- 1. Deep 3D Cavity Underside (Between the two wings) -->
+    <path 
+      d="M 160,35 
+         C 200,35 240,65 270,120 
+         C 300,175 320,240 325,270 
+         C 320,270 295,245 275,210 
+         C 245,160 215,95 160,35 Z" 
+      fill="url(#nmx-grad-crease)" 
+    />
+
+    <!-- 2. Right Ascending Wing with Rounded Lobe Head -->
+    <path 
+      d="M 235,270 
+         C 260,265 295,215 328,150 
+         C 355,95 385,38 420,38 
+         C 445,38 460,58 455,85 
+         C 448,120 405,185 365,240 
+         C 335,280 295,305 260,300 
+         C 245,298 235,285 235,270 Z" 
+      fill="url(#nmx-grad-right)" 
+    />
+
+    <!-- 3. Lower Underbelly Luminous Sweep -->
+    <path 
+      d="M 225,272 
+         C 255,290 295,305 340,280 
+         C 350,274 340,265 325,262 
+         C 290,255 255,255 225,272 Z" 
+      fill="url(#nmx-grad-wrap)" 
+      opacity="0.9"
+    />
+
+    <!-- 4. Left Front Main Sail Ribbon (with sharp top crest and bulbous bottom foot) -->
+    <path 
+      d="M 160,35 
+         C 175,35 195,38 210,50 
+         C 225,62 230,85 225,115 
+         C 215,165 175,225 140,265 
+         C 120,288 95,298 75,288 
+         C 55,278 52,250 68,218 
+         C 90,175 125,110 145,60 
+         C 152,42 155,35 160,35 Z" 
+      fill="url(#nmx-grad-left)" 
+      filter="url(#nmx-shadow)"
+    />
+
+    <!-- 5. Top Crest Sharp Fold Cap Highlight -->
+    <path 
+      d="M 160,35 
+         C 175,35 195,38 210,50 
+         C 200,45 185,42 170,42 
+         C 162,42 158,38 160,35 Z" 
+      fill="url(#nmx-grad-crest)" 
+    />
+
   </g>
 
-  <!-- Horizontal Wordmark -->
+  <!-- Master NOORMEXA Wordmark with precise letter spacing and font scale -->
   <text 
-    x="145" 
-    y="70" 
-    fill="#f4f4f5" 
-    font-family="system-ui, -apple-system, 'Montserrat', 'Inter', 'Arial', sans-serif" 
-    font-size="38" 
+    x="260" 
+    y="368" 
+    text-anchor="middle" 
+    fill="#FFFFFF" 
+    font-family="system-ui, -apple-system, 'Montserrat', 'Inter', 'Segoe UI', Arial, sans-serif" 
+    font-size="44" 
     font-weight="900" 
-    letter-spacing="4px"
+    letter-spacing="9px"
   >NOORMEXA</text>
 </svg>

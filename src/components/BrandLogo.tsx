@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useSyncExternalStore } from "react";
+import React, { useId, useSyncExternalStore } from "react";
 import { useTheme } from "@/context/ThemeContext";
 
 interface BrandLogoProps {
@@ -29,119 +29,199 @@ function subscribeToLanguage(callback: () => void) {
 }
 
 /**
- * 100% Vector Precision SVG Emblem for NOORMEXA
- * Exactly based on the master logo:
- * - 4 vertical pillars on the left (rounded smooth pill caps)
- * - Point-symmetric solid geometric diagonal slash in the center ('N' diagonal)
- * - 4 vertical pillars on the right (rounded smooth pill caps)
- * True 200x200 square canvas with geometric precision sub-pixel rendering
+ * 100% Vector Precision Official NOORMEXA 3D Ribbon 'N' Emblem
+ * Master Ribbon Geometry:
+ * - Top-left sharp crest (Cubic Bézier smoothly transitioning into a bulbous bottom-left loop)
+ * - Deep 3D creased cavity beneath the top fold
+ * - Ascending right wing with smooth curved lobe head
+ * - Aqua underbelly luminous highlight
  */
 export function NoormexaEmblemSvg({
-  size = 38,
+  size = 40,
   isDark = true,
   className = "",
-  color,
+  monochrome = false,
 }: {
   size?: number;
   isDark?: boolean;
   className?: string;
-  color?: string;
+  monochrome?: boolean;
 }) {
-  const glyphColor = color || (isDark ? "#ffffff" : "#09090b");
+  const uid = useId().replace(/:/g, "_");
+
+  if (monochrome) {
+    const monoColor = isDark ? "#ffffff" : "#006d7d";
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 460 340"
+        width={size}
+        height={(size * 340) / 460}
+        className={`shrink-0 select-none transition-colors duration-200 ${className}`}
+        aria-hidden="true"
+        fill="none"
+        shapeRendering="geometricPrecision"
+        style={{ width: size, height: (size * 340) / 460, minWidth: size }}
+      >
+        <g fill={monoColor} transform="translate(-20, 10)">
+          <path d="M 160,35 C 175,35 195,38 210,50 C 225,62 230,85 225,115 C 215,165 175,225 140,265 C 120,288 95,298 75,288 C 55,278 52,250 68,218 C 90,175 125,110 145,60 C 152,42 155,35 160,35 Z" />
+          <path d="M 235,270 C 260,265 295,215 328,150 C 355,95 385,38 420,38 C 445,38 460,58 455,85 C 448,120 405,185 365,240 C 335,280 295,305 260,300 C 245,298 235,285 235,270 Z" />
+        </g>
+      </svg>
+    );
+  }
+
+  const dropShadowColor = isDark ? "#00222a" : "#003743";
+  const shadowOpacity = isDark ? 0.6 : 0.18;
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 200 200"
+      viewBox="0 0 460 340"
       width={size}
-      height={size}
-      className={`shrink-0 select-none transition-colors duration-200 ${className}`}
+      height={(size * 340) / 460}
+      className={`shrink-0 select-none transition-transform duration-200 ${className}`}
       aria-hidden="true"
       fill="none"
       shapeRendering="geometricPrecision"
       textRendering="geometricPrecision"
       preserveAspectRatio="xMidYMid meet"
-      style={{ width: size, height: size, minWidth: size, minHeight: size }}
+      style={{ width: size, height: (size * 340) / 460, minWidth: size }}
     >
-      <g id="noormexa-vector-emblem" fill={glyphColor}>
-        {/* Left 4 Vertical Bars with rounded smooth caps */}
-        <rect x="16" y="14" width="8" height="172" rx="4" />
-        <rect x="32" y="14" width="8" height="172" rx="4" />
-        <rect x="48" y="14" width="8" height="172" rx="4" />
-        <rect x="64" y="14" width="8" height="172" rx="4" />
+      <defs>
+        {/* Left Sail Front Gradient (Rich Teal -> Luminous Cyan at top) */}
+        <linearGradient id={`grad_left_${uid}`} x1="0%" y1="100%" x2="50%" y2="0%">
+          <stop offset="0%" stopColor="#005e6e" />
+          <stop offset="25%" stopColor="#007e90" />
+          <stop offset="55%" stopColor="#00a8bc" />
+          <stop offset="85%" stopColor="#24d2e5" />
+          <stop offset="100%" stopColor="#6be6f5" />
+        </linearGradient>
 
-        {/* Center Diagonal Solid Geometric Parallelogram (Point-Symmetric 'N' Slash) */}
-        <polygon points="74,14 116,14 126,186 84,186" />
+        {/* Top Left Sharp Beak Highlight */}
+        <linearGradient id={`grad_crest_${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#7bf0fd" />
+          <stop offset="60%" stopColor="#2bd8ec" />
+          <stop offset="100%" stopColor="#009eb0" />
+        </linearGradient>
 
-        {/* Right 4 Vertical Bars with rounded smooth caps */}
-        <rect x="128" y="14" width="8" height="172" rx="4" />
-        <rect x="144" y="14" width="8" height="172" rx="4" />
-        <rect x="160" y="14" width="8" height="172" rx="4" />
-        <rect x="176" y="14" width="8" height="172" rx="4" />
+        {/* Center Deep Crease / 3D Underside Gradient */}
+        <linearGradient id={`grad_crease_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#003c46" />
+          <stop offset="40%" stopColor="#00505d" />
+          <stop offset="75%" stopColor="#007181" />
+          <stop offset="100%" stopColor="#0096a7" />
+        </linearGradient>
+
+        {/* Right Wing Ascending Gradient (Aqua-Cyan Petal) */}
+        <linearGradient id={`grad_right_${uid}`} x1="20%" y1="100%" x2="85%" y2="0%">
+          <stop offset="0%" stopColor="#007c8e" />
+          <stop offset="35%" stopColor="#00a9bd" />
+          <stop offset="70%" stopColor="#22d0e3" />
+          <stop offset="100%" stopColor="#6ae4f3" />
+        </linearGradient>
+
+        {/* Bottom Underbelly Wrap Gradient */}
+        <linearGradient id={`grad_wrap_${uid}`} x1="0%" y1="50%" x2="100%" y2="50%">
+          <stop offset="0%" stopColor="#008a9c" />
+          <stop offset="50%" stopColor="#55dfef" />
+          <stop offset="100%" stopColor="#a2f4fc" />
+        </linearGradient>
+
+        {/* Soft Depth Ambient Shadow */}
+        <filter id={`grad_shadow_${uid}`} x="-15%" y="-15%" width="130%" height="130%">
+          <feDropShadow dx="0" dy={isDark ? 8 : 6} stdDeviation={isDark ? 10 : 8} floodColor={dropShadowColor} floodOpacity={shadowOpacity} />
+        </filter>
+      </defs>
+
+      <g id="noormexa-vector-mark-sq" transform="translate(-20, 10)">
+        {/* 1. Deep 3D Cavity Underside (Between the two wings) */}
+        <path
+          d="M 160,35 
+             C 200,35 240,65 270,120 
+             C 300,175 320,240 325,270 
+             C 320,270 295,245 275,210 
+             C 245,160 215,95 160,35 Z"
+          fill={`url(#grad_crease_${uid})`}
+        />
+
+        {/* 2. Right Ascending Wing with Rounded Lobe Head */}
+        <path
+          d="M 235,270 
+             C 260,265 295,215 328,150 
+             C 355,95 385,38 420,38 
+             C 445,38 460,58 455,85 
+             C 448,120 405,185 365,240 
+             C 335,280 295,305 260,300 
+             C 245,298 235,285 235,270 Z"
+          fill={`url(#grad_right_${uid})`}
+        />
+
+        {/* 3. Lower Underbelly Luminous Sweep */}
+        <path
+          d="M 225,272 
+             C 255,290 295,305 340,280 
+             C 350,274 340,265 325,262 
+             C 290,255 255,255 225,272 Z"
+          fill={`url(#grad_wrap_${uid})`}
+          opacity="0.9"
+        />
+
+        {/* 4. Left Front Main Sail Ribbon (with sharp top crest and bulbous bottom foot) */}
+        <path
+          d="M 160,35 
+             C 175,35 195,38 210,50 
+             C 225,62 230,85 225,115 
+             C 215,165 175,225 140,265 
+             C 120,288 95,298 75,288 
+             C 55,278 52,250 68,218 
+             C 90,175 125,110 145,60 
+             C 152,42 155,35 160,35 Z"
+          fill={`url(#grad_left_${uid})`}
+          filter={`url(#grad_shadow_${uid})`}
+        />
+
+        {/* 5. Top Crest Sharp Fold Cap Highlight */}
+        <path
+          d="M 160,35 
+             C 175,35 195,38 210,50 
+             C 200,45 185,42 170,42 
+             C 162,42 158,38 160,35 Z"
+          fill={`url(#grad_crest_${uid})`}
+        />
       </g>
     </svg>
   );
 }
 
 /**
- * 1:1 Stacked Master Vector Logo (Emblem on Top + Wordmark Below)
- * Exact representation of the official uploaded brand asset.
+ * 1:1 Stacked Official Master Vector Logo (Emblem on Top + Wordmark Below)
+ * Exact representation of the official brand asset in the uploaded image.
  */
 export function NoormexaStackedLogo({
-  width = 220,
+  width = 240,
   isDark = true,
   className = "",
-  color,
 }: {
   width?: number;
   isDark?: boolean;
   className?: string;
-  color?: string;
 }) {
-  const glyphColor = color || (isDark ? "#ffffff" : "#09090b");
+  const textColor = isDark ? "#ffffff" : "#006d7d";
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 360 360"
-      width={width}
-      height={width}
-      className={`shrink-0 select-none transition-colors duration-200 ${className}`}
-      aria-label="NOORMEXA Logo"
-      fill="none"
-      shapeRendering="geometricPrecision"
-      textRendering="geometricPrecision"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {/* Centered Top Emblem */}
-      <g transform="translate(80, 24)" fill={glyphColor}>
-        <rect x="16" y="14" width="8" height="172" rx="4" />
-        <rect x="32" y="14" width="8" height="172" rx="4" />
-        <rect x="48" y="14" width="8" height="172" rx="4" />
-        <rect x="64" y="14" width="8" height="172" rx="4" />
-
-        <polygon points="74,14 116,14 126,186 84,186" />
-
-        <rect x="128" y="14" width="8" height="172" rx="4" />
-        <rect x="144" y="14" width="8" height="172" rx="4" />
-        <rect x="160" y="14" width="8" height="172" rx="4" />
-        <rect x="176" y="14" width="8" height="172" rx="4" />
-      </g>
-
-      {/* Modern High-Tracking Wordmark NOORMEXA */}
-      <text
-        x="180"
-        y="284"
-        textAnchor="middle"
-        fill={glyphColor}
-        fontFamily="system-ui, -apple-system, 'Montserrat', 'Inter', 'Arial', sans-serif"
-        fontSize="33"
-        fontWeight="900"
-        letterSpacing="7px"
+    <div className={`inline-flex flex-col items-center justify-center select-none ${className}`}>
+      <NoormexaEmblemSvg size={width * 0.85} isDark={isDark} />
+      <span
+        className="mt-3.5 uppercase font-black text-xl sm:text-2xl tracking-[0.2em] transition-colors"
+        style={{
+          color: textColor,
+          fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
+        }}
       >
         NOORMEXA
-      </text>
-    </svg>
+      </span>
+    </div>
   );
 }
 
@@ -163,7 +243,7 @@ export default function BrandLogo({
 
   const config = {
     sm: {
-      iconPx: 26,
+      iconPx: 32,
       textSize: "text-sm sm:text-base",
       letterSpacing: "tracking-[0.14em]",
       arSize: "text-[9px] sm:text-[10px]",
@@ -171,7 +251,7 @@ export default function BrandLogo({
       gap: "gap-2 sm:gap-2.5",
     },
     md: {
-      iconPx: 32,
+      iconPx: 40,
       textSize: "text-base sm:text-lg lg:text-xl",
       letterSpacing: "tracking-[0.16em]",
       arSize: "text-[10px] sm:text-xs",
@@ -179,7 +259,7 @@ export default function BrandLogo({
       gap: "gap-2.5 sm:gap-3",
     },
     lg: {
-      iconPx: 42,
+      iconPx: 50,
       textSize: "text-xl sm:text-2xl",
       letterSpacing: "tracking-[0.18em]",
       arSize: "text-xs sm:text-sm",
@@ -187,7 +267,7 @@ export default function BrandLogo({
       gap: "gap-3 sm:gap-3.5",
     },
     xl: {
-      iconPx: 54,
+      iconPx: 64,
       textSize: "text-2xl sm:text-3xl",
       letterSpacing: "tracking-[0.2em]",
       arSize: "text-sm sm:text-base",
@@ -195,7 +275,7 @@ export default function BrandLogo({
       gap: "gap-3.5 sm:gap-4",
     },
     "2xl": {
-      iconPx: 72,
+      iconPx: 84,
       textSize: "text-3xl sm:text-4xl",
       letterSpacing: "tracking-[0.22em]",
       arSize: "text-base sm:text-lg",
@@ -210,11 +290,7 @@ export default function BrandLogo({
       <div
         className={`inline-flex items-center justify-center select-none shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
       >
-        <NoormexaEmblemSvg
-          size={config.iconPx}
-          isDark={isDark}
-          color={monochrome ? (isDark ? "#ffffff" : "#000000") : undefined}
-        />
+        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} monochrome={monochrome} />
       </div>
     );
   }
@@ -228,8 +304,8 @@ export default function BrandLogo({
           <span
             className={`mt-2 font-bold px-2 py-0.5 rounded-md ${
               isDark
-                ? "bg-white/10 text-white/90 border border-white/15"
-                : "bg-black/5 text-black/80 border border-black/10"
+                ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
+                : "bg-teal-500/10 text-teal-800 border border-teal-500/20"
             } ${config.arSize}`}
             dir="rtl"
           >
@@ -246,7 +322,7 @@ export default function BrandLogo({
       <div className={`inline-flex items-baseline select-none font-black ${className}`} dir="ltr">
         <span
           className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} ${
-            isDark ? "text-white" : "text-[#09090b]"
+            isDark ? "text-white" : "text-[#006d7d]"
           } transition-colors`}
           style={{
             fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
@@ -264,13 +340,9 @@ export default function BrandLogo({
       className={`inline-flex items-center select-none group focus:outline-none shrink-0 ${config.gap} ${className}`}
       dir="ltr"
     >
-      {/* 1. Master Vector 'N' Emblem */}
+      {/* 1. Master 3D Vector 'N' Emblem */}
       <div className="relative shrink-0 transition-transform duration-200 group-hover:scale-105 flex items-center justify-center">
-        <NoormexaEmblemSvg
-          size={config.iconPx}
-          isDark={isDark}
-          color={monochrome ? (isDark ? "#ffffff" : "#000000") : undefined}
-        />
+        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} monochrome={monochrome} />
       </div>
 
       {/* 2. Brand Identity Typography Lockup */}
@@ -280,7 +352,7 @@ export default function BrandLogo({
           <div className="flex items-baseline font-black">
             <span
               className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} transition-colors ${
-                isDark ? "text-white" : "text-[#09090b]"
+                isDark ? "text-white" : "text-[#006d7d]"
               }`}
               style={{
                 fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
@@ -295,8 +367,8 @@ export default function BrandLogo({
             <span
               className={`font-black select-none transition-colors px-1.5 py-0.5 rounded-md ${
                 isDark
-                  ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                  : "bg-amber-500/10 text-amber-800 border border-amber-500/20"
+                  ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
+                  : "bg-teal-600/10 text-teal-800 border border-teal-600/20"
               } ${config.arSize}`}
               dir="rtl"
               style={{ fontFamily: "'Cairo', 'Segoe UI', Tahoma, sans-serif" }}
