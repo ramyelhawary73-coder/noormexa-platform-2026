@@ -1,13 +1,15 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import React, { useSyncExternalStore } from "react";
 import { useTheme } from "@/context/ThemeContext";
 
 interface BrandLogoProps {
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   className?: string;
-  variant?: "horizontal" | "icon" | "symbol" | "stacked";
+  variant?: "horizontal" | "icon" | "symbol" | "stacked" | "wordmark";
   showTagline?: boolean;
+  showArabicBadge?: boolean;
+  monochrome?: boolean;
 }
 
 const LANGUAGE_KEY = "noormexa-language";
@@ -27,233 +29,126 @@ function subscribeToLanguage(callback: () => void) {
 }
 
 /**
- * 100% Precision Master Vector SVG Emblem for NOORMEXA
- * Features: Iconic Sculptural Letter 'N' with a Soaring Radiant Ray of Light (شعاع النور)
- * and Brilliant 4-Point Diamond Starburst Flare.
+ * 100% Vector Precision SVG Emblem for NOORMEXA
+ * Exactly based on the master logo:
+ * - 4 vertical rounded pillars on the left
+ * - Solid geometric diagonal slash in the center
+ * - 4 vertical rounded pillars on the right
  */
 export function NoormexaEmblemSvg({
   size = 40,
   isDark = true,
   className = "",
+  color,
 }: {
   size?: number;
   isDark?: boolean;
   className?: string;
+  color?: string;
 }) {
-  const id = isDark ? "dark" : "light";
+  // Determine primary glyph color: deep luxury black in light mode, pure crisp white in dark mode
+  const glyphColor = color || (isDark ? "#ffffff" : "#09090b");
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 200 200"
+      viewBox="0 0 200 180"
       width={size}
-      height={size}
-      className={`flex-shrink-0 select-none ${className}`}
+      height={(size * 180) / 200}
+      className={`flex-shrink-0 select-none transition-colors duration-200 ${className}`}
       aria-hidden="true"
+      fill="none"
     >
-      <defs>
-        {/* Deep Luxury Squircle Background */}
-        <linearGradient id={`nmxBg_${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          {isDark ? (
-            <>
-              <stop offset="0%" stopColor="#151f32" />
-              <stop offset="50%" stopColor="#090d16" />
-              <stop offset="100%" stopColor="#04070e" />
-            </>
-          ) : (
-            <>
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="60%" stopColor="#f8fafc" />
-              <stop offset="100%" stopColor="#f1f5f9" />
-            </>
-          )}
-        </linearGradient>
+      <g>
+        {/* Left 4 Vertical Bars with Rounded Caps */}
+        <rect x="14.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="28.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="42.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="56.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
 
-        {/* Squircle Precision Chamfer Bezel */}
-        <linearGradient id={`nmxRim_${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          {isDark ? (
-            <>
-              <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.9" />
-              <stop offset="35%" stopColor="#f97316" stopOpacity="0.8" />
-              <stop offset="70%" stopColor="#ea580c" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#1e293b" stopOpacity="0.4" />
-            </>
-          ) : (
-            <>
-              <stop offset="0%" stopColor="#f97316" stopOpacity="0.8" />
-              <stop offset="50%" stopColor="#ea580c" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#cbd5e1" stopOpacity="0.3" />
-            </>
-          )}
-        </linearGradient>
+        {/* Center Diagonal Solid Geometric Parallelogram */}
+        <polygon points="71,8 109,8 129,172 91,172" fill={glyphColor} />
 
-        {/* 3D Master Letter 'N' Sculpture (Vibrant Sunset-Gold Gradient) */}
-        <linearGradient id={`nmxGold_${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#c2410c" />
-          <stop offset="25%" stopColor="#ea580c" />
-          <stop offset="55%" stopColor="#f97316" />
-          <stop offset="85%" stopColor="#fb923c" />
-          <stop offset="100%" stopColor="#fcd34d" />
-        </linearGradient>
-
-        {/* Ray of Light (شعاع النور) Main Laser Beam Gradient */}
-        <linearGradient id={`nmxRay_${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-          <stop offset="20%" stopColor="#fef08a" stopOpacity="0.85" />
-          <stop offset="55%" stopColor="#fb923c" stopOpacity="0.55" />
-          <stop offset="85%" stopColor="#f97316" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
-        </linearGradient>
-
-        {/* Secondary Ambient Light Beam */}
-        <linearGradient id={`nmxAmbientRay_${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-          <stop offset="40%" stopColor="#fcd34d" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-        </linearGradient>
-
-        {/* Diamond Star Flare Core */}
-        <radialGradient id={`nmxStar_${id}`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-          <stop offset="30%" stopColor="#fef08a" stopOpacity="0.9" />
-          <stop offset="60%" stopColor="#f97316" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-        </radialGradient>
-
-        {/* Ambient Back Glow */}
-        <radialGradient id={`nmxGlow_${id}`} cx="68%" cy="32%" r="60%">
-          <stop offset="0%" stopColor="#f97316" stopOpacity={isDark ? "0.4" : "0.22"} />
-          <stop offset="50%" stopColor="#ea580c" stopOpacity={isDark ? "0.15" : "0.08"} />
-          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-        </radialGradient>
-
-        {/* 3D Bevel Highlight */}
-        <linearGradient id={`nmxBevel_${id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-
-      {/* 1. Base Squircle Shape */}
-      <rect
-        x="6"
-        y="6"
-        width="188"
-        height="188"
-        rx="46"
-        fill={`url(#nmxBg_${id})`}
-        stroke={`url(#nmxRim_${id})`}
-        strokeWidth="3.5"
-      />
-
-      {/* 2. Inner Subtle Luxury Accent Border */}
-      <rect
-        x="12"
-        y="12"
-        width="176"
-        height="176"
-        rx="40"
-        fill="none"
-        stroke={`url(#nmxRim_${id})`}
-        strokeWidth="1"
-        strokeOpacity={isDark ? "0.25" : "0.15"}
-      />
-
-      {/* 3. Ambient Back Radiant Glow */}
-      <circle cx="138" cy="62" r="70" fill={`url(#nmxGlow_${id})`} />
-
-      {/* 4. Radiant Rays of Light (أشعة النور المنطلقة من حرف N) */}
-      {/* Main Broad Light Beam */}
-      <polygon
-        points="132,66 190,12 170,8 116,60"
-        fill={`url(#nmxRay_${id})`}
-        opacity="0.9"
-      />
-      {/* Secondary Sharp Ray Shooting High */}
-      <polygon
-        points="138,60 192,26 186,18 128,56"
-        fill={`url(#nmxAmbientRay_${id})`}
-        opacity="0.95"
-      />
-      {/* Secondary Diagonal Ray 2 */}
-      <polygon
-        points="134,64 158,8 150,8 124,58"
-        fill={`url(#nmxAmbientRay_${id})`}
-        opacity="0.75"
-      />
-      {/* Secondary Lateral Ray 3 */}
-      <polygon
-        points="136,70 194,54 192,46 132,66"
-        fill={`url(#nmxAmbientRay_${id})`}
-        opacity="0.6"
-      />
-
-      {/* 5. Sculptural Monogram 'N' */}
-      {/* Left Pillar */}
-      <rect
-        x="42"
-        y="52"
-        width="26"
-        height="104"
-        rx="8"
-        fill={`url(#nmxGold_${id})`}
-      />
-      {/* Left Pillar Bevel Light */}
-      <rect
-        x="44"
-        y="54"
-        width="8"
-        height="100"
-        rx="4"
-        fill={`url(#nmxBevel_${id})`}
-        opacity="0.3"
-      />
-
-      {/* Powerful Diagonal Bridge connecting the two pillars */}
-      <polygon
-        points="44,56 70,56 156,150 130,150"
-        fill={`url(#nmxGold_${id})`}
-      />
-      {/* Diagonal Bridge Highlight */}
-      <polygon
-        points="50,56 70,56 135,124 125,124"
-        fill={`url(#nmxBevel_${id})`}
-        opacity="0.35"
-      />
-
-      {/* Right Pillar (Seamlessly launches the Ray of Light) */}
-      <rect
-        x="130"
-        y="52"
-        width="26"
-        height="104"
-        rx="8"
-        fill={`url(#nmxGold_${id})`}
-      />
-
-      {/* 6. Brilliant Diamond Starburst Flare (بؤرة النور المتوهجة على قمة النون) */}
-      {/* Soft Glow Halo */}
-      <circle cx="143" cy="52" r="22" fill={`url(#nmxStar_${id})`} />
-
-      {/* 4-Point Diamond Laser Star Spikes */}
-      <polygon points="143,38 147,52 143,66 139,52" fill="#ffffff" opacity="0.95" />
-      <polygon points="143,24 145,52 143,80 141,52" fill="#ffffff" opacity="0.95" />
-      <polygon points="125,52 143,49 161,52 143,55" fill="#ffffff" opacity="0.95" />
-      <polygon points="133,42 145,50 153,62 141,54" fill="#fef08a" opacity="0.8" />
-      <polygon points="133,62 141,50 153,42 145,54" fill="#fef08a" opacity="0.8" />
-
-      {/* Diamond Sparkle Core */}
-      <circle cx="143" cy="52" r="3.5" fill="#ffffff" />
-      <circle cx="143" cy="52" r="7" fill="#fef08a" opacity="0.6" />
+        {/* Right 4 Vertical Bars with Rounded Caps */}
+        <rect x="136.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="150.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="164.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="178.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+      </g>
     </svg>
   );
 }
 
+/**
+ * 1:1 Stacked Master Vector Logo (Emblem on Top + Wordmark Below)
+ * Exact representation of the official uploaded brand asset.
+ */
+export function NoormexaStackedLogo({
+  width = 240,
+  isDark = true,
+  className = "",
+  color,
+}: {
+  width?: number;
+  isDark?: boolean;
+  className?: string;
+  color?: string;
+}) {
+  const glyphColor = color || (isDark ? "#ffffff" : "#09090b");
+  const height = (width * 300) / 250;
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 250 300"
+      width={width}
+      height={height}
+      className={`flex-shrink-0 select-none transition-colors duration-200 ${className}`}
+      aria-label="NOORMEXA Logo"
+      fill="none"
+    >
+      {/* Centered Top Emblem */}
+      <g transform="translate(25, 15)">
+        <rect x="14.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="28.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="42.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="56.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+
+        <polygon points="71,8 109,8 129,172 91,172" fill={glyphColor} />
+
+        <rect x="136.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="150.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="164.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="178.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+      </g>
+
+      {/* Modern High-Tracking Wordmark NOORMEXA */}
+      <text
+        x="125"
+        y="245"
+        textAnchor="middle"
+        fill={glyphColor}
+        fontFamily="system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif"
+        fontSize="30"
+        fontWeight="800"
+        letterSpacing="4px"
+      >
+        NOORMEXA
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * Main Dynamic Brand Logo Component used across the platform
+ */
 export default function BrandLogo({
   size = "md",
   className = "",
   variant = "horizontal",
   showTagline = true,
+  showArabicBadge = true,
+  monochrome = false,
 }: BrandLogoProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -262,93 +157,132 @@ export default function BrandLogo({
 
   const config = {
     sm: {
-      iconPx: 28,
+      iconPx: 26,
       textSize: "text-sm sm:text-base",
+      letterSpacing: "tracking-[0.14em]",
       arSize: "text-[9px] sm:text-[10px]",
       taglineSize: "text-[8px] sm:text-[9px]",
-      gap: "gap-1.5 sm:gap-2",
-    },
-    md: {
-      iconPx: 36,
-      textSize: "text-base sm:text-lg lg:text-xl",
-      arSize: "text-[10px] sm:text-xs",
-      taglineSize: "text-[9px] sm:text-[10px]",
       gap: "gap-2 sm:gap-2.5",
     },
-    lg: {
-      iconPx: 46,
-      textSize: "text-xl sm:text-2xl",
-      arSize: "text-xs sm:text-sm",
-      taglineSize: "text-[10px] sm:text-xs",
+    md: {
+      iconPx: 34,
+      textSize: "text-base sm:text-lg lg:text-xl",
+      letterSpacing: "tracking-[0.15em]",
+      arSize: "text-[10px] sm:text-xs",
+      taglineSize: "text-[9px] sm:text-[10px]",
       gap: "gap-2.5 sm:gap-3",
     },
+    lg: {
+      iconPx: 44,
+      textSize: "text-xl sm:text-2xl",
+      letterSpacing: "tracking-[0.16em]",
+      arSize: "text-xs sm:text-sm",
+      taglineSize: "text-[10px] sm:text-xs",
+      gap: "gap-3 sm:gap-3.5",
+    },
     xl: {
-      iconPx: 58,
+      iconPx: 56,
       textSize: "text-2xl sm:text-3xl",
+      letterSpacing: "tracking-[0.18em]",
       arSize: "text-sm sm:text-base",
       taglineSize: "text-xs sm:text-sm",
-      gap: "gap-3 sm:gap-4",
+      gap: "gap-3.5 sm:gap-4",
+    },
+    "2xl": {
+      iconPx: 72,
+      textSize: "text-3xl sm:text-4xl",
+      letterSpacing: "tracking-[0.2em]",
+      arSize: "text-base sm:text-lg",
+      taglineSize: "text-sm",
+      gap: "gap-4 sm:gap-5",
     },
   }[size];
 
-  // Standalone Icon
+  // 1. Standalone Icon
   if (variant === "icon" || variant === "symbol") {
     return (
       <div
         className={`inline-flex items-center justify-center select-none flex-shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
       >
-        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} />
+        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} color={monochrome ? (isDark ? "#ffffff" : "#000000") : undefined} />
       </div>
     );
   }
 
+  // 2. Stacked 1:1 Match (Exact to user's uploaded master logo)
+  if (variant === "stacked") {
+    return (
+      <div className={`inline-flex flex-col items-center justify-center select-none ${className}`}>
+        <NoormexaStackedLogo width={config.iconPx * 3.5} isDark={isDark} />
+        {showArabicBadge && isArabic && (
+          <span
+            className={`mt-1 font-bold px-2 py-0.5 rounded-md ${
+              isDark
+                ? "bg-white/10 text-white/90 border border-white/15"
+                : "bg-black/5 text-black/80 border border-black/10"
+            } ${config.arSize}`}
+            dir="rtl"
+          >
+            نورميكسا
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // 3. Wordmark Only
+  if (variant === "wordmark") {
+    return (
+      <div className={`inline-flex items-baseline select-none font-black ${className}`} dir="ltr">
+        <span
+          className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} ${
+            isDark ? "text-white" : "text-[#09090b]"
+          } transition-colors`}
+          style={{
+            fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
+          }}
+        >
+          NOORMEXA
+        </span>
+      </div>
+    );
+  }
+
+  // 4. Default: Horizontal Integration (Emblem + Wordmark + Arabic Badge + Subtitle)
   return (
     <div
       className={`inline-flex items-center select-none group focus:outline-none flex-shrink-0 ${config.gap} ${className}`}
       dir={isArabic ? "rtl" : "ltr"}
     >
-      {/* 1. Official 100% Vector 3D 'N' with Ray of Light Emblem */}
+      {/* 1. Master Vector 'N' Emblem */}
       <div className="relative flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
         <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} />
       </div>
 
-      {/* 2. World-Class Marketplace Typography Lockup */}
+      {/* 2. Brand Identity Typography Lockup */}
       <div className="flex flex-col justify-center min-w-0 text-start leading-tight">
         {/* Main Brand Title Row */}
-        <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
-          <div className="flex items-baseline tracking-tight font-black" dir="ltr">
+        <div className="flex items-center gap-1.5 sm:gap-2 leading-none">
+          <div className="flex items-baseline font-black" dir="ltr">
             <span
-              className={`uppercase transition-colors ${config.textSize} ${
-                isDark ? "text-white" : "text-[#0F172A]"
+              className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} transition-colors ${
+                isDark ? "text-white" : "text-[#09090b]"
               }`}
               style={{
-                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', sans-serif",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
+                fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
               }}
             >
-              NOOR
-            </span>
-            <span
-              className={`uppercase font-black ${config.textSize} bg-gradient-to-r from-[#F97316] via-[#FB923C] to-[#EA580C] bg-clip-text text-transparent ml-[1px]`}
-              style={{
-                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', sans-serif",
-                fontWeight: 900,
-                letterSpacing: "-0.03em",
-                filter: isDark ? "drop-shadow(0 0 10px rgba(249, 115, 22, 0.4))" : "none",
-              }}
-            >
-              MEXA
+              NOORMEXA
             </span>
           </div>
 
-          {/* Arabic Brand Identity Badge */}
-          {isArabic && (
+          {/* Arabic Brand Identity Pill Badge */}
+          {showArabicBadge && isArabic && (
             <span
               className={`font-black select-none transition-colors px-1.5 py-0.5 rounded-md ${
                 isDark
-                  ? "bg-orange-500/15 text-orange-400 border border-orange-500/30"
-                  : "bg-orange-500/10 text-orange-700 border border-orange-500/20"
+                  ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                  : "bg-amber-500/10 text-amber-800 border border-amber-500/20"
               } ${config.arSize}`}
               dir="rtl"
               style={{ fontFamily: "'Cairo', 'Segoe UI', Tahoma, sans-serif" }}
@@ -358,7 +292,7 @@ export default function BrandLogo({
           )}
         </div>
 
-        {/* Global Marketplace Professional Slogan */}
+        {/* Global Marketplace Slogan */}
         {showTagline && (
           <div
             className="hidden sm:flex items-center gap-1.5 mt-0.5"
@@ -367,7 +301,7 @@ export default function BrandLogo({
           >
             <span
               className={`font-bold tracking-tight truncate ${config.taglineSize} ${
-                isDark ? "text-slate-400 group-hover:text-orange-400" : "text-slate-500 group-hover:text-orange-600"
+                isDark ? "text-slate-400 group-hover:text-slate-200" : "text-slate-500 group-hover:text-slate-900"
               } transition-colors`}
             >
               {isArabic ? "نورك إلى التجارة العالمية الذكية" : "The Beacon of Smart Global Commerce"}

@@ -25,10 +25,12 @@ import {
   Zap,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { CarrierIntegrationManager } from "@/components/CarrierIntegrationManager";
 import type {
   Shipment,
   ShipmentStatus,
   CarrierType,
+  ShippingCarrier,
 } from "@/types/marketplace";
 
 type Language = "ar" | "en";
@@ -59,6 +61,7 @@ function ShippingLogisticsContent() {
     carriers,
     formatPrice,
     registerCarrier,
+    updateCarrier,
     toggleCarrierStatus,
     createShipment,
     updateShipmentStatus,
@@ -89,6 +92,7 @@ function ShippingLogisticsContent() {
   // Modals state
   const [showCreateShipmentModal, setShowCreateShipmentModal] = useState(false);
   const [showRegisterCarrierModal, setShowRegisterCarrierModal] = useState(false);
+  const [managingCarrier, setManagingCarrier] = useState<ShippingCarrier | null>(null);
   const [showWaybillModal, setShowWaybillModal] = useState<Shipment | null>(null);
   const [showDriverModal, setShowDriverModal] = useState<Shipment | null>(null);
   const [showStatusUpdateModal, setShowStatusUpdateModal] = useState<Shipment | null>(null);
@@ -292,6 +296,12 @@ function ShippingLogisticsContent() {
       descriptionEn: newCarrierData.descriptionEn,
       apiKey: newCarrierData.apiKey,
       accountNumber: newCarrierData.accountNumber,
+      integrationStatus: newCarrierData.apiKey ? "connected" : "pending_keys",
+      apiEnvironment: "sandbox",
+      requiresRealKeys: true,
+      lastSyncAt: newCarrierData.apiKey ? "تم الربط الآن" : "بانتظار إدخال المفاتيح",
+      lastTestSuccess: Boolean(newCarrierData.apiKey),
+      lastTestMessage: newCarrierData.apiKey ? "تم حفظ بيانات الربط بنجاح" : "يرجى اختبار الاتصال",
       isOfficialPartner: true,
     });
 
@@ -1257,14 +1267,19 @@ function ShippingLogisticsContent() {
           <div className="space-y-5 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs">
               <div>
-                <h2 className="text-sm sm:text-base font-black text-foreground flex items-center gap-2">
-                  <Building2 size={16} className="text-amber-500" />
-                  <span>{isAr ? "شبكة وشركات الشحن اللوجستية المعتمدة" : "Authorized Courier & Logistics Partners"}</span>
-                </h2>
-                <p className="text-xs text-muted">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm sm:text-base font-black text-foreground flex items-center gap-2">
+                    <Building2 size={16} className="text-amber-500" />
+                    <span>{isAr ? "شبكة وشركات الشحن اللوجستية المعتمدة" : "Authorized Courier & Logistics Partners"}</span>
+                  </h2>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
+                    {isAr ? "ربط برمجيات حقيقي API" : "Live API Enabled"}
+                  </span>
+                </div>
+                <p className="text-xs text-muted mt-0.5">
                   {isAr
-                    ? "الربط الآلي عبر واجهات البرمجة (Webhooks & API) لتوليد البوالص اللحظية، تسعير الطرود، والتتبع المباشر."
-                    : "Automated API & Webhook integrations with global and regional couriers for instant waybill and rates."}
+                    ? "إدارة مفاتيح الربط الحقيقية (API Keys & Secrets)، فحص الاتصال بالخوادم، ومزامنة إشعارات الـ Webhooks لتحديث الشحنات تلقائياً."
+                    : "Manage live production and sandbox API credentials, run real-time handshake diagnostics, and configure status webhooks."}
                 </p>
               </div>
 
@@ -1303,20 +1318,58 @@ function ShippingLogisticsContent() {
                         </div>
                       </div>
 
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                          carrier.status === "active"
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                            : "bg-surface-soft text-muted border-line"
-                        }`}
-                      >
-                        {carrier.status === "active" ? (isAr ? "نشط ومربوط ✓" : "Active") : (isAr ? "متوقف" : "Inactive")}
-                      </span>
+                      <div className="flex flex-col items-end gap-1">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            carrier.status === "active"
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                              : "bg-surface-soft text-muted border-line"
+                          }`}
+                        >
+                          {carrier.status === "active" ? (isAr ? "نشط ✓" : "Active") : (isAr ? "متوقف" : "Inactive")}
+                        </span>
+
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold border ${
+                            carrier.integrationStatus === "connected"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                              : carrier.integrationStatus === "sandbox"
+                              ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                              : carrier.integrationStatus === "error"
+                              ? "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30"
+                              : "bg-surface-soft text-muted border-line"
+                          }`}
+                        >
+                          {carrier.integrationStatus === "connected"
+                            ? isAr ? "API متصل حي" : "Live API"
+                            : carrier.integrationStatus === "sandbox"
+                            ? isAr ? "وضع تجريبي Sandbox" : "Sandbox"
+                            : carrier.integrationStatus === "error"
+                            ? isAr ? "خطأ في المفاتيح" : "API Error"
+                            : isAr ? "بانتظار المفاتيح" : "Keys Required"}
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-xs text-muted leading-relaxed">
                       {isAr ? carrier.descriptionAr : carrier.descriptionEn}
                     </p>
+
+                    {/* Integration Credential Status */}
+                    <div className="p-2.5 rounded-2xl bg-surface-soft border border-line text-[11px] space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted flex items-center gap-1">
+                          <Key size={11} className="text-amber-500" />
+                          <span>{isAr ? "حالة الربط البرمجي:" : "Integration Status:"}</span>
+                        </span>
+                        <span className="font-mono font-bold text-foreground">
+                          {carrier.apiKey ? (isAr ? "تم إدخال المفتاح ✓" : "Key Configured") : (isAr ? "لم يتم الإدخال بعد" : "No Key Set")}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-muted truncate">
+                        {carrier.lastTestMessage || (isAr ? "بانتظار تكوين مفاتيح الربط الحقيقية" : "Pending setup")}
+                      </div>
+                    </div>
 
                     {/* Stats Specs */}
                     <div className="grid grid-cols-3 gap-2 p-2.5 rounded-2xl bg-surface-soft border border-line text-center text-xs">
@@ -1357,22 +1410,16 @@ function ShippingLogisticsContent() {
                       }}
                       className="text-xs font-bold text-muted hover:text-foreground cursor-pointer"
                     >
-                      {carrier.status === "active" ? (isAr ? "إيقاف مؤقت" : "Deactivate") : (isAr ? "تفعيل الربط" : "Activate")}
+                      {carrier.status === "active" ? (isAr ? "إيقاف مؤقت" : "Deactivate") : (isAr ? "تفعيل" : "Activate")}
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        showToast(
-                          isAr
-                            ? `تم اختبار الـ Webhook الخاص بـ ${carrier.nameAr}: استجابة ناجحة (HTTP 200 OK)`
-                            : `Webhook ping to ${carrier.nameEn}: Success HTTP 200`
-                        );
-                      }}
-                      className="px-2.5 py-1 rounded-xl bg-surface-soft hover:bg-surface-muted text-foreground text-xs font-bold flex items-center gap-1 border border-line transition-all cursor-pointer"
+                      onClick={() => setManagingCarrier(carrier)}
+                      className="px-3 py-1.5 rounded-xl bg-foreground text-background hover:opacity-90 active:scale-95 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                     >
-                      <Zap size={11} className="text-amber-500" />
-                      <span>{isAr ? "اختبار API" : "Test Ping"}</span>
+                      <Key size={12} className="text-amber-400" />
+                      <span>{isAr ? "إدارة مفاتيح الربط" : "Manage API Keys"}</span>
                     </button>
                   </div>
                 </div>
@@ -1813,6 +1860,34 @@ function ShippingLogisticsContent() {
                 />
               </div>
 
+              {/* API Credentials on Registration */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 rounded-2xl bg-surface-soft border border-line">
+                <div className="space-y-1">
+                  <label className="font-bold text-muted flex items-center gap-1">
+                    <Key size={12} className="text-amber-500" />
+                    <span>{isAr ? "مفتاح الربط (API Key):" : "API Key:"}</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newCarrierData.apiKey}
+                    onChange={(e) => setNewCarrierData({ ...newCarrierData, apiKey: e.target.value })}
+                    placeholder="e.g. LIVE_OR_TEST_API_KEY"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-foreground font-mono text-xs focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-muted">{isAr ? "رقم الحساب التجاري (Account No):" : "Account Number:"}</label>
+                  <input
+                    type="text"
+                    value={newCarrierData.accountNumber}
+                    onChange={(e) => setNewCarrierData({ ...newCarrierData, accountNumber: e.target.value })}
+                    placeholder="e.g. ARX-GCC-9901"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-foreground font-mono text-xs focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
               <div className="pt-3 border-t border-line flex justify-end gap-2">
                 <button
                   type="button"
@@ -2070,6 +2145,22 @@ function ShippingLogisticsContent() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 6: CARRIER API CREDENTIALS & INTEGRATION MANAGER                     */}
+      {/* ========================================================================= */}
+      {managingCarrier && (
+        <CarrierIntegrationManager
+          carrier={managingCarrier}
+          isAr={isAr}
+          onUpdate={(updates) => {
+            updateCarrier(managingCarrier.id, updates);
+            setManagingCarrier((prev) => (prev ? { ...prev, ...updates } : null));
+          }}
+          onClose={() => setManagingCarrier(null)}
+          onToast={showToast}
+        />
       )}
 
     </div>

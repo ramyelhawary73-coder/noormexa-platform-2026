@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" width="200" height="180" fill="none">
+  <!-- Left 4 Vertical Bars with Rounded Caps -->
+  <rect x="14.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+  <rect x="28.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+  <rect x="42.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+  <rect x="56.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+
+  <!-- Diagonal Solid Polygon -->
+  <polygon points="71,8 109,8 129,172 91,172" fill="#f4f4f5" />
+
+  <!-- Right 4 Vertical Bars with Rounded Caps -->
+  <rect x="136.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+  <rect x="150.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+  <rect x="164.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+  <rect x="178.5" y="8" width="7" height="164" rx="3.5" fill="#f4f4f5" />
+</svg>

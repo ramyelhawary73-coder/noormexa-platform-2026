@@ -229,6 +229,7 @@ export type Order = {
 
 export type CarrierStatus = "active" | "inactive" | "maintenance";
 export type CarrierType = "international" | "domestic" | "express" | "hyperlocal" | "platform_fleet";
+export type CarrierIntegrationStatus = "connected" | "pending_keys" | "test_mode" | "error" | "sandbox";
 
 export type ShippingCarrier = {
   id: string;
@@ -239,9 +240,21 @@ export type ShippingCarrier = {
   status: CarrierStatus;
   type: CarrierType;
   trackingUrlTemplate: string; // e.g. https://www.aramex.com/track?q={TRACKING_NUMBER}
+  // API Integration & Credentials
+  integrationStatus: CarrierIntegrationStatus;
+  apiEnvironment?: "sandbox" | "production";
   apiKey?: string;
   apiSecret?: string;
   accountNumber?: string;
+  accountEntity?: string; // e.g. KSA / EGY / DXB
+  apiEndpoint?: string;
+  webhookUrl?: string;
+  webhookSecret?: string;
+  lastSyncAt?: string;
+  lastTestSuccess?: boolean;
+  lastTestMessage?: string;
+  requiresRealKeys: boolean; // Flag to show real status
+  // Service configuration
   supportedCountries: string[];
   baseCost: number; // EGP
   perKgRate: number; // EGP
@@ -253,8 +266,9 @@ export type ShippingCarrier = {
   contactEmail: string;
   descriptionAr: string;
   descriptionEn: string;
-  webhookUrl?: string;
   isOfficialPartner?: boolean;
+  developerDocsUrl?: string;
+  portalLoginUrl?: string;
 };
 
 export type CheckpointStatus =
