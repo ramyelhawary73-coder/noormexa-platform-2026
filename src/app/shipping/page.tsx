@@ -607,17 +607,17 @@ function ShippingLogisticsContent() {
 
             {/* If Shipment Found: Interactive Visualizer */}
             {currentShipment ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                {/* Left (2 Cols): Live Status Card, Interactive Stepper & Checkpoints */}
-                <div className="lg:col-span-2 space-y-6">
+                {/* Left (8 Cols): Live Status Card, Interactive Stepper & Checkpoints */}
+                <div className="lg:col-span-8 space-y-6">
                   
                   {/* Status Hero Card */}
-                  <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-5 relative overflow-hidden">
+                  <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-6 relative overflow-hidden">
                     {/* Top Row: Carrier Logo, AWB, Copy & Actions */}
                     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-2xl bg-surface-soft border border-line p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="w-12 h-12 rounded-2xl bg-surface-soft border border-line p-2 flex items-center justify-center shrink-0 overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={currentShipment.carrierLogo || "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=100"}
@@ -628,19 +628,19 @@ function ShippingLogisticsContent() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted font-bold">{currentShipment.carrierName}</span>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 ${getStatusBadge(currentShipment.status).bg}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1.5 ${getStatusBadge(currentShipment.status).bg}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${getStatusBadge(currentShipment.status).dot}`} />
                               {getStatusBadge(currentShipment.status).label}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <h3 className="text-sm sm:text-base font-mono font-black text-foreground">
+                          <div className="flex items-center gap-2 mt-1">
+                            <h3 className="text-sm sm:text-base font-mono font-black text-foreground tracking-tight">
                               {currentShipment.awbNumber}
                             </h3>
                             <button
                               type="button"
                               onClick={() => handleCopyAwb(currentShipment.awbNumber)}
-                              className="p-1 rounded-md hover:bg-surface-soft text-muted hover:text-foreground transition-all cursor-pointer"
+                              className="p-1 rounded-lg hover:bg-surface-soft text-muted hover:text-foreground transition-all cursor-pointer"
                               title={isAr ? "نسخ رقم التتبع" : "Copy AWB"}
                             >
                               {copiedAwb === currentShipment.awbNumber ? (
@@ -675,47 +675,47 @@ function ShippingLogisticsContent() {
                       </div>
                     </div>
 
-                    {/* Estimated Delivery & Security OTP Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {/* Estimated Delivery & Security OTP Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Estimated Arrival Banner */}
-                      <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 space-y-1">
+                      <div className="p-4.5 rounded-2xl bg-amber-500/5 border border-amber-500/15 flex flex-col justify-between space-y-2">
                         <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-bold">
                           <Clock size={13} />
                           <span>{isAr ? "الموعد المقدر للتسليم:" : "Estimated Delivery Window:"}</span>
                         </div>
-                        <div className="text-sm sm:text-base font-black text-foreground">
+                        <div className="text-base font-black text-foreground">
                           {currentShipment.estimatedDelivery}
                         </div>
-                        <div className="text-[11px] text-muted">
+                        <div className="text-[11px] text-muted font-medium pt-1 border-t border-amber-500/10">
                           {isAr ? "من:" : "From:"} {currentShipment.originCity} ← {isAr ? "إلى:" : "To:"} {currentShipment.recipientCity}
                         </div>
                       </div>
 
                       {/* Security Delivery OTP Box */}
-                      <div className="p-4 rounded-2xl bg-surface-soft border border-line space-y-1">
+                      <div className="p-4.5 rounded-2xl bg-surface-soft border border-line flex flex-col justify-between space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5 text-xs text-muted font-bold">
                             <Key size={13} className="text-amber-500" />
                             <span>{isAr ? "رمز الاستلام السري (OTP):" : "Security PIN (OTP):"}</span>
                           </div>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/20">
                             {isAr ? "تسليم آمن" : "Secure"}
                           </span>
                         </div>
-                        <div className="text-xl font-mono font-black text-amber-600 dark:text-amber-400 tracking-widest">
+                        <div className="text-2xl font-mono font-black text-amber-600 dark:text-amber-400 tracking-widest">
                           {currentShipment.deliveryOtp || "8821"}
                         </div>
-                        <div className="text-[10px] text-muted">
+                        <div className="text-[10px] text-muted leading-relaxed pt-1 border-t border-line">
                           {isAr ? "أعطِ هذا الرمز لمندوب التوصيل عند استلام الطرد لتأكيد التسليم" : "Provide this 4-digit code to the courier to confirm delivery"}
                         </div>
                       </div>
                     </div>
 
                     {/* 5-Step Visual Route Progress Bar */}
-                    <div className="space-y-2.5 pt-1">
+                    <div className="space-y-3 pt-2">
                       <div className="flex justify-between items-center text-xs font-bold text-muted">
                         <span>{isAr ? "مستوى تقدم الشحن والتوزيع" : "Shipment Progress Pipeline"}</span>
-                        <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">
+                        <span className="font-mono text-amber-600 dark:text-amber-400 font-black">
                           {currentShipment.status === "delivered"
                             ? "100%"
                             : currentShipment.status === "out_for_delivery"
@@ -729,7 +729,7 @@ function ShippingLogisticsContent() {
                       </div>
 
                       {/* Visual Steps */}
-                      <div className="grid grid-cols-5 gap-1.5 relative">
+                      <div className="grid grid-cols-5 gap-2 relative">
                         {[
                           { id: "step-1", labelAr: "تجهيز البوليصة", labelEn: "Label Created", active: true },
                           { id: "step-2", labelAr: "استلام الطرد", labelEn: "Picked Up", active: ["picked_up", "in_transit", "out_for_delivery", "delivered"].includes(currentShipment.status) },
@@ -737,17 +737,17 @@ function ShippingLogisticsContent() {
                           { id: "step-4", labelAr: "مع المندوب", labelEn: "Out for Delivery", active: ["out_for_delivery", "delivered"].includes(currentShipment.status) },
                           { id: "step-5", labelAr: "تم التسليم", labelEn: "Delivered", active: currentShipment.status === "delivered" },
                         ].map((step, idx) => (
-                          <div key={step.id} className="flex flex-col items-center text-center gap-1">
+                          <div key={step.id} className="flex flex-col items-center text-center gap-1.5">
                             <div
-                              className={`w-7 h-7 rounded-full flex items-center justify-center font-mono font-bold text-xs transition-all ${
+                              className={`w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-xs transition-all ${
                                 step.active
-                                  ? "bg-amber-500 text-white shadow-xs"
+                                  ? "bg-amber-500 text-white shadow-xs ring-2 ring-amber-500/20"
                                   : "bg-surface-soft text-muted border border-line"
                               }`}
                             >
-                              {step.active ? <Check size={13} /> : idx + 1}
+                              {step.active ? <Check size={14} /> : idx + 1}
                             </div>
-                            <span className={`text-[10px] font-bold leading-tight ${step.active ? "text-foreground" : "text-muted"}`}>
+                            <span className={`text-[10px] font-bold leading-tight ${step.active ? "text-foreground font-black" : "text-muted"}`}>
                               {isAr ? step.labelAr : step.labelEn}
                             </span>
                           </div>
@@ -758,18 +758,18 @@ function ShippingLogisticsContent() {
 
                   {/* Detailed Timeline Checkpoints */}
                   <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-5">
-                    <div className="flex items-center justify-between border-b border-line pb-3.5">
+                    <div className="flex items-center justify-between border-b border-line pb-4">
                       <div>
                         <h3 className="text-sm sm:text-base font-black text-foreground flex items-center gap-2">
                           <MapPin size={16} className="text-amber-500" />
                           <span>{isAr ? "سجل المحطات ومسار الشحنة التفصيلي" : "Checkpoint Timeline"}</span>
                         </h3>
-                        <p className="text-xs text-muted">
+                        <p className="text-xs text-muted mt-0.5">
                           {isAr ? "تحديث فوري من أنظمة الفرز وأجهزة الماسح الضوئي للمناديب" : "Real-time updates from carrier hubs & courier scanners"}
                         </p>
                       </div>
 
-                      <span className="px-2.5 py-1 rounded-full bg-surface-soft border border-line text-muted text-xs font-mono font-bold">
+                      <span className="px-3 py-1 rounded-full bg-surface-soft border border-line text-muted text-xs font-mono font-bold">
                         {currentShipment.checkpoints.length} {isAr ? "محطات" : "Checkpoints"}
                       </span>
                     </div>
@@ -794,17 +794,17 @@ function ShippingLogisticsContent() {
 
                           {/* Content Card */}
                           <div
-                            className={`p-3.5 rounded-2xl border transition-all ${
+                            className={`p-4 rounded-2xl border transition-all ${
                               cp.current
-                                ? "bg-amber-500/5 border-amber-500/30"
+                                ? "bg-amber-500/5 border-amber-500/30 shadow-xs"
                                 : "bg-surface-soft/60 border-line hover:border-line-strong"
                             }`}
                           >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                              <h4 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                              <h4 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
                                 <span>{isAr ? cp.titleAr : cp.titleEn}</span>
                                 {cp.current && (
-                                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-black">
+                                  <span className="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-black">
                                     {isAr ? "المحطة الحالية" : "Current Hub"}
                                   </span>
                                 )}
@@ -814,12 +814,12 @@ function ShippingLogisticsContent() {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-bold mt-1">
-                              <MapPin size={11} />
+                            <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-bold mt-1.5">
+                              <MapPin size={12} />
                               <span>{isAr ? cp.locationAr : cp.locationEn}</span>
                             </div>
 
-                            <p className="text-xs text-muted mt-1 leading-relaxed">
+                            <p className="text-xs text-muted mt-1.5 leading-relaxed">
                               {isAr ? cp.detailsAr : cp.detailsEn}
                             </p>
                           </div>
@@ -830,11 +830,11 @@ function ShippingLogisticsContent() {
 
                 </div>
 
-                {/* Right (1 Col): Courier Profile, Package Specs & Recipient Info */}
-                <div className="space-y-5">
+                {/* Right (4 Cols): Courier Profile, Package Specs & Recipient Info */}
+                <div className="lg:col-span-4 space-y-5">
                   
                   {/* Courier / Driver Card */}
-                  <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
+                  <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
                     <div className="flex items-center justify-between border-b border-line pb-3">
                       <div className="flex items-center gap-2">
                         <UserCheck size={15} className="text-amber-500" />
@@ -860,9 +860,9 @@ function ShippingLogisticsContent() {
                     </div>
 
                     {currentShipment.driverName ? (
-                      <div className="space-y-3.5">
+                      <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center overflow-hidden shrink-0">
+                          <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center overflow-hidden shrink-0">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={currentShipment.driverAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200"}
@@ -872,11 +872,11 @@ function ShippingLogisticsContent() {
                           </div>
                           <div>
                             <div className="text-xs sm:text-sm font-black text-foreground">{currentShipment.driverName}</div>
-                            <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                            <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                               {isAr ? "متصل ومتاح للتوصيل" : "Online & Active"}
                             </div>
-                            <div className="text-[11px] text-muted font-mono">
+                            <div className="text-[11px] text-muted font-mono mt-0.5">
                               {currentShipment.driverVehicle || (isAr ? "مركبة مجهزة" : "Delivery Van")}
                             </div>
                           </div>
@@ -886,9 +886,9 @@ function ShippingLogisticsContent() {
                         <div className="grid grid-cols-2 gap-2">
                           <a
                             href={`tel:${currentShipment.driverPhone || "+966500000000"}`}
-                            className="py-1.5 px-3 rounded-xl bg-surface-soft hover:bg-surface-muted text-foreground font-bold text-xs flex items-center justify-center gap-1.5 border border-line transition-all"
+                            className="py-2 px-3 rounded-xl bg-surface-soft hover:bg-surface-muted text-foreground font-bold text-xs flex items-center justify-center gap-1.5 border border-line transition-all"
                           >
-                            <Phone size={12} className="text-emerald-600 dark:text-emerald-400" />
+                            <Phone size={13} className="text-emerald-600 dark:text-emerald-400" />
                             <span>{isAr ? "اتصال" : "Call"}</span>
                           </a>
 
@@ -896,15 +896,15 @@ function ShippingLogisticsContent() {
                             href={`https://wa.me/${(currentShipment.driverPhone || "+966500000000").replace(/[^0-9]/g, "")}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all"
+                            className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all"
                           >
-                            <MessageSquare size={12} />
+                            <MessageSquare size={13} />
                             <span>{isAr ? "واتساب" : "WhatsApp"}</span>
                           </a>
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 rounded-2xl bg-surface-soft border border-line text-center space-y-2">
+                      <div className="p-4 rounded-2xl bg-surface-soft border border-line text-center space-y-2.5">
                         <Clock size={18} className="mx-auto text-muted" />
                         <p className="text-xs text-muted">
                           {isAr ? "جاري تعيين وتوجيه الكابتن للشحنة حسب خط السير" : "Assigning local route driver"}
@@ -915,7 +915,7 @@ function ShippingLogisticsContent() {
                             setDriverFormData({ name: "", phone: "", vehicle: "" });
                             setShowDriverModal(currentShipment);
                           }}
-                          className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all cursor-pointer"
+                          className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all cursor-pointer"
                         >
                           {isAr ? "تعيين كابتن يدويًا" : "Assign Driver"}
                         </button>
@@ -924,7 +924,7 @@ function ShippingLogisticsContent() {
                   </div>
 
                   {/* Recipient & Destination Info */}
-                  <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-3">
+                  <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-line pb-3">
                       <MapPin size={15} className="text-amber-500" />
                       <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
@@ -932,22 +932,22 @@ function ShippingLogisticsContent() {
                       </h4>
                     </div>
 
-                    <div className="space-y-2 text-xs">
+                    <div className="space-y-3 text-xs">
                       <div>
-                        <span className="text-muted block text-[11px]">{isAr ? "المستلم:" : "Recipient:"}</span>
-                        <strong className="text-foreground text-xs sm:text-sm">{currentShipment.recipientName}</strong>
-                        <div className="text-muted font-mono text-[11px]">{currentShipment.recipientPhone}</div>
+                        <span className="text-muted block text-[11px] font-medium">{isAr ? "المستلم:" : "Recipient:"}</span>
+                        <strong className="text-foreground text-xs sm:text-sm font-black block mt-0.5">{currentShipment.recipientName}</strong>
+                        <div className="text-muted font-mono text-[11px] mt-0.5">{currentShipment.recipientPhone}</div>
                       </div>
 
                       <div>
-                        <span className="text-muted block text-[11px]">{isAr ? "عنوان التسليم:" : "Address:"}</span>
-                        <div className="text-foreground font-medium">{currentShipment.recipientAddress}</div>
-                        <div className="text-amber-600 dark:text-amber-400 font-bold text-[11px]">{currentShipment.recipientCity} - {currentShipment.recipientCountry}</div>
+                        <span className="text-muted block text-[11px] font-medium">{isAr ? "عنوان التسليم:" : "Address:"}</span>
+                        <div className="text-foreground font-medium mt-0.5">{currentShipment.recipientAddress}</div>
+                        <div className="text-amber-600 dark:text-amber-400 font-bold text-[11px] mt-0.5">{currentShipment.recipientCity} - {currentShipment.recipientCountry}</div>
                       </div>
 
                       {currentShipment.notes && (
-                        <div className="p-2.5 rounded-xl bg-surface-soft border border-line text-[11px] text-foreground">
-                          <span className="text-amber-600 dark:text-amber-400 font-bold block mb-0.5">{isAr ? "ملاحظات التوصيل:" : "Delivery Note:"}</span>
+                        <div className="p-3 rounded-xl bg-surface-soft border border-line text-[11px] text-foreground">
+                          <span className="text-amber-600 dark:text-amber-400 font-bold block mb-1">{isAr ? "ملاحظات التوصيل:" : "Delivery Note:"}</span>
                           {currentShipment.notes}
                         </div>
                       )}
@@ -955,7 +955,7 @@ function ShippingLogisticsContent() {
                   </div>
 
                   {/* Package Specs & Declared Value */}
-                  <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-3">
+                  <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-line pb-3">
                       <Package size={15} className="text-amber-500" />
                       <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
@@ -963,34 +963,34 @@ function ShippingLogisticsContent() {
                       </h4>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="p-2.5 rounded-xl bg-surface-soft border border-line">
-                        <span className="text-muted block text-[10px]">{isAr ? "الوزن الفعلي:" : "Weight:"}</span>
-                        <span className="font-mono font-bold text-foreground">{currentShipment.packageWeightKg} kg</span>
+                    <div className="grid grid-cols-2 gap-2.5 text-xs">
+                      <div className="p-3 rounded-xl bg-surface-soft border border-line">
+                        <span className="text-muted block text-[10px] font-medium">{isAr ? "الوزن الفعلي:" : "Weight:"}</span>
+                        <span className="font-mono font-bold text-foreground mt-0.5 block">{currentShipment.packageWeightKg} kg</span>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-surface-soft border border-line">
-                        <span className="text-muted block text-[10px]">{isAr ? "الأبعاد (سم):" : "Dimensions:"}</span>
-                        <span className="font-mono font-bold text-foreground">
+                      <div className="p-3 rounded-xl bg-surface-soft border border-line">
+                        <span className="text-muted block text-[10px] font-medium">{isAr ? "الأبعاد (سم):" : "Dimensions:"}</span>
+                        <span className="font-mono font-bold text-foreground mt-0.5 block">
                           {currentShipment.dimensions?.length}x{currentShipment.dimensions?.width}x{currentShipment.dimensions?.height}
                         </span>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-surface-soft border border-line">
-                        <span className="text-muted block text-[10px]">{isAr ? "طريقة الدفع:" : "Payment:"}</span>
-                        <span className="font-bold text-amber-600 dark:text-amber-400 uppercase">
+                      <div className="p-3 rounded-xl bg-surface-soft border border-line">
+                        <span className="text-muted block text-[10px] font-medium">{isAr ? "طريقة الدفع:" : "Payment:"}</span>
+                        <span className="font-bold text-amber-600 dark:text-amber-400 uppercase mt-0.5 block">
                           {currentShipment.paymentType === "cod" ? (isAr ? "دفع عند الاستلام (COD)" : "COD") : (isAr ? "مدفوع مسبقاً" : "Prepaid")}
                         </span>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-surface-soft border border-line">
-                        <span className="text-muted block text-[10px]">{isAr ? "القيمة المصرحة:" : "Declared Value:"}</span>
-                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      <div className="p-3 rounded-xl bg-surface-soft border border-line">
+                        <span className="text-muted block text-[10px] font-medium">{isAr ? "القيمة المصرحة:" : "Declared Value:"}</span>
+                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
                           {formatPrice(currentShipment.declaredValue)}
                         </span>
                       </div>
                     </div>
 
                     <div className="pt-1 text-xs">
-                      <span className="text-muted block text-[11px]">{isAr ? "محتويات الطرد:" : "Package Contents:"}</span>
-                      <p className="text-foreground font-medium text-[11px] mt-0.5">{currentShipment.itemsList}</p>
+                      <span className="text-muted block text-[11px] font-medium">{isAr ? "محتويات الطرد:" : "Package Contents:"}</span>
+                      <p className="text-foreground font-medium text-[11px] mt-1">{currentShipment.itemsList}</p>
                     </div>
                   </div>
 
