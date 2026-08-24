@@ -1,19 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" fill="none" shape-rendering="geometricPrecision">
   <defs>
-    <linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="nmx_l" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="40%" stop-color="#2563EB" />
+      <stop offset="50%" stop-color="#2563EB" />
       <stop offset="100%" stop-color="#1D4ED8" />
     </linearGradient>
-    <linearGradient id="p2" x1="0%" y1="100%" x2="100%" y2="0%">
+    <linearGradient id="nmx_d" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#EA580C" />
-      <stop offset="50%" stop-color="#F97316" />
+      <stop offset="45%" stop-color="#F97316" />
       <stop offset="100%" stop-color="#FBBF24" />
     </linearGradient>
+    <linearGradient id="nmx_r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="60%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
   </defs>
-  <path d="M 21,80 L 21,32 C 21,20 30,12 42,12 C 49,12 55,16 58,22 C 55,27 49,30 42,30 C 37,30 33,34 33,39 L 33,80 Z" fill="url(#p1)" />
-  <path d="M 26,20 L 74,80 C 78,85 85,85 88,80 C 91,75 88,68 83,62 L 35,2 C 30,-3 23,-3 20,2 C 17,7 20,14 26,20 Z" fill="url(#p2)" />
-  <path d="M 79,20 L 79,68 C 79,80 70,88 58,88 C 51,88 45,84 42,78 C 45,73 51,70 58,70 C 63,70 67,66 67,61 L 67,20 Z" fill="url(#p1)" />
-  <circle cx="50" cy="50" r="6" fill="#FFFFFF" />
-  <circle cx="50" cy="50" r="3.5" fill="#F97316" />
+  <rect x="16" y="16" width="17" height="68" rx="8.5" fill="url(#nmx_l)" />
+  <rect x="67" y="16" width="17" height="68" rx="8.5" fill="url(#nmx_r)" />
+  <path d="M 16,24.5 L 75,82.5 C 80,87.5 84,85 84,78 L 84,62 L 25,14.5 C 20.5,10.5 16,13.5 16,19.5 Z" fill="url(#nmx_d)" />
+  <path d="M 75.5,21.5 L 78.5,28.5 L 85.5,31.5 L 78.5,34.5 L 75.5,41.5 L 72.5,34.5 L 65.5,31.5 L 72.5,28.5 Z" fill="#FBBF24" />
+  <circle cx="75.5" cy="31.5" r="2.2" fill="#FFFFFF" />
 </svg>

@@ -8,16 +8,18 @@ interface BrandLogoProps {
   className?: string;
   variant?: "horizontal" | "icon" | "symbol" | "stacked" | "wordmark";
   showTagline?: boolean;
+  monochrome?: boolean;
 }
 
 /**
- * World-Class NOORMEXA Brand Mark (SVG Vector)
+ * World-Class NOORMEXA Global Flagship Brand Mark (SVG Vector)
  * 
- * Mathematical Geometry:
- * - Interlocking geometric continuous loops representing "N" (Noor/Light) & "X" (Mexa/Exchange).
- * - Dual-tone global commerce gradient: Electric Sapphire (#2563EB) & Solar Coral (#F97316).
- * - Center Nexus Light Spark (#FFFFFF / #F97316).
- * - 100% vector SVG, infinite scalability, crystal-sharp in favicon, app icons, desktop and mobile.
+ * Architecture:
+ * - Dynamic High-Tech Monogram "N" (Noor & Mexa)
+ * - Left & Right Pillars: Electric Cobalt & Deep Sapphire Blue
+ * - Dynamic Forward Diagonal: Radiant Solar Amber/Orange Ribbon
+ * - Apex Noor Light Spark: 4-pointed radiant star
+ * - 100% pure vector SVG, mathematically balanced, crisp at all resolutions.
  */
 export function NoormexaEmblemSvg({
   size = 36,
@@ -47,60 +49,70 @@ export function NoormexaEmblemSvg({
       <defs>
         {!monochrome ? (
           <>
-            {/* Primary Pillar Gradient (Electric Sapphire to Royal Azure) */}
-            <linearGradient id={`p1_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={`nmx_l_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#38BDF8" />
-              <stop offset="40%" stopColor="#2563EB" />
+              <stop offset="50%" stopColor="#2563EB" />
               <stop offset="100%" stopColor="#1D4ED8" />
             </linearGradient>
 
-            {/* Dynamic Bridge Gradient (Solar Amber to Coral Radiance) */}
-            <linearGradient id={`p2_${uid}`} x1="0%" y1="100%" x2="100%" y2="0%">
+            <linearGradient id={`nmx_d_${uid}`} x1="0%" y1="100%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#EA580C" />
-              <stop offset="50%" stopColor="#F97316" />
+              <stop offset="45%" stopColor="#F97316" />
               <stop offset="100%" stopColor="#FBBF24" />
             </linearGradient>
 
-            {/* Core Intersection Highlight */}
-            <linearGradient id={`cross_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#60A5FA" />
-              <stop offset="100%" stopColor="#FB923C" />
+            <linearGradient id={`nmx_r_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#2563EB" />
+              <stop offset="60%" stopColor="#1D4ED8" />
+              <stop offset="100%" stopColor="#0F172A" />
             </linearGradient>
           </>
         ) : null}
       </defs>
 
       <g transform="translate(0, 0)">
-        {/* 1. Left Upward Arch Pillar (Forming N anchor) */}
-        <path
-          d="M 21,80 L 21,32 C 21,20 30,12 42,12 C 49,12 55,16 58,22 C 55,27 49,30 42,30 C 37,30 33,34 33,39 L 33,80 Z"
-          fill={monochrome ? (isDark ? "#FFFFFF" : "#0F172A") : `url(#p1_${uid})`}
+        {/* Left Vertical Pillar */}
+        <rect
+          x="16"
+          y="16"
+          width="17"
+          height="68"
+          rx="8.5"
+          fill={monochrome ? (isDark ? "#FFFFFF" : "#0B1322") : `url(#nmx_l_${uid})`}
         />
 
-        {/* 2. Central Dynamic Crossing Bridge (Forms N & X - The Nexus Exchange) */}
-        <path
-          d="M 26,20 L 74,80 C 78,85 85,85 88,80 C 91,75 88,68 83,62 L 35,2 C 30,-3 23,-3 20,2 C 17,7 20,14 26,20 Z"
-          fill={monochrome ? (isDark ? "#FFFFFF" : "#0F172A") : `url(#p2_${uid})`}
+        {/* Right Vertical Pillar */}
+        <rect
+          x="67"
+          y="16"
+          width="17"
+          height="68"
+          rx="8.5"
+          fill={monochrome ? (isDark ? "#FFFFFF" : "#0B1322") : `url(#nmx_r_${uid})`}
         />
 
-        {/* 3. Right Downward Arch Pillar (Completing the N/M symmetry) */}
+        {/* Dynamic Forward Energy Ribbon (Diagonal) */}
         <path
-          d="M 79,20 L 79,68 C 79,80 70,88 58,88 C 51,88 45,84 42,78 C 45,73 51,70 58,70 C 63,70 67,66 67,61 L 67,20 Z"
-          fill={monochrome ? (isDark ? "#FFFFFF" : "#0F172A") : `url(#p1_${uid})`}
+          d="M 16,24.5 
+             L 75,82.5 
+             C 80,87.5 84,85 84,78 
+             L 84,62 
+             L 25,14.5 
+             C 20.5,10.5 16,13.5 16,19.5 
+             Z"
+          fill={monochrome ? (isDark ? "#FFFFFF" : "#0B1322") : `url(#nmx_d_${uid})`}
         />
 
-        {/* 4. Core Light Fusion Spark (The Noor Beacon) */}
+        {/* Noor Apex Star (Beacon of Light) */}
+        <path
+          d="M 75.5,21.5 L 78.5,28.5 L 85.5,31.5 L 78.5,34.5 L 75.5,41.5 L 72.5,34.5 L 65.5,31.5 L 72.5,28.5 Z"
+          fill={monochrome ? (isDark ? "#0B1322" : "#FFFFFF") : "#FBBF24"}
+        />
         <circle
-          cx="50"
-          cy="50"
-          r="6"
-          fill={monochrome ? (isDark ? "#0F172A" : "#FFFFFF") : "#FFFFFF"}
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r="3.5"
-          fill={monochrome ? (isDark ? "#FFFFFF" : "#0F172A") : "#F97316"}
+          cx="75.5"
+          cy="31.5"
+          r="2.2"
+          fill={monochrome ? (isDark ? "#FFFFFF" : "#0B1322") : "#FFFFFF"}
         />
       </g>
     </svg>
@@ -108,98 +120,18 @@ export function NoormexaEmblemSvg({
 }
 
 /**
- * Pure Vector Typography Wordmark for NOORMEXA (Uppercased, Geometric, Modern)
- */
-export function NoormexaWordmarkSvg({
-  width = 140,
-  isDark = true,
-  className = "",
-}: {
-  width?: number;
-  isDark?: boolean;
-  className?: string;
-}) {
-  const uid = useId().replace(/:/g, "_");
-  const primaryColor = isDark ? "#FFFFFF" : "#0F172A";
-
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 280 40"
-      width={width}
-      height={width * (40 / 280)}
-      fill="none"
-      shapeRendering="geometricPrecision"
-      textRendering="geometricPrecision"
-      className={`shrink-0 select-none ${className}`}
-      aria-label="NOORMEXA"
-    >
-      <defs>
-        <linearGradient id={`wm_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#EA580C" />
-          <stop offset="60%" stopColor="#F97316" />
-          <stop offset="100%" stopColor="#FBBF24" />
-        </linearGradient>
-      </defs>
-
-      {/* NOOR (Bold Solid Titanium) */}
-      <g fill={primaryColor}>
-        {/* N */}
-        <path d="M 10,6 L 19,6 L 38,30 L 38,6 L 46,6 L 46,34 L 37,34 L 18,10 L 18,34 L 10,34 Z" />
-
-        {/* O (1) */}
-        <path
-          fillRule="evenodd"
-          d="M 64,6 C 74,6 80,12 80,20 C 80,28 74,34 64,34 C 54,34 48,28 48,20 C 48,12 54,6 64,6 Z M 64,13 C 58,13 55,16 55,20 C 55,24 58,27 64,27 C 70,27 73,24 73,20 C 73,16 70,13 64,13 Z"
-        />
-
-        {/* O (2) */}
-        <path
-          fillRule="evenodd"
-          d="M 98,6 C 108,6 114,12 114,20 C 114,28 108,34 98,34 C 88,34 82,28 82,20 C 82,12 88,6 98,6 Z M 98,13 C 92,13 89,16 89,20 C 89,24 92,27 98,27 C 104,27 107,24 107,20 C 107,16 104,13 98,13 Z"
-        />
-
-        {/* R */}
-        <path
-          fillRule="evenodd"
-          d="M 120,6 L 138,6 C 145,6 149,9 149,15 C 149,19.5 146,22.5 141,23.5 L 150,34 L 140,34 L 132,24 L 127.5,24 L 127.5,34 L 120,34 Z M 127.5,12.5 L 137,12.5 C 140,12.5 141.5,13.5 141.5,15.5 C 141.5,17.5 140,18.5 137,18.5 L 127.5,18.5 Z"
-        />
-      </g>
-
-      {/* MEXA (Vibrant Gradient / Tech Energy Accent) */}
-      <g fill={`url(#wm_grad_${uid})`}>
-        {/* M */}
-        <path d="M 156,6 L 165,6 L 174,21 L 183,6 L 192,6 L 192,34 L 184.5,34 L 184.5,14 L 176.5,26.5 L 171.5,26.5 L 163.5,14 L 163.5,34 L 156,34 Z" />
-
-        {/* E */}
-        <path d="M 199,6 L 221,6 L 221,12.5 L 206.5,12.5 L 206.5,17 L 219,17 L 219,23 L 206.5,23 L 206.5,27.5 L 221,27.5 L 221,34 L 199,34 Z" />
-
-        {/* X */}
-        <path d="M 226,6 L 235,6 L 243.5,18 L 252,6 L 261,6 L 249,20 L 261.5,34 L 252.5,34 L 243.5,21.5 L 234.5,34 L 225.5,34 L 238,20 Z" />
-
-        {/* A */}
-        <path
-          fillRule="evenodd"
-          d="M 271,6 L 279,6 L 291,34 L 283,34 L 280.5,27.5 L 269.5,27.5 L 267,34 L 259,34 Z M 271.5,22 L 278.5,22 L 275,13 Z"
-        />
-      </g>
-    </svg>
-  );
-}
-
-/**
- * Universal BrandLogo component used across all headers, footers, and dashboards
+ * Universal BrandLogo component with forced LTR direction to prevent Arabic RTL inversion
  */
 export default function BrandLogo({
   size = "md",
   className = "",
   variant = "horizontal",
   showTagline = false,
+  monochrome = false,
 }: BrandLogoProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  // Size specifications
   const iconSizes = {
     xs: 24,
     sm: 30,
@@ -209,39 +141,49 @@ export default function BrandLogo({
     "2xl": 72,
   };
 
-  const wordmarkWidths = {
-    xs: 95,
-    sm: 115,
-    md: 135,
-    lg: 160,
-    xl: 195,
-    "2xl": 240,
+  const textSizes = {
+    xs: "text-base tracking-wider",
+    sm: "text-lg tracking-wider",
+    md: "text-xl tracking-wider",
+    lg: "text-2xl tracking-widest",
+    xl: "text-3xl tracking-widest",
+    "2xl": "text-4xl tracking-widest",
   };
 
   const currentIconSize = iconSizes[size] || 38;
-  const currentWordmarkWidth = wordmarkWidths[size] || 135;
 
   if (variant === "icon" || variant === "symbol") {
     return (
-      <div className={`inline-flex items-center justify-center shrink-0 ${className}`}>
-        <NoormexaEmblemSvg size={currentIconSize} isDark={isDark} />
-      </div>
-    );
-  }
-
-  if (variant === "wordmark") {
-    return (
-      <div className={`inline-flex items-center justify-center shrink-0 ${className}`}>
-        <NoormexaWordmarkSvg width={currentWordmarkWidth} isDark={isDark} />
+      <div
+        dir="ltr"
+        className={`inline-flex items-center justify-center shrink-0 ${className}`}
+      >
+        <NoormexaEmblemSvg
+          size={currentIconSize}
+          isDark={isDark}
+          monochrome={monochrome}
+        />
       </div>
     );
   }
 
   if (variant === "stacked") {
     return (
-      <div className={`inline-flex flex-col items-center justify-center gap-2 select-none shrink-0 ${className}`}>
-        <NoormexaEmblemSvg size={currentIconSize * 1.3} isDark={isDark} />
-        <NoormexaWordmarkSvg width={currentWordmarkWidth} isDark={isDark} />
+      <div
+        dir="ltr"
+        className={`inline-flex flex-col items-center justify-center gap-2 select-none shrink-0 ${className}`}
+      >
+        <NoormexaEmblemSvg
+          size={currentIconSize * 1.3}
+          isDark={isDark}
+          monochrome={monochrome}
+        />
+        <div dir="ltr" className="flex items-center font-black tracking-widest leading-none">
+          <span className={isDark ? "text-white" : "text-slate-950"}>NOOR</span>
+          <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent">
+            MEXA
+          </span>
+        </div>
         {showTagline && (
           <span className="text-[10px] font-bold tracking-[0.2em] text-slate-500 dark:text-slate-400 uppercase">
             التسوق الذكي
@@ -252,36 +194,48 @@ export default function BrandLogo({
   }
 
   // Default: Horizontal Brand Identity (Icon + NOORMEXA)
+  // CRITICAL: dir="ltr" ensures the logo reads [ICON] NOORMEXA even inside Arabic RTL parent pages!
   return (
     <div
+      dir="ltr"
       className={`inline-flex items-center gap-2.5 sm:gap-3 select-none shrink-0 transition-opacity hover:opacity-95 ${className}`}
     >
       {/* Brand Icon Mark */}
       <div className="relative flex items-center justify-center shrink-0">
-        <NoormexaEmblemSvg size={currentIconSize} isDark={isDark} />
+        <NoormexaEmblemSvg
+          size={currentIconSize}
+          isDark={isDark}
+          monochrome={monochrome}
+        />
       </div>
 
-      {/* Brand Wordmark & Tagline */}
-      <div className="flex flex-col justify-center">
-        <div className="flex items-center font-black leading-none font-sans">
+      {/* Brand Wordmark (Always LTR: NOOR + MEXA) */}
+      <div dir="ltr" className="flex flex-col justify-center text-left">
+        <div dir="ltr" className="flex items-center font-black leading-none font-sans select-none">
           <span
-            className={`font-black text-lg sm:text-xl transition-colors tracking-wider ${
+            className={`font-black ${textSizes[size]} transition-colors ${
               isDark ? "text-white" : "text-slate-950"
             }`}
-            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+            style={{
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              letterSpacing: "0.06em",
+            }}
           >
             NOOR
           </span>
           <span
-            className="font-black text-lg sm:text-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent tracking-wider"
-            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+            className={`font-black ${textSizes[size]} bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent`}
+            style={{
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              letterSpacing: "0.06em",
+            }}
           >
             MEXA
           </span>
         </div>
 
         {showTagline ? (
-          <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-wider">
+          <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-wider mt-0.5">
             التسوق الذكي
           </span>
         ) : null}
