@@ -146,18 +146,18 @@ export default function TopUtilityBar() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 h-9 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-10 2xl:px-12 h-8.5 sm:h-9 flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Left (RTL Start): VIP Live Announcement Carousel */}
+        {/* VIP Live Announcement Carousel */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-hidden">
-          {/* Tag Pill */}
+          {/* Tag Pill - Desktop/Tablet */}
           <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-400 text-[10px] font-black uppercase tracking-wider shrink-0">
             <Sparkles size={11} className="text-orange-400 animate-pulse" />
             <span>{isAr ? current.tagAr : current.tagEn}</span>
           </span>
 
           {/* Controls: Prev / Next buttons for ticker */}
-          <div className="hidden sm:flex items-center gap-0.5 shrink-0 text-slate-400">
+          <div className="flex items-center gap-0.5 shrink-0 text-slate-400">
             <button
               type="button"
               onClick={prevSlide}
@@ -177,7 +177,7 @@ export default function TopUtilityBar() {
           </div>
 
           {/* Active Announcement Text & Link */}
-          <div className="flex items-center gap-1.5 min-w-0 flex-1 truncate">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
             <IconComponent size={13} className={`shrink-0 ${current.iconColor}`} />
             <Link
               href={current.href}
@@ -216,8 +216,8 @@ export default function TopUtilityBar() {
           </div>
         </div>
 
-        {/* Right (RTL End): Fast Global Utility Navigation Links */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0 text-[11px] font-semibold text-slate-400">
+        {/* Right (RTL End): Fast Global Utility Navigation Links (Responsive: Desktop & Tablet) */}
+        <div className="hidden sm:flex items-center gap-2 sm:gap-4 shrink-0 text-[11px] font-semibold text-slate-400">
           
           {/* Track Orders Link */}
           <Link
@@ -231,7 +231,7 @@ export default function TopUtilityBar() {
           {/* Merchant Registration Link */}
           <Link
             href="/seller/dashboard"
-            className="hidden sm:flex items-center gap-1 hover:text-amber-400 transition-colors"
+            className="hidden md:flex items-center gap-1 hover:text-amber-400 transition-colors"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
             <span>{isAr ? "بوابة التجار والبيع" : "Sell on NOORMEXA"}</span>
@@ -240,7 +240,7 @@ export default function TopUtilityBar() {
           {/* Super Admin Quick Link */}
           <Link
             href="/admin"
-            className="hidden md:flex items-center gap-1 text-slate-300 hover:text-orange-400 transition-colors"
+            className="hidden xl:flex items-center gap-1 text-slate-300 hover:text-orange-400 transition-colors"
           >
             <Crown size={12} className="text-orange-400" />
             <span>{isAr ? "مركز الإدارة" : "Admin"}</span>
@@ -258,7 +258,7 @@ export default function TopUtilityBar() {
           </button>
 
           {/* Quick Currency indicator */}
-          <div className="hidden sm:flex items-center gap-1 text-slate-400 text-[10px] font-mono font-bold bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/60">
+          <div className="hidden lg:flex items-center gap-1 text-slate-400 text-[10px] font-mono font-bold bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/60">
             <Coins size={10} className="text-orange-400" />
             <span>{currency}</span>
           </div>

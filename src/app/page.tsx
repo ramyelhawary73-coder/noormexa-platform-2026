@@ -835,23 +835,23 @@ export default function HomePage() {
 
             {/* Interactive Live Search Bar (Amazon / Alibaba Style) */}
             <form onSubmit={handleSearchSubmit} className="relative max-w-xl">
-              <div className="flex items-center bg-surface border-2 border-line hover:border-orange-500/60 focus-within:border-orange-500 rounded-2xl p-1.5 shadow-md transition-all">
-                <div className="p-2.5 text-muted">
-                  <Search size={20} className="text-orange-500" />
+              <div className="flex items-center bg-surface border-2 border-line hover:border-orange-500/60 focus-within:border-orange-500 rounded-2xl p-1 sm:p-1.5 shadow-md transition-all">
+                <div className="p-2 sm:p-2.5 text-muted shrink-0">
+                  <Search size={18} className="text-orange-500" />
                 </div>
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={text.hero.searchPlaceholder}
-                  className="w-full bg-transparent border-none text-foreground text-xs sm:text-sm font-medium focus:outline-hidden px-2 placeholder:text-muted/60"
+                  className="w-full bg-transparent border-none text-foreground text-xs sm:text-sm font-medium focus:outline-hidden px-1 sm:px-2 placeholder:text-muted/60 min-w-0"
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
                 >
                   <span>{text.hero.searchButton}</span>
-                  <DirectionIcon size={14} />
+                  <DirectionIcon size={13} className="shrink-0" />
                 </button>
               </div>
 

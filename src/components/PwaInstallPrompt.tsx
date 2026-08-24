@@ -129,7 +129,7 @@ export default function PwaInstallPrompt() {
     let bannerTimeout: NodeJS.Timeout | undefined;
 
     if (!wasDismissed) {
-      bannerTimeout = setTimeout(() => setShowBanner(true), 3500);
+      bannerTimeout = setTimeout(() => setShowBanner(true), 6000);
     }
 
     // Listen for BeforeInstallPrompt on Chrome, Edge, Android, Desktop
@@ -242,37 +242,37 @@ export default function PwaInstallPrompt() {
       {/* 1. Floating World-Class PWA Install Banner */}
       {showBanner && !showModal && (
         <div className="fixed bottom-20 md:bottom-6 start-3 end-3 sm:start-auto sm:end-6 sm:max-w-md z-50 animate-in slide-in-from-bottom-5 duration-300">
-          <div className="p-4 rounded-3xl bg-slate-950/95 text-white border-2 border-orange-500/40 shadow-2xl backdrop-blur-2xl relative overflow-hidden">
+          <div className="p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-950/95 text-white border-2 border-orange-500/40 shadow-2xl backdrop-blur-2xl relative overflow-hidden">
             {/* Ambient Gold Glow Accent */}
             <div className="absolute top-0 end-0 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="flex items-start gap-3.5 relative z-10">
+            <div className="flex items-start gap-3 relative z-10">
               {/* App Icon */}
-              <div className="relative shrink-0 w-12 h-12 rounded-2xl bg-slate-900 border border-white/15 p-2 flex items-center justify-center shadow-lg">
-                <NoormexaEmblemSvg size={24} isDark={true} />
-                <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-slate-950" />
+              <div className="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-900 border border-white/15 p-1.5 sm:p-2 flex items-center justify-center shadow-lg">
+                <NoormexaEmblemSvg size={22} isDark={true} />
+                <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950" />
               </div>
 
               {/* Text & Features */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="font-black text-sm text-white tracking-wide">
+                  <span className="font-black text-xs sm:text-sm text-white tracking-wide">
                     تطبيق NOORMEXA الرسمي
                   </span>
-                  <Sparkles size={13} className="text-orange-400" />
+                  <Sparkles size={12} className="text-orange-400" />
                 </div>
-                <p className="text-xs text-slate-300 leading-snug">
-                  ثبّت التطبيق الآن على جهازك للوصول السريع وتصفح الصفقات بدون انقطاع!
+                <p className="text-[11px] sm:text-xs text-slate-300 leading-snug">
+                  ثبّت التطبيق الآن للوصول السريع وتصفح الصفقات بدون انقطاع!
                 </p>
 
                 {/* Compatibility Badges */}
-                <div className="flex items-center gap-2 mt-2 text-[10px] text-slate-400 font-bold">
-                  <span className="flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded-md">
-                    <Laptop size={11} className="text-orange-400" />
+                <div className="hidden xs:flex items-center gap-1.5 mt-1.5 text-[9px] sm:text-[10px] text-slate-400 font-bold">
+                  <span className="flex items-center gap-1 bg-white/10 px-1.5 py-0.5 rounded-md">
+                    <Laptop size={10} className="text-orange-400" />
                     <span>PC & Mac</span>
                   </span>
-                  <span className="flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded-md">
-                    <Smartphone size={11} className="text-orange-400" />
+                  <span className="flex items-center gap-1 bg-white/10 px-1.5 py-0.5 rounded-md">
+                    <Smartphone size={10} className="text-orange-400" />
                     <span>Android & iOS</span>
                   </span>
                 </div>
@@ -282,31 +282,31 @@ export default function PwaInstallPrompt() {
               <button
                 type="button"
                 onClick={handleDismiss}
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 aria-label="Dismiss"
               >
-                <X size={15} />
+                <X size={13} />
               </button>
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2 mt-3.5 pt-3 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-2 mt-2.5 sm:mt-3.5 pt-2.5 sm:pt-3 border-t border-white/10">
               <button
                 type="button"
                 onClick={() => {
                   setShowBanner(false);
                   triggerInstallFlow();
                 }}
-                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-orange-500/25 transition-all hover:scale-[1.02] cursor-pointer"
+                className="py-2 sm:py-2.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-orange-500/25 transition-all hover:scale-[1.02] cursor-pointer"
               >
-                <Download size={14} className="stroke-[2.5]" />
+                <Download size={13} className="stroke-[2.5]" />
                 <span>تثبيت التطبيق الآن</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleDismiss}
-                className="py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer text-center"
+                className="py-2 sm:py-2.5 px-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer text-center"
               >
                 <span>لاحقاً</span>
               </button>

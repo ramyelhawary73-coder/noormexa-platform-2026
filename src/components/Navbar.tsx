@@ -27,6 +27,7 @@ import {
   Building2,
   Sparkles,
   Package,
+  Search,
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import TopUtilityBar from "@/components/TopUtilityBar";
@@ -316,11 +317,11 @@ export default function Navbar() {
             )}
           </nav>
 
-          {/* Right / RTL End: World-Class Actions & Account Area (بجنب تسجيل الدخول) */}
+          {/* Right / RTL End: World-Class Actions & Account Area (Responsive Controls) */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             
-            {/* Quick Currency Selector */}
-            <div className="relative" ref={currencyMenuRef}>
+            {/* Quick Currency Selector (Tablet & Desktop) */}
+            <div className="hidden md:block relative" ref={currencyMenuRef}>
               <button
                 type="button"
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/50 hover:text-foreground transition-all shadow-xs cursor-pointer"
@@ -378,10 +379,10 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Language Switcher */}
+            {/* Language Switcher (Tablet & Desktop) */}
             <button
               type="button"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface dark:bg-slate-900 hover:border-orange-500 hover:text-foreground transition-all shadow-xs active:scale-95 cursor-pointer"
+              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface dark:bg-slate-900 hover:border-orange-500 hover:text-foreground transition-all shadow-xs active:scale-95 cursor-pointer"
               onClick={toggleLanguage}
               title={isAr ? "Switch to English" : "التبديل إلى العربية"}
               aria-label="Toggle language"
@@ -390,10 +391,10 @@ export default function Navbar() {
               <span className="text-[11px] font-bold">{isAr ? "EN" : "عربي"}</span>
             </button>
 
-            {/* Day / Night Theme Toggle */}
+            {/* Day / Night Theme Toggle (Tablet & Desktop) */}
             <button
               type="button"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-600 flex items-center justify-center text-muted hover:text-foreground transition-all shadow-xs active:scale-95 cursor-pointer"
+              className="hidden xs:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-600 items-center justify-center text-muted hover:text-foreground transition-all shadow-xs active:scale-95 cursor-pointer"
               onClick={toggleTheme}
               title={theme === "dark" ? "تفعيل الوضع النهاري (Light Mode)" : "تفعيل الوضع الليلي (Dark Mode)"}
               aria-label="Toggle theme"
@@ -405,7 +406,17 @@ export default function Navbar() {
               )}
             </button>
 
-            {/* Wishlist Icon Button */}
+            {/* Search Quick Button (Mobile Only) */}
+            <Link
+              href="/marketplace"
+              className="sm:hidden w-8 h-8 rounded-full border border-line bg-surface dark:bg-slate-900 flex items-center justify-center text-foreground hover:border-orange-500/60 transition-all shadow-xs"
+              title={isAr ? "البحث في المنتجات" : "Search"}
+              aria-label="Search"
+            >
+              <Search size={14} className="text-muted hover:text-orange-500" />
+            </Link>
+
+            {/* Wishlist Icon Button (Desktop/Tablet) */}
             <Link
               href="/marketplace?wishlist=true"
               className="hidden sm:flex relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-600 items-center justify-center text-muted hover:text-foreground transition-all shadow-xs"
@@ -675,26 +686,48 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Controls Bar in Mobile Menu */}
-            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line">
-              <span className="text-xs font-bold text-muted">{isAr ? "الإعدادات واللغة:" : "Settings & Language:"}</span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={toggleLanguage}
-                  className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground"
-                >
-                  <Globe2 size={13} className="text-orange-500" />
-                  <span>{isAr ? "EN" : "عربي"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground"
-                >
-                  {theme === "dark" ? <Sun size={13} className="text-orange-400" /> : <Moon size={13} />}
-                  <span>{theme === "dark" ? "نهار" : "ليل"}</span>
-                </button>
+            {/* Controls Bar in Mobile Menu (Currency, Language, Theme) */}
+            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-muted">{isAr ? "العملة المفضلة:" : "Currency:"}</span>
+                <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] no-scrollbar">
+                  {currencyList.slice(0, 4).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCurrency(c)}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                        currency === c
+                          ? "bg-orange-500 text-white shadow-xs"
+                          : "bg-surface dark:bg-slate-800 text-muted hover:text-foreground border border-line"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-line/60">
+                <span className="text-xs font-bold text-muted">{isAr ? "اللغة والمظهر:" : "Language & Theme:"}</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={toggleLanguage}
+                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground"
+                  >
+                    <Globe2 size={13} className="text-orange-500" />
+                    <span>{isAr ? "EN" : "عربي"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground"
+                  >
+                    {theme === "dark" ? <Sun size={13} className="text-orange-400" /> : <Moon size={13} />}
+                    <span>{theme === "dark" ? "نهار" : "ليل"}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
