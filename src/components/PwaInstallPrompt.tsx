@@ -327,7 +327,7 @@ export default function PwaInstallPrompt() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4 relative z-10">
               <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12 rounded-2xl bg-slate-900 border border-white/15 p-2 flex items-center justify-center shadow-lg">
-                  <NoormexaEmblemSvg size={24} isDark={true} />
+                  <NoormexaEmblemSvg size={30} isDark={true} />
                   <span className="absolute -top-1 -end-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-slate-950 animate-pulse" />
                 </div>
                 <div>

@@ -162,7 +162,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
             {store.is_official ? (
               <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center p-3 rounded-3xl bg-surface-soft border border-line shadow-md">
-                <NoormexaEmblemSvg size={42} isDark={isDark} />
+                <NoormexaEmblemSvg size={54} isDark={isDark} />
               </div>
             ) : (
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden bg-surface-soft border border-line shadow-md shrink-0 relative">

@@ -248,7 +248,7 @@ footer {
 }
 
 .noormexa-container {
-  width: min(100% - 32px, 1180px);
+  width: min(100% - 32px, 1680px);
   margin-inline: auto;
 }
 
@@ -1436,7 +1436,7 @@ html[dir="rtl"] .noormexa-password-shell {
 
 @media (min-width: 768px) {
   .noormexa-container {
-    width: min(100% - 48px, 1180px);
+    width: min(100% - 48px, 1680px);
   }
 
   .noormexa-header-inner {
@@ -1612,7 +1612,7 @@ html[dir="rtl"] .noormexa-password-shell {
 
 @media (max-width: 389px) {
   .noormexa-container {
-    width: min(100% - 24px, 1180px);
+    width: min(100% - 20px, 100%);
   }
 
   .noormexa-header-inner {

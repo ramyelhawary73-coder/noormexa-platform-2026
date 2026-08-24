@@ -246,7 +246,7 @@ export default function Navbar() {
 
       {/* 2. Main Executive Header Bar */}
       <div className="relative z-30 w-full bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-b border-line shadow-xs">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-17 sm:h-18 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 h-17 sm:h-18 flex items-center justify-between gap-3 sm:gap-5">
           
           {/* Left / RTL Start: Official Brand Identity & Logo */}
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
@@ -592,9 +592,9 @@ export default function Navbar() {
       {/* 3. Sub-Navigation / Secondary Quick Strip (Amazon / Noon / Farfetch Style) */}
       <nav
         aria-label={isAr ? "أقسام التسوق السريعة" : "Category and deals quick navigation"}
-        className="relative z-10 w-full bg-surface-soft/90 dark:bg-[#070c17]/90 border-b border-line backdrop-blur-md overflow-x-auto no-scrollbar py-1 px-3 sm:px-6 lg:px-8 transition-colors"
+        className="relative z-10 w-full bg-surface-soft/90 dark:bg-[#070c17]/90 border-b border-line backdrop-blur-md overflow-x-auto no-scrollbar py-1 px-4 sm:px-6 lg:px-10 2xl:px-12 transition-colors"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 text-xs font-bold text-muted min-w-max">
+        <div className="max-w-[1720px] w-full mx-auto flex items-center justify-between gap-4 text-xs font-bold text-muted min-w-max">
           {/* Quick Links List */}
           <div className="flex items-center gap-1.5 sm:gap-3">
             {subNavLinks.map((item) => {

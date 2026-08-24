@@ -404,7 +404,7 @@ function ShippingLogisticsContent() {
 
       {/* Global Header Banner - Apple & Google Grade Clean Surface */}
       <section className="border-b border-line bg-surface/80 backdrop-blur-md pt-8 pb-7 sm:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold">
@@ -508,7 +508,7 @@ function ShippingLogisticsContent() {
       </section>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
+      <main className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 py-7">
         
         {/* ========================================================================= */}
         {/* TAB 1: LIVE SHOPPER PACKAGE TRACKING (تتبع الشحنة للمتسوق)                */}

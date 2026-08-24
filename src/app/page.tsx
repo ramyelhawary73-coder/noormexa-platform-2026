@@ -923,8 +923,8 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                 <div className="flex items-start sm:items-center gap-5">
                   {/* Official NOORMEXA Vector Logo Emblem */}
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-surface-soft border border-line flex items-center justify-center p-2.5 flex-shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-xs">
-                    <NoormexaEmblemSvg size={34} isDark={isDark} />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-surface-soft border border-line flex items-center justify-center p-3 flex-shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-xs">
+                    <NoormexaEmblemSvg size={44} isDark={isDark} />
                   </div>
 
                   <div className="space-y-1.5">

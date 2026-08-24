@@ -146,7 +146,7 @@ export default function TopUtilityBar() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-9 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 h-9 flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Left (RTL Start): VIP Live Announcement Carousel */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-hidden">
