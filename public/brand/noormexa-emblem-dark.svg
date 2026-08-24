@@ -1,18 +1,18 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' width='200' height='200' fill='none'>
-  <g id='noormexa-glyph'>
-    <!-- Left 4 vertical bars with rounded caps -->
-    <rect x='14' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
-    <rect x='29.5' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
-    <rect x='45' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
-    <rect x='60.5' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+  <g id="noormexa-emblem" fill="#ffffff">
+    <!-- Left 4 Vertical Bars (Caps rx=4) -->
+    <rect x="16" y="14" width="8" height="172" rx="4" />
+    <rect x="32" y="14" width="8" height="172" rx="4" />
+    <rect x="48" y="14" width="8" height="172" rx="4" />
+    <rect x="64" y="14" width="8" height="172" rx="4" />
 
-    <!-- Center Diagonal Solid Geometric Parallelogram (The N Slash) -->
-    <polygon points='73,12 115,12 127,188 85,188' fill='#ffffff' />
+    <!-- Center Point-Symmetric Diagonal Parallelogram ('N' Slash) -->
+    <polygon points="74,14 116,14 126,186 84,186" />
 
-    <!-- Right 4 vertical bars with rounded caps -->
-    <rect x='132' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
-    <rect x='147.5' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
-    <rect x='163' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
-    <rect x='178.5' y='12' width='7.5' height='176' rx='3.75' fill='#ffffff' />
+    <!-- Right 4 Vertical Bars (Caps rx=4) -->
+    <rect x="128" y="14" width="8" height="172" rx="4" />
+    <rect x="144" y="14" width="8" height="172" rx="4" />
+    <rect x="160" y="14" width="8" height="172" rx="4" />
+    <rect x="176" y="14" width="8" height="172" rx="4" />
   </g>
 </svg>

@@ -31,10 +31,10 @@ function subscribeToLanguage(callback: () => void) {
 /**
  * 100% Vector Precision SVG Emblem for NOORMEXA
  * Exactly based on the master logo:
- * - 4 vertical pillars on the left
- * - Solid geometric diagonal slash in the center
- * - 4 vertical pillars on the right
- * True 200x200 square canvas with zero distortion
+ * - 4 vertical pillars on the left (rounded smooth pill caps)
+ * - Point-symmetric solid geometric diagonal slash in the center ('N' diagonal)
+ * - 4 vertical pillars on the right (rounded smooth pill caps)
+ * True 200x200 square canvas with geometric precision sub-pixel rendering
  */
 export function NoormexaEmblemSvg({
   size = 38,
@@ -58,23 +58,26 @@ export function NoormexaEmblemSvg({
       className={`shrink-0 select-none transition-colors duration-200 ${className}`}
       aria-hidden="true"
       fill="none"
+      shapeRendering="geometricPrecision"
+      textRendering="geometricPrecision"
+      preserveAspectRatio="xMidYMid meet"
       style={{ width: size, height: size, minWidth: size, minHeight: size }}
     >
-      <g>
+      <g id="noormexa-vector-emblem" fill={glyphColor}>
         {/* Left 4 Vertical Bars with rounded smooth caps */}
-        <rect x="14" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="29.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="45" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="60.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
+        <rect x="16" y="14" width="8" height="172" rx="4" />
+        <rect x="32" y="14" width="8" height="172" rx="4" />
+        <rect x="48" y="14" width="8" height="172" rx="4" />
+        <rect x="64" y="14" width="8" height="172" rx="4" />
 
-        {/* Center Diagonal Solid Geometric Parallelogram (The N Slash) */}
-        <polygon points="73,12 115,12 127,188 85,188" fill={glyphColor} />
+        {/* Center Diagonal Solid Geometric Parallelogram (Point-Symmetric 'N' Slash) */}
+        <polygon points="74,14 116,14 126,186 84,186" />
 
         {/* Right 4 Vertical Bars with rounded smooth caps */}
-        <rect x="132" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="147.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="163" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="178.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
+        <rect x="128" y="14" width="8" height="172" rx="4" />
+        <rect x="144" y="14" width="8" height="172" rx="4" />
+        <rect x="160" y="14" width="8" height="172" rx="4" />
+        <rect x="176" y="14" width="8" height="172" rx="4" />
       </g>
     </svg>
   );
@@ -106,32 +109,35 @@ export function NoormexaStackedLogo({
       className={`shrink-0 select-none transition-colors duration-200 ${className}`}
       aria-label="NOORMEXA Logo"
       fill="none"
+      shapeRendering="geometricPrecision"
+      textRendering="geometricPrecision"
+      preserveAspectRatio="xMidYMid meet"
     >
       {/* Centered Top Emblem */}
-      <g transform="translate(80, 20)">
-        <rect x="14" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="29.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="45" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="60.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
+      <g transform="translate(80, 24)" fill={glyphColor}>
+        <rect x="16" y="14" width="8" height="172" rx="4" />
+        <rect x="32" y="14" width="8" height="172" rx="4" />
+        <rect x="48" y="14" width="8" height="172" rx="4" />
+        <rect x="64" y="14" width="8" height="172" rx="4" />
 
-        <polygon points="73,12 115,12 127,188 85,188" fill={glyphColor} />
+        <polygon points="74,14 116,14 126,186 84,186" />
 
-        <rect x="132" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="147.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="163" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
-        <rect x="178.5" y="12" width="7.5" height="176" rx="3.75" fill={glyphColor} />
+        <rect x="128" y="14" width="8" height="172" rx="4" />
+        <rect x="144" y="14" width="8" height="172" rx="4" />
+        <rect x="160" y="14" width="8" height="172" rx="4" />
+        <rect x="176" y="14" width="8" height="172" rx="4" />
       </g>
 
       {/* Modern High-Tracking Wordmark NOORMEXA */}
       <text
         x="180"
-        y="282"
+        y="284"
         textAnchor="middle"
         fill={glyphColor}
         fontFamily="system-ui, -apple-system, 'Montserrat', 'Inter', 'Arial', sans-serif"
-        fontSize="34"
+        fontSize="33"
         fontWeight="900"
-        letterSpacing="6px"
+        letterSpacing="7px"
       >
         NOORMEXA
       </text>
