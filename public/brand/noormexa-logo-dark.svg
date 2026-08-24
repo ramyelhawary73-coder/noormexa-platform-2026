@@ -1,34 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="800" height="200" fill="none" shape-rendering="geometricPrecision">
   <defs>
-    <linearGradient id="nmx_left" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="l_p1" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#38BDF8" />
       <stop offset="50%" stop-color="#2563EB" />
       <stop offset="100%" stop-color="#1D4ED8" />
     </linearGradient>
-    <linearGradient id="nmx_diag" x1="0%" y1="100%" x2="100%" y2="0%">
+    <linearGradient id="l_p2" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#EA580C" />
       <stop offset="45%" stop-color="#F97316" />
       <stop offset="100%" stop-color="#FBBF24" />
     </linearGradient>
-    <linearGradient id="nmx_right" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="l_p3" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#2563EB" />
       <stop offset="60%" stop-color="#1D4ED8" />
       <stop offset="100%" stop-color="#0F172A" />
     </linearGradient>
-    <linearGradient id="mexa_text" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="mexa_grad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#F97316" />
-      <stop offset="60%" stop-color="#F59E0B" />
+      <stop offset="50%" stop-color="#F59E0B" />
       <stop offset="100%" stop-color="#FB923C" />
     </linearGradient>
   </defs>
-  <g transform="translate(15, 15) scale(0.7)">
-    <rect x="18" y="16" width="15" height="68" rx="7.5" fill="url(#nmx_left)" />
-    <rect x="67" y="16" width="15" height="68" rx="7.5" fill="url(#nmx_right)" />
-    <path d="M 18.5,23.5 L 74.5,79.5 C 78.5,83.5 82,81 82,75.5 L 82,60.5 L 26,14.5 C 21.5,10.5 18.5,13.5 18.5,19 Z" fill="url(#nmx_diag)" />
-    <path d="M 74.5,23.5 L 77.5,29.5 L 83.5,32.5 L 77.5,35.5 L 74.5,41.5 L 71.5,35.5 L 65.5,32.5 L 71.5,29.5 Z" fill="#FBBF24" />
-    <circle cx="74.5" cy="32.5" r="2" fill="#FFFFFF" />
+  
+  <rect width="400" height="100" rx="16" fill="#080E1A" />
+
+  <!-- Logo Mark -->
+  <g transform="translate(24, 18) scale(0.64)">
+    <rect x="16" y="16" width="17" height="68" rx="8.5" fill="url(#l_p1)" />
+    <rect x="67" y="16" width="17" height="68" rx="8.5" fill="url(#l_p3)" />
+    <path d="M 16,24.5 L 75,82.5 C 80,87.5 84,85 84,78 L 84,62 L 25,14.5 C 20.5,10.5 16,13.5 16,19.5 Z" fill="url(#l_p2)" />
+    <path d="M 75.5,21.5 L 78.5,28.5 L 85.5,31.5 L 78.5,34.5 L 75.5,41.5 L 72.5,34.5 L 65.5,31.5 L 72.5,28.5 Z" fill="#FBBF24" />
+    <circle cx="75.5" cy="31.5" r="2.2" fill="#FFFFFF" />
   </g>
-  <g transform="translate(95, 62)">
-    <text font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="900" letter-spacing="2" fill="#FFFFFF">NOOR<tspan fill="url(#mexa_text)">MEXA</tspan></text>
+
+  <!-- Typography Wordmark -->
+  <g transform="translate(102, 60)">
+    <text font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="36" font-weight="900" letter-spacing="2" fill="#FFFFFF">NOOR<tspan fill="url(#mexa_grad)">MEXA</tspan></text>
+    <text x="2" y="18" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="#64748B">GLOBAL SMART COMMERCE</text>
   </g>
 </svg>
