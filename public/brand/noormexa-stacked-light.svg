@@ -1,81 +1,89 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
   <defs>
-    <!-- Luxury Linear Gold Gradient -->
-    <linearGradient id="nmx-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#B88438" />
-      <stop offset="45%" stop-color="#A6742E" />
-      <stop offset="100%" stop-color="#8F6023" />
-    </linearGradient>
-
-    <!-- Soft Depth Shadow -->
-    <filter id="nmx-gold-shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#6A4A1C" flood-opacity="0.15" />
+    <linearGradient id="nmx_light_front_left" x1="20%" y1="0%" x2="90%" y2="100%">
+        <stop offset="0%" stop-color="#020617" />
+        <stop offset="55%" stop-color="#0F172A" />
+        <stop offset="100%" stop-color="#1E293B" />
+      </linearGradient>
+      <linearGradient id="nmx_light_front_right" x1="10%" y1="100%" x2="90%" y2="0%">
+        <stop offset="0%" stop-color="#020617" />
+        <stop offset="60%" stop-color="#0F172A" />
+        <stop offset="100%" stop-color="#1E293B" />
+      </linearGradient>
+    <linearGradient id="nmx_light_shadow_left" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#334155" />
+        <stop offset="40%" stop-color="#64748B" />
+        <stop offset="80%" stop-color="#94A3B8" />
+        <stop offset="100%" stop-color="#CBD5E1" />
+      </linearGradient>
+    <linearGradient id="nmx_light_shadow_right" x1="10%" y1="0%" x2="90%" y2="100%">
+        <stop offset="0%" stop-color="#020617" />
+        <stop offset="30%" stop-color="#1E293B" />
+        <stop offset="70%" stop-color="#475569" />
+        <stop offset="100%" stop-color="#94A3B8" />
+      </linearGradient>
+    <filter id="nmx_light_drop" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.12" />
     </filter>
   </defs>
 
-  <!-- Geometric Luxury 'N' Monogram -->
-  <g id="noormexa-monogram" transform="translate(30, 20)">
+  <!-- Sculpted 3D Ribbon 'N' -->
+  <g id="noormexa-ribbon-symbol" transform="translate(50, 25)">
     
-    <!-- 
-      Monogram Grid:
-      Left column: X = 135 to 195 (Width = 60, Stroke = 20)
-        - Outer line: X = 135 (from Y = 80 to 380)
-        - Bottom bar: Y = 380 (from X = 135 to 195)
-        - Inner line: X = 195 (from Y = 160 to 380)
-      
-      Right column: X = 345 to 405 (Width = 60, Stroke = 20)
-        - Outer line: X = 405 (from Y = 80 to 380)
-        - Top bar: Y = 80 (from X = 345 to 405)
-        - Inner line: X = 345 (from Y = 80 to 300)
-
-      Center Diagonals:
-        - Diagonal 1 (Upper): from (X: 195, Y: 80) down to (X: 345, Y: 280)
-        - Diagonal 2 (Lower): from (X: 195, Y: 180) down to (X: 345, Y: 380)
-    -->
-
-    <!-- Left Outer Vertical Bar -->
-    <rect x="135" y="80" width="20" height="300" rx="1" fill="url(#nmx-gold-grad)" filter="url(#nmx-gold-shadow)" />
-
-    <!-- Left Bottom Horizontal Connector -->
-    <rect x="135" y="360" width="60" height="20" rx="1" fill="url(#nmx-gold-grad)" />
-
-    <!-- Left Inner Vertical Bar -->
-    <rect x="175" y="150" width="20" height="230" rx="1" fill="url(#nmx-gold-grad)" />
-
-    <!-- Upper Main Diagonal Bar (Slope: 45°) -->
-    <polygon 
-      points="175,80 195,80 345,280 345,307 325,307 175,107" 
-      fill="url(#nmx-gold-grad)" 
-      filter="url(#nmx-gold-shadow)"
+    <!-- 1. Left Blade: Inner Dark Gradient Under-Fold -->
+    <path 
+      d="M 268 95 
+         C 235 125 195 210 240 330 
+         C 228 335 214 340 196 345 
+         C 165 240 220 120 268 95 Z" 
+      fill="url(#nmx_light_shadow_left)" 
     />
 
-    <!-- Lower Secondary Diagonal Bar -->
-    <polygon 
-      points="175,153 195,153 345,353 345,380 325,380 175,180" 
-      fill="url(#nmx-gold-grad)" 
-      filter="url(#nmx-gold-shadow)"
+    <!-- 2. Left Blade: Outer Front Light Face -->
+    <path 
+      d="M 196 345 
+         L 196 175 
+         C 196 115 228 95 268 95 
+         C 230 135 205 225 240 330 
+         C 225 338 210 342 196 345 Z" 
+      fill="url(#nmx_light_front_left)" 
+      filter="url(#nmx_light_drop)"
     />
 
-    <!-- Right Inner Vertical Bar -->
-    <rect x="345" y="80" width="20" height="230" rx="1" fill="url(#nmx-gold-grad)" />
+    <!-- 3. Right Blade: Deep Shaded Crease / Inner Underside -->
+    <path 
+      d="M 268 95 
+         C 292 95 316 115 316 175 
+         L 316 270 
+         C 316 310 290 345 252 345 
+         C 290 290 282 165 268 95 Z" 
+      fill="url(#nmx_light_shadow_right)" 
+    />
 
-    <!-- Right Top Horizontal Connector -->
-    <rect x="345" y="80" width="60" height="20" rx="1" fill="url(#nmx-gold-grad)" />
-
-    <!-- Right Outer Vertical Bar -->
-    <rect x="385" y="80" width="20" height="300" rx="1" fill="url(#nmx-gold-grad)" filter="url(#nmx-gold-shadow)" />
+    <!-- 4. Right Blade: Front Light Surface / Sweeping Wing -->
+    <path 
+      d="M 252 345 
+         C 246 320 258 235 285 170 
+         C 296 142 306 120 316 108 
+         C 316 148 316 230 316 270 
+         C 316 312 288 345 252 345 Z" 
+      fill="url(#nmx_light_front_right)" 
+      filter="url(#nmx_light_drop)"
+    />
 
   </g>
 
-  <!-- Master NOORMEXA Wordmark in Luxury Gold -->
+  
+  <!-- Modern Geometric Bold NOORMEXA Wordmark -->
   <text 
     x="300" 
-    y="490" 
+    y="475" 
     text-anchor="middle" 
-    fill="#A6742E" 
+    fill="#0F172A" 
     font-family="system-ui, -apple-system, 'Montserrat', 'Inter', 'Segoe UI', Arial, sans-serif" 
-    font-size="46" 
+    font-size="42" 
     font-weight="900" 
-    letter-spacing="11px"
+    letter-spacing="13px"
   >NOORMEXA</text>
+  
 </svg>

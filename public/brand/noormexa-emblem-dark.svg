@@ -1,46 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" fill="none" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
   <defs>
-    <linearGradient id="nmx-gold-emblem-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D8A869" />
-      <stop offset="45%" stop-color="#C89B5C" />
-      <stop offset="100%" stop-color="#B08346" />
-    </linearGradient>
-    <filter id="nmx-emblem-shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4" />
+    <linearGradient id="nmx_dark_front_left" x1="20%" y1="0%" x2="90%" y2="100%">
+        <stop offset="0%" stop-color="#FFFFFF" />
+        <stop offset="55%" stop-color="#F8FAFC" />
+        <stop offset="100%" stop-color="#E2E8F0" />
+      </linearGradient>
+      <linearGradient id="nmx_dark_front_right" x1="10%" y1="100%" x2="90%" y2="0%">
+        <stop offset="0%" stop-color="#FFFFFF" />
+        <stop offset="60%" stop-color="#F1F5F9" />
+        <stop offset="100%" stop-color="#E2E8F0" />
+      </linearGradient>
+    <linearGradient id="nmx_dark_shadow_left" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#CBD5E1" stop-opacity="0.9" />
+        <stop offset="40%" stop-color="#64748B" stop-opacity="0.95" />
+        <stop offset="80%" stop-color="#1E293B" />
+        <stop offset="100%" stop-color="#020617" />
+      </linearGradient>
+    <linearGradient id="nmx_dark_shadow_right" x1="10%" y1="0%" x2="90%" y2="100%">
+        <stop offset="0%" stop-color="#FFFFFF" />
+        <stop offset="30%" stop-color="#94A3B8" />
+        <stop offset="70%" stop-color="#334155" />
+        <stop offset="100%" stop-color="#020617" />
+      </linearGradient>
+    <filter id="nmx_dark_drop" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5" />
     </filter>
   </defs>
 
-  <g id="noormexa-emblem-symbol" transform="translate(-70, -30)">
-    <!-- Left Outer Vertical Bar -->
-    <rect x="135" y="80" width="20" height="300" rx="1" fill="url(#nmx-gold-emblem-grad)" filter="url(#nmx-emblem-shadow)" />
-
-    <!-- Left Bottom Horizontal Connector -->
-    <rect x="135" y="360" width="60" height="20" rx="1" fill="url(#nmx-gold-emblem-grad)" />
-
-    <!-- Left Inner Vertical Bar -->
-    <rect x="175" y="150" width="20" height="230" rx="1" fill="url(#nmx-gold-emblem-grad)" />
-
-    <!-- Upper Main Diagonal Bar -->
-    <polygon 
-      points="175,80 195,80 345,280 345,307 325,307 175,107" 
-      fill="url(#nmx-gold-emblem-grad)" 
-      filter="url(#nmx-emblem-shadow)"
+  <!-- Sculpted 3D Ribbon 'N' -->
+  <g id="noormexa-ribbon-symbol" transform="translate(50, 25)">
+    
+    <!-- 1. Left Blade: Inner Dark Gradient Under-Fold -->
+    <path 
+      d="M 268 95 
+         C 235 125 195 210 240 330 
+         C 228 335 214 340 196 345 
+         C 165 240 220 120 268 95 Z" 
+      fill="url(#nmx_dark_shadow_left)" 
     />
 
-    <!-- Lower Secondary Diagonal Bar -->
-    <polygon 
-      points="175,153 195,153 345,353 345,380 325,380 175,180" 
-      fill="url(#nmx-gold-emblem-grad)" 
-      filter="url(#nmx-emblem-shadow)"
+    <!-- 2. Left Blade: Outer Front Light Face -->
+    <path 
+      d="M 196 345 
+         L 196 175 
+         C 196 115 228 95 268 95 
+         C 230 135 205 225 240 330 
+         C 225 338 210 342 196 345 Z" 
+      fill="url(#nmx_dark_front_left)" 
+      filter="url(#nmx_dark_drop)"
     />
 
-    <!-- Right Inner Vertical Bar -->
-    <rect x="345" y="80" width="20" height="230" rx="1" fill="url(#nmx-gold-emblem-grad)" />
+    <!-- 3. Right Blade: Deep Shaded Crease / Inner Underside -->
+    <path 
+      d="M 268 95 
+         C 292 95 316 115 316 175 
+         L 316 270 
+         C 316 310 290 345 252 345 
+         C 290 290 282 165 268 95 Z" 
+      fill="url(#nmx_dark_shadow_right)" 
+    />
 
-    <!-- Right Top Horizontal Connector -->
-    <rect x="345" y="80" width="60" height="20" rx="1" fill="url(#nmx-gold-emblem-grad)" />
+    <!-- 4. Right Blade: Front Light Surface / Sweeping Wing -->
+    <path 
+      d="M 252 345 
+         C 246 320 258 235 285 170 
+         C 296 142 306 120 316 108 
+         C 316 148 316 230 316 270 
+         C 316 312 288 345 252 345 Z" 
+      fill="url(#nmx_dark_front_right)" 
+      filter="url(#nmx_dark_drop)"
+    />
 
-    <!-- Right Outer Vertical Bar -->
-    <rect x="385" y="80" width="20" height="300" rx="1" fill="url(#nmx-gold-emblem-grad)" filter="url(#nmx-emblem-shadow)" />
   </g>
+
+  
 </svg>
