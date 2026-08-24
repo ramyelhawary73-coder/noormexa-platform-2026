@@ -29,12 +29,14 @@ function subscribeToLanguage(callback: () => void) {
 }
 
 /**
- * 100% Vector Precision Official NOORMEXA 3D Ribbon 'N' Emblem
- * Master Ribbon Geometry:
- * - Top-left sharp crest (Cubic Bézier smoothly transitioning into a bulbous bottom-left loop)
- * - Deep 3D creased cavity beneath the top fold
- * - Ascending right wing with smooth curved lobe head
- * - Aqua underbelly luminous highlight
+ * 100% Vector Precision Official NOORMEXA Luxury Architectural 'N' Monogram
+ * Exact reproduction of the master brand specification:
+ * - Geometric double-line architectural 'N'
+ * - 180° rotational symmetry
+ * - Left column: open top, closed bottom base connector
+ * - Right column: closed top cap connector, open bottom
+ * - Center traverse: dual parallel precision diagonal bars
+ * - Color: Pure Luxury Gold (#C89B5C / #D4A362 on dark, #A6742E / #8F6023 on light)
  */
 export function NoormexaEmblemSvg({
   size = 40,
@@ -49,153 +51,104 @@ export function NoormexaEmblemSvg({
 }) {
   const uid = useId().replace(/:/g, "_");
 
+  const goldPrimary = isDark ? "#C89B5C" : "#A6742E";
+  const goldSecondary = isDark ? "#D8A869" : "#B88438";
+  const goldDeep = isDark ? "#B08346" : "#8F6023";
+  const shadowColor = isDark ? "#000000" : "#5C3E14";
+  const shadowOpacity = isDark ? 0.45 : 0.16;
+
   if (monochrome) {
-    const monoColor = isDark ? "#ffffff" : "#006d7d";
+    const monoColor = isDark ? "#ffffff" : "#A6742E";
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 460 340"
+        viewBox="0 0 320 320"
         width={size}
-        height={(size * 340) / 460}
+        height={size}
         className={`shrink-0 select-none transition-colors duration-200 ${className}`}
         aria-hidden="true"
         fill="none"
         shapeRendering="geometricPrecision"
-        style={{ width: size, height: (size * 340) / 460, minWidth: size }}
+        style={{ width: size, height: size, minWidth: size }}
       >
-        <g fill={monoColor} transform="translate(-20, 10)">
-          <path d="M 160,35 C 175,35 195,38 210,50 C 225,62 230,85 225,115 C 215,165 175,225 140,265 C 120,288 95,298 75,288 C 55,278 52,250 68,218 C 90,175 125,110 145,60 C 152,42 155,35 160,35 Z" />
-          <path d="M 235,270 C 260,265 295,215 328,150 C 355,95 385,38 420,38 C 445,38 460,58 455,85 C 448,120 405,185 365,240 C 335,280 295,305 260,300 C 245,298 235,285 235,270 Z" />
+        <g fill={monoColor} transform="translate(-110, -70)">
+          <rect x="135" y="80" width="20" height="300" rx="1" />
+          <rect x="135" y="360" width="60" height="20" rx="1" />
+          <rect x="175" y="150" width="20" height="230" rx="1" />
+          <polygon points="175,80 195,80 345,280 345,307 325,307 175,107" />
+          <polygon points="175,153 195,153 345,353 345,380 325,380 175,180" />
+          <rect x="345" y="80" width="20" height="230" rx="1" />
+          <rect x="345" y="80" width="60" height="20" rx="1" />
+          <rect x="385" y="80" width="20" height="300" rx="1" />
         </g>
       </svg>
     );
   }
 
-  const dropShadowColor = isDark ? "#00222a" : "#003743";
-  const shadowOpacity = isDark ? 0.6 : 0.18;
-
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 460 340"
+      viewBox="0 0 320 320"
       width={size}
-      height={(size * 340) / 460}
+      height={size}
       className={`shrink-0 select-none transition-transform duration-200 ${className}`}
       aria-hidden="true"
       fill="none"
       shapeRendering="geometricPrecision"
       textRendering="geometricPrecision"
       preserveAspectRatio="xMidYMid meet"
-      style={{ width: size, height: (size * 340) / 460, minWidth: size }}
+      style={{ width: size, height: size, minWidth: size }}
     >
       <defs>
-        {/* Left Sail Front Gradient (Rich Teal -> Luminous Cyan at top) */}
-        <linearGradient id={`grad_left_${uid}`} x1="0%" y1="100%" x2="50%" y2="0%">
-          <stop offset="0%" stopColor="#005e6e" />
-          <stop offset="25%" stopColor="#007e90" />
-          <stop offset="55%" stopColor="#00a8bc" />
-          <stop offset="85%" stopColor="#24d2e5" />
-          <stop offset="100%" stopColor="#6be6f5" />
+        <linearGradient id={`gold_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={goldSecondary} />
+          <stop offset="45%" stopColor={goldPrimary} />
+          <stop offset="100%" stopColor={goldDeep} />
         </linearGradient>
-
-        {/* Top Left Sharp Beak Highlight */}
-        <linearGradient id={`grad_crest_${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#7bf0fd" />
-          <stop offset="60%" stopColor="#2bd8ec" />
-          <stop offset="100%" stopColor="#009eb0" />
-        </linearGradient>
-
-        {/* Center Deep Crease / 3D Underside Gradient */}
-        <linearGradient id={`grad_crease_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#003c46" />
-          <stop offset="40%" stopColor="#00505d" />
-          <stop offset="75%" stopColor="#007181" />
-          <stop offset="100%" stopColor="#0096a7" />
-        </linearGradient>
-
-        {/* Right Wing Ascending Gradient (Aqua-Cyan Petal) */}
-        <linearGradient id={`grad_right_${uid}`} x1="20%" y1="100%" x2="85%" y2="0%">
-          <stop offset="0%" stopColor="#007c8e" />
-          <stop offset="35%" stopColor="#00a9bd" />
-          <stop offset="70%" stopColor="#22d0e3" />
-          <stop offset="100%" stopColor="#6ae4f3" />
-        </linearGradient>
-
-        {/* Bottom Underbelly Wrap Gradient */}
-        <linearGradient id={`grad_wrap_${uid}`} x1="0%" y1="50%" x2="100%" y2="50%">
-          <stop offset="0%" stopColor="#008a9c" />
-          <stop offset="50%" stopColor="#55dfef" />
-          <stop offset="100%" stopColor="#a2f4fc" />
-        </linearGradient>
-
-        {/* Soft Depth Ambient Shadow */}
-        <filter id={`grad_shadow_${uid}`} x="-15%" y="-15%" width="130%" height="130%">
-          <feDropShadow dx="0" dy={isDark ? 8 : 6} stdDeviation={isDark ? 10 : 8} floodColor={dropShadowColor} floodOpacity={shadowOpacity} />
+        <filter id={`gold_shadow_${uid}`} x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor={shadowColor} floodOpacity={shadowOpacity} />
         </filter>
       </defs>
 
-      <g id="noormexa-vector-mark-sq" transform="translate(-20, 10)">
-        {/* 1. Deep 3D Cavity Underside (Between the two wings) */}
-        <path
-          d="M 160,35 
-             C 200,35 240,65 270,120 
-             C 300,175 320,240 325,270 
-             C 320,270 295,245 275,210 
-             C 245,160 215,95 160,35 Z"
-          fill={`url(#grad_crease_${uid})`}
+      <g id="noormexa-monogram-symbol" transform="translate(-110, -70)">
+        {/* Left Outer Vertical Bar */}
+        <rect x="135" y="80" width="20" height="300" rx="1" fill={`url(#gold_grad_${uid})`} filter={`url(#gold_shadow_${uid})`} />
+
+        {/* Left Bottom Horizontal Connector */}
+        <rect x="135" y="360" width="60" height="20" rx="1" fill={`url(#gold_grad_${uid})`} />
+
+        {/* Left Inner Vertical Bar */}
+        <rect x="175" y="150" width="20" height="230" rx="1" fill={`url(#gold_grad_${uid})`} />
+
+        {/* Upper Main Diagonal Bar */}
+        <polygon 
+          points="175,80 195,80 345,280 345,307 325,307 175,107" 
+          fill={`url(#gold_grad_${uid})`} 
+          filter={`url(#gold_shadow_${uid})`}
         />
 
-        {/* 2. Right Ascending Wing with Rounded Lobe Head */}
-        <path
-          d="M 235,270 
-             C 260,265 295,215 328,150 
-             C 355,95 385,38 420,38 
-             C 445,38 460,58 455,85 
-             C 448,120 405,185 365,240 
-             C 335,280 295,305 260,300 
-             C 245,298 235,285 235,270 Z"
-          fill={`url(#grad_right_${uid})`}
+        {/* Lower Secondary Diagonal Bar */}
+        <polygon 
+          points="175,153 195,153 345,353 345,380 325,380 175,180" 
+          fill={`url(#gold_grad_${uid})`} 
+          filter={`url(#gold_shadow_${uid})`}
         />
 
-        {/* 3. Lower Underbelly Luminous Sweep */}
-        <path
-          d="M 225,272 
-             C 255,290 295,305 340,280 
-             C 350,274 340,265 325,262 
-             C 290,255 255,255 225,272 Z"
-          fill={`url(#grad_wrap_${uid})`}
-          opacity="0.9"
-        />
+        {/* Right Inner Vertical Bar */}
+        <rect x="345" y="80" width="20" height="230" rx="1" fill={`url(#gold_grad_${uid})`} />
 
-        {/* 4. Left Front Main Sail Ribbon (with sharp top crest and bulbous bottom foot) */}
-        <path
-          d="M 160,35 
-             C 175,35 195,38 210,50 
-             C 225,62 230,85 225,115 
-             C 215,165 175,225 140,265 
-             C 120,288 95,298 75,288 
-             C 55,278 52,250 68,218 
-             C 90,175 125,110 145,60 
-             C 152,42 155,35 160,35 Z"
-          fill={`url(#grad_left_${uid})`}
-          filter={`url(#grad_shadow_${uid})`}
-        />
+        {/* Right Top Horizontal Connector */}
+        <rect x="345" y="80" width="60" height="20" rx="1" fill={`url(#gold_grad_${uid})`} />
 
-        {/* 5. Top Crest Sharp Fold Cap Highlight */}
-        <path
-          d="M 160,35 
-             C 175,35 195,38 210,50 
-             C 200,45 185,42 170,42 
-             C 162,42 158,38 160,35 Z"
-          fill={`url(#grad_crest_${uid})`}
-        />
+        {/* Right Outer Vertical Bar */}
+        <rect x="385" y="80" width="20" height="300" rx="1" fill={`url(#gold_grad_${uid})`} filter={`url(#gold_shadow_${uid})`} />
       </g>
     </svg>
   );
 }
 
 /**
- * 1:1 Stacked Official Master Vector Logo (Emblem on Top + Wordmark Below)
+ * 1:1 Stacked Official Master Vector Logo (Monogram on Top + Wordmark Below)
  * Exact representation of the official brand asset in the uploaded image.
  */
 export function NoormexaStackedLogo({
@@ -207,16 +160,16 @@ export function NoormexaStackedLogo({
   isDark?: boolean;
   className?: string;
 }) {
-  const textColor = isDark ? "#ffffff" : "#006d7d";
+  const textColor = isDark ? "#C89B5C" : "#A6742E";
 
   return (
     <div className={`inline-flex flex-col items-center justify-center select-none ${className}`}>
-      <NoormexaEmblemSvg size={width * 0.85} isDark={isDark} />
+      <NoormexaEmblemSvg size={width * 0.7} isDark={isDark} />
       <span
-        className="mt-3.5 uppercase font-black text-xl sm:text-2xl tracking-[0.2em] transition-colors"
+        className="mt-3.5 uppercase font-black text-xl sm:text-2xl tracking-[0.22em] transition-colors"
         style={{
           color: textColor,
-          fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
+          fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', 'Segoe UI', sans-serif",
         }}
       >
         NOORMEXA
@@ -241,9 +194,11 @@ export default function BrandLogo({
   const language = useSyncExternalStore(subscribeToLanguage, getLanguageSnapshot, () => "ar");
   const isArabic = language === "ar";
 
+  const goldTextColor = isDark ? "text-[#C89B5C]" : "text-[#A6742E]";
+
   const config = {
     sm: {
-      iconPx: 32,
+      iconPx: 28,
       textSize: "text-sm sm:text-base",
       letterSpacing: "tracking-[0.14em]",
       arSize: "text-[9px] sm:text-[10px]",
@@ -251,7 +206,7 @@ export default function BrandLogo({
       gap: "gap-2 sm:gap-2.5",
     },
     md: {
-      iconPx: 40,
+      iconPx: 36,
       textSize: "text-base sm:text-lg lg:text-xl",
       letterSpacing: "tracking-[0.16em]",
       arSize: "text-[10px] sm:text-xs",
@@ -259,7 +214,7 @@ export default function BrandLogo({
       gap: "gap-2.5 sm:gap-3",
     },
     lg: {
-      iconPx: 50,
+      iconPx: 46,
       textSize: "text-xl sm:text-2xl",
       letterSpacing: "tracking-[0.18em]",
       arSize: "text-xs sm:text-sm",
@@ -267,7 +222,7 @@ export default function BrandLogo({
       gap: "gap-3 sm:gap-3.5",
     },
     xl: {
-      iconPx: 64,
+      iconPx: 58,
       textSize: "text-2xl sm:text-3xl",
       letterSpacing: "tracking-[0.2em]",
       arSize: "text-sm sm:text-base",
@@ -275,7 +230,7 @@ export default function BrandLogo({
       gap: "gap-3.5 sm:gap-4",
     },
     "2xl": {
-      iconPx: 84,
+      iconPx: 76,
       textSize: "text-3xl sm:text-4xl",
       letterSpacing: "tracking-[0.22em]",
       arSize: "text-base sm:text-lg",
@@ -304,8 +259,8 @@ export default function BrandLogo({
           <span
             className={`mt-2 font-bold px-2 py-0.5 rounded-md ${
               isDark
-                ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
-                : "bg-teal-500/10 text-teal-800 border border-teal-500/20"
+                ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                : "bg-amber-600/10 text-amber-900 border border-amber-600/20"
             } ${config.arSize}`}
             dir="rtl"
           >
@@ -321,9 +276,7 @@ export default function BrandLogo({
     return (
       <div className={`inline-flex items-baseline select-none font-black ${className}`} dir="ltr">
         <span
-          className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} ${
-            isDark ? "text-white" : "text-[#006d7d]"
-          } transition-colors`}
+          className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} ${goldTextColor} transition-colors`}
           style={{
             fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
           }}
@@ -340,7 +293,7 @@ export default function BrandLogo({
       className={`inline-flex items-center select-none group focus:outline-none shrink-0 ${config.gap} ${className}`}
       dir="ltr"
     >
-      {/* 1. Master 3D Vector 'N' Emblem */}
+      {/* 1. Master Architectural Monogram Emblem */}
       <div className="relative shrink-0 transition-transform duration-200 group-hover:scale-105 flex items-center justify-center">
         <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} monochrome={monochrome} />
       </div>
@@ -351,9 +304,7 @@ export default function BrandLogo({
         <div className="flex items-center gap-1.5 sm:gap-2 leading-none">
           <div className="flex items-baseline font-black">
             <span
-              className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} transition-colors ${
-                isDark ? "text-white" : "text-[#006d7d]"
-              }`}
+              className={`uppercase font-black ${config.textSize} ${config.letterSpacing} transition-colors ${goldTextColor}`}
               style={{
                 fontFamily: "system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif",
               }}
@@ -367,8 +318,8 @@ export default function BrandLogo({
             <span
               className={`font-black select-none transition-colors px-1.5 py-0.5 rounded-md ${
                 isDark
-                  ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
-                  : "bg-teal-600/10 text-teal-800 border border-teal-600/20"
+                  ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                  : "bg-amber-600/10 text-amber-900 border border-amber-600/20"
               } ${config.arSize}`}
               dir="rtl"
               style={{ fontFamily: "'Cairo', 'Segoe UI', Tahoma, sans-serif" }}
@@ -387,7 +338,7 @@ export default function BrandLogo({
           >
             <span
               className={`font-bold tracking-tight truncate ${config.taglineSize} ${
-                isDark ? "text-slate-400 group-hover:text-slate-200" : "text-slate-500 group-hover:text-slate-900"
+                isDark ? "text-amber-200/60 group-hover:text-amber-200" : "text-amber-900/60 group-hover:text-amber-900"
               } transition-colors`}
             >
               {isArabic ? "نورك إلى التجارة العالمية الذكية" : "The Beacon of Smart Global Commerce"}
