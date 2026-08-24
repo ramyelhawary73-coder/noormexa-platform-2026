@@ -1,0 +1,18 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 240' width='200' height='240' fill='none'>
+  <rect width='200' height='240' fill='#0f172a' />
+  <!-- Left 4 vertical bars -->
+  <rect x='16' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+  <rect x='32' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+  <rect x='48' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+  <rect x='64' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+
+  <!-- Center Diagonal Parallelogram -->
+  <!-- Starts at top left and ends at bottom right -->
+  <polygon points='75,10 118,10 125,230 82,230' fill='#ffffff' />
+
+  <!-- Right 4 vertical bars -->
+  <rect x='127.5' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+  <rect x='143.5' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+  <rect x='159.5' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+  <rect x='175.5' y='10' width='8.5' height='220' rx='4.25' fill='#ffffff' />
+</svg>

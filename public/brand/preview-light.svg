@@ -1,0 +1,17 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 190' width='160' height='190' fill='none'>
+  <rect width='160' height='190' fill='#f8fafc' rx='16' />
+  <!-- Left 4 vertical bars -->
+  <rect x='12' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+  <rect x='24' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+  <rect x='36' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+  <rect x='48' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+
+  <!-- Diagonal central solid slash -->
+  <polygon points='56.5,10 88.5,10 103.5,180 71.5,180' fill='#09090b' />
+
+  <!-- Right 4 vertical bars -->
+  <rect x='112' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+  <rect x='124' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+  <rect x='136' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+  <rect x='148' y='10' width='6.5' height='170' rx='2.5' fill='#09090b' />
+</svg>

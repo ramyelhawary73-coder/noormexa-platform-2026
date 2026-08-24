@@ -31,12 +31,13 @@ function subscribeToLanguage(callback: () => void) {
 /**
  * 100% Vector Precision SVG Emblem for NOORMEXA
  * Exactly based on the master logo:
- * - 4 vertical rounded pillars on the left
+ * - 4 vertical pillars on the left
  * - Solid geometric diagonal slash in the center
- * - 4 vertical rounded pillars on the right
+ * - 4 vertical pillars on the right
+ * Symmetrical 160x200 canvas
  */
 export function NoormexaEmblemSvg({
-  size = 40,
+  size = 36,
   isDark = true,
   className = "",
   color,
@@ -46,34 +47,35 @@ export function NoormexaEmblemSvg({
   className?: string;
   color?: string;
 }) {
-  // Determine primary glyph color: deep luxury black in light mode, pure crisp white in dark mode
   const glyphColor = color || (isDark ? "#ffffff" : "#09090b");
+  const calculatedHeight = Math.round((size * 200) / 160);
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 200 180"
+      viewBox="0 0 160 200"
       width={size}
-      height={(size * 180) / 200}
+      height={calculatedHeight}
       className={`flex-shrink-0 select-none transition-colors duration-200 ${className}`}
       aria-hidden="true"
       fill="none"
+      style={{ aspectRatio: "160/200" }}
     >
       <g>
-        {/* Left 4 Vertical Bars with Rounded Caps */}
-        <rect x="14.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="28.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="42.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="56.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        {/* Left 4 Vertical Bars */}
+        <rect x="12" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="24" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="36" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="48" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
 
-        {/* Center Diagonal Solid Geometric Parallelogram */}
-        <polygon points="71,8 109,8 129,172 91,172" fill={glyphColor} />
+        {/* Diagonal Central Solid Polygon (N Stroke) */}
+        <polygon points="57,10 91,10 103,190 69,190" fill={glyphColor} />
 
-        {/* Right 4 Vertical Bars with Rounded Caps */}
-        <rect x="136.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="150.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="164.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="178.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        {/* Right 4 Vertical Bars */}
+        <rect x="105.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="117.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="129.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="141.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
       </g>
     </svg>
   );
@@ -84,7 +86,7 @@ export function NoormexaEmblemSvg({
  * Exact representation of the official uploaded brand asset.
  */
 export function NoormexaStackedLogo({
-  width = 240,
+  width = 200,
   isDark = true,
   className = "",
   color,
@@ -95,12 +97,12 @@ export function NoormexaStackedLogo({
   color?: string;
 }) {
   const glyphColor = color || (isDark ? "#ffffff" : "#09090b");
-  const height = (width * 300) / 250;
+  const height = Math.round((width * 360) / 300);
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 250 300"
+      viewBox="0 0 300 360"
       width={width}
       height={height}
       className={`flex-shrink-0 select-none transition-colors duration-200 ${className}`}
@@ -108,30 +110,30 @@ export function NoormexaStackedLogo({
       fill="none"
     >
       {/* Centered Top Emblem */}
-      <g transform="translate(25, 15)">
-        <rect x="14.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="28.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="42.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="56.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+      <g transform="translate(70, 15)">
+        <rect x="12" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="24" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="36" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="48" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
 
-        <polygon points="71,8 109,8 129,172 91,172" fill={glyphColor} />
+        <polygon points="57,10 91,10 103,190 69,190" fill={glyphColor} />
 
-        <rect x="136.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="150.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="164.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
-        <rect x="178.5" y="8" width="7" height="164" rx="3.5" fill={glyphColor} />
+        <rect x="105.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="117.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="129.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
+        <rect x="141.5" y="10" width="6.5" height="180" rx="2.5" fill={glyphColor} />
       </g>
 
       {/* Modern High-Tracking Wordmark NOORMEXA */}
       <text
-        x="125"
-        y="245"
+        x="150"
+        y="280"
         textAnchor="middle"
         fill={glyphColor}
-        fontFamily="system-ui, -apple-system, 'Montserrat', 'Inter', sans-serif"
-        fontSize="30"
-        fontWeight="800"
-        letterSpacing="4px"
+        fontFamily="system-ui, -apple-system, 'Montserrat', 'Inter', 'Arial', sans-serif"
+        fontSize="32"
+        fontWeight="900"
+        letterSpacing="5px"
       >
         NOORMEXA
       </text>
@@ -157,7 +159,7 @@ export default function BrandLogo({
 
   const config = {
     sm: {
-      iconPx: 26,
+      iconPx: 22,
       textSize: "text-sm sm:text-base",
       letterSpacing: "tracking-[0.14em]",
       arSize: "text-[9px] sm:text-[10px]",
@@ -165,7 +167,7 @@ export default function BrandLogo({
       gap: "gap-2 sm:gap-2.5",
     },
     md: {
-      iconPx: 34,
+      iconPx: 28,
       textSize: "text-base sm:text-lg lg:text-xl",
       letterSpacing: "tracking-[0.15em]",
       arSize: "text-[10px] sm:text-xs",
@@ -173,7 +175,7 @@ export default function BrandLogo({
       gap: "gap-2.5 sm:gap-3",
     },
     lg: {
-      iconPx: 44,
+      iconPx: 38,
       textSize: "text-xl sm:text-2xl",
       letterSpacing: "tracking-[0.16em]",
       arSize: "text-xs sm:text-sm",
@@ -181,7 +183,7 @@ export default function BrandLogo({
       gap: "gap-3 sm:gap-3.5",
     },
     xl: {
-      iconPx: 56,
+      iconPx: 48,
       textSize: "text-2xl sm:text-3xl",
       letterSpacing: "tracking-[0.18em]",
       arSize: "text-sm sm:text-base",
@@ -189,7 +191,7 @@ export default function BrandLogo({
       gap: "gap-3.5 sm:gap-4",
     },
     "2xl": {
-      iconPx: 72,
+      iconPx: 64,
       textSize: "text-3xl sm:text-4xl",
       letterSpacing: "tracking-[0.2em]",
       arSize: "text-base sm:text-lg",
@@ -204,7 +206,11 @@ export default function BrandLogo({
       <div
         className={`inline-flex items-center justify-center select-none flex-shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
       >
-        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} color={monochrome ? (isDark ? "#ffffff" : "#000000") : undefined} />
+        <NoormexaEmblemSvg
+          size={config.iconPx}
+          isDark={isDark}
+          color={monochrome ? (isDark ? "#ffffff" : "#000000") : undefined}
+        />
       </div>
     );
   }
@@ -213,10 +219,10 @@ export default function BrandLogo({
   if (variant === "stacked") {
     return (
       <div className={`inline-flex flex-col items-center justify-center select-none ${className}`}>
-        <NoormexaStackedLogo width={config.iconPx * 3.5} isDark={isDark} />
+        <NoormexaStackedLogo width={config.iconPx * 4} isDark={isDark} />
         {showArabicBadge && isArabic && (
           <span
-            className={`mt-1 font-bold px-2 py-0.5 rounded-md ${
+            className={`mt-2 font-bold px-2 py-0.5 rounded-md ${
               isDark
                 ? "bg-white/10 text-white/90 border border-white/15"
                 : "bg-black/5 text-black/80 border border-black/10"
@@ -252,18 +258,22 @@ export default function BrandLogo({
   return (
     <div
       className={`inline-flex items-center select-none group focus:outline-none flex-shrink-0 ${config.gap} ${className}`}
-      dir={isArabic ? "rtl" : "ltr"}
+      dir="ltr"
     >
       {/* 1. Master Vector 'N' Emblem */}
       <div className="relative flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
-        <NoormexaEmblemSvg size={config.iconPx} isDark={isDark} />
+        <NoormexaEmblemSvg
+          size={config.iconPx}
+          isDark={isDark}
+          color={monochrome ? (isDark ? "#ffffff" : "#000000") : undefined}
+        />
       </div>
 
       {/* 2. Brand Identity Typography Lockup */}
       <div className="flex flex-col justify-center min-w-0 text-start leading-tight">
         {/* Main Brand Title Row */}
         <div className="flex items-center gap-1.5 sm:gap-2 leading-none">
-          <div className="flex items-baseline font-black" dir="ltr">
+          <div className="flex items-baseline font-black">
             <span
               className={`uppercase font-extrabold ${config.textSize} ${config.letterSpacing} transition-colors ${
                 isDark ? "text-white" : "text-[#09090b]"

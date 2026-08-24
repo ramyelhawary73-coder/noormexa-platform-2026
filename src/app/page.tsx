@@ -923,8 +923,8 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                 <div className="flex items-start sm:items-center gap-5">
                   {/* Official NOORMEXA Vector Logo Emblem */}
-                  <div className="relative flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
-                    <NoormexaEmblemSvg size={68} isDark={isDark} />
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-surface-soft border border-line flex items-center justify-center p-2.5 flex-shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-xs">
+                    <NoormexaEmblemSvg size={34} isDark={isDark} />
                   </div>
 
                   <div className="space-y-1.5">
@@ -1640,8 +1640,8 @@ export default function HomePage() {
               <div className="w-full max-w-sm rounded-3xl bg-slate-900/90 border border-white/15 p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
                 {/* Floating emblem */}
                 <div className="flex items-center gap-3.5 pb-4 border-b border-white/10">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-orange-500/40 flex items-center justify-center text-white shadow-md shadow-orange-500/30 shrink-0 p-1">
-                    <NoormexaEmblemSvg size={44} isDark={true} />
+                  <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-white/15 flex items-center justify-center text-white shadow-md shrink-0 p-2">
+                    <NoormexaEmblemSvg size={30} isDark={true} />
                   </div>
                   <div>
                     <h3 className="text-base font-black text-white">NOORMEXA App</h3>
