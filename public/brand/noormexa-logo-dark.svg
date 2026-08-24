@@ -1,89 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" width="840" height="200" fill="none" shape-rendering="geometricPrecision">
   <defs>
-    <linearGradient id="nmx_dark_front_left" x1="20%" y1="0%" x2="90%" y2="100%">
-        <stop offset="0%" stop-color="#FFFFFF" />
-        <stop offset="55%" stop-color="#F8FAFC" />
-        <stop offset="100%" stop-color="#E2E8F0" />
-      </linearGradient>
-      <linearGradient id="nmx_dark_front_right" x1="10%" y1="100%" x2="90%" y2="0%">
-        <stop offset="0%" stop-color="#FFFFFF" />
-        <stop offset="60%" stop-color="#F1F5F9" />
-        <stop offset="100%" stop-color="#E2E8F0" />
-      </linearGradient>
-    <linearGradient id="nmx_dark_shadow_left" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#CBD5E1" stop-opacity="0.9" />
-        <stop offset="40%" stop-color="#64748B" stop-opacity="0.95" />
-        <stop offset="80%" stop-color="#1E293B" />
-        <stop offset="100%" stop-color="#020617" />
-      </linearGradient>
-    <linearGradient id="nmx_dark_shadow_right" x1="10%" y1="0%" x2="90%" y2="100%">
-        <stop offset="0%" stop-color="#FFFFFF" />
-        <stop offset="30%" stop-color="#94A3B8" />
-        <stop offset="70%" stop-color="#334155" />
-        <stop offset="100%" stop-color="#020617" />
-      </linearGradient>
-    <filter id="nmx_dark_drop" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5" />
-    </filter>
+    <linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="40%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="p2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EA580C" />
+      <stop offset="50%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
+    <linearGradient id="wm_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EA580C" />
+      <stop offset="60%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
   </defs>
-
-  <!-- Sculpted 3D Ribbon 'N' -->
-  <g id="noormexa-ribbon-symbol" transform="translate(50, 25)">
-    
-    <!-- 1. Left Blade: Inner Dark Gradient Under-Fold -->
-    <path 
-      d="M 268 95 
-         C 235 125 195 210 240 330 
-         C 228 335 214 340 196 345 
-         C 165 240 220 120 268 95 Z" 
-      fill="url(#nmx_dark_shadow_left)" 
-    />
-
-    <!-- 2. Left Blade: Outer Front Light Face -->
-    <path 
-      d="M 196 345 
-         L 196 175 
-         C 196 115 228 95 268 95 
-         C 230 135 205 225 240 330 
-         C 225 338 210 342 196 345 Z" 
-      fill="url(#nmx_dark_front_left)" 
-      filter="url(#nmx_dark_drop)"
-    />
-
-    <!-- 3. Right Blade: Deep Shaded Crease / Inner Underside -->
-    <path 
-      d="M 268 95 
-         C 292 95 316 115 316 175 
-         L 316 270 
-         C 316 310 290 345 252 345 
-         C 290 290 282 165 268 95 Z" 
-      fill="url(#nmx_dark_shadow_right)" 
-    />
-
-    <!-- 4. Right Blade: Front Light Surface / Sweeping Wing -->
-    <path 
-      d="M 252 345 
-         C 246 320 258 235 285 170 
-         C 296 142 306 120 316 108 
-         C 316 148 316 230 316 270 
-         C 316 312 288 345 252 345 Z" 
-      fill="url(#nmx_dark_front_right)" 
-      filter="url(#nmx_dark_drop)"
-    />
-
+  <g transform="translate(10, 10) scale(0.8)">
+    <path d="M 21,80 L 21,32 C 21,20 30,12 42,12 C 49,12 55,16 58,22 C 55,27 49,30 42,30 C 37,30 33,34 33,39 L 33,80 Z" fill="url(#p1)" />
+    <path d="M 26,20 L 74,80 C 78,85 85,85 88,80 C 91,75 88,68 83,62 L 35,2 C 30,-3 23,-3 20,2 C 17,7 20,14 26,20 Z" fill="url(#p2)" />
+    <path d="M 79,20 L 79,68 C 79,80 70,88 58,88 C 51,88 45,84 42,78 C 45,73 51,70 58,70 C 63,70 67,66 67,61 L 67,20 Z" fill="url(#p1)" />
+    <circle cx="50" cy="50" r="6" fill="#FFFFFF" />
+    <circle cx="50" cy="50" r="3.5" fill="#F97316" />
   </g>
-
-  
-  <!-- Modern Geometric Bold NOORMEXA Wordmark -->
-  <text 
-    x="300" 
-    y="475" 
-    text-anchor="middle" 
-    fill="#FFFFFF" 
-    font-family="system-ui, -apple-system, 'Montserrat', 'Inter', 'Segoe UI', Arial, sans-serif" 
-    font-size="42" 
-    font-weight="900" 
-    letter-spacing="13px"
-  >NOORMEXA</text>
-  
+  <g transform="translate(110, 30)">
+    <g fill="#FFFFFF">
+      <path d="M 10,6 L 19,6 L 38,30 L 38,6 L 46,6 L 46,34 L 37,34 L 18,10 L 18,34 L 10,34 Z" />
+      <path fill-rule="evenodd" d="M 64,6 C 74,6 80,12 80,20 C 80,28 74,34 64,34 C 54,34 48,28 48,20 C 48,12 54,6 64,6 Z M 64,13 C 58,13 55,16 55,20 C 55,24 58,27 64,27 C 70,27 73,24 73,20 C 73,16 70,13 64,13 Z" />
+      <path fill-rule="evenodd" d="M 98,6 C 108,6 114,12 114,20 C 114,28 108,34 98,34 C 88,34 82,28 82,20 C 82,12 88,6 98,6 Z M 98,13 C 92,13 89,16 89,20 C 89,24 92,27 98,27 C 104,27 107,24 107,20 C 107,16 104,13 98,13 Z" />
+      <path fill-rule="evenodd" d="M 120,6 L 138,6 C 145,6 149,9 149,15 C 149,19.5 146,22.5 141,23.5 L 150,34 L 140,34 L 132,24 L 127.5,24 L 127.5,34 L 120,34 Z M 127.5,12.5 L 137,12.5 C 140,12.5 141.5,13.5 141.5,15.5 C 141.5,17.5 140,18.5 137,18.5 L 127.5,18.5 Z" />
+    </g>
+    <g fill="url(#wm_grad)">
+      <path d="M 156,6 L 165,6 L 174,21 L 183,6 L 192,6 L 192,34 L 184.5,34 L 184.5,14 L 176.5,26.5 L 171.5,26.5 L 163.5,14 L 163.5,34 L 156,34 Z" />
+      <path d="M 199,6 L 221,6 L 221,12.5 L 206.5,12.5 L 206.5,17 L 219,17 L 219,23 L 206.5,23 L 206.5,27.5 L 221,27.5 L 221,34 L 199,34 Z" />
+      <path d="M 226,6 L 235,6 L 243.5,18 L 252,6 L 261,6 L 249,20 L 261.5,34 L 252.5,34 L 243.5,21.5 L 234.5,34 L 225.5,34 L 238,20 Z" />
+      <path fill-rule="evenodd" d="M 271,6 L 279,6 L 291,34 L 283,34 L 280.5,27.5 L 269.5,27.5 L 267,34 L 259,34 Z M 271.5,22 L 278.5,22 L 275,13 Z" />
+    </g>
+  </g>
 </svg>

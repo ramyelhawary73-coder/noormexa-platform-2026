@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { NoormexaEmblemSvg } from "@/components/BrandLogo";
 
 interface BrandLogoProps {
   brandId: string;
@@ -14,25 +15,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
 
   switch (normalizedId) {
     case "noormexa":
-      return (
-        <svg
-          viewBox="0 0 320 320"
-          className={`${className} shrink-0`}
-          aria-label="NOORMEXA Official Emblem"
-          fill="none"
-        >
-          <path
-            d="M 196 345 L 196 175 C 196 115 228 95 268 95 C 230 135 205 225 240 330 C 225 338 210 342 196 345 Z"
-            fill="currentColor"
-            transform="translate(-115, -50)"
-          />
-          <path
-            d="M 252 345 C 246 320 258 235 285 170 C 296 142 306 120 316 108 C 316 148 316 230 316 270 C 316 312 288 345 252 345 Z"
-            fill="currentColor"
-            transform="translate(-115, -50)"
-          />
-        </svg>
-      );
+      return <NoormexaEmblemSvg size={28} className={`${className} shrink-0`} />;
 
     case "apple":
       return (

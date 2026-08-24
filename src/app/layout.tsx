@@ -11,14 +11,26 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "NOORMEXA | منصة التجارة العالمية الذكية",
-  description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تجارة ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
+  title: "NOORMEXA — التسوق الذكي",
+  description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
   manifest: "/manifest.json",
   applicationName: "NOORMEXA",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "NOORMEXA",
+    title: "NOORMEXA — التسوق الذكي",
+  },
+  openGraph: {
+    title: "NOORMEXA — التسوق الذكي",
+    description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
+    siteName: "NOORMEXA",
+    locale: "ar_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NOORMEXA — التسوق الذكي",
+    description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
   },
   formatDetection: {
     telephone: false,

@@ -1,77 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" fill="none" shape-rendering="geometricPrecision">
   <defs>
-    <linearGradient id="nmx_light_front_left" x1="20%" y1="0%" x2="90%" y2="100%">
-        <stop offset="0%" stop-color="#020617" />
-        <stop offset="55%" stop-color="#0F172A" />
-        <stop offset="100%" stop-color="#1E293B" />
-      </linearGradient>
-      <linearGradient id="nmx_light_front_right" x1="10%" y1="100%" x2="90%" y2="0%">
-        <stop offset="0%" stop-color="#020617" />
-        <stop offset="60%" stop-color="#0F172A" />
-        <stop offset="100%" stop-color="#1E293B" />
-      </linearGradient>
-    <linearGradient id="nmx_light_shadow_left" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#334155" />
-        <stop offset="40%" stop-color="#64748B" />
-        <stop offset="80%" stop-color="#94A3B8" />
-        <stop offset="100%" stop-color="#CBD5E1" />
-      </linearGradient>
-    <linearGradient id="nmx_light_shadow_right" x1="10%" y1="0%" x2="90%" y2="100%">
-        <stop offset="0%" stop-color="#020617" />
-        <stop offset="30%" stop-color="#1E293B" />
-        <stop offset="70%" stop-color="#475569" />
-        <stop offset="100%" stop-color="#94A3B8" />
-      </linearGradient>
-    <filter id="nmx_light_drop" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.12" />
-    </filter>
+    <linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="40%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="p2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EA580C" />
+      <stop offset="50%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
   </defs>
-
-  <!-- Sculpted 3D Ribbon 'N' -->
-  <g id="noormexa-ribbon-symbol" transform="translate(50, 25)">
-    
-    <!-- 1. Left Blade: Inner Dark Gradient Under-Fold -->
-    <path 
-      d="M 268 95 
-         C 235 125 195 210 240 330 
-         C 228 335 214 340 196 345 
-         C 165 240 220 120 268 95 Z" 
-      fill="url(#nmx_light_shadow_left)" 
-    />
-
-    <!-- 2. Left Blade: Outer Front Light Face -->
-    <path 
-      d="M 196 345 
-         L 196 175 
-         C 196 115 228 95 268 95 
-         C 230 135 205 225 240 330 
-         C 225 338 210 342 196 345 Z" 
-      fill="url(#nmx_light_front_left)" 
-      filter="url(#nmx_light_drop)"
-    />
-
-    <!-- 3. Right Blade: Deep Shaded Crease / Inner Underside -->
-    <path 
-      d="M 268 95 
-         C 292 95 316 115 316 175 
-         L 316 270 
-         C 316 310 290 345 252 345 
-         C 290 290 282 165 268 95 Z" 
-      fill="url(#nmx_light_shadow_right)" 
-    />
-
-    <!-- 4. Right Blade: Front Light Surface / Sweeping Wing -->
-    <path 
-      d="M 252 345 
-         C 246 320 258 235 285 170 
-         C 296 142 306 120 316 108 
-         C 316 148 316 230 316 270 
-         C 316 312 288 345 252 345 Z" 
-      fill="url(#nmx_light_front_right)" 
-      filter="url(#nmx_light_drop)"
-    />
-
-  </g>
-
-  
+  <path d="M 21,80 L 21,32 C 21,20 30,12 42,12 C 49,12 55,16 58,22 C 55,27 49,30 42,30 C 37,30 33,34 33,39 L 33,80 Z" fill="url(#p1)" />
+  <path d="M 26,20 L 74,80 C 78,85 85,85 88,80 C 91,75 88,68 83,62 L 35,2 C 30,-3 23,-3 20,2 C 17,7 20,14 26,20 Z" fill="url(#p2)" />
+  <path d="M 79,20 L 79,68 C 79,80 70,88 58,88 C 51,88 45,84 42,78 C 45,73 51,70 58,70 C 63,70 67,66 67,61 L 67,20 Z" fill="url(#p1)" />
+  <circle cx="50" cy="50" r="6" fill="#FFFFFF" />
+  <circle cx="50" cy="50" r="3.5" fill="#F97316" />
 </svg>
