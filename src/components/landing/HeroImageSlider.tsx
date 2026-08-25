@@ -134,8 +134,8 @@ const SLIDES: SlideData[] = [
   },
 ];
 
-const AUTOPLAY_DURATION = 7000; // 7 seconds per slide for calm luxury viewing
-const MORPH_TRANSITION_DURATION = 2200; // 2.2 seconds ultra-smooth fluid morph dissolve
+const AUTOPLAY_DURATION = 6000; // 6 seconds per slide
+const MORPH_TRANSITION_DURATION = 1100; // 1100ms smooth cinematic morph dissolve (cubic-bezier(0.16, 1, 0.3, 1))
 
 type HeroImageSliderProps = {
   language?: "ar" | "en";

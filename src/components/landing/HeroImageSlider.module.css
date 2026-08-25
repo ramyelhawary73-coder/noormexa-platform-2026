@@ -53,24 +53,25 @@
   opacity: 0;
   z-index: 1;
   pointer-events: none;
-  transform: scale(1.05);
-  transition: opacity 2200ms cubic-bezier(0.33, 1, 0.68, 1), transform 6500ms cubic-bezier(0.1, 0.9, 0.2, 1);
+  transform: scale(1.08);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
-/* Active Slide: Dissolves in slowly and continues subtle slow breathing */
+/* Active Slide: تظهر بتلاشي تدريجي (opacity: 1) مع انتقال عكسي من 1.08 إلى 1.0 */
 .slideLayer.active {
   opacity: 1;
   z-index: 3;
   transform: scale(1);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Previous Slide: Stays stable and visible underneath while the new slide melts in */
+/* Previous Slide: تتلاشى بنعومة (opacity: 0) مع تكبير خفيف من 1.0 إلى 1.08 */
 .slideLayer.previous {
-  opacity: 1;
+  opacity: 0;
   z-index: 2;
-  transform: scale(1.02);
-  transition: opacity 2200ms cubic-bezier(0.33, 1, 0.68, 1), transform 3500ms ease-out;
+  transform: scale(1.08);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* High Definition Unobstructed Image */
@@ -152,7 +153,7 @@
 
 /* Fill animation for active slide */
 .indicatorActive .indicatorFill {
-  animation: fillProgress 7000ms linear forwards;
+  animation: fillProgress 6000ms linear forwards;
 }
 
 .indicatorActivePaused .indicatorFill {
