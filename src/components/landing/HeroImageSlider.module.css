@@ -1,14 +1,14 @@
 /* ==========================================================================
    NOORMEXA Cinematic Showcase Slider
-   - 100% Seamless Continuous Crossfade Dissolve (Zero Blank/Flash Frames)
-   - Zero Container Box / Pure Floating Typography & Interactive Controls
-   - Ultra-Crisp High-Definition Visuals
+   - Pure Soft Morph & Dissolve Blend (Ultra-gentle calm transition)
+   - Zero Container Box / Pure Floating Minimalist Layout
+   - Clean Indicators (No distracting playback or arrow buttons)
    ========================================================================== */
 
 .sliderWrapper {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   width: 100%;
 }
 
@@ -21,7 +21,7 @@
   width: 100%;
   border-radius: 26px;
   overflow: hidden;
-  box-shadow: 0 20px 48px -12px rgba(11, 19, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 48px -12px rgba(11, 19, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
   background-color: #0b1322;
   user-select: none;
   touch-action: pan-y pinch-zoom;
@@ -43,7 +43,7 @@
   }
 }
 
-/* Persistent Layer Stack for Imperceptible Dissolve Blending */
+/* Soft, Calm Cinematic Crossfade Morph Layers */
 .slideLayer {
   position: absolute;
   inset: 0;
@@ -53,8 +53,8 @@
   opacity: 0;
   z-index: 1;
   pointer-events: none;
-  transform: scale(1.03);
-  transition: opacity 1200ms cubic-bezier(0.25, 1, 0.5, 1), transform 1400ms cubic-bezier(0.25, 1, 0.5, 1);
+  transform: scale(1.025);
+  transition: opacity 1600ms cubic-bezier(0.4, 0, 0.2, 1), transform 2400ms cubic-bezier(0.25, 1, 0.5, 1);
   will-change: opacity, transform;
 }
 
@@ -67,7 +67,8 @@
 .slideLayer.previous {
   opacity: 1;
   z-index: 2;
-  transform: scale(1);
+  transform: scale(1.01);
+  transition: opacity 1600ms cubic-bezier(0.4, 0, 0.2, 1), transform 2400ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* High Definition Unobstructed Image */
@@ -90,78 +91,30 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0.25rem 0.25rem;
+  padding: 0.15rem 0.1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.75rem;
   width: 100%;
 }
 
-@media (min-width: 640px) {
-  .floatingDock {
-    gap: 1rem;
-  }
-}
-
-/* Navigation & Controls Bar */
-.controlsBar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.navArrow {
-  width: 2.15rem;
-  height: 2.15rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: var(--foreground, #ffffff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-}
-
-:global(.light) .navArrow {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.12);
-  color: #0f172a;
-}
-
-.navArrow:hover {
-  background: #f97316;
-  border-color: #f97316;
-  color: #ffffff;
-  transform: scale(1.08);
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
-}
-
-.navArrow:active {
-  transform: scale(0.95);
-}
-
-/* Indicator Progress Track */
+/* Subtle, Elegant Progress Indicators */
 .indicatorsTrack {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  flex: 1;
+  gap: 0.4rem;
+  width: 120px;
 }
 
 .indicatorPill {
   position: relative;
-  height: 4px;
+  height: 3.5px;
   flex: 1;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.15);
   overflow: hidden;
   cursor: pointer;
-  transition: background 0.3s ease, height 0.2s ease;
+  transition: background 0.3s ease, height 0.2s ease, transform 0.2s ease;
   border: none;
   padding: 0;
 }
@@ -171,7 +124,7 @@
 }
 
 .indicatorPill:hover {
-  height: 6px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.35);
 }
 
@@ -187,7 +140,7 @@
   width: 0%;
   background: linear-gradient(90deg, #f97316, #fbbf24);
   border-radius: 9999px;
-  box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+  box-shadow: 0 0 6px rgba(249, 115, 22, 0.5);
 }
 
 /* Fill animation for active slide */

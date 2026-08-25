@@ -7,11 +7,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  ChevronLeft,
-  ChevronRight,
   Flame,
-  Pause,
-  Play,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -139,6 +135,7 @@ const SLIDES: SlideData[] = [
 ];
 
 const AUTOPLAY_DURATION = 6000; // 6 seconds per slide
+const MORPH_TRANSITION_DURATION = 1600; // 1.6 seconds smooth gentle morph dissolve
 
 type HeroImageSliderProps = {
   language?: "ar" | "en";
@@ -152,7 +149,6 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [userToggledPause, setUserToggledPause] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -168,7 +164,7 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
     });
   }, []);
 
-  // Imperceptible Smooth Crossfade Transition (ZERO Blank Frames)
+  // Calm & Gentle Dissolve Blend Transition (The previous image dissolves gracefully into the new one)
   const changeSlide = useCallback(
     (nextIdx: number) => {
       if (nextIdx === currentIndex) return;
@@ -181,10 +177,10 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
         clearTimeout(prevTimeoutRef.current);
       }
 
-      // Keep previous layer active during the 1200ms crossfade duration
+      // Keep previous layer active during the full 1600ms gentle dissolve
       prevTimeoutRef.current = setTimeout(() => {
         setPrevIndex(null);
-      }, 1200);
+      }, MORPH_TRANSITION_DURATION);
     },
     [currentIndex]
   );
@@ -201,7 +197,7 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
 
   // Autoplay Loop (6s cycle)
   useEffect(() => {
-    if (isPaused || userToggledPause) {
+    if (isPaused) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -213,7 +209,7 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused, userToggledPause, nextSlide]);
+  }, [isPaused, nextSlide]);
 
   // Touch Handlers for Mobile Swipe
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -245,12 +241,10 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
 
   const currentSlide = SLIDES[currentIndex];
   const CurrentBadgeIcon = currentSlide.badgeIcon;
-  const DirectionArrowNext = isAr ? ChevronLeft : ChevronRight;
-  const DirectionArrowPrev = isAr ? ChevronRight : ChevronLeft;
 
   return (
     <div className={styles.sliderWrapper}>
-      {/* 1. Pure Clean Image Screen - 100% Free of any buttons, badges or text */}
+      {/* 1. Pure Clean Image Screen - 100% Free of any buttons, badges, or overlays */}
       <div
         className={styles.imageScreen}
         onMouseEnter={() => setIsPaused(true)}
@@ -290,9 +284,9 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
         })}
       </div>
 
-      {/* 2. Pure Floating Typography & Interactive Controls (Zero Container Box) */}
+      {/* 2. Pure Floating Typography & Interactive Controls (Zero Container Box, Zero Arrow/Pause Buttons) */}
       <div className={styles.floatingDock}>
-        {/* Header Row: Floating Badge + Stat + Navigation Tools */}
+        {/* Header Row: Floating Badge + Stat + Minimal Progress Indicator */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           {/* Badge & Stat Chips */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -309,68 +303,33 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
             )}
           </div>
 
-          {/* Floating Controls (Progress Indicator Track + Nav Buttons) */}
-          <div className={styles.controlsBar}>
-            {/* Progress Track */}
-            <div className={styles.indicatorsTrack} aria-label={isAr ? "مؤشرات الشرائح" : "Slide progress"}>
-              {SLIDES.map((slide, idx) => {
-                const isPillActive = idx === currentIndex;
-                const isPillPast = idx < currentIndex;
-                const isEffectivelyPaused = isPaused || userToggledPause;
+          {/* Minimalist Progress Indicators */}
+          <div className={styles.indicatorsTrack} aria-label={isAr ? "مؤشرات الشرائح" : "Slide progress"}>
+            {SLIDES.map((slide, idx) => {
+              const isPillActive = idx === currentIndex;
+              const isPillPast = idx < currentIndex;
 
-                return (
-                  <button
-                    key={slide.id}
-                    type="button"
-                    onClick={() => changeSlide(idx)}
-                    className={`${styles.indicatorPill} ${
-                      isPillActive
-                        ? isEffectivelyPaused
-                          ? `${styles.indicatorActive} ${styles.indicatorActivePaused}`
-                          : styles.indicatorActive
-                        : isPillPast
-                        ? styles.indicatorFilled
-                        : ""
-                    }`}
-                    aria-label={`${isAr ? "الشريحة" : "Slide"} ${idx + 1}`}
-                    title={isAr ? slide.arTitle : slide.enTitle}
-                  >
-                    <div key={`${idx}-${progressKey}`} className={styles.indicatorFill} />
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Nav Arrows & Play/Pause */}
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setUserToggledPause((p) => !p)}
-                className={styles.navArrow}
-                aria-label={userToggledPause ? (isAr ? "تشغيل" : "Play") : isAr ? "إيقاف مؤقت" : "Pause"}
-                title={userToggledPause ? (isAr ? "تشغيل" : "Play") : isAr ? "إيقاف مؤقت" : "Pause"}
-              >
-                {userToggledPause ? <Play size={12} className="fill-current" /> : <Pause size={12} />}
-              </button>
-
-              <button
-                type="button"
-                onClick={prevSlide}
-                className={styles.navArrow}
-                aria-label={isAr ? "الشريحة السابقة" : "Previous slide"}
-              >
-                <DirectionArrowPrev size={15} />
-              </button>
-
-              <button
-                type="button"
-                onClick={nextSlide}
-                className={styles.navArrow}
-                aria-label={isAr ? "الشريحة التالية" : "Next slide"}
-              >
-                <DirectionArrowNext size={15} />
-              </button>
-            </div>
+              return (
+                <button
+                  key={slide.id}
+                  type="button"
+                  onClick={() => changeSlide(idx)}
+                  className={`${styles.indicatorPill} ${
+                    isPillActive
+                      ? isPaused
+                        ? `${styles.indicatorActive} ${styles.indicatorActivePaused}`
+                        : styles.indicatorActive
+                      : isPillPast
+                      ? styles.indicatorFilled
+                      : ""
+                  }`}
+                  aria-label={`${isAr ? "الشريحة" : "Slide"} ${idx + 1}`}
+                  title={isAr ? slide.arTitle : slide.enTitle}
+                >
+                  <div key={`${idx}-${progressKey}`} className={styles.indicatorFill} />
+                </button>
+              );
+            })}
           </div>
         </div>
 
