@@ -710,51 +710,121 @@ export default function Navbar() {
 
       {/* 4. Sleek Mobile Slide-Down Drawer */}
       {open && (
-        <div className="relative z-40 lg:hidden border-t border-line bg-surface/98 dark:bg-[#0b1322]/98 backdrop-blur-2xl px-4 py-6 shadow-2xl animate-in slide-in-from-top-3 duration-200">
-          <div className="max-w-md mx-auto space-y-4">
+        <div className="relative z-40 lg:hidden border-t border-line bg-surface/98 dark:bg-[#0b1322]/98 backdrop-blur-2xl px-4 py-5 shadow-2xl animate-in slide-in-from-top-3 duration-200 max-h-[85vh] overflow-y-auto">
+          <div className="max-w-md mx-auto space-y-3.5">
             
-            {/* VIP Site Owner & Admin Management Box */}
-            <div className="p-4 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-foreground font-black text-xs">
-                  <Crown size={16} className="text-orange-500" />
-                  <span>{isAr ? "لوحة تحكم صاحب الموقع والإدارة" : "Site Owner & Admin Center"}</span>
+            {/* User Account / Welcome Header Card */}
+            {user ? (
+              <div className="p-3.5 rounded-2xl bg-surface-soft dark:bg-slate-900/90 border border-line shadow-xs space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 via-amber-500 to-yellow-400 text-white font-black flex items-center justify-center text-sm shadow-xs shrink-0">
+                      {avatarLetter}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-black text-foreground truncate max-w-[140px]">{displayName}</span>
+                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                          isAdmin
+                            ? "bg-amber-500/20 text-amber-600 dark:text-amber-400"
+                            : isSeller
+                            ? "bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                            : "bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                        }`}>
+                          {roleBadgeLabel}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-muted truncate font-mono">{user.email}</div>
+                    </div>
+                  </div>
+
+                  {/* Clean Integrated Sign-Out Button in Mobile Header */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-[11px] font-black transition-all cursor-pointer shrink-0 active:scale-95"
+                    title={text.logout}
+                  >
+                    <LogOut size={13} />
+                    <span>{text.logout}</span>
+                  </button>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
-                  {isAr ? "متاح بالكامل" : "Full Access"}
-                </span>
+
+                {/* Role-Specific Quick Hub Actions */}
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-line/60">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-surface dark:bg-slate-800 border border-line hover:border-orange-500/50 text-foreground font-black text-xs shadow-xs text-center"
+                  >
+                    <UserRound size={13} className="text-orange-500" />
+                    <span>{text.dashboard}</span>
+                  </Link>
+
+                  {isAdmin ? (
+                    <Link
+                      href="/admin"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs text-center"
+                    >
+                      <Crown size={13} />
+                      <span>{text.adminHub}</span>
+                    </Link>
+                  ) : isSeller ? (
+                    <Link
+                      href="/seller/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs text-center"
+                    >
+                      <StoreIcon size={13} />
+                      <span>{text.sellerHub}</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/auth/choose-role"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-gradient-to-r from-orange-500/15 to-amber-500/15 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-black text-xs shadow-xs text-center"
+                    >
+                      <StoreIcon size={13} className="text-orange-500" />
+                      <span>{isAr ? "افتح متجرك وابدأ البيع" : "Become Seller"}</span>
+                    </Link>
+                  )}
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+            ) : (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border border-orange-500/30 shadow-xs flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-black text-foreground">
+                    {isAr ? "مرحباً بك في NOORMEXA" : "Welcome to NOORMEXA"}
+                  </div>
+                  <div className="text-[10px] text-muted">
+                    {isAr ? "سجّل دخولك للوصول إلى طلباتك وعروضك" : "Sign in to access orders and perks"}
+                  </div>
+                </div>
                 <Link
-                  href="/admin"
+                  href="/auth"
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs text-center"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 !text-white font-black text-xs shadow-xs hover:scale-102 transition-transform shrink-0"
                 >
-                  <ShieldCheck size={14} />
-                  <span>{isAr ? "مركز الإدارة الشامل" : "Super Admin"}</span>
-                </Link>
-                <Link
-                  href="/seller/dashboard"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-surface dark:bg-slate-800 border border-line hover:border-slate-400 text-foreground font-black text-xs shadow-xs text-center"
-                >
-                  <StoreIcon size={14} className="text-orange-500" />
-                  <span>{isAr ? "بوابة التجار والمتجر" : "Seller Portal"}</span>
+                  {isAr ? "دخول / تسجيل" : "Sign In"}
                 </Link>
               </div>
-            </div>
+            )}
 
             {/* Controls Bar in Mobile Menu (Currency, Language, Theme) */}
-            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-3">
+            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-muted">{isAr ? "العملة المفضلة:" : "Currency:"}</span>
+                <span className="text-[11px] font-bold text-muted">{isAr ? "العملة المفضلة:" : "Currency:"}</span>
                 <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] no-scrollbar">
                   {currencyList.slice(0, 4).map((c) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setCurrency(c)}
-                      className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
                         currency === c
                           ? "bg-orange-500 text-white shadow-xs"
                           : "bg-surface dark:bg-slate-800 text-muted hover:text-foreground border border-line"
@@ -767,12 +837,12 @@ export default function Navbar() {
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-line/60">
-                <span className="text-xs font-bold text-muted">{isAr ? "اللغة والمظهر:" : "Language & Theme:"}</span>
+                <span className="text-[11px] font-bold text-muted">{isAr ? "اللغة والمظهر:" : "Language & Theme:"}</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={toggleLanguage}
-                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground"
+                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground cursor-pointer active:scale-95"
                   >
                     <Globe2 size={13} className="text-orange-500" />
                     <span>{isAr ? "EN" : "عربي"}</span>
@@ -780,10 +850,14 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={toggleTheme}
-                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground"
+                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground cursor-pointer active:scale-95"
                   >
-                    {theme === "dark" ? <Sun size={13} className="text-orange-400" /> : <Moon size={13} />}
-                    <span>{theme === "dark" ? "نهار" : "ليل"}</span>
+                    {theme === "dark" ? (
+                      <Sun size={13} className="text-amber-400 fill-amber-400/20" />
+                    ) : (
+                      <Moon size={13} className="text-slate-600" />
+                    )}
+                    <span>{theme === "dark" ? (isAr ? "نهار" : "Light") : (isAr ? "ليل" : "Dark")}</span>
                   </button>
                 </div>
               </div>
@@ -841,7 +915,7 @@ export default function Navbar() {
             </div>
 
             {/* Quick Links List */}
-            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-2 text-xs font-bold">
+            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-1.5 text-xs font-bold">
               {/* Install App Trigger in Mobile Drawer */}
               <button
                 type="button"
@@ -861,18 +935,6 @@ export default function Navbar() {
               </button>
 
               <Link
-                href={user ? "/dashboard" : "/auth"}
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-between p-2 rounded-xl hover:bg-surface dark:hover:bg-slate-800 text-foreground"
-              >
-                <span className="flex items-center gap-2">
-                  <UserRound size={16} className="text-orange-500" />
-                  <span>{user ? text.dashboard : text.account}</span>
-                </span>
-                <span className="text-[10px] text-muted">{user ? "نشط" : "تسجيل"}</span>
-              </Link>
-
-              <Link
                 href="/marketplace?wishlist=true"
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-between p-2 rounded-xl hover:bg-surface dark:hover:bg-slate-800 text-foreground"
@@ -889,17 +951,6 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Logout on mobile */}
-            {user && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full py-2.5 px-4 rounded-xl border border-red-500/30 text-red-500 bg-red-500/5 hover:bg-red-500/10 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-              >
-                <LogOut size={15} />
-                <span>{text.logout}</span>
-              </button>
-            )}
           </div>
         </div>
       )}

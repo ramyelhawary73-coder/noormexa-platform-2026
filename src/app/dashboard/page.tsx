@@ -2,21 +2,42 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   BarChart3,
-  Image as ImageIcon,
+  CheckCircle2,
+  Crown,
+  Globe,
+  Heart,
+  Key,
   LayoutGrid,
+  LogOut,
+  Mail,
+  MapPin,
   Package,
   Pencil,
+  Phone,
   Plus,
+  RefreshCw,
+  Save,
   Settings,
+  Shield,
+  ShieldCheck,
   ShoppingBag,
+  Sparkles,
   Store as StoreIcon,
   Trash2,
-  X,
+  Truck,
+  User,
+  UserCheck,
+  UserRound,
+  AlertCircle,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
+import { useMarketplace } from "@/context/MarketplaceContext";
+import { getUserRole } from "@/lib/authHelpers";
+import { supabase } from "@/lib/supabaseClient";
 import {
   getStoreOrders,
   updateOrderStatus,
@@ -34,42 +55,72 @@ import {
   updateStoreProfile,
   uploadProductImage,
   uploadStoreImage,
-  type Announcement,
 } from "@/lib/marketplace";
 import type { Category, Product, Store } from "@/types/marketplace";
 
 const copy = {
   ar: {
-    loginPrompt: "لازم تسجل الدخول الأول عشان توصل للوحة التحكم.",
+    loginPrompt: "يجب تسجيل الدخول أولاً للوصول إلى لوحة التحكم وحسابك الشخصي.",
     loginCta: "تسجيل الدخول",
-    createStoreTitle: "أنشئ متجرك",
-    createStoreText: "خطوة واحدة وابدأ تعرض منتجاتك للعالم.",
-    customerBlockedTitle: "الصفحة دي مخصصة للبائعين والمتاجر",
-    customerBlockedText: "حسابك مسجّل كمتسوق. لو عايز تبيع منتجاتك، تقدر تغيّر نوع حسابك.",
-    switchToSeller: "أنا عايز أبيع كمان",
-    browseInstead: "تصفح السوق",
+    profileTitle: "الملف الشخصي وإدارة الحساب",
+    profileSubtitle: "تحكم في بياناتك الشخصية، تتبع طلباتك، أمان الحساب وإعدادات التاجر",
+    logoutBtn: "تسجيل الخروج",
+    logoutConfirmTitle: "هل أنت متأكد من تسجيل الخروج؟",
+    logoutConfirmDesc: "يمكنك إعادة تسجيل الدخول في أي وقت ببيانات اعتمادك.",
+    confirmLogout: "نعم، خروج",
+    cancel: "إلغاء",
+    personalInfoTab: "بياناتي الشخصية",
+    ordersTab: "طلباتي وتتبع الشحنات",
+    securityTab: "الأمان وكلمة المرور",
+    sellerPortalTab: "إدارة متجري والمنتجات",
+    becomeSellerTab: "الترقية لحساب تاجر",
+    fullName: "الاسم الكامل",
+    emailAddress: "البريد الإلكتروني",
+    phoneNumber: "رقم الهاتف",
+    cityAddress: "المدينة / العنوان",
+    preferredCurrency: "العملة المفضلة",
+    saveChanges: "حفظ التعديلات",
+    saving: "جارٍ الحفظ...",
+    savedSuccess: "تم تحديث بيانات ملفك الشخصي بنجاح!",
+    accountSecurity: "حماية وأمان الحساب",
+    securityDesc: "حسابك محمي بنظام التشفير السحابي والتحقق المزدوج من NOORMEXA.",
+    resetPassword: "إعادة تعيين كلمة المرور",
+    resetPasswordDesc: "سنرسل لك رابطاً آمناً عبر بريدك الإلكتروني لتعيين كلمة مرور جديدة.",
+    sendResetLink: "إرسال رابط إعادة التعيين",
+    resetLinkSent: "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح.",
+    myOrdersTitle: "سجل طلباتي ومشترياتي",
+    viewAllOrders: "استعراض جميع الطلبات مع التتبع المباشر",
+    noCustomerOrders: "لم تقم بإجراء أي طلبات حتى الآن. استكشف آلاف المنتجات والعروض في السوق!",
+    browseMarket: "تصفح السوق الآن",
+    wishlistStat: "قائمة المفضلة",
+    ordersStat: "إجمالي الطلبات",
+    walletStat: "نقاط المكافآت",
+    securityStat: "حالة الحساب",
+    verifiedShopper: "عضو متسوق موثق",
+    verifiedSeller: "تاجر معتمد",
+    superAdmin: "مالك المنصة (Super Admin)",
+    becomeSellerTitle: "هل تريد بيع منتجاتك في NOORMEXA؟",
+    becomeSellerDesc: "انضم إلى آلاف التجار والبراندات في أكبر منصة تجارة إلكترونية ذكية واستفد من ملايين الزوار وتغطية الشحن الشاملة.",
+    createStoreTitle: "إنشاء وتفعيل المتجر",
     storeName: "اسم المتجر",
-    storeDesc: "وصف قصير عن المتجر",
-    createStoreBtn: "إنشاء المتجر",
-    genericError: "حصل خطأ غير متوقع، جرّب تاني بعد شوية.",
+    storeDesc: "وصف المتجر",
+    createStoreBtn: "إنشاء المتجر فوراً",
+    genericError: "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.",
     dashboardTitle: "لوحة تحكم المتجر",
     pendingNotice: "متجرك حاليًا قيد المراجعة من إدارة المنصة. هتقدر تعرض منتجاتك، لكن هتظهر للعملاء بعد الموافقة.",
-    suspendedNotice: "متجرك موقوف مؤقتًا من إدارة المنصة. تواصل مع الدعم لمزيد من التفاصيل.",
-    yourProducts: "منتجاتك",
-    addProduct: "إضافة منتج",
+    yourProducts: "منتجات متجرك",
+    addProduct: "إضافة منتج جديد",
     productName: "اسم المنتج",
     productDesc: "وصف المنتج",
-    productPrice: "السعر (ج.م)",
+    productPrice: "السعر",
     productStock: "الكمية المتاحة",
     productImage: "صورة المنتج",
     uploading: "جاري رفع الصورة...",
-    uploadHint: "JPG أو PNG، حتى 5 ميجا",
-    changeImage: "تغيير الصورة",
     productCategory: "التصنيف",
     saveProduct: "حفظ المنتج",
-    noProducts: "لسه معملتش أي منتجات. ضيف أول منتج من الفورم فوق.",
-    ordersTitle: "طلبات متجري",
-    noOrders: "لسه معملتش أي طلب.",
+    noProducts: "لا توجد منتجات حتى الآن. أضف أول منتج من النموذج أعلاه.",
+    ordersTitle: "طلبات متجري المستلمة",
+    noOrders: "لا توجد طلبات مستلمة حتى الآن.",
     orderNumber: "طلب رقم",
     total: "الإجمالي",
     currency: "ج.م",
@@ -84,17 +135,16 @@ const copy = {
     show: "إظهار",
     delete: "حذف",
     price: "ج.م",
-    saving: "جارٍ الحفظ...",
     tabOverview: "نظرة عامة",
     tabSettings: "إعدادات المتجر",
     tabProducts: "المنتجات",
-    tabOrders: "الطلبات",
+    tabOrders: "طلبات المتجر",
     statRevenue: "إجمالي المبيعات",
     statOrders: "إجمالي الطلبات",
     statPending: "طلبات قيد المراجعة",
     statProducts: "المنتجات",
     settingsTitle: "هوية متجرك",
-    settingsHint: "الاسم، الوصف، الشعار، والبانر اللي بيشوفه العملاء فى صفحة متجرك.",
+    settingsHint: "الاسم، الوصف، الشعار، والبانر الذي يظهر للعملاء في صفحة متجرك.",
     logoLabel: "شعار المتجر",
     bannerLabel: "بانر المتجر (صورة عريضة)",
     saveSettings: "حفظ التعديلات",
@@ -104,41 +154,72 @@ const copy = {
     saveEdit: "حفظ التعديل",
   },
   en: {
-    loginPrompt: "You need to sign in first to access the dashboard.",
-    loginCta: "Sign in",
-    createStoreTitle: "Create your store",
-    createStoreText: "One step and you're ready to show your products to the world.",
-    customerBlockedTitle: "This page is for sellers and stores",
-    customerBlockedText: "Your account is registered as a shopper. If you want to sell, you can switch your account type.",
-    switchToSeller: "I want to sell too",
-    browseInstead: "Browse the market",
-    storeName: "Store name",
-    storeDesc: "Short store description",
-    createStoreBtn: "Create store",
-    genericError: "Something went wrong, please try again shortly.",
-    dashboardTitle: "Store dashboard",
+    loginPrompt: "You need to sign in first to access your profile and dashboard.",
+    loginCta: "Sign In",
+    profileTitle: "User Profile & Account Hub",
+    profileSubtitle: "Manage your personal information, track orders, security, and seller options",
+    logoutBtn: "Sign Out",
+    logoutConfirmTitle: "Are you sure you want to sign out?",
+    logoutConfirmDesc: "You can sign back in anytime using your registered credentials.",
+    confirmLogout: "Yes, Sign Out",
+    cancel: "Cancel",
+    personalInfoTab: "Personal Information",
+    ordersTab: "Orders & Live Tracking",
+    securityTab: "Security & Credentials",
+    sellerPortalTab: "My Store & Products",
+    becomeSellerTab: "Upgrade to Seller",
+    fullName: "Full Name",
+    emailAddress: "Email Address",
+    phoneNumber: "Phone Number",
+    cityAddress: "City / Address",
+    preferredCurrency: "Preferred Currency",
+    saveChanges: "Save Changes",
+    saving: "Saving...",
+    savedSuccess: "Your profile information has been updated successfully!",
+    accountSecurity: "Account Security & Protection",
+    securityDesc: "Your account is secured with NOORMEXA Cloud encryption and 2FA protocols.",
+    resetPassword: "Reset Password",
+    resetPasswordDesc: "We will send a secure link to your email to configure a new password.",
+    sendResetLink: "Send Reset Link",
+    resetLinkSent: "Password reset instructions have been sent to your email.",
+    myOrdersTitle: "My Orders & Purchase History",
+    viewAllOrders: "View All Orders with Live GPS Tracking",
+    noCustomerOrders: "You have not placed any orders yet. Discover thousands of trending products and deals!",
+    browseMarket: "Browse Marketplace",
+    wishlistStat: "Wishlist Items",
+    ordersStat: "Total Orders",
+    walletStat: "Reward Points",
+    securityStat: "Account Status",
+    verifiedShopper: "Verified Shopper",
+    verifiedSeller: "Certified Seller",
+    superAdmin: "Platform Owner (Super Admin)",
+    becomeSellerTitle: "Want to sell products on NOORMEXA?",
+    becomeSellerDesc: "Join thousands of sellers and verified brands on the premier smart commerce platform and expand your reach.",
+    createStoreTitle: "Create Your Store",
+    storeName: "Store Name",
+    storeDesc: "Store Description",
+    createStoreBtn: "Create Store Now",
+    genericError: "An unexpected error occurred. Please try again shortly.",
+    dashboardTitle: "Store Dashboard",
     pendingNotice: "Your store is under review by the platform team. You can add products, but they'll be visible to customers after approval.",
-    suspendedNotice: "Your store is temporarily suspended by the platform team. Contact support for details.",
-    yourProducts: "Your products",
-    addProduct: "Add product",
-    productName: "Product name",
-    productDesc: "Product description",
-    productPrice: "Price (EGP)",
-    productStock: "Stock",
-    productImage: "Product image",
+    yourProducts: "Your Products",
+    addProduct: "Add New Product",
+    productName: "Product Name",
+    productDesc: "Product Description",
+    productPrice: "Price",
+    productStock: "Stock Quantity",
+    productImage: "Product Image",
     uploading: "Uploading image...",
-    uploadHint: "JPG or PNG, up to 5MB",
-    changeImage: "Change image",
     productCategory: "Category",
-    saveProduct: "Save product",
-    noProducts: "No products yet. Add your first one from the form above.",
-    ordersTitle: "Store orders",
-    noOrders: "No orders yet.",
-    orderNumber: "Order",
+    saveProduct: "Save Product",
+    noProducts: "No products added yet. Add your first product from the form above.",
+    ordersTitle: "Store Orders",
+    noOrders: "No orders received yet.",
+    orderNumber: "Order #",
     total: "Total",
     currency: "EGP",
     orderStatus: {
-      pending: "Pending review",
+      pending: "Pending Review",
       paid: "Paid",
       shipped: "Shipped",
       completed: "Delivered",
@@ -148,32 +229,56 @@ const copy = {
     show: "Show",
     delete: "Delete",
     price: "EGP",
-    saving: "Saving...",
     tabOverview: "Overview",
-    tabSettings: "Store settings",
+    tabSettings: "Store Settings",
     tabProducts: "Products",
-    tabOrders: "Orders",
-    statRevenue: "Total sales",
-    statOrders: "Total orders",
-    statPending: "Pending review",
+    tabOrders: "Store Orders",
+    statRevenue: "Total Sales",
+    statOrders: "Total Orders",
+    statPending: "Pending Review",
     statProducts: "Products",
-    settingsTitle: "Your store identity",
-    settingsHint: "Name, description, logo, and banner customers see on your store page.",
-    logoLabel: "Store logo",
-    bannerLabel: "Store banner (wide image)",
-    saveSettings: "Save changes",
-    settingsSaved: "Your store details were saved.",
+    settingsTitle: "Store Identity",
+    settingsHint: "Name, description, logo, and banner visible to customers on your store page.",
+    logoLabel: "Store Logo",
+    bannerLabel: "Store Banner (wide image)",
+    saveSettings: "Save Changes",
+    settingsSaved: "Store details saved successfully.",
     editProduct: "Edit",
     cancelEdit: "Cancel",
-    saveEdit: "Save changes",
+    saveEdit: "Save Changes",
   },
 } as const;
 
 export default function DashboardPage() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const { user, profile, loading: authLoading, signOut, refreshProfile } = useAuth();
   const language = useNoormexaLanguage();
+  const isAr = language === "ar";
   const text = copy[language];
+  const { wishlist, currency, setCurrency } = useMarketplace();
 
+  const userRole = getUserRole(user, profile);
+  const isAdmin = userRole === "admin";
+  const isSeller = userRole === "seller";
+
+  // Logout modal state
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // Profile Edit State
+  const initialName = (profile?.full_name as string) || (user?.user_metadata?.full_name as string) || "";
+  const initialPhone = (profile?.phone as string) || (user?.user_metadata?.phone as string) || "";
+  const initialAddress = (profile?.city as string) || (profile?.address as string) || "";
+
+  const [editFullName, setEditFullName] = useState(initialName);
+  const [editPhone, setEditPhone] = useState(initialPhone);
+  const [editAddress, setEditAddress] = useState(initialAddress);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState("");
+  const [resetSuccessMsg, setResetSuccessMsg] = useState("");
+  const [resetSending, setResetSending] = useState(false);
+
+  // Store Management State
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -194,10 +299,11 @@ export default function DashboardPage() {
   const [uploadError, setUploadError] = useState("");
   const [productCategory, setProductCategory] = useState("");
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
 
-  const [activeTab, setActiveTab] = useState<"overview" | "settings" | "products" | "orders">("overview");
+  // Navigation tab state
+  const [profileTab, setProfileTab] = useState<"profile" | "orders" | "security" | "seller">("profile");
+  const [sellerTab, setSellerTab] = useState<"overview" | "settings" | "products" | "orders">("overview");
 
   const [settingsName, setSettingsName] = useState("");
   const [settingsDesc, setSettingsDesc] = useState("");
@@ -207,28 +313,25 @@ export default function DashboardPage() {
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState("");
-  const [settingsLoadedFor, setSettingsLoadedFor] = useState<string | null>(null);
 
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
-  const [editDesc, setEditDesc] = useState("");
   const [editPrice, setEditPrice] = useState("");
-  const [editStock, setEditStock] = useState("");
-  const [editCategory, setEditCategory] = useState("");
-  const [editImage, setEditImage] = useState("");
-  const [editUploading, setEditUploading] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     let active = true;
     Promise.all([getMyStore(user.id), getCategories(), getAnnouncements()]).then(
-      async ([s, cats, ann]) => {
+      async ([s, cats]) => {
         if (!active) return;
         setStore(s);
         setCategories(cats);
-        setAnnouncements(ann);
         if (s) {
+          setSettingsName(s.name);
+          setSettingsDesc(s.description || "");
+          setSettingsLogo(s.logo_url || "");
+          setSettingsBanner(s.banner_url || "");
           const [prods, storeOrders] = await Promise.all([getMyProducts(s.id), getStoreOrders(s.id)]);
           if (active) {
             setProducts(prods);
@@ -243,21 +346,61 @@ export default function DashboardPage() {
     };
   }, [user]);
 
-  useEffect(() => {
-    if (!store || settingsLoadedFor === store.id) return;
-    let active = true;
-    Promise.resolve().then(() => {
-      if (!active) return;
-      setSettingsName(store.name);
-      setSettingsDesc(store.description || "");
-      setSettingsLogo(store.logo_url || "");
-      setSettingsBanner(store.banner_url || "");
-      setSettingsLoadedFor(store.id);
-    });
-    return () => {
-      active = false;
-    };
-  }, [store, settingsLoadedFor]);
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+      router.push("/");
+    } catch {
+      setLoggingOut(false);
+    }
+  };
+
+  const handleSaveProfile = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setProfileSaving(true);
+    setProfileSuccessMsg("");
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: editFullName.trim(),
+          phone: editPhone.trim(),
+          city: editAddress.trim(),
+        })
+        .eq("id", user.id);
+
+      if (!error) {
+        await refreshProfile();
+        setProfileSuccessMsg(text.savedSuccess);
+        setTimeout(() => setProfileSuccessMsg(""), 4000);
+      }
+    } catch {
+      // Ignored
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!user?.email || resetSending) return;
+    setResetSending(true);
+    setResetSuccessMsg("");
+
+    try {
+      await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      setResetSuccessMsg(text.resetLinkSent);
+      setTimeout(() => setResetSuccessMsg(""), 6000);
+    } catch {
+      // Ignored
+    } finally {
+      setResetSending(false);
+    }
+  };
 
   const handleOrderStatusChange = async (orderId: string, status: OrderStatus) => {
     const ok = await updateOrderStatus(orderId, status);
@@ -278,8 +421,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // لو فشل الإنشاء (مثلاً لأن متجر اتعمل بالفعل لنفس الحساب من محاولة
-    // سابقة)، نجيب المتجر الموجود فعليًا بدل ما نسيب المستخدم عالق.
     const existing = await getMyStore(user.id);
     setSaving(false);
     if (existing) {
@@ -381,34 +522,17 @@ export default function DashboardPage() {
   const handleStartEdit = (product: Product) => {
     setEditingProductId(product.id);
     setEditName(product.name);
-    setEditDesc(product.description || "");
     setEditPrice(String(product.price));
-    setEditStock(String(product.stock));
-    setEditCategory(product.category_id || "");
-    setEditImage(product.image_url || "");
   };
 
   const handleCancelEdit = () => setEditingProductId(null);
-
-  const handleEditImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user) return;
-    setEditUploading(true);
-    const { url } = await uploadProductImage(file, user.id);
-    setEditUploading(false);
-    if (url) setEditImage(url);
-  };
 
   const handleSaveEdit = async (productId: string) => {
     if (!editName.trim() || !editPrice) return;
     setEditSaving(true);
     const { product } = await updateProduct(productId, {
       name: editName.trim(),
-      description: editDesc.trim() || null,
       price: Number(editPrice),
-      stock: Number(editStock) || 0,
-      category_id: editCategory || null,
-      image_url: editImage || null,
     });
     setEditSaving(false);
     if (product) {
@@ -419,79 +543,45 @@ export default function DashboardPage() {
 
   if (authLoading || checking) {
     return (
-      <main className="noormexa-main">
-        <section className="noormexa-section" />
+      <main className="min-h-screen bg-surface-soft/60 dark:bg-slate-950 flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3 text-muted">
+          <RefreshCw className="animate-spin text-orange-500" size={32} />
+          <span className="text-sm font-bold">{isAr ? "جارٍ تحميل حسابك..." : "Loading your profile..."}</span>
+        </div>
       </main>
     );
   }
 
   if (!user) {
     return (
-      <main className="noormexa-main">
-        <section className="noormexa-section">
-          <div className="noormexa-container noormexa-empty-state">
-            <p>{text.loginPrompt}</p>
-            <Link href="/auth" className="noormexa-primary-button">
-              {text.loginCta}
-            </Link>
+      <main className="min-h-[75vh] flex items-center justify-center p-6 bg-surface-soft/40 dark:bg-slate-950">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xl text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-orange-500/10 text-orange-500 mx-auto flex items-center justify-center">
+            <UserRound size={32} />
           </div>
-        </section>
+          <div className="space-y-2">
+            <h1 className="text-xl font-black text-foreground">{text.profileTitle}</h1>
+            <p className="text-xs text-muted leading-relaxed">{text.loginPrompt}</p>
+          </div>
+          <Link
+            href="/auth"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 !text-white font-black text-sm shadow-md transition-all active:scale-98"
+          >
+            <UserRound size={16} />
+            <span>{text.loginCta}</span>
+          </Link>
+        </div>
       </main>
     );
   }
 
-  if (!store) {
-    const accountType = (profile?.account_type as string | undefined) ?? "customer";
+  const displayName =
+    (profile?.full_name as string) ||
+    (user.user_metadata?.full_name as string) ||
+    user.email?.split("@")[0] ||
+    "User";
 
-    if (accountType === "customer") {
-      return (
-        <main className="noormexa-main">
-          <section className="noormexa-section">
-            <div className="noormexa-container noormexa-empty-state">
-              <StoreIcon size={32} />
-              <h1>{text.customerBlockedTitle}</h1>
-              <p>{text.customerBlockedText}</p>
-              <div className="noormexa-empty-state-actions">
-                <Link href="/auth/choose-role" className="noormexa-primary-button">
-                  {text.switchToSeller}
-                </Link>
-                <Link href="/" className="noormexa-pill-button">
-                  {text.browseInstead}
-                </Link>
-              </div>
-            </div>
-          </section>
-        </main>
-      );
-    }
-
-    return (
-      <main className="noormexa-main">
-        <section className="noormexa-section">
-          <div className="noormexa-container noormexa-dashboard-form-card">
-            <div className="noormexa-section-heading">
-              <h1>{text.createStoreTitle}</h1>
-              <p>{text.createStoreText}</p>
-            </div>
-            <form onSubmit={handleCreateStore} className="noormexa-form">
-              <label className="noormexa-field" htmlFor="storeName">
-                <span>{text.storeName}</span>
-                <input id="storeName" value={storeName} onChange={(e) => setStoreName(e.target.value)} required />
-              </label>
-              <label className="noormexa-field" htmlFor="storeDesc">
-                <span>{text.storeDesc}</span>
-                <textarea id="storeDesc" value={storeDesc} onChange={(e) => setStoreDesc(e.target.value)} rows={3} />
-              </label>
-              {storeError && <p className="noormexa-form-error">{storeError}</p>}
-              <button type="submit" className="noormexa-primary-button" disabled={saving}>
-                {saving ? text.saving : text.createStoreBtn}
-              </button>
-            </form>
-          </div>
-        </section>
-      </main>
-    );
-  }
+  const avatarInitial = displayName.charAt(0).toUpperCase();
 
   const totalRevenue = orders
     .filter((o) => o.status === "paid" || o.status === "shipped" || o.status === "completed")
@@ -499,348 +589,910 @@ export default function DashboardPage() {
   const pendingOrdersCount = orders.filter((o) => o.status === "pending").length;
 
   return (
-    <main className="noormexa-main">
-      <section className="noormexa-section">
-        <div className="noormexa-container">
-          <div className="noormexa-store-header">
-            <span className="noormexa-card-icon">
-              <StoreIcon size={26} />
-            </span>
-            <div>
-              <h1>{store.name}</h1>
-              <p>{text.dashboardTitle}</p>
+    <main className="min-h-screen bg-surface-soft/40 dark:bg-slate-950 text-foreground pb-20 transition-colors">
+      
+      {/* 1. Header Profile Banner */}
+      <section className="bg-surface dark:bg-[#090f1d] border-b border-line pt-8 pb-8 px-4 sm:px-6 lg:px-10">
+        <div className="max-w-6xl mx-auto space-y-6">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            {/* User Details */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-orange-500 via-amber-500 to-yellow-400 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg border-2 border-white/20">
+                  {avatarInitial}
+                </div>
+                <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-emerald-500 border-2 border-surface dark:border-slate-900 flex items-center justify-center text-[9px] text-white font-bold" title="Online">
+                  ✓
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black text-foreground">{displayName}</h1>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 ${
+                    isAdmin
+                      ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+                      : isSeller
+                      ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30"
+                      : "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30"
+                  }`}>
+                    {isAdmin && <Crown size={12} />}
+                    {isSeller && <StoreIcon size={12} />}
+                    {!isAdmin && !isSeller && <UserCheck size={12} />}
+                    <span>{isAdmin ? text.superAdmin : isSeller ? text.verifiedSeller : text.verifiedShopper}</span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted font-mono flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <Mail size={13} className="text-orange-500" />
+                    <span>{user.email}</span>
+                  </span>
+                  {initialPhone && (
+                    <span className="flex items-center gap-1">
+                      <Phone size={13} className="text-emerald-500" />
+                      <span>{initialPhone}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Top Action Buttons (Admin / Seller / Sign Out) */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-xs shadow-xs transition-all"
+                >
+                  <Crown size={14} />
+                  <span>{isAr ? "مركز الإدارة الشامل" : "Super Admin"}</span>
+                </Link>
+              )}
+
+              {isSeller && (
+                <Link
+                  href="/seller/dashboard"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold text-xs shadow-xs transition-all"
+                >
+                  <StoreIcon size={14} />
+                  <span>{isAr ? "بوابة التجار" : "Seller Portal"}</span>
+                </Link>
+              )}
+
+              {/* Master Sign-Out Button */}
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 dark:text-red-400 font-black text-xs transition-all cursor-pointer active:scale-95 shadow-xs"
+                title={text.logoutBtn}
+              >
+                <LogOut size={15} />
+                <span>{text.logoutBtn}</span>
+              </button>
             </div>
           </div>
 
-          {store.status === "pending" && <div className="noormexa-status-banner noormexa-status-pending">{text.pendingNotice}</div>}
-          {store.status === "suspended" && <div className="noormexa-status-banner noormexa-status-suspended">{text.suspendedNotice}</div>}
+          {/* Quick Stats Banner */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <Link
+              href="/orders"
+              className="p-3.5 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line hover:border-orange-500/50 transition-all flex items-center justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold text-muted">{text.ordersStat}</div>
+                <div className="text-lg font-black text-foreground">{orders.length > 0 ? orders.length : "0"}</div>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
+                <Truck size={18} />
+              </div>
+            </Link>
 
-          {announcements
-            .filter((a) => {
-              const accountType = (profile?.account_type as string | undefined) ?? "";
-              if (a.audience === "all") return true;
-              if (a.audience === "sellers") return accountType === "seller";
-              if (a.audience === "stores") return accountType === "store";
-              if (a.audience === "advertisers") return accountType === "advertiser";
-              return false;
-            })
-            .map((a) => (
-              <div key={a.id} className="noormexa-status-banner noormexa-status-announcement">
-                <strong>{a.title}</strong>
-                <p>{a.body}</p>
+            <Link
+              href="/marketplace?wishlist=true"
+              className="p-3.5 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line hover:border-red-500/50 transition-all flex items-center justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold text-muted">{text.wishlistStat}</div>
+                <div className="text-lg font-black text-foreground">{wishlist.length}</div>
               </div>
-            ))}
+              <div className="w-9 h-9 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center">
+                <Heart size={18} />
+              </div>
+            </Link>
 
-          <div className="noormexa-seller-tabs">
-            <button type="button" className={activeTab === "overview" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("overview")}>
-              <BarChart3 size={16} />
-              {text.tabOverview}
-            </button>
-            <button type="button" className={activeTab === "settings" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("settings")}>
-              <Settings size={16} />
-              {text.tabSettings}
-            </button>
-            <button type="button" className={activeTab === "products" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("products")}>
-              <LayoutGrid size={16} />
-              {text.tabProducts}
-            </button>
-            <button type="button" className={activeTab === "orders" ? "noormexa-seller-tab-active" : ""} onClick={() => setActiveTab("orders")}>
-              <ShoppingBag size={16} />
-              {text.tabOrders}
-            </button>
-          </div>
-
-          {activeTab === "overview" && (
-            <div className="noormexa-stats-grid noormexa-admin-stats-grid">
-              <div className="noormexa-stat-card">
-                <strong>
-                  {totalRevenue.toFixed(2)} {text.currency}
-                </strong>
-                <span>{text.statRevenue}</span>
+            <div className="p-3.5 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line flex items-center justify-between">
+              <div>
+                <div className="text-[11px] font-bold text-muted">{text.walletStat}</div>
+                <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">100 {isAr ? "نقطة" : "Pts"}</div>
               </div>
-              <div className="noormexa-stat-card">
-                <strong>{orders.length}</strong>
-                <span>{text.statOrders}</span>
-              </div>
-              <div className="noormexa-stat-card">
-                <strong>{pendingOrdersCount}</strong>
-                <span>{text.statPending}</span>
-              </div>
-              <div className="noormexa-stat-card">
-                <strong>{products.length}</strong>
-                <span>{text.statProducts}</span>
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                <Sparkles size={18} />
               </div>
             </div>
+
+            <div className="p-3.5 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line flex items-center justify-between">
+              <div>
+                <div className="text-[11px] font-bold text-muted">{text.securityStat}</div>
+                <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">{isAr ? "محمي وموثق" : "Protected"}</div>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                <ShieldCheck size={18} />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 2. Main Navigation Tabs & Contents */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 mt-6">
+        
+        {/* Navigation Tabs Bar */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-line pb-3">
+          <button
+            type="button"
+            onClick={() => setProfileTab("profile")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs transition-all cursor-pointer shrink-0 ${
+              profileTab === "profile"
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-surface dark:bg-slate-900 text-muted hover:text-foreground border border-line"
+            }`}
+          >
+            <User size={15} />
+            <span>{text.personalInfoTab}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setProfileTab("orders")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs transition-all cursor-pointer shrink-0 ${
+              profileTab === "orders"
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-surface dark:bg-slate-900 text-muted hover:text-foreground border border-line"
+            }`}
+          >
+            <Truck size={15} />
+            <span>{text.ordersTab}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setProfileTab("security")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs transition-all cursor-pointer shrink-0 ${
+              profileTab === "security"
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-surface dark:bg-slate-900 text-muted hover:text-foreground border border-line"
+            }`}
+          >
+            <Shield size={15} />
+            <span>{text.securityTab}</span>
+          </button>
+
+          {isSeller || store ? (
+            <button
+              type="button"
+              onClick={() => setProfileTab("seller")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs transition-all cursor-pointer shrink-0 ${
+                profileTab === "seller"
+                  ? "bg-orange-500 text-white shadow-md"
+                  : "bg-surface dark:bg-slate-900 text-muted hover:text-foreground border border-line"
+              }`}
+            >
+              <StoreIcon size={15} />
+              <span>{text.sellerPortalTab}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setProfileTab("seller")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs transition-all cursor-pointer shrink-0 ${
+                profileTab === "seller"
+                  ? "bg-orange-500 text-white shadow-md"
+                  : "bg-surface dark:bg-slate-900 text-muted hover:text-foreground border border-line"
+              }`}
+            >
+              <StoreIcon size={15} />
+              <span>{text.becomeSellerTab}</span>
+            </button>
           )}
+        </div>
 
-          {activeTab === "settings" && (
-            <div className="noormexa-dashboard-form-card">
-              <div className="noormexa-section-heading">
-                <h2>{text.settingsTitle}</h2>
-                <p>{text.settingsHint}</p>
+        {/* Tab 1: Personal Profile Information */}
+        {profileTab === "profile" && (
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-5">
+              <div className="space-y-1 border-b border-line pb-3">
+                <h2 className="text-base font-black text-foreground">{text.personalInfoTab}</h2>
+                <p className="text-xs text-muted">{text.profileSubtitle}</p>
               </div>
-              <form onSubmit={handleSaveSettings} className="noormexa-form noormexa-form-grid">
-                <label className="noormexa-field noormexa-form-full">
-                  <span>{text.storeName}</span>
-                  <input value={settingsName} onChange={(e) => setSettingsName(e.target.value)} required />
-                </label>
-                <label className="noormexa-field noormexa-form-full">
-                  <span>{text.storeDesc}</span>
-                  <textarea rows={3} value={settingsDesc} onChange={(e) => setSettingsDesc(e.target.value)} />
-                </label>
-                <label className="noormexa-field">
-                  <span>{text.logoLabel}</span>
-                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoUpload} disabled={uploadingLogo} />
-                  {uploadingLogo && <small className="noormexa-muted-text">{text.uploading}</small>}
-                  {settingsLogo && !uploadingLogo && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={settingsLogo} alt="" className="noormexa-image-preview" />
-                  )}
-                </label>
-                <label className="noormexa-field">
-                  <span>{text.bannerLabel}</span>
-                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleBannerUpload} disabled={uploadingBanner} />
-                  {uploadingBanner && <small className="noormexa-muted-text">{text.uploading}</small>}
-                  {settingsBanner && !uploadingBanner && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={settingsBanner} alt="" className="noormexa-banner-preview" />
-                  )}
-                </label>
-                <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={settingsSaving}>
-                  <ImageIcon size={16} />
-                  {settingsSaving ? text.saving : text.saveSettings}
-                </button>
-                {settingsMessage && <p className="noormexa-form-message success">{settingsMessage}</p>}
+
+              {profileSuccessMsg && (
+                <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle2 size={16} />
+                  <span>{profileSuccessMsg}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">{text.fullName}</label>
+                    <div className="relative">
+                      <User size={16} className="absolute start-3 top-3 text-muted" />
+                      <input
+                        type="text"
+                        value={editFullName}
+                        onChange={(e) => setEditFullName(e.target.value)}
+                        className="w-full ps-9 pe-4 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                        placeholder={isAr ? "أدخل اسمك الكامل" : "Enter your full name"}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">{text.emailAddress}</label>
+                    <div className="relative">
+                      <Mail size={16} className="absolute start-3 top-3 text-muted" />
+                      <input
+                        type="email"
+                        value={user.email || ""}
+                        disabled
+                        className="w-full ps-9 pe-4 py-2.5 rounded-xl bg-surface-soft/60 dark:bg-slate-800/50 border border-line text-xs font-medium text-muted cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">{text.phoneNumber}</label>
+                    <div className="relative">
+                      <Phone size={16} className="absolute start-3 top-3 text-muted" />
+                      <input
+                        type="tel"
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        className="w-full ps-9 pe-4 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                        placeholder="01xxxxxxxxx / +966..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">{text.cityAddress}</label>
+                    <div className="relative">
+                      <MapPin size={16} className="absolute start-3 top-3 text-muted" />
+                      <input
+                        type="text"
+                        value={editAddress}
+                        onChange={(e) => setEditAddress(e.target.value)}
+                        className="w-full ps-9 pe-4 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                        placeholder={isAr ? "القاهرة، المعادي / الرياض..." : "City, district, address"}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-line flex items-center justify-end">
+                  <button
+                    type="submit"
+                    disabled={profileSaving}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    <Save size={15} />
+                    <span>{profileSaving ? text.saving : text.saveChanges}</span>
+                  </button>
+                </div>
               </form>
             </div>
-          )}
 
-          {activeTab === "products" && (
-            <>
-          <div className="noormexa-dashboard-form-card">
-            <div className="noormexa-section-heading">
-              <h2>{text.addProduct}</h2>
-            </div>
-            <form onSubmit={handleAddProduct} className="noormexa-form noormexa-form-grid">
-              <label className="noormexa-field" htmlFor="productName">
-                <span>{text.productName}</span>
-                <input id="productName" value={productName} onChange={(e) => setProductName(e.target.value)} required />
-              </label>
-              <label className="noormexa-field" htmlFor="productCategory">
-                <span>{text.productCategory}</span>
-                <select id="productCategory" value={productCategory} onChange={(e) => setProductCategory(e.target.value)}>
-                  <option value="">—</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {language === "ar" ? cat.name_ar : cat.name_en}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="noormexa-field" htmlFor="productPrice">
-                <span>{text.productPrice}</span>
-                <input
-                  id="productPrice"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={productPrice}
-                  onChange={(e) => setProductPrice(e.target.value)}
-                  required
-                />
-              </label>
-              <label className="noormexa-field" htmlFor="productStock">
-                <span>{text.productStock}</span>
-                <input
-                  id="productStock"
-                  type="number"
-                  min="0"
-                  value={productStock}
-                  onChange={(e) => setProductStock(e.target.value)}
-                />
-              </label>
-              <label className="noormexa-field noormexa-form-full" htmlFor="productImage">
-                <span>{text.productImage}</span>
-                <input
-                  id="productImage"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={handleImageChange}
-                  disabled={uploadingImage}
-                />
-                <small className="noormexa-muted-text">{text.uploadHint}</small>
-                {uploadingImage && <small className="noormexa-muted-text">{text.uploading}</small>}
-                {uploadError && <small className="noormexa-danger-text">{uploadError}</small>}
-                {productImage && !uploadingImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={productImage} alt="" className="noormexa-image-preview" />
-                )}
-              </label>
-              <label className="noormexa-field noormexa-form-full" htmlFor="productDesc">
-                <span>{text.productDesc}</span>
-                <textarea id="productDesc" value={productDesc} onChange={(e) => setProductDesc(e.target.value)} rows={3} />
-              </label>
-              <button type="submit" className="noormexa-primary-button noormexa-form-full" disabled={saving}>
-                <Plus size={17} />
-                {saving ? text.saving : text.saveProduct}
-              </button>
-            </form>
-          </div>
+            {/* Quick Preferences Card */}
+            <div className="space-y-4">
+              <div className="p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-4">
+                <h3 className="text-xs font-black text-foreground flex items-center gap-2">
+                  <Globe size={16} className="text-orange-500" />
+                  <span>{isAr ? "تفضيلات العرض والتسوق" : "Preferences"}</span>
+                </h3>
 
-          <div className="noormexa-section-heading">
-            <h2>{text.yourProducts}</h2>
-          </div>
-
-          {products.length === 0 ? (
-            <div className="noormexa-empty-state">
-              <Package size={32} />
-              <p>{text.noProducts}</p>
-            </div>
-          ) : (
-            <div className="noormexa-product-grid">
-              {products.map((product) =>
-                editingProductId === product.id ? (
-                  <div key={product.id} className="noormexa-product-card noormexa-product-edit-card">
-                    <label className="noormexa-field">
-                      <span>{text.productName}</span>
-                      <input value={editName} onChange={(e) => setEditName(e.target.value)} required />
-                    </label>
-                    <label className="noormexa-field">
-                      <span>{text.productPrice}</span>
-                      <input type="number" min="0" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} required />
-                    </label>
-                    <label className="noormexa-field">
-                      <span>{text.productStock}</span>
-                      <input type="number" min="0" value={editStock} onChange={(e) => setEditStock(e.target.value)} />
-                    </label>
-                    <label className="noormexa-field">
-                      <span>{text.productCategory}</span>
-                      <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
-                        <option value="">—</option>
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {language === "ar" ? cat.name_ar : cat.name_en}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="noormexa-field">
-                      <span>{text.productImage}</span>
-                      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleEditImageChange} disabled={editUploading} />
-                      {editImage && !editUploading && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={editImage} alt="" className="noormexa-image-preview" />
-                      )}
-                    </label>
-                    <label className="noormexa-field noormexa-form-full">
-                      <span>{text.productDesc}</span>
-                      <textarea rows={2} value={editDesc} onChange={(e) => setEditDesc(e.target.value)} />
-                    </label>
-                    <div className="noormexa-product-manage-actions">
-                      <button type="button" className="noormexa-primary-button" disabled={editSaving} onClick={() => handleSaveEdit(product.id)}>
-                        {editSaving ? text.saving : text.saveEdit}
-                      </button>
-                      <button type="button" onClick={handleCancelEdit}>
-                        <X size={15} />
-                        {text.cancelEdit}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={product.id} className="noormexa-product-card noormexa-product-card-manage">
-                    <div className="noormexa-product-image">
-                      {product.image_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={product.image_url} alt={product.name} />
-                      ) : (
-                        <Package size={28} />
-                      )}
-                    </div>
-                    <div className="noormexa-product-info">
-                      <span>{product.name}</span>
-                      <strong>
-                        {product.price} {text.price}
-                      </strong>
-                    </div>
-                    <div className="noormexa-product-manage-actions">
-                      <button type="button" onClick={() => handleStartEdit(product)}>
-                        <Pencil size={15} />
-                        {text.editProduct}
-                      </button>
-                      <button type="button" onClick={() => toggleProductVisibility(product)}>
-                        {product.status === "active" ? text.hide : text.show}
-                      </button>
-                      <button type="button" onClick={() => removeProduct(product)} className="noormexa-danger-button">
-                        <Trash2 size={15} />
-                        {text.delete}
-                      </button>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          )}
-            </>
-          )}
-        </div>
-      </section>
-
-      {activeTab === "orders" && (
-      <section className="noormexa-section noormexa-section-soft">
-        <div className="noormexa-container">
-          <div className="noormexa-section-heading">
-            <h2>{text.ordersTitle}</h2>
-          </div>
-
-          {orders.length === 0 ? (
-            <p className="noormexa-empty-state">{text.noOrders}</p>
-          ) : (
-            <div className="noormexa-orders-list">
-              {orders.map((order) => (
-                <div key={order.id} className="noormexa-order-card">
-                  <div className="noormexa-order-card-header">
-                    <span>
-                      {text.orderNumber} #{order.id.slice(0, 8)}
-                    </span>
-                    <select
-                      value={order.status}
-                      onChange={(e) => handleOrderStatusChange(order.id, e.target.value as OrderStatus)}
-                    >
-                      {Object.entries(text.orderStatus).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted">{text.preferredCurrency}</span>
+                    <div className="flex items-center gap-1">
+                      {(["EGP", "SAR", "AED", "USD"] as const).map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setCurrency(c)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                            currency === c
+                              ? "bg-orange-500 text-white shadow-xs"
+                              : "bg-surface-soft dark:bg-slate-800 text-muted hover:text-foreground border border-line"
+                          }`}
+                        >
+                          {c}
+                        </button>
                       ))}
-                    </select>
-                  </div>
-                  <ul className="noormexa-order-items-list">
-                    {order.items?.map((item) => (
-                      <li key={item.id}>
-                        {item.product_name} × {item.quantity}
-                      </li>
-                    ))}
-                  </ul>
-                  {order.shipping_name && (
-                    <div className="noormexa-shipping-info">
-                      <strong>{order.shipping_name}</strong>
-                      <span>{order.shipping_phone}</span>
-                      <span>
-                        {order.shipping_address}
-                        {order.shipping_city ? `، ${order.shipping_city}` : ""}
-                      </span>
-                      {order.shipping_notes && <span className="noormexa-muted-text">{order.shipping_notes}</span>}
                     </div>
-                  )}
-                  <strong>
-                    {text.total}: {order.total_amount} {text.currency}
-                  </strong>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Dedicated Sign Out Box */}
+              <div className="p-5 rounded-3xl bg-red-500/5 dark:bg-red-950/20 border border-red-500/20 space-y-3">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-black text-xs">
+                  <LogOut size={16} />
+                  <span>{text.logoutBtn}</span>
+                </div>
+                <p className="text-[11px] text-muted leading-relaxed">
+                  {isAr
+                    ? "هل ترغب في إنهاء جلستك الحالية على هذا الجهاز؟"
+                    : "End your current session on this device securely."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutModal(true)}
+                  className="w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-black text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                >
+                  {text.logoutBtn}
+                </button>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Tab 2: Orders & Live Shipment Tracking */}
+        {profileTab === "orders" && (
+          <div className="mt-6 p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-5">
+            <div className="flex items-center justify-between flex-wrap gap-3 border-b border-line pb-3">
+              <div>
+                <h2 className="text-base font-black text-foreground">{text.myOrdersTitle}</h2>
+                <p className="text-xs text-muted">{text.viewAllOrders}</p>
+              </div>
+              <Link
+                href="/orders"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-black text-xs transition-colors"
+              >
+                <Truck size={14} />
+                <span>{text.viewAllOrders}</span>
+              </Link>
+            </div>
+
+            <div className="text-center py-10 space-y-4">
+              <div className="w-16 h-16 rounded-3xl bg-orange-500/10 text-orange-500 mx-auto flex items-center justify-center">
+                <Package size={32} />
+              </div>
+              <div className="max-w-md mx-auto space-y-1">
+                <h3 className="text-sm font-black text-foreground">{text.noCustomerOrders}</h3>
+                <p className="text-xs text-muted">{isAr ? "يمكنك تتبع شحناتك الحية وطباعة فواتيرك فور تأكيد أي طلب." : "Track live deliveries and print invoices anytime."}</p>
+              </div>
+              <Link
+                href="/marketplace"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-md transition-all"
+              >
+                <ShoppingBag size={15} />
+                <span>{text.browseMarket}</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Security & Credentials */}
+        {profileTab === "security" && (
+          <div className="mt-6 max-w-2xl mx-auto p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-6">
+            <div className="space-y-1 border-b border-line pb-3">
+              <h2 className="text-base font-black text-foreground flex items-center gap-2">
+                <ShieldCheck size={20} className="text-emerald-500" />
+                <span>{text.accountSecurity}</span>
+              </h2>
+              <p className="text-xs text-muted">{text.securityDesc}</p>
+            </div>
+
+            {resetSuccessMsg && (
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 size={16} />
+                <span>{resetSuccessMsg}</span>
+              </div>
+            )}
+
+            <div className="p-5 rounded-2xl bg-surface-soft dark:bg-slate-800 border border-line space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                  <Key size={18} />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-black text-foreground">{text.resetPassword}</div>
+                  <p className="text-[11px] text-muted leading-relaxed">{text.resetPasswordDesc}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                disabled={resetSending}
+                className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                {resetSending ? (isAr ? "جارٍ الإرسال..." : "Sending...") : text.sendResetLink}
+              </button>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-red-500/5 dark:bg-red-950/20 border border-red-500/20 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-black text-red-600 dark:text-red-400">{text.logoutBtn}</div>
+                <div className="text-[11px] text-muted">{isAr ? "إنهاء الجلسة والخروج من الحساب" : "Sign out from this session"}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+              >
+                {text.logoutBtn}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Seller Hub / Upgrade to Seller */}
+        {profileTab === "seller" && (
+          <div className="mt-6 space-y-6">
+            {!store ? (
+              <div className="p-8 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-6">
+                <div className="text-center max-w-xl mx-auto space-y-3">
+                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white mx-auto flex items-center justify-center shadow-lg">
+                    <StoreIcon size={32} />
+                  </div>
+                  <h2 className="text-xl font-black text-foreground">{text.becomeSellerTitle}</h2>
+                  <p className="text-xs text-muted leading-relaxed">{text.becomeSellerDesc}</p>
+                </div>
+
+                <div className="max-w-md mx-auto p-6 rounded-2xl bg-surface-soft dark:bg-slate-800 border border-line space-y-4">
+                  <div className="text-xs font-black text-foreground border-b border-line pb-2">
+                    {text.createStoreTitle}
+                  </div>
+                  <form onSubmit={handleCreateStore} className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-foreground">{text.storeName}</label>
+                      <input
+                        value={storeName}
+                        onChange={(e) => setStoreName(e.target.value)}
+                        required
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface dark:bg-slate-900 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                        placeholder={isAr ? "مثال: متجر الإلكترونيات العصرية" : "e.g. Modern Tech Store"}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-foreground">{text.storeDesc}</label>
+                      <textarea
+                        value={storeDesc}
+                        onChange={(e) => setStoreDesc(e.target.value)}
+                        rows={2}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface dark:bg-slate-900 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                        placeholder={isAr ? "وصف مختصر لمنتجات متجرك" : "Short description of your products"}
+                      />
+                    </div>
+
+                    {storeError && <p className="text-xs text-red-500 font-bold">{storeError}</p>}
+
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                    >
+                      {saving ? text.saving : text.createStoreBtn}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ) : (
+              /* Seller Store Management View */
+              <div className="space-y-6">
+                <div className="p-5 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
+                      <StoreIcon size={24} />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black text-foreground">{store.name}</h2>
+                      <p className="text-xs text-muted">{text.dashboardTitle}</p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/seller/dashboard"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs"
+                  >
+                    <StoreIcon size={14} />
+                    <span>{isAr ? "لوحة التاجر الاحترافية" : "Advanced Seller Hub"}</span>
+                  </Link>
+                </div>
+
+                {store.status === "pending" && (
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center gap-2">
+                    <AlertCircle size={16} />
+                    <span>{text.pendingNotice}</span>
+                  </div>
+                )}
+
+                {/* Sub-tabs for Store */}
+                <div className="flex items-center gap-2 border-b border-line pb-2 overflow-x-auto">
+                  <button
+                    type="button"
+                    onClick={() => setSellerTab("overview")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      sellerTab === "overview" ? "bg-orange-500 text-white" : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    <BarChart3 size={14} />
+                    <span>{text.tabOverview}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSellerTab("products")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      sellerTab === "products" ? "bg-orange-500 text-white" : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    <LayoutGrid size={14} />
+                    <span>{text.tabProducts}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSellerTab("orders")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      sellerTab === "orders" ? "bg-orange-500 text-white" : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    <ShoppingBag size={14} />
+                    <span>{text.tabOrders}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSellerTab("settings")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      sellerTab === "settings" ? "bg-orange-500 text-white" : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    <Settings size={14} />
+                    <span>{text.tabSettings}</span>
+                  </button>
+                </div>
+
+                {sellerTab === "overview" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-2xl bg-surface dark:bg-slate-900 border border-line shadow-xs">
+                      <div className="text-xs font-bold text-muted">{text.statRevenue}</div>
+                      <div className="text-xl font-black text-orange-500 mt-1">
+                        {totalRevenue.toFixed(2)} {text.currency}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-surface dark:bg-slate-900 border border-line shadow-xs">
+                      <div className="text-xs font-bold text-muted">{text.statOrders}</div>
+                      <div className="text-xl font-black text-foreground mt-1">{orders.length}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-surface dark:bg-slate-900 border border-line shadow-xs">
+                      <div className="text-xs font-bold text-muted">{text.statPending}</div>
+                      <div className="text-xl font-black text-amber-500 mt-1">{pendingOrdersCount}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-surface dark:bg-slate-900 border border-line shadow-xs">
+                      <div className="text-xs font-bold text-muted">{text.statProducts}</div>
+                      <div className="text-xl font-black text-foreground mt-1">{products.length}</div>
+                    </div>
+                  </div>
+                )}
+
+                {sellerTab === "products" && (
+                  <div className="space-y-6">
+                    {/* Add Product Form */}
+                    <div className="p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-4">
+                      <h3 className="text-sm font-black text-foreground flex items-center gap-2">
+                        <Plus size={16} className="text-orange-500" />
+                        <span>{text.addProduct}</span>
+                      </h3>
+
+                      <form onSubmit={handleAddProduct} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-foreground">{text.productName}</label>
+                          <input
+                            value={productName}
+                            onChange={(e) => setProductName(e.target.value)}
+                            required
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-foreground">{text.productPrice}</label>
+                          <input
+                            type="number"
+                            value={productPrice}
+                            onChange={(e) => setProductPrice(e.target.value)}
+                            required
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs font-bold text-foreground">{text.productDesc}</label>
+                          <textarea
+                            value={productDesc}
+                            onChange={(e) => setProductDesc(e.target.value)}
+                            rows={2}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-foreground">{text.productCategory}</label>
+                          <select
+                            value={productCategory}
+                            onChange={(e) => setProductCategory(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                          >
+                            <option value="">{isAr ? "اختر التصنيف..." : "Select category..."}</option>
+                            {categories.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {isAr ? c.name_ar || c.name_en : c.name_en}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-foreground">{text.productStock}</label>
+                          <input
+                            type="number"
+                            value={productStock}
+                            onChange={(e) => setProductStock(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium focus:border-orange-500 outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs font-bold text-foreground">{text.productImage}</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="w-full text-xs text-muted"
+                          />
+                          {uploadingImage && <small className="text-xs text-orange-500">{text.uploading}</small>}
+                          {uploadError && <small className="text-xs text-red-500">{uploadError}</small>}
+                        </div>
+
+                        <div className="sm:col-span-2 flex justify-end">
+                          <button
+                            type="submit"
+                            disabled={saving}
+                            className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                          >
+                            {saving ? text.saving : text.saveProduct}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    {/* Products Grid */}
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-black text-foreground">{text.yourProducts} ({products.length})</h3>
+                      {products.length === 0 ? (
+                        <p className="text-xs text-muted text-center py-6">{text.noProducts}</p>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {products.map((p) => (
+                            <div key={p.id} className="p-4 rounded-2xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-3">
+                              {editingProductId === p.id ? (
+                                <div className="space-y-2">
+                                  <input
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    className="w-full p-2 text-xs rounded-lg border border-line"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={editPrice}
+                                    onChange={(e) => setEditPrice(e.target.value)}
+                                    className="w-full p-2 text-xs rounded-lg border border-line"
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSaveEdit(p.id)}
+                                      disabled={editSaving}
+                                      className="px-3 py-1 bg-emerald-500 text-white rounded-lg text-xs font-bold"
+                                    >
+                                      {text.saveEdit}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={handleCancelEdit}
+                                      className="px-3 py-1 bg-slate-700 text-white rounded-lg text-xs font-bold"
+                                    >
+                                      {text.cancelEdit}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                      <h4 className="text-xs font-black text-foreground truncate">{p.name}</h4>
+                                      <div className="text-xs font-bold text-orange-500">{p.price} {text.currency}</div>
+                                    </div>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                      p.status === "active" ? "bg-emerald-500/15 text-emerald-600" : "bg-slate-500/15 text-muted"
+                                    }`}>
+                                      {p.status === "active" ? (isAr ? "نشط" : "Active") : (isAr ? "مخفي" : "Hidden")}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 pt-2 border-t border-line/60">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartEdit(p)}
+                                      className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-soft"
+                                      title={text.editProduct}
+                                    >
+                                      <Pencil size={13} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleProductVisibility(p)}
+                                      className="text-[11px] font-bold text-muted hover:text-foreground px-2 py-1 rounded-lg border border-line"
+                                    >
+                                      {p.status === "active" ? text.hide : text.show}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => removeProduct(p)}
+                                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 ms-auto"
+                                      title={text.delete}
+                                    >
+                                      <Trash2 size={13} />
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {sellerTab === "orders" && (
+                  <div className="p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-4">
+                    <h3 className="text-sm font-black text-foreground">{text.ordersTitle}</h3>
+                    {orders.length === 0 ? (
+                      <p className="text-xs text-muted text-center py-6">{text.noOrders}</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {orders.map((o) => (
+                          <div key={o.id} className="p-4 rounded-2xl bg-surface-soft dark:bg-slate-800 border border-line flex items-center justify-between flex-wrap gap-3">
+                            <div>
+                              <div className="text-xs font-black text-foreground">{text.orderNumber} #{o.id.slice(0, 8)}</div>
+                              <div className="text-[11px] text-muted">{text.total}: {o.total_amount} {text.currency}</div>
+                            </div>
+                            <select
+                              value={o.status}
+                              onChange={(e) => handleOrderStatusChange(o.id, e.target.value as OrderStatus)}
+                              className="px-3 py-1.5 rounded-xl bg-surface dark:bg-slate-900 border border-line text-xs font-bold"
+                            >
+                              {Object.entries(text.orderStatus).map(([val, lbl]) => (
+                                <option key={val} value={val}>{lbl}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {sellerTab === "settings" && (
+                  <div className="p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-xs space-y-4">
+                    <div className="border-b border-line pb-2">
+                      <h3 className="text-sm font-black text-foreground">{text.settingsTitle}</h3>
+                      <p className="text-xs text-muted">{text.settingsHint}</p>
+                    </div>
+
+                    {settingsMessage && (
+                      <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 text-xs font-bold">
+                        {settingsMessage}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSaveSettings} className="space-y-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-foreground">{text.storeName}</label>
+                        <input
+                          value={settingsName}
+                          onChange={(e) => setSettingsName(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-foreground">{text.storeDesc}</label>
+                        <textarea
+                          value={settingsDesc}
+                          onChange={(e) => setSettingsDesc(e.target.value)}
+                          rows={3}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-xs font-medium"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-foreground">{text.logoLabel}</label>
+                          <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={uploadingLogo} className="w-full text-xs text-muted" />
+                          {uploadingLogo && <small className="text-xs text-orange-500">{text.uploading}</small>}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-foreground">{text.bannerLabel}</label>
+                          <input type="file" accept="image/*" onChange={handleBannerUpload} disabled={uploadingBanner} className="w-full text-xs text-muted" />
+                          {uploadingBanner && <small className="text-xs text-orange-500">{text.uploading}</small>}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          disabled={settingsSaving}
+                          className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                        >
+                          {settingsSaving ? text.saving : text.saveSettings}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
       </section>
+
+      {/* 3. Luxury Sign-Out Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="max-w-sm w-full p-6 rounded-3xl bg-surface dark:bg-slate-900 border border-line shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 mx-auto flex items-center justify-center">
+              <LogOut size={28} />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base font-black text-foreground">{text.logoutConfirmTitle}</h3>
+              <p className="text-xs text-muted leading-relaxed">{text.logoutConfirmDesc}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="py-2.5 rounded-xl bg-surface-soft dark:bg-slate-800 border border-line text-foreground font-black text-xs hover:border-slate-400 transition-all cursor-pointer"
+              >
+                {text.cancel}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                {loggingOut ? (isAr ? "جارٍ الخروج..." : "Signing out...") : text.confirmLogout}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
     </main>
   );
 }
