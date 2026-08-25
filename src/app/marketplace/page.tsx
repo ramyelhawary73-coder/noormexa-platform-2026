@@ -269,53 +269,73 @@ function MarketplaceContent() {
   useEffect(() => {
     const handleUrlTarget = (urlTarget?: string) => {
       const currentUrl = urlTarget || (typeof window !== "undefined" ? window.location.href : "");
-      const hash = typeof window !== "undefined" ? window.location.hash : "";
-      const search = typeof window !== "undefined" ? window.location.search : "";
+      
+      const isBrands =
+        currentUrl.includes("#brands") ||
+        currentUrl.includes("#brand") ||
+        currentUrl.includes("view=brands") ||
+        currentUrl.includes("brand=");
 
-      if (
-        hash === "#coupons" ||
-        hash === "#coupon" ||
-        search.includes("view=coupons") ||
-        currentUrl.includes("#coupons")
-      ) {
-        setCouponsModalOpen(true);
-      } else if (
-        hash === "#b2b" ||
-        hash === "#wholesale" ||
-        search.includes("view=b2b") ||
-        currentUrl.includes("#b2b")
-      ) {
-        setB2bModalOpen(true);
-      } else if (
-        hash === "#brands" ||
-        hash === "#brand" ||
-        search.includes("view=brands") ||
-        currentUrl.includes("#brands")
-      ) {
+      const isCoupons =
+        !isBrands &&
+        (currentUrl.includes("#coupons") ||
+          currentUrl.includes("#coupon") ||
+          currentUrl.includes("view=coupons"));
+
+      const isB2b =
+        !isBrands &&
+        (currentUrl.includes("#b2b") ||
+          currentUrl.includes("#wholesale") ||
+          currentUrl.includes("view=b2b"));
+
+      const isDeals =
+        !isBrands &&
+        (currentUrl.includes("filter=deals") ||
+          currentUrl.includes("#deals") ||
+          currentUrl.includes("#flash"));
+
+      const isOfficial =
+        !isBrands &&
+        (currentUrl.includes("official=true") ||
+          currentUrl.includes("#official"));
+
+      if (isBrands) {
+        setCouponsModalOpen(false);
+        setB2bModalOpen(false);
         setShowBrandsDirectory(true);
+        setDealsOnly(false);
         setTimeout(() => {
-          const el = document.getElementById("brands-section");
+          const el = document.getElementById("brands-section") || document.getElementById("brands-quick-bar");
           if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 150);
-      } else if (
-        search.includes("filter=deals") ||
-        hash === "#deals" ||
-        hash === "#flash" ||
-        currentUrl.includes("filter=deals")
-      ) {
+        }, 120);
+      } else if (isCoupons) {
+        setCouponsModalOpen(true);
+        setB2bModalOpen(false);
+      } else if (isB2b) {
+        setB2bModalOpen(true);
+        setCouponsModalOpen(false);
+      } else if (isDeals) {
+        setCouponsModalOpen(false);
+        setB2bModalOpen(false);
         setDealsOnly(true);
+        setShowBrandsDirectory(false);
         setTimeout(() => {
-          const el = document.getElementById("deals-section");
+          const el = document.getElementById("products-catalog-section");
           if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 150);
-      } else if (
-        search.includes("official=true") ||
-        hash === "#official" ||
-        currentUrl.includes("official=true")
-      ) {
+        }, 120);
+      } else if (isOfficial) {
+        setCouponsModalOpen(false);
+        setB2bModalOpen(false);
         setOfficialOnly(true);
-      } else if (currentUrl.endsWith("/marketplace") || currentUrl.endsWith("/marketplace/")) {
-        // "جميع الأقسام" clicked: reset specific views
+        setShowBrandsDirectory(false);
+      } else if (
+        currentUrl.endsWith("/marketplace") ||
+        currentUrl.endsWith("/marketplace/") ||
+        currentUrl.includes("/marketplace?") === false
+      ) {
+        // Reset specific views when opening pure marketplace
+        setCouponsModalOpen(false);
+        setB2bModalOpen(false);
         setShowBrandsDirectory(false);
         setDealsOnly(false);
         setOfficialOnly(false);
@@ -1360,8 +1380,14 @@ function MarketplaceContent() {
 
       {/* Interactive Coupons Club Modal */}
       {couponsModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-xl bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+        <div 
+          onClick={() => setCouponsModalOpen(false)}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto cursor-default"
+          >
             <div className="flex items-center justify-between border-b border-line pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center">
@@ -1460,8 +1486,14 @@ function MarketplaceContent() {
 
       {/* Interactive B2B Wholesale Hub Modal */}
       {b2bModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-2xl bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+        <div 
+          onClick={() => setB2bModalOpen(false)}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl bg-surface border border-line rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto cursor-default"
+          >
             <div className="flex items-center justify-between border-b border-line pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-blue-500/15 text-blue-500 flex items-center justify-center">

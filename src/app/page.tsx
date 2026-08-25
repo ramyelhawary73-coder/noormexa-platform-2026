@@ -917,7 +917,7 @@ export default function HomePage() {
 
       {/* 3. Official Flagship Store Spotlight Section (Fixed high contrast button) */}
       {officialStore && (
-        <section className="py-8 md:py-12 border-b border-line bg-surface-soft/60">
+        <section id="official" className="py-8 md:py-12 border-b border-line bg-surface-soft/60 scroll-mt-28">
           <div className="noormexa-container">
             <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line hover:border-slate-300 dark:hover:border-slate-700 shadow-md relative overflow-hidden transition-all group">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
@@ -963,7 +963,7 @@ export default function HomePage() {
       )}
 
       {/* 4. Live Flash Deals & Countdown Vault */}
-      <section className="py-10 md:py-16 border-b border-line bg-surface">
+      <section id="deals" className="py-10 md:py-16 border-b border-line bg-surface scroll-mt-28">
         <div className="noormexa-container space-y-8">
           {/* Section Header with Smooth Live Countdown Timer */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-line pb-6">
@@ -1092,7 +1092,7 @@ export default function HomePage() {
       <GlobalBrandsShowcase isAr={isAr} />
 
       {/* 6. Signature Categories Department Catalog */}
-      <section className="py-12 md:py-16 border-b border-line bg-surface">
+      <section id="categories" className="py-12 md:py-16 border-b border-line bg-surface scroll-mt-28">
         <div className="noormexa-container space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -1150,7 +1150,7 @@ export default function HomePage() {
       </section>
 
       {/* 7. Smart Savings & Instant Coupons Club */}
-      <section className="py-10 md:py-16 border-b border-line bg-surface-soft/60">
+      <section id="coupons" className="py-10 md:py-16 border-b border-line bg-surface-soft/60 scroll-mt-28">
         <div className="noormexa-container space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs border border-emerald-500/20">
@@ -1217,7 +1217,7 @@ export default function HomePage() {
       </section>
 
       {/* 8. B2B Wholesale & Enterprise Sourcing Hub */}
-      <section className="py-12 md:py-20 border-b border-line bg-gradient-to-r from-slate-900 via-navy to-slate-900 text-white">
+      <section id="b2b" className="py-12 md:py-20 border-b border-line bg-gradient-to-r from-slate-900 via-navy to-slate-900 text-white scroll-mt-28">
         <div className="noormexa-container grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-orange-400 text-xs font-black">
@@ -1309,7 +1309,7 @@ export default function HomePage() {
       </section>
 
       {/* 9. Video Stories & Customer Unboxings (Interactive Video Reels) */}
-      <section className="py-12 md:py-16 border-b border-line bg-surface">
+      <section id="reels" className="py-12 md:py-16 border-b border-line bg-surface scroll-mt-28">
         <div className="noormexa-container space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-black text-xs border border-purple-500/20">

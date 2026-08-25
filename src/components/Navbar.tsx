@@ -192,13 +192,15 @@ export default function Navbar() {
       nameAr: "جميع الأقسام",
       nameEn: "All Categories",
       href: "/marketplace",
+      targetId: "categories",
       icon: ShoppingBag,
       color: "text-orange-500",
     },
     {
       nameAr: "عروض الفلاش 50%",
       nameEn: "Flash Deals 50%",
-      href: "/marketplace?filter=deals",
+      href: "/marketplace?filter=deals#deals",
+      targetId: "deals",
       icon: Flame,
       color: "text-red-500",
       highlight: true,
@@ -206,28 +208,32 @@ export default function Navbar() {
     {
       nameAr: "المتجر المعتمد",
       nameEn: "Flagship Store",
-      href: "/marketplace?official=true",
+      href: "/marketplace?official=true#official",
+      targetId: "official",
       icon: Crown,
       color: "text-amber-500",
     },
     {
       nameAr: "الماركات العالمية",
       nameEn: "Top Brands",
-      href: "/marketplace#brands",
+      href: "/marketplace?view=brands#brands",
+      targetId: "brands",
       icon: Sparkles,
       color: "text-purple-500",
     },
     {
       nameAr: "نادي الكوبونات",
       nameEn: "Coupons Club",
-      href: "/marketplace#coupons",
+      href: "/marketplace?view=coupons#coupons",
+      targetId: "coupons",
       icon: Tag,
       color: "text-emerald-500",
     },
     {
       nameAr: "تجارة الجملة B2B",
       nameEn: "B2B Wholesale",
-      href: "/marketplace#b2b",
+      href: "/marketplace?view=b2b#b2b",
+      targetId: "b2b",
       icon: Building2,
       color: "text-blue-500",
     },
@@ -239,6 +245,23 @@ export default function Navbar() {
       color: "text-orange-500",
     },
   ];
+
+  const handleSubNavClick = (
+    item: { href: string; targetId?: string },
+    e?: React.MouseEvent
+  ) => {
+    if (pathname === "/" && item.targetId) {
+      const el = document.getElementById(item.targetId);
+      if (el) {
+        if (e) e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("noormexa-nav-action", { detail: item.href }));
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full transition-colors">
@@ -614,11 +637,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      window.dispatchEvent(new CustomEvent("noormexa-nav-action", { detail: item.href }));
-                    }
-                  }}
+                  onClick={(e) => handleSubNavClick(item, e)}
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all text-[11px] sm:text-xs ${
                     item.highlight
                       ? "bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 font-black border border-red-500/30 hover:bg-red-500/20"
@@ -754,6 +773,32 @@ export default function Navbar() {
                 </div>
                 <span>{text.orders}</span>
               </Link>
+            </div>
+
+            {/* Mobile Sub-Navigation Fast Actions */}
+            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-2">
+              <div className="text-[11px] font-black text-muted mb-1 px-1">
+                {isAr ? "الأقسام والعروض السريعة" : "Quick Sections & Deals"}
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {subNavLinks.slice(1, 6).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.href}
+                      type="button"
+                      onClick={(e) => {
+                        setOpen(false);
+                        handleSubNavClick(item, e);
+                      }}
+                      className="flex items-center gap-2 p-2 rounded-xl bg-surface dark:bg-slate-800/80 border border-line hover:border-orange-500/50 text-foreground text-[11px] font-bold text-start transition-all cursor-pointer"
+                    >
+                      <Icon size={14} className={item.color} />
+                      <span className="truncate">{isAr ? item.nameAr : item.nameEn}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Quick Links List */}
