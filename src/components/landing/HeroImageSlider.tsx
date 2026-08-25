@@ -134,8 +134,8 @@ const SLIDES: SlideData[] = [
   },
 ];
 
-const AUTOPLAY_DURATION = 6000; // 6 seconds per slide
-const MORPH_TRANSITION_DURATION = 1600; // 1.6 seconds smooth gentle morph dissolve
+const AUTOPLAY_DURATION = 7000; // 7 seconds per slide for calm luxury viewing
+const MORPH_TRANSITION_DURATION = 2200; // 2.2 seconds ultra-smooth fluid morph dissolve
 
 type HeroImageSliderProps = {
   language?: "ar" | "en";
@@ -334,11 +334,11 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
         </div>
 
         {/* Dynamic Title & Description */}
-        <div className="space-y-1">
-          <h3 className="text-lg sm:text-xl font-black text-foreground transition-all duration-300 leading-snug">
+        <div key={`text-${currentIndex}`} className="space-y-1 transition-all duration-700 animate-in fade-in">
+          <h3 className="text-lg sm:text-xl font-black text-foreground transition-all duration-500 leading-snug">
             {isAr ? currentSlide.arTitle : currentSlide.enTitle}
           </h3>
-          <p className="text-xs sm:text-sm text-muted/90 line-clamp-2 leading-relaxed transition-all duration-300">
+          <p className="text-xs sm:text-sm text-muted/90 line-clamp-2 leading-relaxed transition-all duration-500">
             {isAr ? currentSlide.arText : currentSlide.enText}
           </p>
         </div>
