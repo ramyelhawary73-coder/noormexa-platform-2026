@@ -33,6 +33,7 @@
   touch-action: pan-y pinch-zoom;
   aspect-ratio: 16 / 10;
   min-height: 280px;
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 640px) {
@@ -51,7 +52,7 @@
   }
 }
 
-/* Fluid Morph Dissolve Layers with cubic-bezier(0.22, 1, 0.36, 1) */
+/* Fluid Morph Dissolve Layers with cubic-bezier(0.16, 1, 0.3, 1) */
 .slideLayer {
   position: absolute;
   inset: 0;
@@ -66,16 +67,16 @@
   filter: none !important;
   -webkit-filter: none !important;
   transform: scale(1.08);
-  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
-/* Active Slide: تظهر بتلاشي تدريجي انسيابي وبطيء (opacity: 1) مع انتقال عكسي من 1.08 إلى 1.0 */
+/* Active Slide: تظهر بتلاشي تدريجي انسيابي (opacity: 1) مع انتقال عكسي من 1.08 إلى 1.0 */
 .slideLayer.active {
   opacity: 1;
   z-index: 3;
   transform: scale(1);
-  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Previous Slide: تتلاشى بنعومة فائقة (opacity: 0) مع تكبير خفيف إلى 1.08 لضمان عدم وجود شاشة صامتة */
@@ -83,7 +84,7 @@
   opacity: 0;
   z-index: 2;
   transform: scale(1.08);
-  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* High Definition Unobstructed Image - Zero Filters */
