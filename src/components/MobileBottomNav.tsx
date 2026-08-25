@@ -9,8 +9,13 @@ import {
   Package,
   Crown,
   ShoppingCart,
+  Store,
+  User,
+  LogIn,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { useAuth } from "@/context/AuthContext";
+import { getUserRole } from "@/lib/authHelpers";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -20,6 +25,9 @@ const labels = {
     home: "الرئيسية",
     marketplace: "السوق",
     admin: "لوحة المالك",
+    seller: "لوحة التاجر",
+    account: "حسابي",
+    signIn: "دخول",
     orders: "طلباتي",
     cart: "السلة",
   },
@@ -27,6 +35,9 @@ const labels = {
     home: "Home",
     marketplace: "Shop",
     admin: "Owner Hub",
+    seller: "Seller Hub",
+    account: "My Account",
+    signIn: "Sign In",
     orders: "Orders",
     cart: "Cart",
   },
@@ -51,8 +62,54 @@ export default function MobileBottomNav() {
   const language = useSyncExternalStore<Language>(subscribeToLanguage, getLanguageSnapshot, () => "ar");
   const text = labels[language];
   const { cartCount } = useMarketplace();
+  const { user, profile, loading: authLoading } = useAuth();
 
-  const isOwnerActive = pathname.startsWith("/admin") || pathname.startsWith("/seller");
+  // Dynamic user role evaluation based on email and profile
+  const role = authLoading ? "guest" : getUserRole(user, profile);
+
+  // Center button config based on role
+  let centerItem: {
+    href: string;
+    label: string;
+    icon: typeof Crown | typeof Store | typeof User | typeof LogIn;
+    active: boolean;
+    badgeDotColor: string;
+  };
+
+  if (role === "admin") {
+    centerItem = {
+      href: "/admin",
+      label: text.admin,
+      icon: Crown,
+      active: pathname.startsWith("/admin"),
+      badgeDotColor: "bg-emerald-500",
+    };
+  } else if (role === "seller") {
+    centerItem = {
+      href: "/seller/dashboard",
+      label: text.seller,
+      icon: Store,
+      active: pathname.startsWith("/seller") || pathname.startsWith("/dashboard"),
+      badgeDotColor: "bg-orange-500",
+    };
+  } else if (role === "customer") {
+    centerItem = {
+      href: "/dashboard",
+      label: text.account,
+      icon: User,
+      active: pathname === "/dashboard" || pathname.startsWith("/profile"),
+      badgeDotColor: "bg-blue-500",
+    };
+  } else {
+    // Guest / Unauthenticated
+    centerItem = {
+      href: "/auth",
+      label: text.signIn,
+      icon: LogIn,
+      active: pathname.startsWith("/auth"),
+      badgeDotColor: "bg-slate-400",
+    };
+  }
 
   const navItems = [
     { href: "/", label: text.home, icon: Home, active: pathname === "/" },
@@ -63,11 +120,12 @@ export default function MobileBottomNav() {
       active: pathname.startsWith("/marketplace") && !pathname.includes("wishlist"),
     },
     {
-      href: "/admin",
-      label: text.admin,
-      icon: Crown,
+      href: centerItem.href,
+      label: centerItem.label,
+      icon: centerItem.icon,
       isSpecial: true,
-      active: isOwnerActive,
+      active: centerItem.active,
+      badgeDotColor: centerItem.badgeDotColor,
     },
     {
       href: "/orders",
@@ -106,7 +164,9 @@ export default function MobileBottomNav() {
                   }`}
                 >
                   <Icon size={20} className="fill-current stroke-[2]" />
-                  <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
+                  {item.badgeDotColor && (
+                    <span className={`absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full ${item.badgeDotColor} ring-2 ring-surface`} />
+                  )}
                 </div>
                 <span
                   className={`text-[10px] font-black -mt-1 leading-none ${

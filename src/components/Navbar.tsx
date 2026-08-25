@@ -37,6 +37,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { CurrencyCode } from "@/types/marketplace";
 
+import { getUserRole } from "@/lib/authHelpers";
+
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
 
@@ -133,11 +135,21 @@ export default function Navbar() {
   const { user, profile, signOut } = useAuth();
   const { currency, setCurrency, currencies, cartCount, wishlist } = useMarketplace();
 
-  const isAdmin = Boolean(profile?.is_admin) || true; // Full Super Admin access
+  // Dynamic user role evaluation based on email and profile
+  const userRole = getUserRole(user, profile);
+  const isAdmin = userRole === "admin";
+  const isSeller = userRole === "seller";
+
   const text = copy[language];
   const profileName = typeof profile?.full_name === "string" ? profile.full_name : "";
   const avatarLetter = profileName ? profileName.charAt(0).toUpperCase() : (user?.email?.charAt(0).toUpperCase() || "U");
-  const displayName = profileName || user?.email?.split("@")[0] || "المتسوق";
+  const displayName = profileName || user?.email?.split("@")[0] || (isAr ? "المتسوق" : "Member");
+
+  const roleBadgeLabel = isAdmin
+    ? (isAr ? "مالك المنصة" : "Super Admin")
+    : isSeller
+    ? (isAr ? "تاجر معتمد" : "Verified Seller")
+    : (isAr ? "عضو متسوق" : "Shopper");
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -497,8 +509,14 @@ export default function Navbar() {
                         {displayName}
                       </span>
                       <span className="text-[9px] text-muted font-bold flex items-center gap-0.5">
-                        <Crown size={9} className="text-orange-500" />
-                        <span>{isAdmin ? "Super Admin" : "VIP Member"}</span>
+                        {isAdmin ? (
+                          <Crown size={10} className="text-amber-500 fill-amber-500/20" />
+                        ) : isSeller ? (
+                          <StoreIcon size={10} className="text-orange-500" />
+                        ) : (
+                          <Sparkles size={10} className="text-blue-500" />
+                        )}
+                        <span>{roleBadgeLabel}</span>
                       </span>
                     </div>
 
@@ -512,7 +530,7 @@ export default function Navbar() {
 
                   {/* Dropdown Menu for Authenticated User */}
                   {userDropdownOpen && (
-                    <div className="absolute top-full mt-2 ltr:right-0 rtl:left-0 z-[100] min-w-[240px] bg-surface dark:bg-slate-900 rounded-2xl shadow-2xl border border-line p-2 animate-in fade-in zoom-in-95 backdrop-blur-xl">
+                    <div className="absolute top-full mt-2 ltr:right-0 rtl:left-0 z-[100] min-w-[250px] bg-surface dark:bg-slate-900 rounded-2xl shadow-2xl border border-line p-2 animate-in fade-in zoom-in-95 backdrop-blur-xl">
                       {/* User Info Header */}
                       <div className="p-2.5 rounded-xl bg-surface-soft dark:bg-slate-800/80 border border-line mb-2">
                         <div className="flex items-center gap-2.5">
@@ -520,8 +538,17 @@ export default function Navbar() {
                             {avatarLetter}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="text-xs font-black text-foreground truncate">
-                              {displayName}
+                            <div className="text-xs font-black text-foreground truncate flex items-center gap-1.5">
+                              <span>{displayName}</span>
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                                isAdmin
+                                  ? "bg-amber-500/20 text-amber-600 dark:text-amber-400"
+                                  : isSeller
+                                  ? "bg-orange-500/20 text-orange-600 dark:text-orange-400"
+                                  : "bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                              }`}>
+                                {roleBadgeLabel}
+                              </span>
                             </div>
                             <div className="text-[10px] text-muted truncate font-mono">
                               {user.email}
@@ -550,14 +577,25 @@ export default function Navbar() {
                           <span>{text.myOrders}</span>
                         </Link>
 
-                        <Link
-                          href="/seller/dashboard"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <StoreIcon size={14} className="text-amber-500" />
-                          <span>{text.sellerHub}</span>
-                        </Link>
+                        {(isSeller || isAdmin) ? (
+                          <Link
+                            href="/seller/dashboard"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
+                          >
+                            <StoreIcon size={14} className="text-amber-500" />
+                            <span>{text.sellerHub}</span>
+                          </Link>
+                        ) : (
+                          <Link
+                            href="/auth/choose-role"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-orange-600 dark:text-orange-400 hover:bg-orange-500/10 transition-colors"
+                          >
+                            <StoreIcon size={14} className="text-orange-500" />
+                            <span>{isAr ? "الترقية لحساب تاجر" : "Become a Seller"}</span>
+                          </Link>
+                        )}
 
                         <Link
                           href="/shipping"
@@ -572,9 +610,9 @@ export default function Navbar() {
                           <Link
                             href="/admin"
                             onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-700 dark:text-orange-300 transition-colors"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-700 dark:text-orange-300 transition-colors font-black"
                           >
-                            <ShieldCheck size={14} className="text-orange-500" />
+                            <Crown size={14} className="text-orange-500" />
                             <span>{text.adminHub}</span>
                           </Link>
                         )}
