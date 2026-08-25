@@ -1,26 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" fill="none" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="512" height="512" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
   <defs>
-    <linearGradient id="nmx_l" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="50%" stop-color="#2563EB" />
-      <stop offset="100%" stop-color="#1D4ED8" />
+    <!-- Primary Champagne Gold Ribbon Gradient -->
+    <linearGradient id="nmx_fav_gold" x1="20%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#ECD697" />
+      <stop offset="30%" stop-color="#DFBF6D" />
+      <stop offset="60%" stop-color="#C49B45" />
+      <stop offset="85%" stop-color="#A37A2C" />
+      <stop offset="100%" stop-color="#7E5818" />
     </linearGradient>
-    <linearGradient id="nmx_d" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#EA580C" />
-      <stop offset="45%" stop-color="#F97316" />
-      <stop offset="100%" stop-color="#FBBF24" />
+
+    <!-- Gold Arc & Nodes Gradient -->
+    <linearGradient id="nmx_fav_gold_arc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EED9A0" />
+      <stop offset="50%" stop-color="#C6A04D" />
+      <stop offset="100%" stop-color="#967026" />
     </linearGradient>
-    <linearGradient id="nmx_r" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2563EB" />
-      <stop offset="60%" stop-color="#1D4ED8" />
-      <stop offset="100%" stop-color="#0F172A" />
+
+    <!-- Ocean Teal Primary Ribbon Gradient -->
+    <linearGradient id="nmx_fav_teal" x1="15%" y1="5%" x2="85%" y2="95%">
+      <stop offset="0%" stop-color="#25BFD2" />
+      <stop offset="30%" stop-color="#1592A5" />
+      <stop offset="65%" stop-color="#0A5E70" />
+      <stop offset="90%" stop-color="#043846" />
+      <stop offset="100%" stop-color="#011F28" />
     </linearGradient>
+
+    <!-- Teal Right Pillar Gradient -->
+    <linearGradient id="nmx_fav_teal_pillar" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#22BACD" />
+      <stop offset="40%" stop-color="#118397" />
+      <stop offset="80%" stop-color="#074B5C" />
+      <stop offset="100%" stop-color="#032D38" />
+    </linearGradient>
+
+    <!-- Teal Outer Arc Gradient -->
+    <linearGradient id="nmx_fav_teal_arc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1CA0B3" />
+      <stop offset="60%" stop-color="#095465" />
+      <stop offset="100%" stop-color="#022731" />
+    </linearGradient>
+
+    <filter id="nmx_fav_shadow" x="-10%" y="-10%" width="125%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25" flood-color="#022733" />
+    </filter>
   </defs>
-  <g transform="translate(0, 0)">
-    <rect x="16" y="16" width="17" height="68" rx="8.5" fill="url(#nmx_l)" />
-    <rect x="67" y="16" width="17" height="68" rx="8.5" fill="url(#nmx_r)" />
-    <path d="M 16,24.5 L 75,82.5 C 80,87.5 84,85 84,78 L 84,62 L 25,14.5 C 20.5,10.5 16,13.5 16,19.5 Z" fill="url(#nmx_d)" />
-    <path d="M 75.5,21.5 L 78.5,28.5 L 85.5,31.5 L 78.5,34.5 L 75.5,41.5 L 72.5,34.5 L 65.5,31.5 L 72.5,28.5 Z" fill="#FBBF24" />
-    <circle cx="75.5" cy="31.5" r="2.2" fill="#FFFFFF" />
+
+  <g filter="url(#nmx_fav_shadow)">
+    <!-- Outer Right Gold Globe Arc -->
+    <path d="M 100,14 C 146,14 186,52 186,100 C 186,128 174,152 154,168" stroke="url(#nmx_fav_gold_arc)" stroke-width="7" stroke-linecap="round" opacity="0.9" />
+    
+    <!-- Upper-Right Gold Meridian Loop -->
+    <path d="M 100,14 C 128,14 154,50 154,96 C 154,120 144,146 126,166" stroke="url(#nmx_fav_gold_arc)" stroke-width="5.5" stroke-linecap="round" opacity="0.8" />
+    
+    <!-- Horizontal Network Latitude Connector Bars -->
+    <path d="M 80,138 L 152,138 M 86,76 L 158,76" stroke="#0B6375" stroke-width="4.5" stroke-linecap="round" opacity="0.65" />
+    
+    <!-- Network Node Circles -->
+    <circle cx="156" cy="76" r="7.5" fill="url(#nmx_fav_gold)" />
+    <circle cx="80" cy="138" r="7.5" fill="#0A5E70" />
+    
+    <!-- Outer Left & Bottom Teal Globe Arc -->
+    <path d="M 100,14 C 52,14 14,52 14,100 C 14,146 52,186 100,186 C 126,186 148,174 164,158" stroke="url(#nmx_fav_teal_arc)" stroke-width="7.5" stroke-linecap="round" />
+    
+    <!-- Lower-Left Internal Meridian Arc -->
+    <path d="M 100,186 C 68,186 38,152 38,106 C 38,76 50,46 72,28" stroke="url(#nmx_fav_teal_arc)" stroke-width="6" stroke-linecap="round" opacity="0.75" />
+    
+    <!-- Leftmost Vertical Curved Pillar of 'N' -->
+    <path d="M 44,156 C 32,136 26,112 26,90 C 26,64 36,44 54,30 C 57,28 61,31 60,35 C 50,52 46,74 46,96 C 46,120 52,140 64,156 C 66,160 61,164 56,162 C 51,161 47,158 44,156 Z" fill="url(#nmx_fav_teal)" />
+    
+    <!-- Right Vertical Teardrop Pillar of 'N' -->
+    <path d="M 124,58 C 144,58 162,80 162,112 C 162,142 144,168 126,170 C 122,170 120,165 122,161 C 134,142 142,120 142,98 C 142,78 132,64 120,60 C 118,59 120,58 124,58 Z" fill="url(#nmx_fav_teal_pillar)" />
+    
+    <!-- Middle Sweeping Diagonal Ribbon -->
+    <path d="M 50,38 C 68,20 94,20 114,38 L 160,138 C 166,152 154,168 136,168 C 124,168 114,156 106,140 L 64,54 C 56,38 48,38 50,38 Z" fill="url(#nmx_fav_teal)" opacity="0.95" />
+    
+    <!-- Primary Foreground Diagonal Ribbon -->
+    <path d="M 64,32 C 80,16 102,18 120,38 L 166,134 C 178,156 166,178 142,178 C 126,178 114,166 104,148 L 68,68 C 60,48 50,44 64,32 Z" fill="url(#nmx_fav_gold)" />
+    
+    <!-- Gold Ribbon Inner Sheen -->
+    <path d="M 76,38 C 88,26 104,28 118,44 L 158,132 C 166,148 156,164 140,164 C 130,164 120,154 112,138 L 78,64 C 72,50 68,44 76,38 Z" fill="#FFF6D8" opacity="0.4" />
+    
+    <!-- Bottom Loop Interlocking Under-Shadow -->
+    <path d="M 104,148 C 114,166 126,178 142,178 C 146,178 150,176 154,172 C 142,174 130,166 120,148 L 104,148 Z" fill="#664610" opacity="0.5" />
   </g>
 </svg>

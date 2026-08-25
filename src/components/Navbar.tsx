@@ -292,7 +292,7 @@ export default function Navbar() {
               aria-label="NOORMEXA home"
               onClick={() => setOpen(false)}
             >
-              <BrandLogo size="md" />
+              <BrandLogo size="responsive" showTagline={true} tagline="Global Smart Shopping" />
             </Link>
           </div>
 
