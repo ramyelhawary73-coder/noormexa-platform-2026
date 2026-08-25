@@ -1,59 +1,154 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="512" height="512" fill="none" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" fill="none">
   <defs>
-    <linearGradient id="nmx_emb_gold_d" x1="15%" y1="10%" x2="90%" y2="90%">
-      <stop offset="0%" stop-color="#FFF0C2" />
-      <stop offset="25%" stop-color="#E9D49B" />
-      <stop offset="55%" stop-color="#C6A256" />
-      <stop offset="85%" stop-color="#A88137" />
-      <stop offset="100%" stop-color="#8A6424" />
+    <linearGradient id="ed_sphere_grad" x1="15%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#0d47a1" />
+      <stop offset="26%" stop-color="#1565c0" />
+      <stop offset="52%" stop-color="#1a6dd4" />
+      <stop offset="78%" stop-color="#b8922e" />
+      <stop offset="100%" stop-color="#e6c15a" />
     </linearGradient>
 
-    <linearGradient id="nmx_emb_gold_arc_d" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFF0C2" />
-      <stop offset="50%" stop-color="#D9BE7B" />
-      <stop offset="100%" stop-color="#967129" />
-    </linearGradient>
+    <radialGradient id="ed_highlight_grad" cx="32%" cy="28%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22" />
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.10" />
+      <stop offset="85%" stop-color="#FFFFFF" stop-opacity="0.0" />
+    </radialGradient>
 
-    <linearGradient id="nmx_emb_teal_d" x1="10%" y1="0%" x2="90%" y2="100%">
-      <stop offset="0%" stop-color="#38E1F4" />
-      <stop offset="25%" stop-color="#22B8CB" />
-      <stop offset="60%" stop-color="#1497A9" />
-      <stop offset="90%" stop-color="#0B6678" />
-      <stop offset="100%" stop-color="#053F50" />
-    </linearGradient>
-
-    <linearGradient id="nmx_emb_teal_right_d" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#4EEDFF" />
-      <stop offset="35%" stop-color="#22B8CB" />
-      <stop offset="70%" stop-color="#1497A9" />
-      <stop offset="100%" stop-color="#0B6678" />
-    </linearGradient>
-
-    <linearGradient id="nmx_emb_teal_arc_d" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#22B8CB" />
-      <stop offset="50%" stop-color="#1497A9" />
-      <stop offset="100%" stop-color="#0B6678" />
-    </linearGradient>
-
-    <filter id="nmx_emb_glow_d" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <filter id="ed_shadow_filter" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="12" flood-color="#1565c0" flood-opacity="0.45" />
     </filter>
+
+    <linearGradient id="ed_gold_ribbon" x1="20%" y1="15%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#FFF0C4" />
+      <stop offset="35%" stop-color="#F3D072" />
+      <stop offset="70%" stop-color="#D4A745" />
+      <stop offset="100%" stop-color="#A57920" />
+    </linearGradient>
+
+    <linearGradient id="ed_blue_ribbon" x1="10%" y1="10%" x2="80%" y2="85%">
+      <stop offset="0%" stop-color="#69B4FF" />
+      <stop offset="40%" stop-color="#2D8BFA" />
+      <stop offset="75%" stop-color="#196BCB" />
+      <stop offset="100%" stop-color="#0C448F" />
+    </linearGradient>
+
+    <clipPath id="ed_clip">
+      <circle cx="80" cy="80" r="58" />
+    </clipPath>
   </defs>
 
-  <g filter="url(#nmx_emb_glow_d)">
-    <path d="M 100,12 C 148,12 188,52 188,100 C 188,126 177,150 158,167" stroke="url(#nmx_emb_gold_arc_d)" stroke-width="6" stroke-linecap="round" opacity="0.9" />
-    <path d="M 100,12 C 126,12 152,48 152,94 C 152,118 143,146 128,165" stroke="url(#nmx_emb_gold_arc_d)" stroke-width="5" stroke-linecap="round" opacity="0.85" />
-    <path d="M 74,136 L 152,136 M 85,78 L 155,78" stroke="#22B8CB" stroke-width="4" stroke-linecap="round" opacity="0.75" />
-    <circle cx="152" cy="78" r="6.5" fill="url(#nmx_emb_gold_d)" />
-    <circle cx="76" cy="136" r="6.5" fill="#22B8CB" />
-    <path d="M 100,12 C 52,12 12,52 12,100 C 12,148 52,188 100,188 C 124,188 146,178 162,162" stroke="url(#nmx_emb_teal_arc_d)" stroke-width="6" stroke-linecap="round" />
-    <path d="M 100,188 C 68,188 40,154 40,108 C 40,78 52,48 70,30" stroke="url(#nmx_emb_teal_arc_d)" stroke-width="5" stroke-linecap="round" opacity="0.8" />
-    <path d="M 46,155 C 34,136 28,114 28,94 C 28,68 38,48 54,34 C 56,32 60,34 60,37 C 52,54 48,74 48,96 C 48,118 54,138 64,154 C 66,158 62,162 58,160 C 54,159 49,157 46,155 Z" fill="url(#nmx_emb_teal_d)" />
-    <path d="M 124,62 C 142,62 160,82 160,112 C 160,140 144,166 128,168 C 124,168 122,164 124,160 C 134,142 140,122 140,102 C 140,82 130,68 120,64 C 118,63 120,62 124,62 Z" fill="url(#nmx_emb_teal_right_d)" />
-    <path d="M 52,42 C 68,24 92,24 112,40 L 158,138 C 164,152 154,166 138,166 C 126,166 116,156 108,142 L 66,58 C 58,42 50,42 52,42 Z" fill="url(#nmx_emb_teal_d)" opacity="0.95" />
-    <path d="M 64,36 C 78,22 98,24 116,42 L 164,136 C 176,158 166,178 144,178 C 128,178 116,168 106,150 L 70,72 C 62,54 52,50 64,36 Z" fill="url(#nmx_emb_gold_d)" />
-    <path d="M 76,42 C 86,30 102,32 116,48 L 156,134 C 164,150 156,164 142,164 C 132,164 122,156 114,142 L 80,68 C 74,54 70,48 76,42 Z" fill="#FFF4D0" opacity="0.35" />
-    <path d="M 106,150 C 116,168 128,178 144,178 C 148,178 152,176 156,172 C 144,174 132,166 122,150 L 106,150 Z" fill="#785317" opacity="0.5" />
+  <g id="noormexa-emblem-dark" filter="url(#ed_shadow_filter)">
+    <circle cx="80" cy="80" r="58" fill="url(#ed_sphere_grad)" />
+    <circle cx="80" cy="80" r="58" fill="url(#ed_highlight_grad)" />
+
+    <g clip-path="url(#ed_clip)">
+      <path d="M 22,80 Q 80,62 138,80" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.2" fill="none" />
+      <path d="M 27,55 Q 80,40 133,55" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.2" fill="none" />
+      <path d="M 27,105 Q 80,120 133,105" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.2" fill="none" />
+      <path d="M 80,22 Q 62,80 80,138" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.2" fill="none" />
+
+      <circle cx="48" cy="55" r="2.2" fill="#FFFFFF" fill-opacity="0.45" />
+      <circle cx="112" cy="105" r="2.2" fill="#FFFFFF" fill-opacity="0.45" />
+      <circle cx="80" cy="80" r="2.8" fill="#FFFFFF" fill-opacity="0.5" />
+
+      <path
+        d="M 44,38 
+           C 36,52 32,68 32,84 
+           C 32,100 37,114 45,124 
+           C 49,129 55,126 55,120 
+           C 49,110 45,98 45,84 
+           C 45,69 49,56 55,44 
+           C 56,40 50,35 44,38 Z"
+        fill="url(#ed_blue_ribbon)"
+      />
+      <path
+        d="M 44,38 C 36,54 32,69 32,84 C 32,100 37,114 45,124"
+        stroke="#FFFFFF"
+        stroke-opacity="0.35"
+        stroke-width="1.2"
+        fill="none"
+      />
+
+      <path
+        d="M 105,38 
+           C 111,50 115,66 115,82 
+           C 115,98 111,112 105,124 
+           C 103,128 108,132 113,128 
+           C 122,116 128,100 128,82 
+           C 128,64 122,48 113,36 
+           C 108,32 103,35 105,38 Z"
+        fill="url(#ed_gold_ribbon)"
+      />
+      <path
+        d="M 113,36 C 122,48 128,64 128,82 C 128,100 122,116 113,128"
+        stroke="#FFFFFF"
+        stroke-opacity="0.4"
+        stroke-width="1.2"
+        fill="none"
+      />
+
+      <path
+        d="M 44,38 
+           C 54,34 66,40 76,52 
+           L 115,116 
+           C 120,124 116,130 108,130 
+           C 100,130 92,122 84,110 
+           L 46,48 
+           C 42,42 42,39 44,38 Z"
+        fill="url(#ed_blue_ribbon)"
+        opacity="0.9"
+      />
+      <path
+        d="M 50,34 
+           C 62,30 76,36 88,50 
+           L 122,114 
+           C 128,124 124,132 114,132 
+           C 106,132 98,124 88,110 
+           L 54,46 
+           C 48,38 46,35 50,34 Z"
+        fill="url(#ed_gold_ribbon)"
+      />
+
+      <path
+        d="M 50,34 L 122,114"
+        stroke="#FFFFFF"
+        stroke-opacity="0.3"
+        stroke-width="1.2"
+        stroke-linecap="round"
+        fill="none"
+      />
+      <path
+        d="M 54,46 L 88,110"
+        stroke="#FFFFFF"
+        stroke-opacity="0.2"
+        stroke-width="1.2"
+        stroke-linecap="round"
+        fill="none"
+      />
+      <path
+        d="M 33,84 L 127,84"
+        stroke="#FFFFFF"
+        stroke-opacity="0.16"
+        stroke-width="1.2"
+        stroke-dasharray="3 3"
+        fill="none"
+      />
+
+      <path
+        d="M 58,38 C 66,34 78,40 86,52 L 118,112 C 122,118 118,124 112,124 L 58,38 Z"
+        fill="#FFFFFF"
+        fill-opacity="0.25"
+      />
+    </g>
+
+    <circle
+      cx="80"
+      cy="80"
+      r="58"
+      stroke="#FFFFFF"
+      stroke-opacity="0.2"
+      stroke-width="1.2"
+      fill="none"
+    />
   </g>
 </svg>
