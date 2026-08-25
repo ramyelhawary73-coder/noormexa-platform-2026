@@ -639,10 +639,14 @@ footer {
   background: var(--surface-muted);
 }
 
+.noormexa-slider-frame img,
 .noormexa-slider-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: none !important;
+  opacity: 1 !important;
+  image-rendering: auto;
   animation: noormexa-fade-in 420ms ease both;
 }
 

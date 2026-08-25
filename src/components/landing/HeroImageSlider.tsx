@@ -178,7 +178,7 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
       transitionTimeoutRef.current = setTimeout(() => {
         setIsTransitioning(false);
         setPrevIndex(null);
-      }, 1100); // 1100ms transition duration
+      }, 1000); // 1000ms transition duration
     },
     [currentIndex, isTransitioning]
   );
@@ -240,177 +240,163 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
   };
 
   const currentSlide = SLIDES[currentIndex];
-  const BadgeIcon = currentSlide.badgeIcon;
+  const CurrentBadgeIcon = currentSlide.badgeIcon;
   const DirectionArrowNext = isAr ? ChevronLeft : ChevronRight;
   const DirectionArrowPrev = isAr ? ChevronRight : ChevronLeft;
 
   return (
-    <div
-      className={styles.sliderContainer}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      role="region"
-      aria-roledescription="carousel"
-      aria-label={isAr ? "سلايدر العروض والمنتجات المميزة" : "Featured Products & Deals Slider"}
-    >
-      {/* 1. Dual Overlaid Layers (Ken Burns Morphing & Cinematic Crossfade) */}
-      {SLIDES.map((slide, idx) => {
-        const isActive = idx === currentIndex;
-        const isPrev = idx === prevIndex;
+    <div className={styles.sliderWrapper}>
+      {/* 1. Pure Clean Image Screen - 100% Free of any buttons, badges or text */}
+      <div
+        className={styles.imageScreen}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label={isAr ? "شاشة عرض الصور" : "Image Showcase Screen"}
+      >
+        {SLIDES.map((slide, idx) => {
+          const isActive = idx === currentIndex;
+          const isPrev = idx === prevIndex;
 
-        if (!isActive && !isPrev) {
-          return null; // Skip non-active slides from rendering heavily in DOM
-        }
+          let layerClass = styles.layerHidden;
+          if (isActive) {
+            layerClass = `${styles.layerActive} ${isTransitioning ? styles.layerActiveEntering : ""}`;
+          } else if (isPrev) {
+            layerClass = styles.layerPrevious;
+          }
 
-        let layerClass = styles.layerHidden;
-        if (isActive) {
-          layerClass = isTransitioning ? `${styles.layerActive} ${styles.layerActiveEntering}` : styles.layerActive;
-        } else if (isPrev) {
-          layerClass = styles.layerPrevious;
-        }
+          return (
+            <div key={slide.id} className={`${styles.slideLayer} ${layerClass}`}>
+              <Image
+                src={slide.image}
+                alt={isAr ? slide.arTitle : slide.enTitle}
+                fill
+                priority={idx === 0}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
+                className={styles.kenBurnsImage}
+              />
+            </div>
+          );
+        })}
+      </div>
 
-        return (
-          <div key={slide.id} className={`${styles.slideLayer} ${layerClass}`}>
-            <Image
-              src={slide.image}
-              alt={isAr ? slide.arTitle : slide.enTitle}
-              fill
-              priority={idx === 0}
-              quality={90}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
-              className={styles.kenBurnsImage}
-            />
-          </div>
-        );
-      })}
-
-      {/* 2. Dynamic Vignette & Backdrop Layers */}
-      <div className={styles.vignetteBackdrop} />
-      <div className={isAr ? styles.vignetteSideRtl : styles.vignetteSideLtr} />
-      <div className={styles.accentGlow} />
-
-      {/* 3. Staggered Split Text & Interactive Content Overlay */}
-      <div className={styles.contentOverlay}>
-        <div key={`content-${currentIndex}`} className={styles.staggeredBox}>
-          {/* Badge & Stat Tag */}
-          <div className={`${styles.staggerBadge} flex items-center gap-2 flex-wrap`}>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-orange-500/90 to-amber-500/90 text-white font-black text-[11px] sm:text-xs shadow-md backdrop-blur-md border border-white/20">
-              <BadgeIcon size={13} className="shrink-0 animate-pulse" />
+      {/* 2. Dedicated Info & Interactive Controls Dock (Outside / Below Image Screen) */}
+      <div className={styles.infoDock}>
+        {/* Top Header: Badge + Highlight Stat + Navigation Controls */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          {/* Badge & Stat */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 font-black text-xs border border-orange-500/20 shadow-xs">
+              <CurrentBadgeIcon size={13} className="shrink-0" />
               <span>{isAr ? currentSlide.badgeAr : currentSlide.badgeEn}</span>
             </div>
 
             {(currentSlide.highlightStatAr || currentSlide.highlightStatEn) && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 dark:bg-black/40 text-slate-100 font-bold text-[10px] sm:text-[11px] backdrop-blur-md border border-white/10">
-                <BadgeCheck size={12} className="text-emerald-400 shrink-0" />
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-soft text-foreground font-bold text-xs border border-line">
+                <BadgeCheck size={13} className="text-emerald-500 shrink-0" />
                 <span>{isAr ? currentSlide.highlightStatAr : currentSlide.highlightStatEn}</span>
               </div>
             )}
           </div>
 
-          {/* Slide Heading */}
-          <h2
-            className={`${styles.staggerTitle} text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-md`}
-          >
-            {isAr ? currentSlide.arTitle : currentSlide.enTitle}
-          </h2>
+          {/* Navigation Controls (Pills + Arrows + Play/Pause) */}
+          <div className={styles.controlsBar}>
+            {/* Progress Indicators Track */}
+            <div className={styles.indicatorsTrack} aria-label={isAr ? "مؤشرات الشرائح" : "Slide progress"}>
+              {SLIDES.map((slide, idx) => {
+                const isPillActive = idx === currentIndex;
+                const isPillPast = idx < currentIndex;
+                const isEffectivelyPaused = isPaused || userToggledPause;
 
-          {/* Slide Description */}
-          <p
-            className={`${styles.staggerDesc} text-xs sm:text-sm text-slate-200 line-clamp-2 leading-relaxed max-w-xl font-medium drop-shadow-sm`}
-          >
-            {isAr ? currentSlide.arText : currentSlide.enText}
-          </p>
+                return (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => changeSlide(idx)}
+                    className={`${styles.indicatorPill} ${
+                      isPillActive
+                        ? isEffectivelyPaused
+                          ? `${styles.indicatorActive} ${styles.indicatorActivePaused}`
+                          : styles.indicatorActive
+                        : isPillPast
+                        ? styles.indicatorFilled
+                        : ""
+                    }`}
+                    aria-label={`${isAr ? "الشريحة" : "Slide"} ${idx + 1}`}
+                    title={isAr ? slide.arTitle : slide.enTitle}
+                  >
+                    <div key={`${idx}-${progressKey}`} className={styles.indicatorFill} />
+                  </button>
+                );
+              })}
+            </div>
 
-          {/* Action CTAs */}
-          <div className={`${styles.staggerAction} flex items-center gap-2.5 pt-1.5 flex-wrap`}>
-            <Link
-              href={currentSlide.ctaHref}
-              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-lg hover:shadow-orange-500/30 flex items-center gap-1.5 transition-all active:scale-95"
-            >
-              <ShoppingBag size={14} />
-              <span>{isAr ? currentSlide.ctaTextAr : currentSlide.ctaTextEn}</span>
-              {isAr ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
-            </Link>
-
-            {currentSlide.secondaryHref && (
-              <Link
-                href={currentSlide.secondaryHref}
-                className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs sm:text-sm backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5 active:scale-95"
+            {/* Nav Arrows & Play/Pause */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setUserToggledPause((p) => !p)}
+                className={styles.navArrow}
+                aria-label={userToggledPause ? (isAr ? "تشغيل" : "Play") : isAr ? "إيقاف مؤقت" : "Pause"}
+                title={userToggledPause ? (isAr ? "تشغيل" : "Play") : isAr ? "إيقاف مؤقت" : "Pause"}
               >
-                <span>{isAr ? currentSlide.secondaryTextAr : currentSlide.secondaryTextEn}</span>
-              </Link>
-            )}
+                {userToggledPause ? <Play size={12} className="fill-current" /> : <Pause size={12} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={prevSlide}
+                className={styles.navArrow}
+                aria-label={isAr ? "الشريحة السابقة" : "Previous slide"}
+              >
+                <DirectionArrowPrev size={15} />
+              </button>
+
+              <button
+                type="button"
+                onClick={nextSlide}
+                className={styles.navArrow}
+                aria-label={isAr ? "الشريحة التالية" : "Next slide"}
+              >
+                <DirectionArrowNext size={15} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* 4. Smart Controls Bar & Smooth Time Progress Bar */}
-        <div className={styles.controlsBar}>
-          {/* Slide Progress Indicators (Pills) */}
-          <div className={styles.indicatorsTrack} aria-label={isAr ? "مؤشرات الشرائح" : "Slide progress"}>
-            {SLIDES.map((slide, idx) => {
-              const isPillActive = idx === currentIndex;
-              const isPillPast = idx < currentIndex;
-              const isEffectivelyPaused = isPaused || userToggledPause;
+        {/* Middle Body: Dynamic Title & Description */}
+        <div className="space-y-1">
+          <h3 className="text-base sm:text-lg font-black text-foreground transition-all duration-300 leading-tight">
+            {isAr ? currentSlide.arTitle : currentSlide.enTitle}
+          </h3>
+          <p className="text-xs sm:text-sm text-muted line-clamp-2 leading-relaxed transition-all duration-300">
+            {isAr ? currentSlide.arText : currentSlide.enText}
+          </p>
+        </div>
 
-              return (
-                <button
-                  key={slide.id}
-                  type="button"
-                  onClick={() => changeSlide(idx)}
-                  className={`${styles.indicatorPill} ${
-                    isPillActive
-                      ? isEffectivelyPaused
-                        ? `${styles.indicatorActive} ${styles.indicatorActivePaused}`
-                        : styles.indicatorActive
-                      : isPillPast
-                      ? styles.indicatorFilled
-                      : ""
-                  }`}
-                  aria-label={`${isAr ? "الشريحة" : "Slide"} ${idx + 1}`}
-                  title={isAr ? slide.arTitle : slide.enTitle}
-                >
-                  <div key={`${idx}-${progressKey}`} className={styles.indicatorFill} />
-                </button>
-              );
-            })}
-          </div>
+        {/* Bottom Actions: Shopping CTA & Secondary Link */}
+        <div className="flex items-center gap-2.5 pt-0.5 flex-wrap">
+          <Link
+            href={currentSlide.ctaHref}
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-orange-500/25 flex items-center gap-1.5 transition-all active:scale-95"
+          >
+            <ShoppingBag size={14} />
+            <span>{isAr ? currentSlide.ctaTextAr : currentSlide.ctaTextEn}</span>
+            {isAr ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
+          </Link>
 
-          {/* Navigation Tools (Prev / Pause / Next) */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Play / Pause Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setUserToggledPause((p) => !p)}
-              className={styles.navArrow}
-              aria-label={userToggledPause ? (isAr ? "تشغيل التمرير التلقائي" : "Play") : isAr ? "إيقاف مؤقت" : "Pause"}
-              title={userToggledPause ? (isAr ? "تشغيل" : "Play") : isAr ? "إيقاف مؤقت" : "Pause"}
+          {currentSlide.secondaryHref && (
+            <Link
+              href={currentSlide.secondaryHref}
+              className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-surface-soft hover:bg-surface border border-line text-foreground font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 active:scale-95 shadow-xs"
             >
-              {userToggledPause ? <Play size={13} className="fill-white" /> : <Pause size={13} />}
-            </button>
-
-            {/* Previous Slide Button */}
-            <button
-              type="button"
-              onClick={prevSlide}
-              className={styles.navArrow}
-              aria-label={isAr ? "الشريحة السابقة" : "Previous slide"}
-            >
-              <DirectionArrowPrev size={16} />
-            </button>
-
-            {/* Next Slide Button */}
-            <button
-              type="button"
-              onClick={nextSlide}
-              className={styles.navArrow}
-              aria-label={isAr ? "الشريحة التالية" : "Next slide"}
-            >
-              <DirectionArrowNext size={16} />
-            </button>
-          </div>
+              <span>{isAr ? currentSlide.secondaryTextAr : currentSlide.secondaryTextEn}</span>
+            </Link>
+          )}
         </div>
       </div>
     </div>
