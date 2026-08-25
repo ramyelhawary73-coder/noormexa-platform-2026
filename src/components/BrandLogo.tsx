@@ -15,15 +15,13 @@ export interface BrandLogoProps {
 }
 
 /**
- * NOORMEXA Pure SVG 3D Spherical 'N' Emblem
- * 
- * Technical Design Specification:
- * - A 3D tech-globe sphere where surface lines & ribbon curves specifically FORM THE LETTER 'N'
- * - Left vertical curved line/pillar, 3D diagonal sweep, right vertical curved line/pillar
- * - 3D Sphere gradient: #0d47a1 (top-left) -> #1565c0 -> #1a6dd4 (center) -> #b8922e -> #e6c15a (bottom-right)
- * - Surface technical lines: semi-transparent white (opacity 0.10-0.25), stroke-width 1.2px
- * - Upper-left specular highlight: white radial gradient
- * - Soft drop shadow: #1565c0, opacity 0.25, blur 8-10px
+ * NOORMEXA High-End Interwoven Global Tech 'N' Emblem
+ *
+ * Design Concept:
+ * - A bold, clear letter 'N' composed of sleek aerodynamic energy ribbons (Left Blue Stem, Diagonal Radiant Gold Band, Right Blue/Cyan Stem).
+ * - Intertwined with 3D orbital planetary network threads (Global Commerce Lines) wrapping around the N to form a futuristic wireframe globe.
+ * - Glowing network nodes & trade route intersections representing global e-commerce.
+ * - Perfectly optimized for crisp rendering at any scale (from 24px navbar icon to 512px hero).
  */
 export function NoormexaEmblemSvg({
   size,
@@ -48,203 +46,279 @@ export function NoormexaEmblemSvg({
       shapeRendering="geometricPrecision"
       textRendering="geometricPrecision"
       className={`shrink-0 select-none ${className}`}
-      aria-label="NOORMEXA 3D Spherical N Emblem"
+      aria-label="NOORMEXA Global E-Commerce Emblem"
     >
       <defs>
         {!monochrome ? (
           <>
-            {/* Sphere Body 3D Gradient */}
-            <linearGradient id={`sphere_grad_${uid}`} x1="15%" y1="10%" x2="90%" y2="90%">
-              <stop offset="0%" stopColor="#0d47a1" />
-              <stop offset="26%" stopColor="#1565c0" />
-              <stop offset="52%" stopColor="#1a6dd4" />
-              <stop offset="78%" stopColor="#b8922e" />
-              <stop offset="100%" stopColor="#e6c15a" />
-            </linearGradient>
-
-            {/* Upper-Left Radial Specular Highlight */}
-            <radialGradient id={`highlight_grad_${uid}`} cx="32%" cy="28%" r="65%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity={isDark ? "0.22" : "0.18"} />
-              <stop offset="45%" stopColor="#FFFFFF" stopOpacity={isDark ? "0.10" : "0.08"} />
-              <stop offset="85%" stopColor="#FFFFFF" stopOpacity="0.0" />
+            {/* Background Ambient Glow */}
+            <radialGradient id={`globe_core_glow_${uid}`} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor={isDark ? "#1E3A8A" : "#DBEAFE"} stopOpacity={isDark ? "0.45" : "0.75"} />
+              <stop offset="60%" stopColor={isDark ? "#0F172A" : "#EFF6FF"} stopOpacity={isDark ? "0.2" : "0.3"} />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0" />
             </radialGradient>
 
-            {/* Soft Blue Drop Shadow */}
-            <filter id={`shadow_${uid}`} x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow
-                dx="0"
-                dy="5"
-                stdDeviation="8"
-                floodColor="#1565c0"
-                floodOpacity={isDark ? "0.45" : "0.25"}
-              />
+            {/* N - Left Pillar Gradient (Electric Blue / Tech Sapphire) */}
+            <linearGradient id={`n_left_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38BDF8" />
+              <stop offset="40%" stopColor="#0284C7" />
+              <stop offset="100%" stopColor="#0369A1" />
+            </linearGradient>
+
+            {/* N - Diagonal Commerce Stream Gradient (Radiant Imperial Gold) */}
+            <linearGradient id={`n_diagonal_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FEF08A" />
+              <stop offset="25%" stopColor="#FBBF24" />
+              <stop offset="60%" stopColor="#F59E0B" />
+              <stop offset="100%" stopColor="#D97706" />
+            </linearGradient>
+
+            {/* N - Right Pillar Gradient (Deep Indigo to Ocean Blue) */}
+            <linearGradient id={`n_right_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#60A5FA" />
+              <stop offset="50%" stopColor="#2563EB" />
+              <stop offset="100%" stopColor="#1D4ED8" />
+            </linearGradient>
+
+            {/* Orbital Thread 1 - Equatorial Golden Commerce Loop */}
+            <linearGradient id={`orbit_gold_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FDE047" stopOpacity="0.9" />
+              <stop offset="40%" stopColor="#F59E0B" stopOpacity="0.8" />
+              <stop offset="80%" stopColor="#D97706" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#B45309" stopOpacity="0" />
+            </linearGradient>
+
+            {/* Orbital Thread 2 - Latitude Cyan Data Flow */}
+            <linearGradient id={`orbit_cyan_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.9" />
+              <stop offset="50%" stopColor="#0284C7" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#0369A1" stopOpacity="0.2" />
+            </linearGradient>
+
+            {/* Orbital Thread 3 - Meridian Blue Fiber */}
+            <linearGradient id={`orbit_meridian_${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#93C5FD" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#1E40AF" stopOpacity="0.1" />
+            </linearGradient>
+
+            {/* High-Tech Glow Filters */}
+            <filter id={`glow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
 
-            {/* N Gold Ribbon Gradient */}
-            <linearGradient id={`gold_ribbon_${uid}`} x1="20%" y1="15%" x2="90%" y2="90%">
-              <stop offset="0%" stopColor={isDark ? "#FFF0C4" : "#FCEAB2"} />
-              <stop offset="35%" stopColor={isDark ? "#F3D072" : "#E5C15E"} />
-              <stop offset="70%" stopColor={isDark ? "#D4A745" : "#C29738"} />
-              <stop offset="100%" stopColor={isDark ? "#A57920" : "#916817"} />
-            </linearGradient>
-
-            {/* N Blue Ribbon Gradient */}
-            <linearGradient id={`blue_ribbon_${uid}`} x1="10%" y1="10%" x2="80%" y2="85%">
-              <stop offset="0%" stopColor={isDark ? "#69B4FF" : "#54A5FF"} />
-              <stop offset="40%" stopColor={isDark ? "#2D8BFA" : "#1E7BE8"} />
-              <stop offset="75%" stopColor={isDark ? "#196BCB" : "#125BB5"} />
-              <stop offset="100%" stopColor={isDark ? "#0C448F" : "#083677"} />
-            </linearGradient>
-
-            <clipPath id={`clip_${uid}`}>
-              <circle cx="80" cy="80" r="58" />
-            </clipPath>
+            {/* 3D Diagonal Ribbon Drop Shadow */}
+            <filter id={`ribbon_shadow_${uid}`} x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="-2" dy="3.5" stdDeviation="3" floodColor="#0F172A" floodOpacity={isDark ? "0.7" : "0.4"} />
+            </filter>
           </>
-        ) : (
-          <clipPath id={`clip_${uid}`}>
-            <circle cx="80" cy="80" r="58" />
-          </clipPath>
-        )}
+        ) : null}
       </defs>
 
-      <g id={`emblem_group_${uid}`} filter={!monochrome ? `url(#shadow_${uid})` : undefined}>
-        {/* 1. 3D Sphere Base */}
+      {/* 1. Ambient Globe Depth Glow */}
+      {!monochrome && (
+        <circle cx="80" cy="80" r="62" fill={`url(#globe_core_glow_${uid})`} />
+      )}
+
+      {/* ======================================================== */}
+      {/* 2. BACKGROUND GLOBE THREADS (Layers behind the N)        */}
+      {/* ======================================================== */}
+      <g id={`globe_back_threads_${uid}`}>
+        {/* Outer Globe Boundary Ring (Soft Fiber) */}
         <circle
           cx="80"
           cy="80"
-          r="58"
-          fill={monochrome ? (isDark ? "#1E293B" : "#0F172A") : `url(#sphere_grad_${uid})`}
+          r="56"
+          stroke={monochrome ? (isDark ? "#475569" : "#CBD5E1") : (isDark ? "#38BDF8" : "#0284C7")}
+          strokeWidth="1.2"
+          strokeDasharray="4 3"
+          strokeOpacity={isDark ? "0.35" : "0.3"}
         />
 
-        {/* 2. Spherical Ambient Highlight */}
-        {!monochrome && (
-          <circle cx="80" cy="80" r="58" fill={`url(#highlight_grad_${uid})`} />
-        )}
-
-        {/* 3. Technical Surface Lines & 'N' Geometry (Clipped to Sphere) */}
-        <g clipPath={`url(#clip_${uid})`}>
-          {/* Background Technical Latitude & Longitude Arcs (Globe Grid) */}
-          <path d="M 22,80 Q 80,62 138,80" stroke="#FFFFFF" strokeOpacity={isDark ? "0.18" : "0.14"} strokeWidth="1.2" fill="none" />
-          <path d="M 27,55 Q 80,40 133,55" stroke="#FFFFFF" strokeOpacity={isDark ? "0.14" : "0.12"} strokeWidth="1.2" fill="none" />
-          <path d="M 27,105 Q 80,120 133,105" stroke="#FFFFFF" strokeOpacity={isDark ? "0.14" : "0.12"} strokeWidth="1.2" fill="none" />
-          <path d="M 80,22 Q 62,80 80,138" stroke="#FFFFFF" strokeOpacity={isDark ? "0.14" : "0.12"} strokeWidth="1.2" fill="none" />
-
-          {/* Network Nodes */}
-          <circle cx="48" cy="55" r="2" fill="#FFFFFF" fillOpacity="0.35" />
-          <circle cx="112" cy="105" r="2" fill="#FFFFFF" fillOpacity="0.35" />
-          <circle cx="80" cy="80" r="2.5" fill="#FFFFFF" fillOpacity="0.4" />
-
-          {/* ======================================================== */}
-          {/* THE LETTER 'N' WRAPPED IN 3D SPHERICAL SHAPE             */}
-          {/* ======================================================== */}
-
-          {/* [N - Left Pillar] Curved 3D Vertical Band */}
-          <path
-            d="M 44,38 
-               C 36,52 32,68 32,84 
-               C 32,100 37,114 45,124 
-               C 49,129 55,126 55,120 
-               C 49,110 45,98 45,84 
-               C 45,69 49,56 55,44 
-               C 56,40 50,35 44,38 Z"
-            fill={monochrome ? (isDark ? "#94A3B8" : "#475569") : `url(#blue_ribbon_${uid})`}
-          />
-          <path
-            d="M 44,38 C 36,54 32,69 32,84 C 32,100 37,114 45,124"
-            stroke="#FFFFFF"
-            strokeOpacity={isDark ? "0.35" : "0.25"}
-            strokeWidth="1.2"
-            fill="none"
-          />
-
-          {/* [N - Right Pillar] Curved 3D Vertical Band */}
-          <path
-            d="M 105,38 
-               C 111,50 115,66 115,82 
-               C 115,98 111,112 105,124 
-               C 103,128 108,132 113,128 
-               C 122,116 128,100 128,82 
-               C 128,64 122,48 113,36 
-               C 108,32 103,35 105,38 Z"
-            fill={monochrome ? (isDark ? "#E2E8F0" : "#94A3B8") : `url(#gold_ribbon_${uid})`}
-          />
-          <path
-            d="M 113,36 C 122,48 128,64 128,82 C 128,100 122,116 113,128"
-            stroke="#FFFFFF"
-            strokeOpacity={isDark ? "0.4" : "0.3"}
-            strokeWidth="1.2"
-            fill="none"
-          />
-
-          {/* [N - Diagonal Stroke] Dynamic 3D Spherical Ribbon (Top-Left to Bottom-Right) */}
-          <path
-            d="M 44,38 
-               C 54,34 66,40 76,52 
-               L 115,116 
-               C 120,124 116,130 108,130 
-               C 100,130 92,122 84,110 
-               L 46,48 
-               C 42,42 42,39 44,38 Z"
-            fill={monochrome ? (isDark ? "#94A3B8" : "#475569") : `url(#blue_ribbon_${uid})`}
-            opacity="0.85"
-          />
-          
-          {/* Primary Foreground 3D Gold Diagonal */}
-          <path
-            d="M 50,34 
-               C 62,30 76,36 88,50 
-               L 122,114 
-               C 128,124 124,132 114,132 
-               C 106,132 98,124 88,110 
-               L 54,46 
-               C 48,38 46,35 50,34 Z"
-            fill={monochrome ? (isDark ? "#F8FAFC" : "#CBD5E1") : `url(#gold_ribbon_${uid})`}
-          />
-
-          {/* Precise Surface Technical Tracing Lines (1.2px) forming the N */}
-          <path
-            d="M 50,34 L 122,114"
-            stroke="#FFFFFF"
-            strokeOpacity={isDark ? "0.3" : "0.22"}
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M 54,46 L 88,110"
-            stroke="#FFFFFF"
-            strokeOpacity={isDark ? "0.2" : "0.14"}
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M 33,84 L 127,84"
-            stroke="#FFFFFF"
-            strokeOpacity={isDark ? "0.16" : "0.12"}
-            strokeWidth="1.2"
-            strokeDasharray="3 3"
-            fill="none"
-          />
-
-          {/* Diagonal Specular Sheen */}
-          <path
-            d="M 58,38 C 66,34 78,40 86,52 L 118,112 C 122,118 118,124 112,124 L 58,38 Z"
-            fill="#FFFFFF"
-            fillOpacity={isDark ? "0.25" : "0.2"}
-          />
-        </g>
-
-        {/* Outer Sphere Thin Technical Rim */}
-        <circle
-          cx="80"
-          cy="80"
-          r="58"
-          stroke="#FFFFFF"
-          strokeOpacity={isDark ? "0.2" : "0.15"}
-          strokeWidth="1.2"
+        {/* Background Meridian Arc (Left) */}
+        <path
+          d="M 80,24 C 44,24 38,80 38,80 C 38,80 44,136 80,136"
+          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : `url(#orbit_cyan_${uid})`}
+          strokeWidth="1.4"
+          strokeOpacity={isDark ? "0.4" : "0.35"}
+          strokeDasharray="5 3"
           fill="none"
         />
+
+        {/* Background Meridian Arc (Right) */}
+        <path
+          d="M 80,24 C 116,24 122,80 122,80 C 122,80 116,136 80,136"
+          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : `url(#orbit_meridian_${uid})`}
+          strokeWidth="1.4"
+          strokeOpacity={isDark ? "0.4" : "0.35"}
+          strokeDasharray="5 3"
+          fill="none"
+        />
+
+        {/* Background Upper Latitude Thread */}
+        <path
+          d="M 36,52 C 55,40 105,40 124,52"
+          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : (isDark ? "#93C5FD" : "#60A5FA")}
+          strokeWidth="1.2"
+          strokeOpacity={isDark ? "0.3" : "0.25"}
+          fill="none"
+        />
+
+        {/* Background Lower Latitude Thread */}
+        <path
+          d="M 36,108 C 55,120 105,120 124,108"
+          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : (isDark ? "#FCD34D" : "#F59E0B")}
+          strokeWidth="1.2"
+          strokeOpacity={isDark ? "0.3" : "0.25"}
+          fill="none"
+        />
+      </g>
+
+      {/* ======================================================== */}
+      {/* 3. THE ICONIC LETTER 'N' (CORE LOGO IDENTITY)            */}
+      {/* ======================================================== */}
+      <g id={`core_letter_n_${uid}`}>
+        {/* [N: LEFT PILLAR - Sleek Aerodynamic Tech Stem] */}
+        <path
+          d="M 38,34 
+             C 47,34 52,39 52,47 
+             L 52,113 
+             C 52,121 47,126 38,126 
+             C 34,126 31,120 31,113 
+             L 31,47 
+             C 31,40 34,34 38,34 Z"
+          fill={monochrome ? (isDark ? "#94A3B8" : "#475569") : `url(#n_left_grad_${uid})`}
+        />
+        {/* Left Pillar Light Accent Ridge */}
+        <path
+          d="M 34,44 L 34,116"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeOpacity={isDark ? "0.8" : "0.6"}
+          fill="none"
+        />
+
+        {/* [N: RIGHT PILLAR - Sleek Aerodynamic Tech Stem] */}
+        <path
+          d="M 122,34 
+             C 126,34 129,40 129,47 
+             L 129,113 
+             C 129,120 126,126 122,126 
+             C 113,126 108,121 108,113 
+             L 108,47 
+             C 108,39 113,34 122,34 Z"
+          fill={monochrome ? (isDark ? "#64748B" : "#334155") : `url(#n_right_grad_${uid})`}
+        />
+        {/* Right Pillar Light Accent Ridge */}
+        <path
+          d="M 126,44 L 126,116"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeOpacity={isDark ? "0.8" : "0.6"}
+          fill="none"
+        />
+
+        {/* [N: DIAGONAL POWER STRIP - Dynamic 3D Intersecting Gold Band] */}
+        {/* Extends cleanly from Top-Left Pillar to Bottom-Right Pillar */}
+        <path
+          d="M 33,36 
+             C 41,32 50,35 56,43 
+             L 126,116 
+             C 130,121 127,128 120,128 
+             C 112,128 104,123 98,115 
+             L 32,47 
+             C 28,42 28,38 33,36 Z"
+          fill={monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : `url(#n_diagonal_grad_${uid})`}
+          filter={!monochrome ? `url(#ribbon_shadow_${uid})` : undefined}
+        />
+
+        {/* Diagonal Golden Core Light Stream (High Speed Fiber) */}
+        <path
+          d="M 37,38 L 121,123"
+          stroke="#FFFFFF"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeOpacity={isDark ? "0.95" : "0.85"}
+          fill="none"
+        />
+
+        {/* Fast Tech Fiber Tracer Lines on Diagonal */}
+        <path
+          d="M 44,48 L 110,117"
+          stroke="#FEF08A"
+          strokeWidth="1"
+          strokeDasharray="6 4"
+          strokeOpacity="0.9"
+          fill="none"
+        />
+      </g>
+
+      {/* ======================================================== */}
+      {/* 4. FOREGROUND INTERWOVEN GLOBE THREADS & ORBITAL RINGS   */}
+      {/* ======================================================== */}
+      <g id={`globe_front_threads_${uid}`}>
+        {/* Thread A: Main Dynamic 3D Equatorial Orbit (Sweeps around the globe & cuts across N) */}
+        <path
+          d="M 18,92 
+             C 25,62 70,55 105,68 
+             C 128,77 142,92 142,96 
+             C 142,102 120,116 85,114 
+             C 50,112 20,98 18,92 Z"
+          stroke={monochrome ? (isDark ? "#CBD5E1" : "#475569") : `url(#orbit_gold_${uid})`}
+          strokeWidth="2.2"
+          fill="none"
+        />
+
+        {/* Thread B: Angled Planetary Orbit Ring (Global Logistics / Air Routes) */}
+        <path
+          d="M 28,118 
+             C 32,100 68,60 110,44 
+             C 134,35 146,42 146,48 
+             C 146,56 122,86 82,110 
+             C 54,126 30,126 28,118 Z"
+          stroke={monochrome ? (isDark ? "#94A3B8" : "#64748B") : `url(#orbit_cyan_${uid})`}
+          strokeWidth="1.8"
+          strokeDasharray="6 3"
+          fill="none"
+        />
+
+        {/* Thread C: Equatorial Horizon Fiber Line */}
+        <path
+          d="M 24,80 C 45,74 115,74 136,80"
+          stroke="#FFFFFF"
+          strokeWidth="1.2"
+          strokeOpacity={isDark ? "0.4" : "0.3"}
+          fill="none"
+        />
+
+        {/* ======================================================== */}
+        {/* 5. LUMINOUS GLOBAL TRADE NODES (Connecting Cities/Hubs)  */}
+        {/* ======================================================== */}
+        {/* Node 1: Top-Left Anchor Hub */}
+        <circle cx="38" cy="38" r="4.5" fill="#38BDF8" filter={!monochrome ? `url(#glow_${uid})` : undefined} />
+        <circle cx="38" cy="38" r="2.2" fill="#FFFFFF" />
+
+        {/* Node 2: Center-Right Global Hub */}
+        <circle cx="124" cy="74" r="3.5" fill="#FBBF24" filter={!monochrome ? `url(#glow_${uid})` : undefined} />
+        <circle cx="124" cy="74" r="1.8" fill="#FFFFFF" />
+
+        {/* Node 3: Bottom-Right Anchor Hub */}
+        <circle cx="122" cy="122" r="4.5" fill="#F59E0B" filter={!monochrome ? `url(#glow_${uid})` : undefined} />
+        <circle cx="122" cy="122" r="2.2" fill="#FFFFFF" />
+
+        {/* Node 4: Left Orbit Spark */}
+        <circle cx="28" cy="94" r="2.5" fill="#38BDF8" />
+        <circle cx="28" cy="94" r="1.2" fill="#FFFFFF" />
+
+        {/* Node 5: Top Orbit Spark */}
+        <circle cx="110" cy="44" r="2.8" fill="#FDE047" />
+        <circle cx="110" cy="44" r="1.4" fill="#FFFFFF" />
+
+        {/* Node 6: Center Cross Intersection Spark */}
+        <circle cx="80" cy="80" r="3" fill="#FFFFFF" filter={!monochrome ? `url(#glow_${uid})` : undefined} />
       </g>
     </svg>
   );
@@ -252,15 +326,11 @@ export function NoormexaEmblemSvg({
 
 /**
  * Universal BrandLogo component for NOORMEXA
- * 
- * Features:
- * - Pure SVG Vector rendering
- * - 3D Sphere wrapped with technical lines that form the letter "N"
- * - Gradient: #0d47a1 -> #1565c0 -> #1a6dd4 -> #b8922e -> #e6c15a
- * - Text: "NOORMEXA" in sans-serif, weight 900, letter-spacing: 3px
- *   Text gradient: #1565c0 -> #4a90d9 -> #c8a24d
- * - Subtitle: "GLOBAL SMART SHOPPING" in gray (#7a7a8e), letter-spacing: 5px, weight 400
- * - Scales seamlessly from 16px to 300px+
+ *
+ * Professional E-Commerce Identity:
+ * - Clear, high-contrast letter 'N' constructed with modern aerodynamic gradients
+ * - Wrapped with 3D intertwined global network fibers & orbital trade nodes
+ * - Sophisticated typography: "NOORMEXA" in high-contrast blue/gold with "GLOBAL SMART SHOPPING"
  */
 export default function BrandLogo({
   size = "responsive",
@@ -275,7 +345,7 @@ export default function BrandLogo({
   const { theme } = useTheme();
   const isDark = forceDark ? true : forceLight ? false : theme === "dark";
 
-  // Pre-configured dimensions
+  // Dimension presets
   const iconConfig = {
     xs: "w-7 h-7",
     sm: "w-8 h-8 sm:w-9 sm:h-9",
@@ -297,13 +367,13 @@ export default function BrandLogo({
   };
 
   const subtitleSizes = {
-    xs: "text-[7.5px] tracking-[0.2em]",
-    sm: "text-[8.5px] sm:text-[9.5px] tracking-[0.22em]",
-    md: "text-[9.5px] sm:text-[10.5px] md:text-[11.5px] tracking-[0.25em]",
-    lg: "text-[11px] sm:text-[13px] md:text-[15px] tracking-[0.28em]",
-    xl: "text-[13px] sm:text-[15px] md:text-[17px] tracking-[0.3em]",
-    "2xl": "text-[15px] sm:text-[18px] md:text-[20px] tracking-[0.32em]",
-    responsive: "text-[8px] xs:text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] tracking-[0.25em]",
+    xs: "text-[7px] tracking-[0.22em]",
+    sm: "text-[8px] sm:text-[9px] tracking-[0.24em]",
+    md: "text-[9px] sm:text-[10px] md:text-[11px] tracking-[0.26em]",
+    lg: "text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.28em]",
+    xl: "text-[13px] sm:text-[15px] md:text-[16px] tracking-[0.3em]",
+    "2xl": "text-[15px] sm:text-[17px] md:text-[19px] tracking-[0.32em]",
+    responsive: "text-[8px] xs:text-[9px] sm:text-[10px] md:text-[10.5px] lg:text-[11.5px] tracking-[0.26em]",
   };
 
   const activeIconClass = iconConfig[size] || iconConfig.responsive;
@@ -322,7 +392,7 @@ export default function BrandLogo({
   // Variant: Stacked
   if (variant === "stacked") {
     return (
-      <div dir="ltr" className={`inline-flex flex-col items-center justify-center gap-2 sm:gap-2.5 select-none shrink-0 ${className}`}>
+      <div dir="ltr" className={`inline-flex flex-col items-center justify-center gap-2 select-none shrink-0 ${className}`}>
         <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center shrink-0">
           <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full" />
         </div>
@@ -331,12 +401,12 @@ export default function BrandLogo({
             <span
               className={`font-black ${textSizes[size]} transition-all duration-200 bg-clip-text text-transparent ${
                 isDark
-                  ? "bg-gradient-to-r from-[#4AA8FF] via-[#80C3FF] to-[#E5C15E]"
-                  : "bg-gradient-to-r from-[#1565c0] via-[#4a90d9] to-[#c8a24d]"
+                  ? "bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#F59E0B]"
+                  : "bg-gradient-to-r from-[#0369A1] via-[#0284C7] to-[#D97706]"
               }`}
               style={{
-                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-                letterSpacing: "3px",
+                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
+                letterSpacing: "3.5px",
               }}
             >
               NOORMEXA
@@ -344,11 +414,11 @@ export default function BrandLogo({
           </div>
           {showTagline && (
             <span
-              className={`font-normal uppercase ${subtitleSizes[size]} mt-1 transition-colors duration-200 ${
-                isDark ? "text-slate-400" : "text-[#7a7a8e]"
+              className={`font-medium uppercase ${subtitleSizes[size]} mt-1 transition-colors duration-200 ${
+                isDark ? "text-slate-400" : "text-[#64748B]"
               }`}
               style={{
-                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
                 letterSpacing: "5px",
               }}
             >
@@ -371,12 +441,12 @@ export default function BrandLogo({
           <span
             className={`font-black ${textSizes[size]} transition-all duration-200 bg-clip-text text-transparent ${
               isDark
-                ? "bg-gradient-to-r from-[#4AA8FF] via-[#80C3FF] to-[#E5C15E]"
-                : "bg-gradient-to-r from-[#1565c0] via-[#4a90d9] to-[#c8a24d]"
+                ? "bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#F59E0B]"
+                : "bg-gradient-to-r from-[#0369A1] via-[#0284C7] to-[#D97706]"
             }`}
             style={{
-              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-              letterSpacing: "3px",
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
+              letterSpacing: "3.5px",
             }}
           >
             NOORMEXA
@@ -386,29 +456,29 @@ export default function BrandLogo({
     );
   }
 
-  // Default: Horizontal Brand Identity (Gap: 20-24px, 3D Spherical N Icon + Gradient Typography + Subtitle)
+  // Default: Horizontal Brand Identity (Gap: 16-20px, Interwoven Global 'N' Emblem + Modern Typography)
   return (
     <div
       dir="ltr"
-      className={`inline-flex items-center gap-2.5 xs:gap-3 sm:gap-3.5 md:gap-4 select-none shrink-0 transition-transform duration-200 hover:scale-[1.01] ${className}`}
+      className={`inline-flex items-center gap-2.5 xs:gap-3 sm:gap-3.5 select-none shrink-0 transition-transform duration-200 hover:scale-[1.01] ${className}`}
     >
-      {/* 3D Spherical 'N' Emblem */}
+      {/* Interwoven Global 'N' Emblem */}
       <div className={`${activeIconClass} flex items-center justify-center shrink-0`}>
         <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full" />
       </div>
 
-      {/* Typography: "NOORMEXA" with gradient + "GLOBAL SMART SHOPPING" */}
+      {/* Typography: "NOORMEXA" + "GLOBAL SMART SHOPPING" */}
       <div dir="ltr" className="flex flex-col justify-center text-left min-w-0">
         <div dir="ltr" className="flex items-center font-black leading-none select-none">
           <span
             className={`font-black ${textSizes[size]} transition-all duration-200 bg-clip-text text-transparent ${
               isDark
-                ? "bg-gradient-to-r from-[#4AA8FF] via-[#80C3FF] to-[#E5C15E]"
-                : "bg-gradient-to-r from-[#1565c0] via-[#4a90d9] to-[#c8a24d]"
+                ? "bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#F59E0B]"
+                : "bg-gradient-to-r from-[#0369A1] via-[#0284C7] to-[#D97706]"
             }`}
             style={{
-              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-              letterSpacing: "3px",
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
+              letterSpacing: "3.5px",
             }}
           >
             NOORMEXA
@@ -417,11 +487,11 @@ export default function BrandLogo({
 
         {showTagline && (
           <span
-            className={`font-normal uppercase ${subtitleSizes[size]} mt-0.5 sm:mt-1 transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${
-              isDark ? "text-slate-400" : "text-[#7a7a8e]"
+            className={`font-semibold uppercase ${subtitleSizes[size]} mt-0.5 sm:mt-1 transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${
+              isDark ? "text-slate-400" : "text-[#64748B]"
             }`}
             style={{
-              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
               letterSpacing: "5px",
             }}
           >

@@ -1,154 +1,144 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" fill="none">
   <defs>
-    <linearGradient id="ed_sphere_grad" x1="15%" y1="10%" x2="90%" y2="90%">
-      <stop offset="0%" stop-color="#0d47a1" />
-      <stop offset="26%" stop-color="#1565c0" />
-      <stop offset="52%" stop-color="#1a6dd4" />
-      <stop offset="78%" stop-color="#b8922e" />
-      <stop offset="100%" stop-color="#e6c15a" />
-    </linearGradient>
-
-    <radialGradient id="ed_highlight_grad" cx="32%" cy="28%" r="65%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22" />
-      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.10" />
-      <stop offset="85%" stop-color="#FFFFFF" stop-opacity="0.0" />
+    <!-- 3D Sphere Base Gradient for Dark Mode -->
+    <radialGradient id="em_dark_sphere_bg_grad" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#1976D2" />
+      <stop offset="35%" stop-color="#0D47A1" />
+      <stop offset="70%" stop-color="#082A66" />
+      <stop offset="90%" stop-color="#031433" />
+      <stop offset="100%" stop-color="#010A1A" />
     </radialGradient>
 
-    <filter id="ed_shadow_filter" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="5" stdDeviation="12" flood-color="#1565c0" flood-opacity="0.45" />
+    <!-- Outer Rim Glow -->
+    <linearGradient id="em_dark_sphere_rim_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#2563EB" stop-opacity="0.4" />
+      <stop offset="75%" stop-color="#FBBF24" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#FEF08A" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- N - Left Pillar Blue Gradient -->
+    <linearGradient id="em_dark_n_left_pillar_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD" />
+      <stop offset="30%" stop-color="#3B82F6" />
+      <stop offset="70%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#0F2F7D" />
+    </linearGradient>
+
+    <!-- N - Diagonal Stroke Gold Gradient -->
+    <linearGradient id="em_dark_n_diag_gold_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF5" />
+      <stop offset="20%" stop-color="#FDE68A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="80%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#92400E" />
+    </linearGradient>
+
+    <!-- N - Right Pillar Gold Gradient -->
+    <linearGradient id="em_dark_n_right_pillar_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="35%" stop-color="#FBBF24" />
+      <stop offset="75%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#78350F" />
+    </linearGradient>
+
+    <!-- Drop Shadow for 3D Layer Overlap -->
+    <filter id="em_dark_n_3d_shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="-2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.8" />
     </filter>
 
-    <linearGradient id="ed_gold_ribbon" x1="20%" y1="15%" x2="90%" y2="90%">
-      <stop offset="0%" stop-color="#FFF0C4" />
-      <stop offset="35%" stop-color="#F3D072" />
-      <stop offset="70%" stop-color="#D4A745" />
-      <stop offset="100%" stop-color="#A57920" />
-    </linearGradient>
+    <!-- Soft Luminous Glow Under Sphere -->
+    <filter id="em_dark_sphere_outer_shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#2563EB" flood-opacity="0.5" />
+    </filter>
 
-    <linearGradient id="ed_blue_ribbon" x1="10%" y1="10%" x2="80%" y2="85%">
-      <stop offset="0%" stop-color="#69B4FF" />
-      <stop offset="40%" stop-color="#2D8BFA" />
-      <stop offset="75%" stop-color="#196BCB" />
-      <stop offset="100%" stop-color="#0C448F" />
-    </linearGradient>
-
-    <clipPath id="ed_clip">
+    <!-- Sphere Clip -->
+    <clipPath id="em_dark_sphere_circle_clip">
       <circle cx="80" cy="80" r="58" />
     </clipPath>
   </defs>
 
-  <g id="noormexa-emblem-dark" filter="url(#ed_shadow_filter)">
-    <circle cx="80" cy="80" r="58" fill="url(#ed_sphere_grad)" />
-    <circle cx="80" cy="80" r="58" fill="url(#ed_highlight_grad)" />
+  <g id="noormexa-emblem-dark-svg" filter="url(#em_dark_sphere_outer_shadow)">
+    <circle cx="80" cy="80" r="58" fill="url(#em_dark_sphere_bg_grad)" />
 
-    <g clip-path="url(#ed_clip)">
-      <path d="M 22,80 Q 80,62 138,80" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.2" fill="none" />
-      <path d="M 27,55 Q 80,40 133,55" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.2" fill="none" />
-      <path d="M 27,105 Q 80,120 133,105" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.2" fill="none" />
-      <path d="M 80,22 Q 62,80 80,138" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.2" fill="none" />
+    <g clip-path="url(#em_dark_sphere_circle_clip)">
+      <path d="M 22,80 C 45,68 115,68 138,80" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1.2" stroke-dasharray="3 3" fill="none" />
+      <path d="M 27,54 C 50,42 110,42 133,54" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.2" fill="none" />
+      <path d="M 27,106 C 50,118 110,118 133,106" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.2" fill="none" />
 
-      <circle cx="48" cy="55" r="2.2" fill="#FFFFFF" fill-opacity="0.45" />
-      <circle cx="112" cy="105" r="2.2" fill="#FFFFFF" fill-opacity="0.45" />
-      <circle cx="80" cy="80" r="2.8" fill="#FFFFFF" fill-opacity="0.5" />
+      <path d="M 80,22 C 60,50 60,110 80,138" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1.2" fill="none" />
+      <path d="M 80,22 C 100,50 100,110 80,138" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1.2" fill="none" />
 
+      <circle cx="48" cy="54" r="2.8" fill="#93C5FD" fill-opacity="0.95" />
+      <circle cx="112" cy="106" r="2.8" fill="#FDE68A" fill-opacity="0.95" />
+      <circle cx="34" cy="80" r="2.2" fill="#FFFFFF" fill-opacity="0.7" />
+      <circle cx="126" cy="80" r="2.2" fill="#FFFFFF" fill-opacity="0.7" />
+
+      <!-- Left Pillar -->
       <path
-        d="M 44,38 
-           C 36,52 32,68 32,84 
-           C 32,100 37,114 45,124 
-           C 49,129 55,126 55,120 
-           C 49,110 45,98 45,84 
-           C 45,69 49,56 55,44 
-           C 56,40 50,35 44,38 Z"
-        fill="url(#ed_blue_ribbon)"
+        d="M 37,42 
+           C 47,38 53,44 53,52 
+           L 53,108 
+           C 53,118 45,124 37,120 
+           C 31,108 28,94 28,80 
+           C 28,66 31,52 37,42 Z"
+        fill="url(#em_dark_n_left_pillar_grad)"
       />
       <path
-        d="M 44,38 C 36,54 32,69 32,84 C 32,100 37,114 45,124"
-        stroke="#FFFFFF"
-        stroke-opacity="0.35"
-        stroke-width="1.2"
-        fill="none"
-      />
-
-      <path
-        d="M 105,38 
-           C 111,50 115,66 115,82 
-           C 115,98 111,112 105,124 
-           C 103,128 108,132 113,128 
-           C 122,116 128,100 128,82 
-           C 128,64 122,48 113,36 
-           C 108,32 103,35 105,38 Z"
-        fill="url(#ed_gold_ribbon)"
-      />
-      <path
-        d="M 113,36 C 122,48 128,64 128,82 C 128,100 122,116 113,128"
-        stroke="#FFFFFF"
-        stroke-opacity="0.4"
-        stroke-width="1.2"
-        fill="none"
-      />
-
-      <path
-        d="M 44,38 
-           C 54,34 66,40 76,52 
-           L 115,116 
-           C 120,124 116,130 108,130 
-           C 100,130 92,122 84,110 
-           L 46,48 
-           C 42,42 42,39 44,38 Z"
-        fill="url(#ed_blue_ribbon)"
-        opacity="0.9"
-      />
-      <path
-        d="M 50,34 
-           C 62,30 76,36 88,50 
-           L 122,114 
-           C 128,124 124,132 114,132 
-           C 106,132 98,124 88,110 
-           L 54,46 
-           C 48,38 46,35 50,34 Z"
-        fill="url(#ed_gold_ribbon)"
-      />
-
-      <path
-        d="M 50,34 L 122,114"
-        stroke="#FFFFFF"
-        stroke-opacity="0.3"
-        stroke-width="1.2"
+        d="M 37,42 C 31,53 28,66 28,80 C 28,94 31,107 37,120"
+        stroke="#BFDBFE"
+        stroke-width="2"
         stroke-linecap="round"
         fill="none"
       />
+
+      <!-- Right Pillar -->
       <path
-        d="M 54,46 L 88,110"
-        stroke="#FFFFFF"
-        stroke-opacity="0.2"
-        stroke-width="1.2"
+        d="M 123,42 
+           C 129,52 132,66 132,80 
+           C 132,94 129,108 123,118 
+           C 115,122 107,116 107,108 
+           L 107,52 
+           C 107,44 113,38 123,42 Z"
+        fill="url(#em_dark_n_right_pillar_grad)"
+      />
+      <path
+        d="M 123,42 C 129,52 132,66 132,80 C 132,94 129,108 123,118"
+        stroke="#FEF08A"
+        stroke-width="2"
         stroke-linecap="round"
         fill="none"
       />
+
+      <!-- Central 3D Diagonal Ribbon -->
       <path
-        d="M 33,84 L 127,84"
+        d="M 36,36 
+           C 44,32 54,34 60,42 
+           L 124,118 
+           C 128,124 124,132 116,132 
+           C 108,132 100,126 94,118 
+           L 38,48 
+           C 33,42 32,38 36,36 Z"
+        fill="url(#em_dark_n_diag_gold_grad)"
+        filter="url(#em_dark_n_3d_shadow)"
+      />
+
+      <!-- Sheen Line -->
+      <path
+        d="M 40,37 L 120,121"
         stroke="#FFFFFF"
-        stroke-opacity="0.16"
-        stroke-width="1.2"
-        stroke-dasharray="3 3"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-opacity="0.9"
         fill="none"
       />
 
-      <path
-        d="M 58,38 C 66,34 78,40 86,52 L 118,112 C 122,118 118,124 112,124 L 58,38 Z"
-        fill="#FFFFFF"
-        fill-opacity="0.25"
-      />
+      <circle cx="45" cy="45" r="3.8" fill="#FFFFFF" fill-opacity="1" />
+      <circle cx="115" cy="115" r="3.8" fill="#FFFBEB" fill-opacity="1" />
+
+      <ellipse cx="62" cy="50" rx="28" ry="16" transform="rotate(-30 62 50)" fill="#FFFFFF" fill-opacity="0.18" />
     </g>
 
-    <circle
-      cx="80"
-      cy="80"
-      r="58"
-      stroke="#FFFFFF"
-      stroke-opacity="0.2"
-      stroke-width="1.2"
-      fill="none"
-    />
+    <circle cx="80" cy="80" r="58" stroke="url(#em_dark_sphere_rim_grad)" stroke-width="2" fill="none" />
   </g>
 </svg>
