@@ -13,16 +13,22 @@
 }
 
 /* ==========================================================================
-   1. Pristine Clean Image Showcase Screen
+   1. Pristine Clean Image Showcase Screen (.noormexa-slider-frame)
    ========================================================================== */
 
-.imageScreen {
+.imageScreen,
+:global(.noormexa-slider-frame) {
   position: relative;
   width: 100%;
   border-radius: 26px;
   overflow: hidden;
   box-shadow: 0 20px 50px -12px rgba(11, 19, 34, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
-  background-color: #0b1322;
+  background: #0b1322 !important;
+  background-image: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   user-select: none;
   touch-action: pan-y pinch-zoom;
   aspect-ratio: 16 / 10;
@@ -30,20 +36,22 @@
 }
 
 @media (min-width: 640px) {
-  .imageScreen {
+  .imageScreen,
+  :global(.noormexa-slider-frame) {
     aspect-ratio: 16 / 10;
     min-height: 340px;
   }
 }
 
 @media (min-width: 1024px) {
-  .imageScreen {
+  .imageScreen,
+  :global(.noormexa-slider-frame) {
     aspect-ratio: 16 / 10;
     min-height: 380px;
   }
 }
 
-/* Velvet-Smooth Fluid Morph Dissolve Layers */
+/* Fluid Morph Dissolve Layers with cubic-bezier(0.22, 1, 0.36, 1) */
 .slideLayer {
   position: absolute;
   inset: 0;
@@ -53,28 +61,32 @@
   opacity: 0;
   z-index: 1;
   pointer-events: none;
+  background: transparent !important;
+  background-image: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
   transform: scale(1.08);
-  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
-/* Active Slide: تظهر بتلاشي تدريجي (opacity: 1) مع انتقال عكسي من 1.08 إلى 1.0 */
+/* Active Slide: تظهر بتلاشي تدريجي انسيابي وبطيء (opacity: 1) مع انتقال عكسي من 1.08 إلى 1.0 */
 .slideLayer.active {
   opacity: 1;
   z-index: 3;
   transform: scale(1);
-  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Previous Slide: تتلاشى بنعومة (opacity: 0) مع تكبير خفيف من 1.0 إلى 1.08 */
+/* Previous Slide: تتلاشى بنعومة فائقة (opacity: 0) مع تكبير خفيف إلى 1.08 لضمان عدم وجود شاشة صامتة */
 .slideLayer.previous {
   opacity: 0;
   z-index: 2;
   transform: scale(1.08);
-  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* High Definition Unobstructed Image */
+/* High Definition Unobstructed Image - Zero Filters */
 .kenBurnsImage {
   position: absolute;
   inset: 0;
@@ -83,6 +95,7 @@
   object-fit: cover;
   object-position: center;
   filter: none !important;
+  -webkit-filter: none !important;
   image-rendering: auto;
 }
 
