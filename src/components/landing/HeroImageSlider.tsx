@@ -23,6 +23,7 @@ import styles from "./HeroImageSlider.module.css";
 export type SlideData = {
   id: string;
   image: string;
+  fallbackImage: string;
   badgeAr: string;
   badgeEn: string;
   badgeIcon: typeof Sparkles;
@@ -44,6 +45,7 @@ const SLIDES: SlideData[] = [
   {
     id: "products",
     image: "/images/landing/hero-slide-products.webp",
+    fallbackImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1400&auto=format&fit=crop",
     badgeAr: "المنتجات الأكثر طلباً وأصالة",
     badgeEn: "Top Trending & Verified Products",
     badgeIcon: Sparkles,
@@ -63,6 +65,7 @@ const SLIDES: SlideData[] = [
   {
     id: "shopping",
     image: "/images/landing/hero-slide-shopping.webp",
+    fallbackImage: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1400&auto=format&fit=crop",
     badgeAr: "تجربة تسوق ذكية وفائقة السلاسة",
     badgeEn: "Ultra-Fast Smart Commerce",
     badgeIcon: Flame,
@@ -82,6 +85,7 @@ const SLIDES: SlideData[] = [
   {
     id: "stores",
     image: "/images/landing/hero-slide-stores.webp",
+    fallbackImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1400&auto=format&fit=crop",
     badgeAr: "المتاجر المعتمدة والعلامات التجارية",
     badgeEn: "Official Flagships & Certified Stores",
     badgeIcon: Store,
@@ -101,6 +105,7 @@ const SLIDES: SlideData[] = [
   {
     id: "ads",
     image: "/images/landing/hero-slide-ads.webp",
+    fallbackImage: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1400&auto=format&fit=crop",
     badgeAr: "عروض الفلاش والتوفير الذكي",
     badgeEn: "Exclusive Vault & Smart Savings",
     badgeIcon: BadgeCheck,
@@ -120,6 +125,7 @@ const SLIDES: SlideData[] = [
   {
     id: "logistics",
     image: "/images/landing/hero-slide-logistics.webp",
+    fallbackImage: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1400&auto=format&fit=crop",
     badgeAr: "اللوجستيات وضمان الاسترجاع",
     badgeEn: "Global Logistics & Buyer Protection",
     badgeIcon: ShieldCheck,
@@ -137,6 +143,40 @@ const SLIDES: SlideData[] = [
     highlightStatEn: "14-Day Free Returns",
   },
 ];
+
+function SlideImage({
+  src,
+  fallbackSrc,
+  alt,
+  priority,
+}: {
+  src: string;
+  fallbackSrc: string;
+  alt: string;
+  priority?: boolean;
+}) {
+  const [imgSrc, setImgSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      priority={priority}
+      unoptimized
+      referrerPolicy="no-referrer"
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
+      className={styles.kenBurnsImage}
+      onError={() => {
+        if (!hasError) {
+          setHasError(true);
+          setImgSrc(fallbackSrc);
+        }
+      }}
+    />
+  );
+}
 
 const AUTOPLAY_DURATION = 6000; // 6 seconds per slide
 
@@ -271,13 +311,11 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
 
           return (
             <div key={slide.id} className={`${styles.slideLayer} ${layerClass}`}>
-              <Image
+              <SlideImage
                 src={slide.image}
+                fallbackSrc={slide.fallbackImage}
                 alt={isAr ? slide.arTitle : slide.enTitle}
-                fill
                 priority={idx === 0}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
-                className={styles.kenBurnsImage}
               />
             </div>
           );
