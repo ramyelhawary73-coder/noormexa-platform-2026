@@ -23,7 +23,6 @@ import styles from "./HeroImageSlider.module.css";
 export type SlideData = {
   id: string;
   image: string;
-  fallbackImage: string;
   badgeAr: string;
   badgeEn: string;
   badgeIcon: typeof Sparkles;
@@ -44,8 +43,7 @@ export type SlideData = {
 const SLIDES: SlideData[] = [
   {
     id: "products",
-    image: "/images/landing/hero-slide-products.webp",
-    fallbackImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1400&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=85&w=1600&auto=format&fit=crop",
     badgeAr: "المنتجات الأكثر طلباً وأصالة",
     badgeEn: "Top Trending & Verified Products",
     badgeIcon: Sparkles,
@@ -64,8 +62,7 @@ const SLIDES: SlideData[] = [
   },
   {
     id: "shopping",
-    image: "/images/landing/hero-slide-shopping.webp",
-    fallbackImage: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1400&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=85&w=1600&auto=format&fit=crop",
     badgeAr: "تجربة تسوق ذكية وفائقة السلاسة",
     badgeEn: "Ultra-Fast Smart Commerce",
     badgeIcon: Flame,
@@ -84,8 +81,7 @@ const SLIDES: SlideData[] = [
   },
   {
     id: "stores",
-    image: "/images/landing/hero-slide-stores.webp",
-    fallbackImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1400&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=85&w=1600&auto=format&fit=crop",
     badgeAr: "المتاجر المعتمدة والعلامات التجارية",
     badgeEn: "Official Flagships & Certified Stores",
     badgeIcon: Store,
@@ -104,8 +100,7 @@ const SLIDES: SlideData[] = [
   },
   {
     id: "ads",
-    image: "/images/landing/hero-slide-ads.webp",
-    fallbackImage: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1400&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=85&w=1600&auto=format&fit=crop",
     badgeAr: "عروض الفلاش والتوفير الذكي",
     badgeEn: "Exclusive Vault & Smart Savings",
     badgeIcon: BadgeCheck,
@@ -124,8 +119,7 @@ const SLIDES: SlideData[] = [
   },
   {
     id: "logistics",
-    image: "/images/landing/hero-slide-logistics.webp",
-    fallbackImage: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1400&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=85&w=1600&auto=format&fit=crop",
     badgeAr: "اللوجستيات وضمان الاسترجاع",
     badgeEn: "Global Logistics & Buyer Protection",
     badgeIcon: ShieldCheck,
@@ -144,40 +138,6 @@ const SLIDES: SlideData[] = [
   },
 ];
 
-function SlideImage({
-  src,
-  fallbackSrc,
-  alt,
-  priority,
-}: {
-  src: string;
-  fallbackSrc: string;
-  alt: string;
-  priority?: boolean;
-}) {
-  const [imgSrc, setImgSrc] = useState(src);
-  const [hasError, setHasError] = useState(false);
-
-  return (
-    <Image
-      src={imgSrc}
-      alt={alt}
-      fill
-      priority={priority}
-      unoptimized
-      referrerPolicy="no-referrer"
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
-      className={styles.kenBurnsImage}
-      onError={() => {
-        if (!hasError) {
-          setHasError(true);
-          setImgSrc(fallbackSrc);
-        }
-      }}
-    />
-  );
-}
-
 const AUTOPLAY_DURATION = 6000; // 6 seconds per slide
 
 type HeroImageSliderProps = {
@@ -191,36 +151,42 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [userToggledPause, setUserToggledPause] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const prevTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  // Trigger Slide Change with Cinematic Timing
+  // Preload all slide images into browser cache on mount
+  useEffect(() => {
+    SLIDES.forEach((slide) => {
+      const img = new window.Image();
+      img.src = slide.image;
+    });
+  }, []);
+
+  // Imperceptible Smooth Crossfade Transition (ZERO Blank Frames)
   const changeSlide = useCallback(
     (nextIdx: number) => {
-      if (nextIdx === currentIndex || isTransitioning) return;
+      if (nextIdx === currentIndex) return;
 
       setPrevIndex(currentIndex);
       setCurrentIndex(nextIdx);
-      setIsTransitioning(true);
       setProgressKey((k) => k + 1);
 
-      if (transitionTimeoutRef.current) {
-        clearTimeout(transitionTimeoutRef.current);
+      if (prevTimeoutRef.current) {
+        clearTimeout(prevTimeoutRef.current);
       }
 
-      transitionTimeoutRef.current = setTimeout(() => {
-        setIsTransitioning(false);
+      // Keep previous layer active during the 1200ms crossfade duration
+      prevTimeoutRef.current = setTimeout(() => {
         setPrevIndex(null);
-      }, 1000); // 1000ms transition duration
+      }, 1200);
     },
-    [currentIndex, isTransitioning]
+    [currentIndex]
   );
 
   const nextSlide = useCallback(() => {
@@ -233,7 +199,7 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
     changeSlide(prevIdx);
   }, [currentIndex, changeSlide]);
 
-  // Autoplay Effect (6s cycle)
+  // Autoplay Loop (6s cycle)
   useEffect(() => {
     if (isPaused || userToggledPause) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -249,7 +215,7 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
     };
   }, [isPaused, userToggledPause, nextSlide]);
 
-  // Touch Swipe Handlers for Mobile
+  // Touch Handlers for Mobile Swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
   };
@@ -265,11 +231,9 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
 
     if (Math.abs(distance) >= minSwipeDistance) {
       if (distance > 0) {
-        // Swiped Left
         if (isAr) prevSlide();
         else nextSlide();
       } else {
-        // Swiped Right
         if (isAr) nextSlide();
         else prevSlide();
       }
@@ -302,48 +266,52 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
           const isActive = idx === currentIndex;
           const isPrev = idx === prevIndex;
 
-          let layerClass = styles.layerHidden;
+          let layerStateClass = "";
           if (isActive) {
-            layerClass = `${styles.layerActive} ${isTransitioning ? styles.layerActiveEntering : ""}`;
+            layerStateClass = styles.active;
           } else if (isPrev) {
-            layerClass = styles.layerPrevious;
+            layerStateClass = styles.previous;
           }
 
           return (
-            <div key={slide.id} className={`${styles.slideLayer} ${layerClass}`}>
-              <SlideImage
+            <div key={slide.id} className={`${styles.slideLayer} ${layerStateClass}`}>
+              <Image
                 src={slide.image}
-                fallbackSrc={slide.fallbackImage}
                 alt={isAr ? slide.arTitle : slide.enTitle}
+                fill
                 priority={idx === 0}
+                unoptimized
+                referrerPolicy="no-referrer"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
+                className={styles.kenBurnsImage}
               />
             </div>
           );
         })}
       </div>
 
-      {/* 2. Dedicated Info & Interactive Controls Dock (Outside / Below Image Screen) */}
-      <div className={styles.infoDock}>
-        {/* Top Header: Badge + Highlight Stat + Navigation Controls */}
+      {/* 2. Pure Floating Typography & Interactive Controls (Zero Container Box) */}
+      <div className={styles.floatingDock}>
+        {/* Header Row: Floating Badge + Stat + Navigation Tools */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          {/* Badge & Stat */}
+          {/* Badge & Stat Chips */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 font-black text-xs border border-orange-500/20 shadow-xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/15 text-orange-500 font-black text-xs border border-orange-500/25 shadow-xs">
               <CurrentBadgeIcon size={13} className="shrink-0" />
               <span>{isAr ? currentSlide.badgeAr : currentSlide.badgeEn}</span>
             </div>
 
             {(currentSlide.highlightStatAr || currentSlide.highlightStatEn) && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-soft text-foreground font-bold text-xs border border-line">
-                <BadgeCheck size={13} className="text-emerald-500 shrink-0" />
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 dark:bg-white/5 text-foreground font-bold text-xs border border-line/60">
+                <BadgeCheck size={13} className="text-emerald-400 shrink-0" />
                 <span>{isAr ? currentSlide.highlightStatAr : currentSlide.highlightStatEn}</span>
               </div>
             )}
           </div>
 
-          {/* Navigation Controls (Pills + Arrows + Play/Pause) */}
+          {/* Floating Controls (Progress Indicator Track + Nav Buttons) */}
           <div className={styles.controlsBar}>
-            {/* Progress Indicators Track */}
+            {/* Progress Track */}
             <div className={styles.indicatorsTrack} aria-label={isAr ? "مؤشرات الشرائح" : "Slide progress"}>
               {SLIDES.map((slide, idx) => {
                 const isPillActive = idx === currentIndex;
@@ -406,31 +374,31 @@ export default function HeroImageSlider({ language: propLanguage }: HeroImageSli
           </div>
         </div>
 
-        {/* Middle Body: Dynamic Title & Description */}
+        {/* Dynamic Title & Description */}
         <div className="space-y-1">
-          <h3 className="text-base sm:text-lg font-black text-foreground transition-all duration-300 leading-tight">
+          <h3 className="text-lg sm:text-xl font-black text-foreground transition-all duration-300 leading-snug">
             {isAr ? currentSlide.arTitle : currentSlide.enTitle}
           </h3>
-          <p className="text-xs sm:text-sm text-muted line-clamp-2 leading-relaxed transition-all duration-300">
+          <p className="text-xs sm:text-sm text-muted/90 line-clamp-2 leading-relaxed transition-all duration-300">
             {isAr ? currentSlide.arText : currentSlide.enText}
           </p>
         </div>
 
-        {/* Bottom Actions: Shopping CTA & Secondary Link */}
-        <div className="flex items-center gap-2.5 pt-0.5 flex-wrap">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3 pt-1 flex-wrap">
           <Link
             href={currentSlide.ctaHref}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-orange-500/25 flex items-center gap-1.5 transition-all active:scale-95"
+            className="px-5 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-lg hover:shadow-orange-500/30 flex items-center gap-2 transition-all active:scale-95"
           >
-            <ShoppingBag size={14} />
+            <ShoppingBag size={15} />
             <span>{isAr ? currentSlide.ctaTextAr : currentSlide.ctaTextEn}</span>
-            {isAr ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
+            {isAr ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
           </Link>
 
           {currentSlide.secondaryHref && (
             <Link
               href={currentSlide.secondaryHref}
-              className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-surface-soft hover:bg-surface border border-line text-foreground font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 active:scale-95 shadow-xs"
+              className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 dark:bg-white/5 dark:hover:bg-white/10 border border-line/60 text-foreground font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 active:scale-95 shadow-xs"
             >
               <span>{isAr ? currentSlide.secondaryTextAr : currentSlide.secondaryTextEn}</span>
             </Link>
