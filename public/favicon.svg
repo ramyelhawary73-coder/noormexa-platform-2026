@@ -1,121 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="100%" height="100%" fill="none">
   <defs>
-    <radialGradient id="fav_globe_glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.8" />
-      <stop offset="60%" stop-color="#EFF6FF" stop-opacity="0.3" />
-      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    <radialGradient id="fav_globe_sphere" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.95" />
+      <stop offset="35%" stop-color="#3B82F6" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#1E40AF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#172554" stop-opacity="1" />
+    </radialGradient>
+
+    <radialGradient id="fav_globe_rim" cx="50%" cy="50%" r="50%">
+      <stop offset="85%" stop-color="#60A5FA" stop-opacity="0" />
+      <stop offset="96%" stop-color="#0284C7" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.8" />
     </radialGradient>
 
     <linearGradient id="fav_n_left_grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="40%" stop-color="#0284C7" />
-      <stop offset="100%" stop-color="#0369A1" />
+      <stop offset="0%" stop-color="#67E8F9" />
+      <stop offset="40%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
     </linearGradient>
 
     <linearGradient id="fav_n_diagonal_grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FEF08A" />
-      <stop offset="25%" stop-color="#FBBF24" />
-      <stop offset="60%" stop-color="#F59E0B" />
+      <stop offset="30%" stop-color="#F59E0B" />
       <stop offset="100%" stop-color="#D97706" />
     </linearGradient>
 
     <linearGradient id="fav_n_right_grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="0%" stop-color="#93C5FD" />
       <stop offset="50%" stop-color="#2563EB" />
-      <stop offset="100%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#1E3A8A" />
     </linearGradient>
 
-    <linearGradient id="fav_orbit_gold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FDE047" />
+    <linearGradient id="fav_orbit_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
       <stop offset="50%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
 
-    <linearGradient id="fav_orbit_cyan" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="50%" stop-color="#0284C7" />
-      <stop offset="100%" stop-color="#0369A1" />
-    </linearGradient>
-
-    <filter id="fav_ribbon_shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="-2" dy="3.5" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.4" />
+    <filter id="fav_ribbon_shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="-2.5" dy="4" stdDeviation="3.5" flood-color="#020617" flood-opacity="0.5" />
     </filter>
   </defs>
 
   <g id="favicon-emblem">
-    <circle cx="80" cy="80" r="62" fill="url(#fav_globe_glow)" />
+    <!-- Globe Sphere -->
+    <circle cx="90" cy="90" r="66" fill="url(#fav_globe_sphere)" />
+    <circle cx="90" cy="90" r="66" fill="url(#fav_globe_rim)" />
 
-    <!-- Outer Orbit Ring -->
-    <circle cx="80" cy="80" r="56" stroke="#0284C7" stroke-width="1.8" stroke-dasharray="4 3" stroke-opacity="0.4" />
+    <!-- Gridlines -->
+    <ellipse cx="90" cy="90" rx="66" ry="17" stroke="#60A5FA" stroke-width="1.8" stroke-opacity="0.5" fill="none" />
+    <ellipse cx="90" cy="90" rx="22" ry="66" stroke="#38BDF8" stroke-width="1.8" stroke-opacity="0.45" fill="none" />
 
-    <!-- Core Letter N -->
+    <!-- Core 'N' -->
     <path
-      d="M 38,34 
-         C 47,34 52,39 52,47 
-         L 52,113 
-         C 52,121 47,126 38,126 
-         C 34,126 31,120 31,113 
-         L 31,47 
-         C 31,40 34,34 38,34 Z"
+      d="M 44,38 
+         C 53,38 58,43 58,52 
+         L 58,128 
+         C 58,137 53,142 44,142 
+         C 39,142 35,136 35,128 
+         L 35,52 
+         C 35,44 39,38 44,38 Z"
       fill="url(#fav_n_left_grad)"
     />
-    <path d="M 34,44 L 34,116" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-opacity="0.8" fill="none" />
+    <path d="M 39,48 L 39,132" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.8" fill="none" />
 
     <path
-      d="M 122,34 
-         C 126,34 129,40 129,47 
-         L 129,113 
-         C 129,120 126,126 122,126 
-         C 113,126 108,121 108,113 
-         L 108,47 
-         C 108,39 113,34 122,34 Z"
+      d="M 136,38 
+         C 141,38 145,44 145,52 
+         L 145,128 
+         C 145,136 141,142 136,142 
+         C 127,142 122,137 122,128 
+         L 122,52 
+         C 122,43 127,38 136,38 Z"
       fill="url(#fav_n_right_grad)"
     />
-    <path d="M 126,44 L 126,116" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-opacity="0.8" fill="none" />
+    <path d="M 141,48 L 141,132" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.8" fill="none" />
 
     <path
-      d="M 33,36 
-         C 41,32 50,35 56,43 
-         L 126,116 
-         C 130,121 127,128 120,128 
-         C 112,128 104,123 98,115 
-         L 32,47 
-         C 28,42 28,38 33,36 Z"
+      d="M 37,40 
+         C 47,35 57,39 64,48 
+         L 142,132 
+         C 147,138 143,145 135,145 
+         C 125,145 117,140 109,130 
+         L 36,52 
+         C 32,46 32,42 37,40 Z"
       fill="url(#fav_n_diagonal_grad)"
       filter="url(#fav_ribbon_shadow)"
     />
-    <path d="M 37,38 L 121,123" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-opacity="0.9" fill="none" />
+    <path d="M 42,43 L 137,139" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-opacity="0.95" fill="none" />
 
-    <!-- Foreground Orbit Threads -->
+    <!-- Orbit -->
     <path
-      d="M 18,92 
-         C 25,62 70,55 105,68 
-         C 128,77 142,92 142,96 
-         C 142,102 120,116 85,114 
-         C 50,112 20,98 18,92 Z"
-      stroke="url(#fav_orbit_gold)"
-      stroke-width="2.5"
-      fill="none"
-    />
-    <path
-      d="M 28,118 
-         C 32,100 68,60 110,44 
-         C 134,35 146,42 146,48 
-         C 146,56 122,86 82,110 
-         C 54,126 30,126 28,118 Z"
-      stroke="url(#fav_orbit_cyan)"
-      stroke-width="2"
-      stroke-dasharray="6 3"
+      d="M 16,108 
+         C 24,72 74,60 118,74 
+         C 148,84 166,102 164,110 
+         C 162,118 136,134 94,130 
+         C 52,126 18,116 16,108 Z"
+      stroke="url(#fav_orbit_grad)"
+      stroke-width="3"
       fill="none"
     />
 
     <!-- Glowing Nodes -->
-    <circle cx="38" cy="38" r="5" fill="#38BDF8" />
-    <circle cx="38" cy="38" r="2.5" fill="#FFFFFF" />
-    <circle cx="122" cy="122" r="5" fill="#F59E0B" />
-    <circle cx="122" cy="122" r="2.5" fill="#FFFFFF" />
-    <circle cx="124" cy="74" r="4" fill="#FBBF24" />
-    <circle cx="124" cy="74" r="2" fill="#FFFFFF" />
-    <circle cx="80" cy="80" r="3.5" fill="#FFFFFF" />
+    <circle cx="44" cy="44" r="5.5" fill="#38BDF8" />
+    <circle cx="44" cy="44" r="2.8" fill="#FFFFFF" />
+    <circle cx="136" cy="136" r="5.5" fill="#F59E0B" />
+    <circle cx="136" cy="136" r="2.8" fill="#FFFFFF" />
+    <circle cx="140" cy="84" r="4.5" fill="#FBBF24" />
+    <circle cx="140" cy="84" r="2.2" fill="#FFFFFF" />
+    <circle cx="90" cy="90" r="4" fill="#FFFFFF" />
   </g>
 </svg>

@@ -44,7 +44,7 @@ const LANGUAGE_KEY = "noormexa-language";
 
 const copy = {
   ar: {
-    tagline: "سوق ومنظومة التجارة العالمية",
+    tagline: "سوق التجارة والتسوق العالمي الذكي",
     marketplace: "السوق المفتوح",
     sellerHub: "بوابة التجار",
     adminHub: "مركز الإدارة",
@@ -292,7 +292,7 @@ export default function Navbar() {
               aria-label="NOORMEXA home"
               onClick={() => setOpen(false)}
             >
-              <BrandLogo size="responsive" showTagline={true} tagline="Global Smart Shopping" />
+              <BrandLogo size="responsive" showTagline={true} tagline={isAr ? "سوق التجارة والتسوق العالمي الذكي" : "Global Smart Commerce Marketplace"} />
             </Link>
           </div>
 
