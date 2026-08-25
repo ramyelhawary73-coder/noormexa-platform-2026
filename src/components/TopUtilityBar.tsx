@@ -16,9 +16,12 @@ import {
   Copy,
   Check,
   Coins,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { useTheme } from "@/context/ThemeContext";
 
 const LANGUAGE_KEY = "noormexa-language";
 
@@ -40,6 +43,7 @@ export default function TopUtilityBar() {
   const language = useSyncExternalStore(subscribeToLanguage, getLanguageSnapshot, () => "ar");
   const isAr = language === "ar";
   const { currency } = useMarketplace();
+  const { theme, toggleTheme } = useTheme();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -255,6 +259,26 @@ export default function TopUtilityBar() {
           >
             <Smartphone size={11} className="text-orange-400" />
             <span>{isAr ? "تثبيت التطبيق" : "Get App"}</span>
+          </button>
+
+          {/* Top Bar Theme Switcher */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 hover:text-white text-[10px] font-bold transition-all cursor-pointer active:scale-95"
+            title={theme === "dark" ? (isAr ? "تفعيل الوضع النهاري" : "Switch to Light Mode") : (isAr ? "تفعيل الوضع الليلي" : "Switch to Dark Mode")}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun size={11} className="text-amber-400 fill-amber-400/20" />
+                <span className="hidden xl:inline">{isAr ? "نهاري" : "Light"}</span>
+              </>
+            ) : (
+              <>
+                <Moon size={11} className="text-slate-300" />
+                <span className="hidden xl:inline">{isAr ? "ليلي" : "Dark"}</span>
+              </>
+            )}
           </button>
 
           {/* Quick Currency indicator */}

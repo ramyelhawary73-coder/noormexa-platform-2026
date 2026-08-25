@@ -426,18 +426,19 @@ export default function Navbar() {
               <span className="text-[11px] font-bold">{isAr ? "EN" : "عربي"}</span>
             </button>
 
-            {/* Day / Night Theme Toggle (Tablet & Desktop) */}
+            {/* Professional Day / Night Theme Toggle (Visible on Mobile & Desktop) */}
             <button
+              id="theme-toggle-btn"
               type="button"
-              className="hidden xs:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-600 items-center justify-center text-muted hover:text-foreground transition-all shadow-xs active:scale-95 cursor-pointer"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/60 text-muted hover:text-foreground transition-all shadow-xs active:scale-90 cursor-pointer"
               onClick={toggleTheme}
-              title={theme === "dark" ? "تفعيل الوضع النهاري (Light Mode)" : "تفعيل الوضع الليلي (Dark Mode)"}
+              title={theme === "dark" ? (isAr ? "التبديل إلى الوضع النهاري (Light Mode)" : "Switch to Light Mode") : (isAr ? "التبديل إلى الوضع الليلي (Dark Mode)" : "Switch to Dark Mode")}
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
-                <Sun size={15} className="text-orange-400 transition-transform duration-300 rotate-0 hover:rotate-45" />
+                <Sun size={16} className="text-amber-400 fill-amber-400/20 transition-transform duration-300 rotate-0 hover:rotate-90" />
               ) : (
-                <Moon size={15} className="text-slate-700 transition-transform duration-300 rotate-0 hover:-rotate-12" />
+                <Moon size={15} className="text-slate-700 dark:text-slate-200 fill-slate-700/15 transition-transform duration-300 rotate-0 hover:-rotate-12" />
               )}
             </button>
 
