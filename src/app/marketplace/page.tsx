@@ -679,7 +679,7 @@ function MarketplaceContent() {
           </div>
 
           {/* Official Brands Quick Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-t border-line/60 pt-2.5 touch-manipulation overscroll-contain select-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 no-scrollbar border-t border-line/60 pt-2.5 touch-manipulation overscroll-contain select-none">
             <span className="text-[11px] font-bold text-muted whitespace-nowrap shrink-0 flex items-center gap-1">
               <BadgeCheck size={13} className="text-emerald-500" />
               <span>{language === "ar" ? "الماركات:" : "Brands:"}</span>
@@ -709,7 +709,7 @@ function MarketplaceContent() {
                     : "bg-surface text-muted border-line hover:border-orange-500/40 hover:text-foreground"
                 }`}
               >
-                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                <div className="w-4 h-4 flex items-center justify-center shrink-0 overflow-hidden">
                   <BrandLogo brandId={b.id} className="w-3.5 h-3.5" />
                 </div>
                 <span>{language === "ar" ? b.nameAr : b.name}</span>
@@ -723,7 +723,7 @@ function MarketplaceContent() {
               type="button"
               id="deals"
               onClick={() => setDealsOnly(!dealsOnly)}
-              className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-start flex items-center gap-2.5 cursor-pointer touch-manipulation active:scale-95 ${
+              className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-start flex items-center gap-2 sm:gap-2.5 cursor-pointer touch-manipulation active:scale-95 ${
                 dealsOnly
                   ? "bg-red-500/15 border-red-500/50 text-red-600 dark:text-red-400 shadow-xs"
                   : "bg-surface border-line hover:border-red-400/40"
@@ -742,7 +742,7 @@ function MarketplaceContent() {
               type="button"
               id="official"
               onClick={() => setOfficialOnly(!officialOnly)}
-              className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-start flex items-center gap-2.5 cursor-pointer touch-manipulation active:scale-95 ${
+              className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-start flex items-center gap-2 sm:gap-2.5 cursor-pointer touch-manipulation active:scale-95 ${
                 officialOnly
                   ? "bg-amber-500/15 border-amber-500/50 text-amber-600 dark:text-amber-400 shadow-xs"
                   : "bg-surface border-line hover:border-amber-400/40"
@@ -761,14 +761,14 @@ function MarketplaceContent() {
               type="button"
               id="coupons"
               onClick={() => setCouponsModalOpen(true)}
-              className="p-3 rounded-2xl border bg-surface border-line hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all text-start flex items-center gap-3 cursor-pointer"
+              className="p-2.5 sm:p-3 rounded-2xl border bg-surface border-line hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all text-start flex items-center gap-2 sm:gap-2.5 cursor-pointer touch-manipulation active:scale-95"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                <Tag size={18} />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                <Tag size={16} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-black truncate text-emerald-600 dark:text-emerald-400">{language === "ar" ? "نادي الكوبونات" : "Coupons Club"}</div>
-                <div className="text-[10px] text-muted truncate">{language === "ar" ? "5 قسائم نشطة للنسخ" : "5 Active Vouchers"}</div>
+                <div className="text-[10px] text-muted truncate">{language === "ar" ? "5 قسائم نشطة" : "5 Active Vouchers"}</div>
               </div>
             </button>
 
@@ -776,14 +776,14 @@ function MarketplaceContent() {
               type="button"
               id="b2b"
               onClick={() => setB2bModalOpen(true)}
-              className="p-3 rounded-2xl border bg-surface border-line hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-start flex items-center gap-3 cursor-pointer"
+              className="p-2.5 sm:p-3 rounded-2xl border bg-surface border-line hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-start flex items-center gap-2 sm:gap-2.5 cursor-pointer touch-manipulation active:scale-95"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
-                <Building2 size={18} />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+                <Building2 size={16} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-black truncate text-blue-600 dark:text-blue-400">{language === "ar" ? "تجارة الجملة B2B" : "B2B Wholesale"}</div>
-                <div className="text-[10px] text-muted truncate">{language === "ar" ? "خصم يصل إلى 35%" : "Up to 35% Discount"}</div>
+                <div className="text-[10px] text-muted truncate">{language === "ar" ? "خصم حتى 35%" : "Up to 35% Off"}</div>
               </div>
             </button>
           </div>

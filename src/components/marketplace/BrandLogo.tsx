@@ -21,7 +21,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       return (
         <svg
           viewBox="0 0 170 170"
-          className={`${className} fill-current`}
+          className={`${className} fill-current shrink-0`}
           aria-label="Apple Official Logo"
         >
           <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.79-11.97-14.25-6.53-9.9-11.59-20.98-15.18-33.24-3.59-12.26-5.38-23.75-5.38-34.45 0-14.13 3.59-26.04 10.77-35.73 7.18-9.69 16.32-14.65 27.42-14.88 4.35 0 9.42 1.25 15.22 3.75 5.8 2.5 9.74 3.86 11.83 4.08 1.96-.22 6.07-1.63 12.33-4.24 6.26-2.61 11.52-3.8 15.78-3.58 11.96.65 21.64 4.89 29.04 12.72-10.44 6.31-15.55 15-15.33 26.09.22 8.7 3.49 16.09 9.8 22.18 6.31 6.09 13.92 9.57 22.84 10.44-2.39 7.18-5.38 14.57-8.97 22.18zM119.22 31.84c0-7.39 2.66-14.24 7.99-20.55 5.33-6.31 11.75-10.22 19.25-11.29.22 1.09.33 2.18.33 3.26 0 7.39-2.77 14.35-8.32 20.88-5.55 6.53-12.07 10.33-19.58 11.41-.11-1.08-.22-2.17-.22-3.26z" />
@@ -32,7 +32,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       return (
         <svg
           viewBox="0 0 24 24"
-          className={`${className} fill-current`}
+          className={`${className} fill-current shrink-0`}
           aria-label="Nike Swoosh Logo"
         >
           <path d="M21.88 5.74c-4.48 2.58-10.23 7.02-13.88 10.25-2.15 1.9-4.18 1.92-5.32.96-1.53-1.29-.98-4.17 1.49-7.87C6.31 5.86 9.36 3.08 12.98 1.2c-2.14.73-5.69 2.58-8.43 5.56-3.4 3.69-3.97 7.27-1.9 9.87 2.08 2.61 6.08 2.29 9.94-.61 4.54-3.41 10.59-7.94 12.87-9.42.47-.3.5-.83-.07-.83-.53 0-2.13.72-3.51 1.57z" />
@@ -43,7 +43,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       return (
         <svg
           viewBox="0 0 100 100"
-          className={`${className} fill-amber-500 dark:fill-amber-400`}
+          className={`${className} fill-amber-500 dark:fill-amber-400 shrink-0`}
           aria-label="Rolex Official Crown Logo"
         >
           <circle cx="12" cy="38" r="4.5" />
@@ -57,32 +57,79 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       );
 
     case "dior":
+      // Christian Dior Iconic "CD" Monogram Vector
       return (
-        <div className="flex flex-col items-center justify-center select-none font-serif tracking-[0.25em] text-foreground font-black text-xs leading-tight">
-          <span>DIOR</span>
-          <span className="text-[7px] font-sans tracking-[0.3em] text-muted opacity-80">PARIS</span>
-        </div>
+        <svg
+          viewBox="0 0 100 100"
+          className={`${className} fill-current shrink-0`}
+          aria-label="Dior CD Monogram Logo"
+        >
+          {/* C glyph */}
+          <path d="M48 24 C34 24 22 35 22 50 C22 65 34 76 48 76 C55 76 60 73 64 68 L57 62 C54 66 51 68 47 68 C38 68 31 60 31 50 C31 40 38 32 47 32 C51 32 54 34 57 38 L64 32 C60 27 55 24 48 24 Z" />
+          {/* D glyph linked */}
+          <path d="M52 24 H66 C78 24 86 35 86 50 C86 65 78 76 66 76 H52 V24 Z M60 32 V68 H65 C73 68 78 61 78 50 C78 39 73 32 65 32 H60 Z" />
+        </svg>
       );
 
     case "samsung":
+      // Samsung Iconic Vector Emblem
       return (
-        <div className="flex items-center justify-center select-none font-sans font-black tracking-[0.15em] text-[11px] px-2 py-0.5 rounded-full bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-600/30">
-          SAMSUNG
-        </div>
+        <svg
+          viewBox="0 0 100 100"
+          className={`${className} shrink-0`}
+          aria-label="Samsung Official Logo"
+        >
+          <ellipse
+            cx="50"
+            cy="50"
+            rx="46"
+            ry="24"
+            transform="rotate(-18 50 50)"
+            className="fill-blue-600 dark:fill-blue-500"
+          />
+          <text
+            x="50"
+            y="55"
+            textAnchor="middle"
+            fill="#FFFFFF"
+            fontSize="18"
+            fontWeight="900"
+            fontFamily="system-ui, sans-serif"
+            letterSpacing="0.08em"
+            transform="rotate(-18 50 50)"
+          >
+            S
+          </text>
+        </svg>
       );
 
     case "sony":
+      // SONY Clean Vector Mark
       return (
-        <div className="flex items-center justify-center select-none font-serif font-black tracking-[0.22em] text-xs text-foreground">
-          SONY
-        </div>
+        <svg
+          viewBox="0 0 100 100"
+          className={`${className} fill-current shrink-0`}
+          aria-label="Sony Logo"
+        >
+          <text
+            x="50"
+            y="62"
+            textAnchor="middle"
+            fontSize="36"
+            fontWeight="900"
+            fontFamily="serif"
+            letterSpacing="0.12em"
+          >
+            S
+          </text>
+        </svg>
       );
 
     case "chanel":
       return (
         <svg
           viewBox="0 0 100 100"
-          className={`${className} fill-current`}
+          className={`${className} fill-current shrink-0`}
           aria-label="Chanel Interlocking CC Logo"
         >
           <path d="M38 26 C25 26 15 36 15 50 C15 64 25 74 38 74 C47 74 54 69 58 62 L51 57 C48 62 44 65 38 65 C29 65 23 58 23 50 C23 42 29 35 38 35 C44 35 48 38 51 43 L58 38 C54 31 47 26 38 26 Z" />
@@ -94,7 +141,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       return (
         <svg
           viewBox="0 0 100 100"
-          className={`${className} fill-current`}
+          className={`${className} fill-current shrink-0`}
           aria-label="Adidas 3-Stripes Logo"
         >
           <rect x="22" y="58" width="13" height="24" rx="2" transform="skewX(-28)" />
@@ -107,7 +154,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       return (
         <svg
           viewBox="0 0 100 100"
-          className={`${className} fill-current`}
+          className={`${className} fill-current shrink-0`}
           aria-label="Gucci Interlocking GG Logo"
         >
           <path d="M48 50 C48 38 38 28 26 28 C14 28 4 38 4 50 C4 62 14 72 26 72 C35 72 43 67 46 60 L38 60 C36 63 31 65 26 65 C18 65 11 58 11 50 C11 42 18 35 26 35 C33 35 39 40 40 46 L30 46 L30 52 L48 52 Z" />
@@ -120,7 +167,7 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
       return (
         <svg
           viewBox="0 0 100 100"
-          className={`${className} fill-current`}
+          className={`${className} fill-current shrink-0`}
           aria-label="Louis Vuitton Monogram Logo"
         >
           <path d="M22 28 H30 L30 65 H52 V72 H22 Z" />
@@ -130,23 +177,52 @@ export function BrandLogo({ brandId, className = "w-7 h-7" }: BrandLogoProps) {
 
     case "dyson":
       return (
-        <div className="flex items-center justify-center select-none font-sans font-black tracking-wider text-xs lowercase text-fuchsia-600 dark:text-fuchsia-400">
-          dyson
-        </div>
+        <svg
+          viewBox="0 0 100 100"
+          className={`${className} fill-fuchsia-600 dark:fill-fuchsia-400 shrink-0`}
+          aria-label="Dyson Logo"
+        >
+          <circle cx="50" cy="50" r="38" className="fill-fuchsia-500/15 stroke-fuchsia-500" strokeWidth="6" />
+          <text
+            x="50"
+            y="60"
+            textAnchor="middle"
+            fontSize="36"
+            fontWeight="900"
+            fontFamily="system-ui, sans-serif"
+          >
+            d
+          </text>
+        </svg>
       );
 
     case "zara":
       return (
-        <div className="flex items-center justify-center select-none font-serif font-black tracking-[-0.08em] text-sm text-foreground leading-none">
-          ZARA
-        </div>
+        <svg
+          viewBox="0 0 100 100"
+          className={`${className} fill-current shrink-0`}
+          aria-label="ZARA Logo"
+        >
+          <text
+            x="50"
+            y="64"
+            textAnchor="middle"
+            fontSize="40"
+            fontWeight="900"
+            fontFamily="serif"
+            letterSpacing="-0.06em"
+          >
+            Z
+          </text>
+        </svg>
       );
 
     default:
       return (
-        <div className="w-7 h-7 rounded-lg bg-surface-soft flex items-center justify-center text-xs font-black text-foreground">
+        <div className={`${className} rounded-md bg-surface-soft flex items-center justify-center text-[10px] font-black text-foreground shrink-0 border border-line`}>
           {brandId.slice(0, 2).toUpperCase()}
         </div>
       );
   }
 }
+
