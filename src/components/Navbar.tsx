@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore, useRef, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useSyncExternalStore, useRef, useEffect, type FormEvent } from "react";
 import {
   Coins,
   Crown,
@@ -122,11 +122,14 @@ function setDocumentLanguage(language: Language) {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const language = useNoormexaLanguage();
   const isAr = language === "ar";
   const [open, setOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [navSearchQuery, setNavSearchQuery] = useState("");
+  const [navCategory, setNavCategory] = useState("all");
   
   const currencyMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -150,6 +153,28 @@ export default function Navbar() {
     : isSeller
     ? (isAr ? "تاجر معتمد" : "Verified Seller")
     : (isAr ? "عضو متسوق" : "Shopper");
+
+  const searchCategories = [
+    { id: "all", labelAr: "كل الأقسام", labelEn: "All" },
+    { id: "tech", labelAr: "إلكترونيات", labelEn: "Electronics" },
+    { id: "fashion", labelAr: "أزياء", labelEn: "Fashion" },
+    { id: "perfumes", labelAr: "عطور", labelEn: "Perfumes" },
+    { id: "watches", labelAr: "ساعات", labelEn: "Watches" },
+    { id: "home", labelAr: "المنزل", labelEn: "Home" },
+  ];
+
+  const handleNavSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const query = navSearchQuery.trim();
+    const catQuery = navCategory !== "all" ? `&category=${encodeURIComponent(navCategory)}` : "";
+    if (query) {
+      router.push(`/marketplace?search=${encodeURIComponent(query)}${catQuery}`);
+    } else if (navCategory !== "all") {
+      router.push(`/marketplace?category=${encodeURIComponent(navCategory)}`);
+    } else {
+      router.push("/marketplace");
+    }
+  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -296,57 +321,91 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Center: Desktop Navigation Pills */}
+          {/* Center: Global Marketplace Omni-Search Bar (Amazon / Noon / Farfetch Tier) */}
+          <div className="hidden md:flex flex-1 max-w-xl lg:max-w-2xl mx-2 lg:mx-6">
+            <form onSubmit={handleNavSearch} className="w-full relative flex items-center">
+              <div className="w-full flex items-center bg-surface-soft/80 dark:bg-slate-900/90 border-2 border-line hover:border-orange-500/50 focus-within:border-orange-500 rounded-full p-0.5 shadow-xs transition-all backdrop-blur-md">
+                
+                {/* Department / Category Selector */}
+                <div className="relative shrink-0">
+                  <select
+                    value={navCategory}
+                    onChange={(e) => setNavCategory(e.target.value)}
+                    aria-label={isAr ? "اختيار القسم" : "Select Department"}
+                    className="appearance-none bg-surface dark:bg-slate-800 text-foreground font-bold text-[11px] sm:text-xs py-1.5 sm:py-2 ps-3 pe-6 rounded-full border border-line focus:outline-hidden cursor-pointer hover:border-orange-500/50 transition-colors"
+                  >
+                    {searchCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id} className="bg-surface dark:bg-slate-900 text-foreground">
+                        {isAr ? cat.labelAr : cat.labelEn}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={11} className="absolute end-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+                </div>
+
+                {/* Search Text Input */}
+                <div className="flex-1 min-w-0 px-2 sm:px-3">
+                  <input
+                    type="text"
+                    value={navSearchQuery}
+                    onChange={(e) => setNavSearchQuery(e.target.value)}
+                    placeholder={text.searchPlaceholder}
+                    className="w-full bg-transparent text-foreground placeholder:text-muted/60 text-xs font-medium focus:outline-hidden"
+                  />
+                </div>
+
+                {/* Search Action Button */}
+                <button
+                  type="submit"
+                  aria-label={isAr ? "بحث فوري" : "Search"}
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !text-white font-black text-xs flex items-center justify-center gap-1 shadow-xs hover:shadow-orange-500/25 transition-all active:scale-95 cursor-pointer shrink-0"
+                >
+                  <Search size={14} className="stroke-[2.5]" />
+                  <span className="hidden xl:inline">{isAr ? "بحث" : "Search"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Center-Right: Quick Hub Pills (Desktop Wide Only) */}
           <nav
-            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-soft/80 dark:bg-slate-900/80 border border-line/70 shadow-xs"
-            aria-label="Main navigation"
+            className="hidden 2xl:flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-soft/60 dark:bg-slate-900/60 border border-line/60 shadow-xs shrink-0"
+            aria-label="Quick Hubs"
           >
             <Link
               href="/marketplace"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
                 pathname === "/marketplace"
                   ? "bg-surface dark:bg-slate-800 text-foreground shadow-xs border border-line"
                   : "text-muted hover:text-foreground hover:bg-surface/50 dark:hover:bg-slate-800/50"
               }`}
             >
-              <ShoppingBag size={14} className="text-orange-500" />
+              <ShoppingBag size={13} className="text-orange-500" />
               <span>{text.marketplace}</span>
             </Link>
 
             <Link
               href="/seller/dashboard"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/seller")
                   ? "bg-surface dark:bg-slate-800 text-foreground shadow-xs border border-line"
                   : "text-muted hover:text-foreground hover:bg-surface/50 dark:hover:bg-slate-800/50"
               }`}
             >
-              <StoreIcon size={14} className="text-orange-500" />
+              <StoreIcon size={13} className="text-orange-500" />
               <span>{text.sellerHub}</span>
-            </Link>
-
-            <Link
-              href="/shipping"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                pathname.startsWith("/shipping")
-                  ? "bg-surface dark:bg-slate-800 text-foreground shadow-xs border border-line"
-                  : "text-muted hover:text-foreground hover:bg-surface/50 dark:hover:bg-slate-800/50"
-              }`}
-            >
-              <Truck size={14} className="text-orange-500" />
-              <span>{isAr ? "إدارة الشحنات والتتبع" : "Logistics Hub"}</span>
             </Link>
 
             {isAdmin && (
               <Link
                 href="/admin"
-                className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1 rounded-full text-xs font-black transition-all flex items-center gap-1.5 ${
                   pathname.startsWith("/admin")
                     ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/40 shadow-xs"
                     : "text-slate-700 dark:text-slate-300 hover:bg-surface-soft dark:hover:bg-slate-800"
                 }`}
               >
-                <Crown size={14} className="text-orange-500" />
+                <Crown size={13} className="text-orange-500" />
                 <span>{text.adminHub}</span>
               </Link>
             )}

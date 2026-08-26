@@ -193,9 +193,9 @@ export function NoormexaEmblemSvg({
  * Universal Master BrandLogo Component for NOORMEXA
  *
  * Professional Global Commerce Identity System:
- * - High-end 3D Beveled Monogram + Golden Horizon Smile & Noor Starburst
- * - Bespoke Dual-Tone Luxury Wordmark (NOOR in Sapphire/Platinum + MEXA in Imperial Amber Gold)
- * - Prestigious Bilingual Arabic Tagline
+ * - High-end 3D Beveled Monogram (Solid Geometric Architecture)
+ * - Bespoke Dual-Tone Luxury Wordmark (NOOR in Obsidian/Platinum + MEXA in 24K Imperial Gold)
+ * - Prestigious Arabic/English Tagline with optical alignment & zero clipping
  * - Mathematical responsive scaling from 20px to 4K displays
  */
 export default function BrandLogo({
@@ -219,27 +219,27 @@ export default function BrandLogo({
     lg: "w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16",
     xl: "w-16 h-16 sm:w-20 sm:h-20",
     "2xl": "w-20 h-20 sm:w-24 sm:h-24",
-    responsive: "w-9 h-9 xs:w-10 xs:h-10 sm:w-11.5 sm:h-11.5 md:w-12.5 md:h-12.5 lg:w-13.5 lg:h-13.5",
+    responsive: "w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 md:w-12 md:h-12",
   };
 
   const textSizes = {
-    xs: "text-[15px] tracking-[0.06em]",
-    sm: "text-[17px] sm:text-[18px] tracking-[0.07em]",
-    md: "text-[20px] sm:text-[22px] md:text-[24px] tracking-[0.07em]",
-    lg: "text-[24px] sm:text-[28px] md:text-[32px] tracking-[0.08em]",
-    xl: "text-[36px] sm:text-[44px] tracking-[0.09em]",
-    "2xl": "text-[46px] sm:text-[56px] tracking-[0.09em]",
-    responsive: "text-[19px] xs:text-[21px] sm:text-[23px] md:text-[25px] lg:text-[27px] tracking-[0.06em]",
+    xs: "text-[15px] tracking-[0.08em]",
+    sm: "text-[17px] sm:text-[18px] tracking-[0.08em]",
+    md: "text-[20px] sm:text-[22px] md:text-[24px] tracking-[0.08em]",
+    lg: "text-[24px] sm:text-[28px] md:text-[32px] tracking-[0.09em]",
+    xl: "text-[36px] sm:text-[44px] tracking-[0.1em]",
+    "2xl": "text-[46px] sm:text-[56px] tracking-[0.1em]",
+    responsive: "text-[18px] xs:text-[20px] sm:text-[22px] md:text-[24px] tracking-[0.08em]",
   };
 
   const subtitleSizes = {
-    xs: "text-[7.5px] tracking-normal",
-    sm: "text-[8.5px] sm:text-[9.5px] tracking-normal",
-    md: "text-[9.5px] sm:text-[10.5px] md:text-[11px] tracking-normal",
-    lg: "text-[11px] sm:text-[13px] md:text-[14px] tracking-normal",
-    xl: "text-[13px] sm:text-[15px] md:text-[17px] tracking-normal",
-    "2xl": "text-[15px] sm:text-[17px] md:text-[19px] tracking-normal",
-    responsive: "text-[9px] xs:text-[10px] sm:text-[11px] md:text-[11.5px] lg:text-[12px] tracking-normal",
+    xs: "text-[8px] tracking-normal",
+    sm: "text-[9px] sm:text-[9.5px] tracking-normal",
+    md: "text-[10px] sm:text-[10.5px] md:text-[11px] tracking-normal",
+    lg: "text-[11px] sm:text-[12.5px] md:text-[13.5px] tracking-normal",
+    xl: "text-[13px] sm:text-[15px] md:text-[16px] tracking-normal",
+    "2xl": "text-[15px] sm:text-[17px] md:text-[18px] tracking-normal",
+    responsive: "text-[9px] xs:text-[9.5px] sm:text-[10.5px] md:text-[11px] tracking-normal",
   };
 
   const activeIconClass = iconConfig[size] || iconConfig.responsive;
@@ -307,7 +307,7 @@ export default function BrandLogo({
               NOOR
             </span>
             <span
-              className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent`}
+              className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
                 letterSpacing: "3px",
@@ -357,7 +357,7 @@ export default function BrandLogo({
             NOOR
           </span>
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent`}
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
             style={{
               fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
@@ -382,7 +382,7 @@ export default function BrandLogo({
         <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
       </div>
 
-      {/* Brand Identity: Dual-Tone Wordmark + Horizon Smile + Arabic Tagline */}
+      {/* Brand Identity: Dual-Tone Wordmark + Arabic Tagline */}
       <div className="flex flex-col justify-center text-start min-w-0">
         <div dir="ltr" className="flex items-center font-black leading-none select-none relative">
           <span
@@ -397,7 +397,7 @@ export default function BrandLogo({
             NOOR
           </span>
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent`}
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
             style={{
               fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
