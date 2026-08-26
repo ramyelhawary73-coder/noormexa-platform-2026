@@ -485,11 +485,11 @@ export default function Navbar() {
               <span className="text-[11px] font-bold">{isAr ? "EN" : "عربي"}</span>
             </button>
 
-            {/* Professional Day / Night Theme Toggle (Visible on Mobile & Desktop) */}
+            {/* Professional Day / Night Theme Toggle (Tablet & Desktop) */}
             <button
               id="theme-toggle-btn"
               type="button"
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/60 text-muted hover:text-foreground transition-all shadow-xs active:scale-90 cursor-pointer"
+              className="hidden sm:flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/60 text-muted hover:text-foreground transition-all shadow-xs active:scale-90 cursor-pointer"
               onClick={toggleTheme}
               title={theme === "dark" ? (isAr ? "التبديل إلى الوضع النهاري (Light Mode)" : "Switch to Light Mode") : (isAr ? "التبديل إلى الوضع الليلي (Dark Mode)" : "Switch to Dark Mode")}
               aria-label="Toggle theme"
@@ -500,16 +500,6 @@ export default function Navbar() {
                 <Moon size={15} className="text-slate-700 dark:text-slate-200 fill-slate-700/15 transition-transform duration-300 rotate-0 hover:-rotate-12" />
               )}
             </button>
-
-            {/* Search Quick Button (Mobile Only) */}
-            <Link
-              href="/marketplace"
-              className="sm:hidden w-8 h-8 rounded-full border border-line bg-surface dark:bg-slate-900 flex items-center justify-center text-foreground hover:border-orange-500/60 transition-all shadow-xs"
-              title={isAr ? "البحث في المنتجات" : "Search"}
-              aria-label="Search"
-            >
-              <Search size={14} className="text-muted hover:text-orange-500" />
-            </Link>
 
             {/* Wishlist Icon Button (Desktop/Tablet) */}
             <Link
@@ -536,7 +526,7 @@ export default function Navbar() {
               title={text.cart}
               aria-label={text.cart}
             >
-              <ShoppingCart size={15} />
+              <ShoppingCart size={16} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-black px-1 shadow-sm animate-pulse">
                   {cartCount}
@@ -545,7 +535,7 @@ export default function Navbar() {
             </Link>
 
             {/* ========================================================================= */}
-            {/* World-Class User Account & Login / Profile Center (بجنب تسجيل الدخول) */}
+            {/* World-Class User Account & Login / Profile Center */}
             {/* ========================================================================= */}
             <div className="relative" ref={userMenuRef}>
               {user ? (
@@ -554,14 +544,14 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/50 transition-all shadow-xs cursor-pointer group"
+                    className="flex items-center gap-1.5 p-0.5 sm:px-2.5 sm:py-1 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/50 transition-all shadow-xs cursor-pointer group"
                     aria-label="User profile menu"
                   >
                     <div className="relative">
                       <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-orange-500 to-amber-400 text-white font-black text-xs flex items-center justify-center shadow-xs">
                         {avatarLetter}
                       </div>
-                      <span className="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-surface dark:border-slate-900" />
+                      <span className="absolute bottom-0 end-0 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 border-2 border-surface dark:border-slate-900" />
                     </div>
 
                     <div className="hidden md:flex flex-col text-start leading-tight">
@@ -693,14 +683,13 @@ export default function Navbar() {
                   )}
                 </div>
               ) : (
-                /* Guest / Sign-In State: High-Converting World-Class Action Button */
+                /* Guest / Sign-In State (Desktop & Tablet Pill Button) */
                 <Link
                   href="/auth"
-                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-black bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 !text-white shadow-xs hover:shadow-orange-500/25 transition-all hover:scale-102 active:scale-98 cursor-pointer shrink-0"
+                  className="hidden sm:flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-black bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 !text-white shadow-xs hover:shadow-orange-500/25 transition-all hover:scale-102 active:scale-98 cursor-pointer shrink-0"
                 >
                   <UserRound size={14} className="stroke-[2.5]" />
-                  <span className="hidden xs:inline">{text.account}</span>
-                  <span className="xs:hidden">{isAr ? "دخول" : "Sign In"}</span>
+                  <span>{text.account}</span>
                 </Link>
               )}
             </div>
@@ -708,7 +697,7 @@ export default function Navbar() {
             {/* Mobile Hamburger Drawer Trigger */}
             <button
               type="button"
-              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 flex items-center justify-center text-foreground hover:border-slate-400 transition-all shadow-xs cursor-pointer"
+              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 flex items-center justify-center text-foreground hover:border-slate-400 transition-all shadow-xs cursor-pointer active:scale-95"
               onClick={() => setOpen(!open)}
               aria-label={open ? text.close : text.menu}
               aria-expanded={open}
@@ -718,6 +707,51 @@ export default function Navbar() {
 
           </div>
 
+        </div>
+
+        {/* Dedicated Mobile Omni-Search Row (Amazon / Noon Mobile Experience) */}
+        <div className="md:hidden px-3 sm:px-4 pb-2.5 pt-0.5 w-full">
+          <form onSubmit={handleNavSearch} className="w-full relative flex items-center">
+            <div className="w-full flex items-center bg-surface-soft/90 dark:bg-slate-900/90 border border-line hover:border-orange-500/40 focus-within:border-orange-500 rounded-full p-1 shadow-xs transition-all">
+              
+              {/* Category Quick Filter */}
+              <div className="relative shrink-0">
+                <select
+                  value={navCategory}
+                  onChange={(e) => setNavCategory(e.target.value)}
+                  aria-label={isAr ? "اختيار القسم" : "Select Department"}
+                  className="appearance-none bg-surface dark:bg-slate-800 text-foreground font-bold text-[10px] py-1 ps-2.5 pe-5 rounded-full border border-line focus:outline-hidden cursor-pointer"
+                >
+                  {searchCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id} className="bg-surface dark:bg-slate-900 text-foreground">
+                      {isAr ? cat.labelAr : cat.labelEn}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={10} className="absolute end-1.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+              </div>
+
+              {/* Input */}
+              <div className="flex-1 min-w-0 px-2">
+                <input
+                  type="text"
+                  value={navSearchQuery}
+                  onChange={(e) => setNavSearchQuery(e.target.value)}
+                  placeholder={text.searchPlaceholder}
+                  className="w-full bg-transparent text-foreground placeholder:text-muted/60 text-xs font-medium focus:outline-hidden"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                aria-label={isAr ? "بحث" : "Search"}
+                className="w-7 h-7 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 !text-white flex items-center justify-center shrink-0 shadow-xs active:scale-95 cursor-pointer"
+              >
+                <Search size={13} className="stroke-[2.5]" />
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

@@ -407,9 +407,9 @@ export default function BrandLogo({
           </span>
         </div>
 
-        {/* Global Smart Commerce Tagline */}
+        {/* Global Smart Commerce Tagline - Clean responsive display (Desktop & Tablet) */}
         {showTagline && (
-          <div className="flex items-center gap-1.5 mt-0.5 sm:mt-1">
+          <div className="hidden sm:flex items-center gap-1.5 mt-0.5 sm:mt-1">
             <span
               dir="rtl"
               className={`font-bold ${subtitleSizes[size]} transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${

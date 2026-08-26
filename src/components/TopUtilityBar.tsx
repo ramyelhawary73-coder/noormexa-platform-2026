@@ -160,8 +160,8 @@ export default function TopUtilityBar() {
             <span>{isAr ? current.tagAr : current.tagEn}</span>
           </span>
 
-          {/* Controls: Prev / Next buttons for ticker */}
-          <div className="flex items-center gap-0.5 shrink-0 text-slate-400">
+          {/* Controls: Prev / Next buttons for ticker (Tablet/Desktop) */}
+          <div className="hidden sm:flex items-center gap-0.5 shrink-0 text-slate-400">
             <button
               type="button"
               onClick={prevSlide}
