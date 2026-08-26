@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { Product } from "@/types/marketplace";
+import { BrandLogo } from "@/components/marketplace/BrandLogo";
 
 export type BrandSection = {
   id: string;
@@ -367,190 +368,15 @@ export const GLOBAL_BRANDS: GlobalBrand[] = [
   },
 ];
 
-// 100% Vector Official Brand Badges & Logos with Razor-Sharp Precision & Luxury Styling
+// 100% Vector Official Brand Badges & Logos with 3D Embossed Depth & Luxury Styling
 export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }) {
-  switch (brandId) {
-    case "apple":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#1c1d21] via-[#111215] to-[#08080a] border border-neutral-700/60 flex items-center justify-center relative overflow-hidden shadow-md group-hover:border-slate-400/60 transition-colors">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.25),transparent_65%)] pointer-events-none" />
-          <svg viewBox="0 0 24 24" className="w-10 h-10 text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.3)] relative z-10" fill="currentColor">
-            {/* Apple Official Vector Path */}
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.98c.61-.75 1.04-1.8 1.01-2.98-1.01.04-2.22.68-2.88 1.46-.57.67-.99 1.74-.95 2.91 1.13.09 2.21-.64 2.82-1.39z" />
-          </svg>
-        </div>
-      );
-
-    case "nike":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#1c1d21] via-[#111215] to-[#08080a] border border-neutral-700/60 flex items-center justify-center relative overflow-hidden shadow-md group-hover:border-orange-500/60 transition-colors">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.22),transparent_65%)] pointer-events-none" />
-          <svg viewBox="0 0 100 40" className="w-18 h-8 text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.35)] relative z-10" fill="currentColor">
-            {/* Nike Official Iconic Swoosh */}
-            <path d="M96 2.5C78.5 13.8 55.2 26.2 29.5 32.5 16.8 35.7 7.4 34.3 3.2 29.3-1.1 24.3.7 16.7 6.7 9c.7-.9 1.6-.6 1.2.3-3.7 7-3.2 12.8.8 16.5 4.3 3.9 12.7 3.5 24.5-.2C55.4 18.7 78.7 7.4 94.2-.8c2.4-1.3 4.2 1.1 1.8 3.3z" />
-          </svg>
-        </div>
-      );
-
-    case "rolex":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#004d26] via-[#00381b] to-[#002010] border border-emerald-500/40 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,224,71,0.2),transparent_70%)] pointer-events-none" />
-          <svg viewBox="0 0 100 45" className="w-14 h-7 relative z-10">
-            <defs>
-              <linearGradient id="rolexGoldGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FDE047" />
-                <stop offset="50%" stopColor="#F59E0B" />
-                <stop offset="100%" stopColor="#D97706" />
-              </linearGradient>
-            </defs>
-            <circle cx="10" cy="10" r="3.5" fill="url(#rolexGoldGradCard)" />
-            <circle cx="30" cy="4" r="4" fill="url(#rolexGoldGradCard)" />
-            <circle cx="50" cy="2" r="4.5" fill="url(#rolexGoldGradCard)" />
-            <circle cx="70" cy="4" r="4" fill="url(#rolexGoldGradCard)" />
-            <circle cx="90" cy="10" r="3.5" fill="url(#rolexGoldGradCard)" />
-            <path d="M10 14 L20 38 L30 38 L30 8 L40 38 L60 38 L50 6 L60 38 L70 8 L70 38 L80 38 L90 14 L82 42 L18 42 Z" fill="url(#rolexGoldGradCard)" />
-            <rect x="18" y="42" width="64" height="4" rx="2" fill="url(#rolexGoldGradCard)" />
-          </svg>
-          <span className="text-[10px] font-serif font-black tracking-[0.35em] text-[#FDE047] drop-shadow-xs relative z-10 mt-0.5">
-            ROLEX
-          </span>
-        </div>
-      );
-
-    case "samsung":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#034EA2] via-[#023c7d] to-[#00224d] border border-blue-400/40 flex items-center justify-center relative overflow-hidden shadow-md px-2">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.25),transparent_60%)] pointer-events-none" />
-          <span className="text-xl sm:text-2xl font-sans font-black tracking-[0.16em] text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.3)] relative z-10 select-none">
-            SAMSUNG
-          </span>
-        </div>
-      );
-
-    case "sony":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-slate-700/60 flex items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
-          <span className="text-2xl font-serif font-black tracking-[0.25em] text-white drop-shadow-sm relative z-10 select-none">
-            SONY
-          </span>
-        </div>
-      );
-
-    case "dior":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-stone-900 via-neutral-950 to-black border border-stone-700/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(253,230,138,0.15),transparent_70%)] pointer-events-none" />
-          <span className="text-2xl font-serif font-bold tracking-[0.2em] text-white relative z-10 select-none">
-            Dior
-          </span>
-          <span className="text-[8px] font-sans font-black tracking-[0.45em] text-amber-200/90 uppercase -mt-0.5 relative z-10">
-            PARIS
-          </span>
-        </div>
-      );
-
-    case "chanel":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-zinc-900 via-black to-zinc-950 border border-zinc-700/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
-          <svg viewBox="0 0 110 65" className="w-14 h-8 text-white drop-shadow-sm relative z-10" fill="currentColor">
-            <g transform="translate(55, 23)">
-              <path d="M-6 -14 C1 -14 7 -10 10 -4 L5 -1 C3 -4 0 -7 -6 -7 C-14 -7 -19 -1 -19 6 C-19 13 -14 19 -6 19 C0 19 3 16 5 13 L10 16 C7 22 1 26 -6 26 C-17 26 -26 17 -26 6 C-26 -5 -17 -14 -6 -14 Z" />
-              <path d="M6 -14 C13 -14 19 -10 22 -4 L17 -1 C15 -4 12 -7 6 -7 C-2 -7 -7 -1 -7 6 C-7 13 -2 19 6 19 C12 19 15 16 17 13 L22 16 C19 22 13 26 6 26 C-5 26 -14 17 -14 6 C-14 -5 -5 -14 6 -14 Z" />
-            </g>
-          </svg>
-          <span className="text-[10px] font-sans font-black tracking-[0.4em] text-white -mt-0.5 relative z-10">
-            CHANEL
-          </span>
-        </div>
-      );
-
-    case "adidas":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-neutral-700/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
-          <svg viewBox="0 0 100 55" className="w-13 h-7 text-white relative z-10" fill="currentColor">
-            <path d="M12 36 L24 36 L43 14 L31 14 Z" />
-            <path d="M35 36 L47 36 L72 3 L60 3 Z" />
-            <path d="M58 36 L70 36 L102 -9 L90 -9 Z" transform="translate(-6, 0)" />
-          </svg>
-          <span className="text-[11px] font-sans font-black tracking-[0.2em] text-white lowercase -mt-0.5 relative z-10">
-            adidas
-          </span>
-        </div>
-      );
-
-    case "gucci":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#2D1B08] via-[#1F1205] to-[#120A03] border border-amber-900/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.2),transparent_70%)] pointer-events-none" />
-          <svg viewBox="0 0 110 50" className="w-14 h-7 relative z-10">
-            <defs>
-              <linearGradient id="gucciGoldGradBadge" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FDE68A" />
-                <stop offset="50%" stopColor="#D97706" />
-                <stop offset="100%" stopColor="#92400E" />
-              </linearGradient>
-            </defs>
-            <path d="M43 22c0-7 5.2-12.5 12.2-12.5 3.8 0 7.2 1.7 9.4 4.5l-3.5 3c-1.5-1.9-3.6-3.1-5.9-3.1-4.5 0-7.8 3.7-7.8 8.4s3.3 8.4 7.8 8.4c2.5 0 4.6-1.2 6.1-3.2h-6.1v-4.2h10.5v11c-2.9 3-6.8 5-11.1 5-7.7 0-11.6-6-11.6-12.7z" fill="url(#gucciGoldGradBadge)" />
-            <path d="M67 22c0-7-5.2-12.5-12.2-12.5-3.8 0-7.2 1.7-9.4 4.5l3.5 3c1.5-1.9 3.6-3.1 5.9-3.1 4.5 0 7.8 3.7 7.8 8.4s-3.3 8.4-7.8 8.4c-2.5 0-4.6-1.2-6.1-3.2h6.1v-4.2h-10.5v11c2.9 3 6.8 5 11.1 5 7.7 0 11.6-6 11.6-12.7z" fill="url(#gucciGoldGradBadge)" />
-          </svg>
-          <span className="text-[11px] font-serif font-black tracking-[0.35em] text-[#FDE68A] uppercase -mt-0.5 relative z-10">
-            GUCCI
-          </span>
-        </div>
-      );
-
-    case "lv":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#381E0F] via-[#24130A] to-[#140A05] border border-amber-900/60 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(253,230,138,0.2),transparent_70%)] pointer-events-none" />
-          <svg viewBox="0 0 110 50" className="w-13 h-7 relative z-10">
-            <defs>
-              <linearGradient id="lvGoldGradBadge" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FDE68A" />
-                <stop offset="50%" stopColor="#D97706" />
-                <stop offset="100%" stopColor="#92400E" />
-              </linearGradient>
-            </defs>
-            <path d="M36 8 h8 v26 h16 v7 h-24 z" fill="url(#lvGoldGradBadge)" />
-            <path d="M44 8 h8 l12 33 h-8 l-7.5 -22 l-7.5 22 h-8 z" fill="url(#lvGoldGradBadge)" />
-          </svg>
-          <span className="text-[8px] font-sans font-black tracking-[0.35em] text-[#FDE68A] uppercase -mt-0.5 relative z-10">
-            LOUIS VUITTON
-          </span>
-        </div>
-      );
-
-    case "dyson":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-slate-900 via-[#1E102A] to-slate-950 border border-fuchsia-900/50 flex items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(217,70,239,0.22),transparent_60%)] pointer-events-none" />
-          <span className="text-xl font-sans font-black tracking-wider text-fuchsia-400 drop-shadow-[0_2px_8px_rgba(217,70,239,0.4)] lowercase relative z-10 select-none">
-            dyson
-          </span>
-        </div>
-      );
-
-    case "zara":
-      return (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-neutral-900 via-black to-neutral-950 border border-neutral-700/60 flex items-center justify-center relative overflow-hidden shadow-md">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
-          <span className="text-2xl font-serif font-black tracking-[-0.12em] text-white drop-shadow-sm relative z-10 select-none">
-            ZARA
-          </span>
-        </div>
-      );
-
-    default:
-      return (
-        <div className="w-full h-full rounded-2xl bg-slate-900 text-white font-black text-sm flex items-center justify-center font-mono">
-          {brandId.slice(0, 3).toUpperCase()}
-        </div>
-      );
-  }
+  return (
+    <div className="w-full h-full rounded-2xl bg-surface dark:bg-slate-950/80 border border-line/80 shadow-xs flex items-center justify-center relative overflow-hidden p-2 group-hover:border-slate-400/60 dark:group-hover:border-slate-500/60 transition-all duration-200">
+      {/* Specular lighting overlay */}
+      <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent pointer-events-none" />
+      <BrandLogo brandId={brandId} className="w-full h-full max-w-[120px] max-h-[56px]" />
+    </div>
+  );
 }
 
 export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }) {

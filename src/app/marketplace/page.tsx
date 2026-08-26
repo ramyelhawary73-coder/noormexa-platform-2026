@@ -30,18 +30,162 @@ import { BrandLogo } from "@/components/marketplace/BrandLogo";
 
 // Available Brands list (module-level constant)
 export const AVAILABLE_BRANDS = [
-  { id: "apple", name: "Apple", nameAr: "أبل", tag: "Tech & Mobile", color: "from-slate-800 to-slate-950" },
-  { id: "nike", name: "Nike", nameAr: "نايكي", tag: "Sport & Lifestyle", color: "from-amber-700 to-slate-900" },
-  { id: "rolex", name: "Rolex", nameAr: "رولكس", tag: "Haute Horlogerie", color: "from-emerald-900 to-slate-950" },
-  { id: "dior", name: "Dior", nameAr: "ديور", tag: "Paris Haute Couture", color: "from-slate-900 to-zinc-950" },
-  { id: "samsung", name: "Samsung", nameAr: "سامسونج", tag: "Galaxy AI Devices", color: "from-blue-900 to-slate-950" },
-  { id: "sony", name: "Sony", nameAr: "سوني", tag: "Audio & PlayStation", color: "from-slate-900 to-neutral-950" },
-  { id: "chanel", name: "Chanel", nameAr: "شانيل", tag: "Paris Luxury", color: "from-zinc-900 to-black" },
-  { id: "adidas", name: "Adidas", nameAr: "أديداس", tag: "Originals & Sports", color: "from-blue-950 to-slate-900" },
-  { id: "gucci", name: "Gucci", nameAr: "غوتشي", tag: "Firenze Luxury", color: "from-stone-900 to-neutral-950" },
-  { id: "louis-vuitton", name: "Louis Vuitton", nameAr: "لويس فيتون", tag: "Maison Paris 1854", color: "from-amber-950 to-slate-950" },
-  { id: "dyson", name: "Dyson", nameAr: "دايسون", tag: "Smart Hair & Care", color: "from-purple-950 to-slate-950" },
-  { id: "zara", name: "ZARA", nameAr: "زارا", tag: "European Fashion", color: "from-neutral-900 to-stone-950" },
+  {
+    id: "apple",
+    name: "Apple",
+    nameAr: "أبل",
+    tag: "Tech & Mobile",
+    category: "tech",
+    flag: "🇺🇸",
+    originAr: "أمريكا",
+    color: "from-slate-800 to-slate-950",
+    glowBorder: "hover:border-slate-400/60 dark:hover:border-slate-300/40",
+    activeGlow: "ring-slate-500/50 border-slate-500 bg-slate-900/10 dark:bg-slate-800/40",
+    badgeBg: "bg-slate-900/10 text-slate-800 dark:bg-white/10 dark:text-white",
+  },
+  {
+    id: "nike",
+    name: "Nike",
+    nameAr: "نايكي",
+    tag: "Sport & Lifestyle",
+    category: "sports",
+    flag: "🇺🇸",
+    originAr: "أمريكا",
+    color: "from-amber-700 to-slate-900",
+    glowBorder: "hover:border-orange-500/60",
+    activeGlow: "ring-orange-500/50 border-orange-500 bg-orange-500/10 dark:bg-orange-950/40",
+    badgeBg: "bg-orange-500/15 text-orange-600 dark:text-orange-400",
+  },
+  {
+    id: "rolex",
+    name: "Rolex",
+    nameAr: "رولكس",
+    tag: "Haute Horlogerie",
+    category: "watches",
+    flag: "🇨🇭",
+    originAr: "سويسرا",
+    color: "from-emerald-900 to-slate-950",
+    glowBorder: "hover:border-amber-500/60",
+    activeGlow: "ring-amber-500/50 border-amber-500 bg-amber-500/10 dark:bg-amber-950/40",
+    badgeBg: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  },
+  {
+    id: "dior",
+    name: "Dior",
+    nameAr: "ديور",
+    tag: "Paris Haute Couture",
+    category: "luxury",
+    flag: "🇫🇷",
+    originAr: "فرنسا",
+    color: "from-slate-900 to-zinc-950",
+    glowBorder: "hover:border-amber-400/60",
+    activeGlow: "ring-amber-400/50 border-amber-400 bg-amber-400/10 dark:bg-stone-900/60",
+    badgeBg: "bg-amber-400/15 text-amber-700 dark:text-amber-300",
+  },
+  {
+    id: "samsung",
+    name: "Samsung",
+    nameAr: "سامسونج",
+    tag: "Galaxy AI Devices",
+    category: "tech",
+    flag: "🇰🇷",
+    originAr: "كوريا",
+    color: "from-blue-900 to-slate-950",
+    glowBorder: "hover:border-blue-500/60",
+    activeGlow: "ring-blue-500/50 border-blue-500 bg-blue-500/10 dark:bg-blue-950/40",
+    badgeBg: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  },
+  {
+    id: "sony",
+    name: "Sony",
+    nameAr: "سوني",
+    tag: "Audio & PlayStation",
+    category: "tech",
+    flag: "🇯🇵",
+    originAr: "اليابان",
+    color: "from-slate-900 to-neutral-950",
+    glowBorder: "hover:border-indigo-400/60",
+    activeGlow: "ring-indigo-500/50 border-indigo-500 bg-indigo-500/10 dark:bg-indigo-950/40",
+    badgeBg: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400",
+  },
+  {
+    id: "chanel",
+    name: "Chanel",
+    nameAr: "شانيل",
+    tag: "Paris Luxury",
+    category: "luxury",
+    flag: "🇫🇷",
+    originAr: "فرنسا",
+    color: "from-zinc-900 to-black",
+    glowBorder: "hover:border-neutral-400/60",
+    activeGlow: "ring-neutral-400/50 border-neutral-400 bg-neutral-500/10 dark:bg-neutral-900/60",
+    badgeBg: "bg-neutral-500/15 text-neutral-700 dark:text-neutral-300",
+  },
+  {
+    id: "adidas",
+    name: "Adidas",
+    nameAr: "أديداس",
+    tag: "Originals & Sports",
+    category: "sports",
+    flag: "🇩🇪",
+    originAr: "ألمانيا",
+    color: "from-blue-950 to-slate-900",
+    glowBorder: "hover:border-sky-500/60",
+    activeGlow: "ring-sky-500/50 border-sky-500 bg-sky-500/10 dark:bg-sky-950/40",
+    badgeBg: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+  },
+  {
+    id: "gucci",
+    name: "Gucci",
+    nameAr: "غوتشي",
+    tag: "Firenze Luxury",
+    category: "luxury",
+    flag: "🇮🇹",
+    originAr: "إيطاليا",
+    color: "from-stone-900 to-neutral-950",
+    glowBorder: "hover:border-amber-600/60",
+    activeGlow: "ring-amber-600/50 border-amber-600 bg-amber-600/10 dark:bg-stone-900/60",
+    badgeBg: "bg-amber-600/15 text-amber-700 dark:text-amber-400",
+  },
+  {
+    id: "louis-vuitton",
+    name: "Louis Vuitton",
+    nameAr: "لويس فيتون",
+    tag: "Maison Paris 1854",
+    category: "luxury",
+    flag: "🇫🇷",
+    originAr: "فرنسا",
+    color: "from-amber-950 to-slate-950",
+    glowBorder: "hover:border-amber-700/60",
+    activeGlow: "ring-amber-700/50 border-amber-700 bg-amber-700/10 dark:bg-amber-950/40",
+    badgeBg: "bg-amber-700/15 text-amber-800 dark:text-amber-300",
+  },
+  {
+    id: "dyson",
+    name: "Dyson",
+    nameAr: "دايسون",
+    tag: "Smart Hair & Care",
+    category: "tech",
+    flag: "🇬🇧",
+    originAr: "بريطانيا",
+    color: "from-purple-950 to-slate-950",
+    glowBorder: "hover:border-fuchsia-500/60",
+    activeGlow: "ring-fuchsia-500/50 border-fuchsia-500 bg-fuchsia-500/10 dark:bg-fuchsia-950/40",
+    badgeBg: "bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-400",
+  },
+  {
+    id: "zara",
+    name: "ZARA",
+    nameAr: "زارا",
+    tag: "European Fashion",
+    category: "luxury",
+    flag: "🇪🇸",
+    originAr: "إسبانيا",
+    color: "from-neutral-900 to-stone-950",
+    glowBorder: "hover:border-slate-400/60",
+    activeGlow: "ring-slate-400/50 border-slate-400 bg-slate-500/10 dark:bg-slate-900/60",
+    badgeBg: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
+  },
 ];
 
 // Specific sub-sections for every brand (module-level constant)
@@ -811,12 +955,30 @@ function MarketplaceContent() {
 
         {/* Top Brands Directory Showcase (#brands-section) */}
         {(showBrandsDirectory || selectedBrand !== "all") && (
-          <section id="brands-section" className="mb-8 p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-              <div className="flex items-center gap-2 font-black text-base text-foreground">
-                <Sparkles size={18} className="text-purple-500" />
-                <span>{language === "ar" ? "دليل الماركات العالمية الفاخرة (Top Brands Hub)" : "Luxury Global Brands Hub"}</span>
+          <section id="brands-section" className="mb-8 p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4 relative overflow-hidden">
+            {/* Background subtle luxury aura */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3 relative z-10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20 shadow-xs">
+                  <Sparkles size={16} className="text-orange-500 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm sm:text-base text-foreground flex items-center gap-2">
+                    <span>{language === "ar" ? "دليل الماركات العالمية الفاخرة (Top Brands Hub)" : "Luxury Global Brands Hub"}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/30">
+                      {language === "ar" ? "وكلاء معتمدون 100%" : "100% Authorized"}
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-muted">
+                    {language === "ar"
+                      ? "تسوق مباشرة من متاجر العلامات التجارية الأصلية مع الضمان الرسمي والأرقام التسلسلية الموثقة"
+                      : "Direct shopping from official verified flagship houses with manufacturer warranties and serial verifications"}
+                  </p>
+                </div>
               </div>
+
               <div className="flex items-center gap-2">
                 {selectedBrand !== "all" && (
                   <button
@@ -825,22 +987,24 @@ function MarketplaceContent() {
                       setSelectedBrand("all");
                       setSelectedBrandSection("all");
                     }}
-                    className="px-3 py-1 rounded-xl text-xs font-bold bg-surface-soft text-orange-500 border border-orange-500/30 hover:bg-orange-500/10 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl text-xs font-black bg-orange-500 text-white shadow-xs hover:bg-orange-600 transition-all cursor-pointer flex items-center gap-1.5"
                   >
-                    {language === "ar" ? "عرض كل المنتجات" : "View All Products"}
+                    <span>{language === "ar" ? "عرض كل المنتجات" : "View All Products"}</span>
+                    <X size={13} />
                   </button>
                 )}
                 <button
                   type="button"
                   onClick={() => setShowBrandsDirectory(false)}
-                  className="p-1 rounded-lg text-muted hover:text-foreground"
+                  className="p-1.5 rounded-xl text-muted hover:text-foreground hover:bg-surface-soft transition-colors cursor-pointer"
+                  aria-label="Close Brand Hub"
                 >
                   <X size={16} />
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 relative z-10">
               {AVAILABLE_BRANDS.map((b) => {
                 const isActive = selectedBrand === b.id;
                 return (
@@ -848,37 +1012,64 @@ function MarketplaceContent() {
                     key={b.id}
                     type="button"
                     onClick={() => handleSelectBrand(b.id)}
-                    className={`group p-4 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer relative overflow-hidden ${
+                    className={`group p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border text-center transition-all duration-200 flex flex-col items-center justify-between gap-3 cursor-pointer relative overflow-hidden active:scale-96 select-none ${
                       isActive
-                        ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-300 shadow-md ring-2 ring-purple-500/40"
-                        : "bg-surface-soft/60 hover:bg-surface border-line hover:border-purple-400/50 text-foreground hover:shadow-xs"
+                        ? `${b.activeGlow} shadow-lg ring-2`
+                        : `bg-surface dark:bg-slate-900/60 border-line/90 ${b.glowBorder} hover:shadow-md hover:-translate-y-0.5`
                     }`}
                   >
+                    {/* Top Row: Origin Flag & Verified Status */}
+                    <div className="w-full flex items-center justify-between gap-1">
+                      <span className="text-[10px] text-muted flex items-center gap-1 font-semibold bg-surface-soft dark:bg-slate-800/80 px-1.5 py-0.5 rounded-md border border-line/60">
+                        <span>{b.flag}</span>
+                        <span className="text-[9px]">{language === "ar" ? b.originAr : b.id.toUpperCase()}</span>
+                      </span>
+
+                      <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-bold text-[9px] bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+                        <BadgeCheck size={11} className="fill-emerald-500 text-white" />
+                        <span className="hidden sm:inline">{language === "ar" ? "أصلي" : "Auth"}</span>
+                      </span>
+                    </div>
+
+                    {/* 3D Embossed Emblem Podium */}
                     <div
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center p-2.5 transition-transform duration-200 group-hover:scale-110 ${
+                      className={`w-16 h-16 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center p-2.5 transition-all duration-200 group-hover:scale-108 relative overflow-hidden ${
                         isActive
-                          ? "bg-purple-500/20 text-purple-600 dark:text-purple-300 ring-2 ring-purple-500/50"
-                          : "bg-surface border border-line/80 shadow-2xs text-foreground"
+                          ? "bg-surface dark:bg-slate-950 border-2 border-orange-500 shadow-md ring-2 ring-orange-500/30"
+                          : "bg-surface dark:bg-slate-950/80 border border-line/80 shadow-xs group-hover:shadow-md group-hover:border-slate-400 dark:group-hover:border-slate-600"
                       }`}
                     >
-                      <BrandLogo brandId={b.id} className="w-8 h-8" />
+                      {/* Specular rim lighting */}
+                      <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent pointer-events-none" />
+                      <BrandLogo brandId={b.id} className="w-10 h-10 sm:w-11 sm:h-11" />
                     </div>
+
+                    {/* Brand Name & Tag */}
                     <div className="space-y-0.5 min-w-0 w-full">
-                      <div className="text-xs font-black truncate text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                      <div className="text-xs sm:text-sm font-black truncate text-foreground group-hover:text-orange-500 transition-colors">
                         {b.name}
                       </div>
-                      <div className="text-[10px] font-semibold text-muted truncate">
+                      <div className="text-[10px] font-bold text-muted truncate">
                         {b.nameAr}
                       </div>
                     </div>
+
+                    {/* Action Pill Badge */}
                     <span
-                      className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold transition-all w-full truncate ${
+                      className={`text-[10px] px-2.5 py-1 rounded-xl font-bold transition-all w-full truncate flex items-center justify-center gap-1 ${
                         isActive
-                          ? "bg-purple-600 text-white shadow-xs"
-                          : "bg-surface border border-line text-muted group-hover:bg-purple-500/10 group-hover:text-purple-600 group-hover:border-purple-500/30"
+                          ? "bg-orange-500 text-white shadow-xs font-black"
+                          : "bg-surface-soft text-muted border border-line group-hover:bg-orange-500/10 group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:border-orange-500/30"
                       }`}
                     >
-                      {isActive ? (language === "ar" ? "متجر نشط" : "Active Store") : (language === "ar" ? "تصفح الماركة" : "Explore Brand")}
+                      {isActive ? (
+                        <>
+                          <BadgeCheck size={12} />
+                          <span>{language === "ar" ? "المتجر نشط" : "Active Store"}</span>
+                        </>
+                      ) : (
+                        <span>{language === "ar" ? "تصفح المنتجات" : "Explore Store"}</span>
+                      )}
                     </span>
                   </button>
                 );
@@ -1119,20 +1310,26 @@ function MarketplaceContent() {
           <div id="products-catalog-section" className="md:col-span-3 space-y-6">
             {/* Brand Flagship Official Banner (Shown when a brand is active) */}
             {selectedBrand !== "all" && currentBrandInfo && (
-              <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-700/60 p-6 text-white shadow-lg">
+              <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-700/60 p-6 text-white shadow-xl">
+                {/* Specular ambient shine */}
+                <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-start sm:items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-2.5 flex items-center justify-center text-white shrink-0 shadow-md">
-                      <BrandLogo brandId={currentBrandInfo.id} className="w-9 h-9 text-white" />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-3 flex items-center justify-center text-white shrink-0 shadow-lg relative overflow-hidden">
+                      <div className="absolute inset-0 bg-linear-to-b from-white/15 to-transparent pointer-events-none" />
+                      <BrandLogo brandId={currentBrandInfo.id} className="w-11 h-11 sm:w-13 sm:h-13 text-white" />
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-base">{currentBrandInfo.flag}</span>
                         <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                           {language === "ar" ? `متجر ${currentBrandInfo.nameAr} (${currentBrandInfo.name}) الرسمي` : `${currentBrandInfo.name} Official Flagship`}
                         </h2>
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
                           <BadgeCheck size={13} className="text-emerald-400" />
-                          <span>{language === "ar" ? "وكيل معتمد وموثق" : "Verified Authorized Store"}</span>
+                          <span>{language === "ar" ? "وكيل معتمد وموثق 100%" : "Verified Authorized Store"}</span>
                         </span>
                       </div>
                       <p className="text-xs text-slate-300 max-w-xl">
@@ -1149,7 +1346,7 @@ function MarketplaceContent() {
                       setSelectedBrand("all");
                       setSelectedBrandSection("all");
                     }}
-                    className="self-start md:self-auto px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all cursor-pointer whitespace-nowrap"
+                    className="self-start md:self-auto px-4 py-2.5 rounded-xl text-xs font-black bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all cursor-pointer whitespace-nowrap shadow-xs hover:scale-102 active:scale-98"
                   >
                     {language === "ar" ? "عرض جميع الماركات" : "View All Brands"}
                   </button>
