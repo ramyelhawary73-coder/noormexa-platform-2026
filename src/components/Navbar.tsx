@@ -11,12 +11,10 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Store as StoreIcon,
-  Sun,
   Truck,
   UserRound,
   X,
@@ -31,8 +29,8 @@ import {
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import TopUtilityBar from "@/components/TopUtilityBar";
+import ThemeToggle from "@/components/ThemeToggle";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
-import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { CurrencyCode } from "@/types/marketplace";
@@ -134,7 +132,6 @@ export default function Navbar() {
   const currencyMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { theme, toggleTheme } = useTheme();
   const { user, profile, signOut } = useAuth();
   const { currency, setCurrency, currencies, cartCount, wishlist } = useMarketplace();
 
@@ -485,21 +482,8 @@ export default function Navbar() {
               <span className="text-[11px] font-bold">{isAr ? "EN" : "عربي"}</span>
             </button>
 
-            {/* Professional Day / Night Theme Toggle (Tablet & Desktop) */}
-            <button
-              id="theme-toggle-btn"
-              type="button"
-              className="hidden sm:flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/60 text-muted hover:text-foreground transition-all shadow-xs active:scale-90 cursor-pointer"
-              onClick={toggleTheme}
-              title={theme === "dark" ? (isAr ? "التبديل إلى الوضع النهاري (Light Mode)" : "Switch to Light Mode") : (isAr ? "التبديل إلى الوضع الليلي (Dark Mode)" : "Switch to Dark Mode")}
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? (
-                <Sun size={16} className="text-amber-400 fill-amber-400/20 transition-transform duration-300 rotate-0 hover:rotate-90" />
-              ) : (
-                <Moon size={15} className="text-slate-700 dark:text-slate-200 fill-slate-700/15 transition-transform duration-300 rotate-0 hover:-rotate-12" />
-              )}
-            </button>
+            {/* Professional Day / Night Theme Toggle with buttery smooth motion */}
+            <ThemeToggle size="md" />
 
             {/* Wishlist Icon Button (Desktop/Tablet) */}
             <Link
@@ -940,18 +924,7 @@ export default function Navbar() {
                     <Globe2 size={13} className="text-orange-500" />
                     <span>{isAr ? "EN" : "عربي"}</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground cursor-pointer active:scale-95"
-                  >
-                    {theme === "dark" ? (
-                      <Sun size={13} className="text-amber-400 fill-amber-400/20" />
-                    ) : (
-                      <Moon size={13} className="text-slate-600" />
-                    )}
-                    <span>{theme === "dark" ? (isAr ? "نهار" : "Light") : (isAr ? "ليل" : "Dark")}</span>
-                  </button>
+                  <ThemeToggle size="sm" showLabel={true} />
                 </div>
               </div>
             </div>
