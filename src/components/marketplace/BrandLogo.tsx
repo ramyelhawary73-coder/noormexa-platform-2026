@@ -29,100 +29,84 @@ export function BrandLogo({
     case "noormexa":
       return <NoormexaEmblemSvg size={28} className={`${className} shrink-0`} />;
 
-    // 1. APPLE (3D Metallic Chrome / Titanium with Official Precise Silhouette & Leaf)
+    // 1. APPLE (3D Metallic Chrome / Titanium with 100% Exact Official Silhouette & Leaf)
     case "apple":
       return (
         <svg
-          viewBox="0 0 100 100"
+          viewBox="0 0 170 170"
           className={`${className} shrink-0`}
-          aria-label="Apple Official 3D Emblem"
+          aria-label="Apple Official Emblem"
         >
           <defs>
             <linearGradient id={`appleGrad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="30%" stopColor="#F1F5F9" />
-              <stop offset="65%" stopColor="#CBD5E1" />
-              <stop offset="100%" stopColor="#64748B" />
+              <stop offset="35%" stopColor="#F1F5F9" />
+              <stop offset="70%" stopColor="#CBD5E1" />
+              <stop offset="100%" stopColor="#94A3B8" />
             </linearGradient>
             <linearGradient id={`appleShine_${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
-              <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0" />
+              <stop offset="60%" stopColor="#FFFFFF" stopOpacity="0" />
             </linearGradient>
-            <radialGradient id={`appleSpecular_${uid}`} cx="35%" cy="30%" r="55%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.25" />
-            </radialGradient>
             <filter id={`appleShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="3.5" stdDeviation="3.5" floodColor="#000000" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#appleShadow_${uid})`}>
+            {/* Apple Body with genuine official bite & curves */}
+            <path
+              d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.59-7.71-11.66-14-4.89-7.5-8.8-15.69-11.73-24.58-2.93-8.89-4.4-17.54-4.4-25.96 0-13.5 3.5-24.8 10.5-33.9 7-9.1 15.8-13.7 26.4-13.8 5.7 0 11.6 1.7 17.7 5.1 6.1 3.4 10 5.2 11.7 5.2 1.5 0 5.3-1.8 11.4-5.4 6.1-3.6 11.7-5.2 16.8-4.8 12.6.9 22.5 5.9 29.7 15-11 6.7-16.4 15.8-16.2 27.3.2 9 3.6 16.5 10.2 22.5 4.3 3.9 9.3 6.6 15 8.1-1.3 4.1-2.9 8.2-4.8 12.3z"
+              fill={`url(#appleGrad_${uid})`}
+            />
             {/* Apple Leaf */}
             <path
-              d="M52 14 C55 8 62 4 69 4 C70 11 66 18 61 23 C56 28 49 29 48 29 C47 22 50 16 52 14 Z"
+              d="M119.22 31.02c0-7.2 2.6-13.8 7.8-19.8 5.2-6 11.7-9.5 19.5-10.5.2 1.1.3 2.1.3 3 0 7.2-2.7 14-8.1 20.4-5.4 6.4-12 10.1-19.8 11.1-.1-1.4-.2-2.8-.2-4.2z"
               fill={`url(#appleGrad_${uid})`}
-            />
-            <path
-              d="M52 14 C55 8 62 4 69 4 C70 11 66 18 61 23 C56 28 49 29 48 29 C47 22 50 16 52 14 Z"
-              fill={`url(#appleShine_${uid})`}
-              opacity="0.75"
-            />
-
-            {/* Apple Body with Precise Official Bite */}
-            <path
-              d="M74.5 54.5 C74.3 43.5 83.2 37.8 83.7 37.5 C78.6 30 70.6 28.9 67.8 28.7 C61 28 54.5 32.7 51 32.7 C47.5 32.7 42.2 28.8 36.6 28.9 C29.3 29 22.4 33.2 18.7 39.7 C11.1 52.8 16.7 72.3 24.1 82.9 C27.7 88.1 31.9 93.8 37.5 93.6 C42.9 93.4 45 90.1 51.5 90.1 C57.9 90.1 59.8 93.6 65.5 93.4 C71.3 93.2 75 88.1 78.6 82.9 C82.8 76.8 84.5 70.8 84.7 70.4 C84.5 70.2 74.7 66.5 74.5 54.5 Z"
-              fill={`url(#appleGrad_${uid})`}
-            />
-            {/* Apple 3D Specular Highlight Overlay */}
-            <path
-              d="M74.5 54.5 C74.3 43.5 83.2 37.8 83.7 37.5 C78.6 30 70.6 28.9 67.8 28.7 C61 28 54.5 32.7 51 32.7 C47.5 32.7 42.2 28.8 36.6 28.9 C29.3 29 22.4 33.2 18.7 39.7 C11.1 52.8 16.7 72.3 24.1 82.9 C27.7 88.1 31.9 93.8 37.5 93.6 C42.9 93.4 45 90.1 51.5 90.1 C57.9 90.1 59.8 93.6 65.5 93.4 C71.3 93.2 75 88.1 78.6 82.9 C82.8 76.8 84.5 70.8 84.7 70.4 C84.5 70.2 74.7 66.5 74.5 54.5 Z"
-              fill={`url(#appleSpecular_${uid})`}
             />
           </g>
         </svg>
       );
 
-    // 2. NIKE (3D Bold Aerodynamic Swoosh with Fiery Neon Bevel)
+    // 2. NIKE (3D Bold Aerodynamic Swoosh with Fiery Gradient & Typography)
     case "nike":
       return (
         <svg
-          viewBox="0 0 100 50"
+          viewBox="0 0 160 85"
           className={`${className} shrink-0`}
-          aria-label="Nike Official 3D Swoosh"
+          aria-label="Nike Official Swoosh"
         >
           <defs>
-            <linearGradient id={`nikeGrad_${uid}`} x1="0%" y1="0%" x2="100%" y2="50%">
+            <linearGradient id={`nikeGrad_${uid}`} x1="0%" y1="0%" x2="100%" y2="60%">
               <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="25%" stopColor="#FF7A00" />
-              <stop offset="70%" stopColor="#EA580C" />
+              <stop offset="25%" stopColor="#FF8A00" />
+              <stop offset="65%" stopColor="#EA580C" />
               <stop offset="100%" stopColor="#C2410C" />
             </linearGradient>
-            <linearGradient id={`nikeHighlight_${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-              <stop offset="45%" stopColor="#FED7AA" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#EA580C" stopOpacity="0" />
-            </linearGradient>
             <filter id={`nikeGlow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2.5" stdDeviation="3" floodColor="#EA580C" floodOpacity="0.5" />
+              <feDropShadow dx="0" dy="3.5" stdDeviation="3.5" floodColor="#EA580C" floodOpacity="0.6" />
             </filter>
           </defs>
 
           <g filter={`url(#nikeGlow_${uid})`}>
             <path
-              d="M96 2.5 C77.5 14.5 54.2 27.5 28.5 33.8 C15.8 36.9 6.4 35.3 2.2 30.1 C-1.8 25 0.5 17 6.8 9 C7.5 8.1 8.5 8.4 8.1 9.4 C4.2 16.6 4.8 22.6 8.9 26.4 C13.4 30.5 22.2 30.1 34.5 26.2 C57.8 19 81.6 7.2 97.4 -1 C99.8 -2.3 101.6 0.2 96 2.5 Z"
+              d="M148.5 18.2 C120.3 35.6 85.2 53.5 48.6 62 C28.9 66.6 14.2 64.4 7.6 56.8 C1.4 49.6 4.8 37.8 14.5 26.2 C15.6 24.8 17.2 25.3 16.6 26.8 C10.6 37.4 11.5 46.1 17.8 51.7 C24.6 57.7 38.1 57.1 56.9 51.3 C92.7 40.6 129.2 23.2 153.4 10.8 C157.1 8.9 159.8 12.7 148.5 18.2 Z"
               fill={`url(#nikeGrad_${uid})`}
-              transform="translate(1, 6)"
             />
-            {/* Aerodynamic Bevel Top Streak */}
-            <path
-              d="M96 2.5 C77.5 14.5 54.2 27.5 28.5 33.8 C15.8 36.9 6.4 35.3 2.2 30.1 C-1.8 25 0.5 17 6.8 9"
-              fill="none"
-              stroke={`url(#nikeHighlight_${uid})`}
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              transform="translate(1, 6)"
-            />
+            <text
+              x="80"
+              y="79"
+              textAnchor="middle"
+              fill="#FFFFFF"
+              fontSize="12.5"
+              fontWeight="900"
+              fontFamily="system-ui, sans-serif"
+              fontStyle="italic"
+              letterSpacing="0.28em"
+              opacity="0.95"
+            >
+              NIKE
+            </text>
           </g>
         </svg>
       );
@@ -131,7 +115,7 @@ export function BrandLogo({
     case "rolex":
       return (
         <svg
-          viewBox="0 0 100 85"
+          viewBox="0 0 140 100"
           className={`${className} shrink-0`}
           aria-label="Rolex Official 5-Point Crown Emblem"
         >
@@ -150,39 +134,35 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#78350F" />
             </radialGradient>
             <filter id={`rolexLuster_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#B45309" floodOpacity="0.5" />
+              <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#B45309" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#rolexLuster_${uid})`}>
             {/* 5 Solid Jewel Pearl Spheres */}
-            <circle cx="14" cy="22" r="5" fill={`url(#rolexSphereGlow_${uid})`} />
-            <circle cx="32" cy="11" r="5.2" fill={`url(#rolexSphereGlow_${uid})`} />
-            <circle cx="50" cy="5" r="6" fill={`url(#rolexSphereGlow_${uid})`} />
-            <circle cx="68" cy="11" r="5.2" fill={`url(#rolexSphereGlow_${uid})`} />
-            <circle cx="86" cy="22" r="5" fill={`url(#rolexSphereGlow_${uid})`} />
+            <circle cx="20" cy="26" r="6" fill={`url(#rolexSphereGlow_${uid})`} />
+            <circle cx="45" cy="14" r="6.5" fill={`url(#rolexSphereGlow_${uid})`} />
+            <circle cx="70" cy="8" r="7.5" fill={`url(#rolexSphereGlow_${uid})`} />
+            <circle cx="95" cy="14" r="6.5" fill={`url(#rolexSphereGlow_${uid})`} />
+            <circle cx="120" cy="26" r="6" fill={`url(#rolexSphereGlow_${uid})`} />
 
             {/* Central Coronet Body with Authentic Flaring Crown Wings */}
             <path
-              d="M14 28 L28 56 L34 16 L50 56 L66 16 L72 56 L86 28 L76 62 L24 62 Z"
+              d="M20 34 L38 64 L47 22 L70 64 L93 22 L102 64 L120 34 L108 72 L32 72 Z"
               fill={`url(#rolexGold_${uid})`}
             />
 
-            {/* Inner Crown Depth Oval Cutouts */}
-            <ellipse cx="38" cy="46" rx="3" ry="5.5" fill="#000000" opacity="0.25" />
-            <ellipse cx="62" cy="46" rx="3" ry="5.5" fill="#000000" opacity="0.25" />
-
             {/* Bottom 24K Solid Beveled Coronet Band */}
-            <rect x="20" y="65" width="60" height="6.5" rx="3.2" fill={`url(#rolexGold_${uid})`} />
-            <line x1="23" y1="67" x2="77" y2="67" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" opacity="0.85" />
+            <rect x="26" y="75" width="88" height="7.5" rx="3.75" fill={`url(#rolexGold_${uid})`} />
+            <line x1="30" y1="77.5" x2="110" y2="77.5" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
 
             {/* ROLEX Wordmark */}
             <text
-              x="50"
-              y="82"
+              x="70"
+              y="97"
               textAnchor="middle"
               fill={`url(#rolexGold_${uid})`}
-              fontSize="9"
+              fontSize="14"
               fontWeight="900"
               fontFamily="serif"
               letterSpacing="0.32em"
@@ -197,7 +177,7 @@ export function BrandLogo({
     case "dior":
       return (
         <svg
-          viewBox="0 0 100 85"
+          viewBox="0 0 140 100"
           className={`${className} shrink-0`}
           aria-label="Christian Dior Official Monogram"
         >
@@ -209,33 +189,33 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#78350F" />
             </linearGradient>
             <filter id={`diorShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000000" floodOpacity="0.4" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.5" />
             </filter>
           </defs>
 
           <g filter={`url(#diorShadow_${uid})`}>
             {/* C Glyph with authentic French high-fashion serif weights */}
             <path
-              d="M44 14 C30 14 18 25 18 39 C18 53 30 64 44 64 C52 64 59 60 63 55 L55 49 C52 52 48 55 44 55 C35 55 27 48 27 39 C27 30 35 23 44 23 C48 23 52 26 55 29 L63 23 C59 18 52 14 44 14 Z"
+              d="M62 12 C46 12 32 25 32 41 C32 57 46 70 62 70 C71 70 79 66 84 60 L75 53 C71 57 67 60 62 60 C51 60 42 52 42 41 C42 30 51 22 62 22 C67 22 71 25 75 29 L84 22 C79 16 71 12 62 12 Z"
               fill={`url(#diorGold_${uid})`}
             />
             {/* D Glyph Interlocking through C */}
             <path
-              d="M46 14 H64 C77 14 86 25 86 39 C86 53 77 64 64 64 H46 V14 Z M55 23 V55 H63 C72 55 77 48 77 39 C77 30 72 23 63 23 H55 Z"
+              d="M64 12 H86 C101 12 112 25 112 41 C112 57 101 70 86 70 H64 V12 Z M74 22 V60 H85 C95 60 101 52 101 41 C101 30 95 22 85 22 H74 Z"
               fill={`url(#diorGold_${uid})`}
             />
-            {/* Subtle Parisian Micro-Script Baseline */}
+            {/* DIOR Wordmark */}
             <text
-              x="50"
-              y="79"
+              x="70"
+              y="92"
               textAnchor="middle"
               fill={`url(#diorGold_${uid})`}
-              fontSize="9"
+              fontSize="14.5"
               fontWeight="900"
               fontFamily="serif"
-              letterSpacing="0.35em"
+              letterSpacing="0.32em"
             >
-              PARIS
+              DIOR
             </text>
           </g>
         </svg>
@@ -245,58 +225,58 @@ export function BrandLogo({
     case "samsung":
       return (
         <svg
-          viewBox="0 0 120 55"
+          viewBox="0 0 150 75"
           className={`${className} shrink-0`}
           aria-label="Samsung Official 3D Emblem"
         >
           <defs>
             <linearGradient id={`samsungBlue_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0E7EFA" />
+              <stop offset="0%" stopColor="#1E88E5" />
               <stop offset="45%" stopColor="#034EA2" />
-              <stop offset="100%" stopColor="#002660" />
+              <stop offset="100%" stopColor="#00225E" />
             </linearGradient>
             <linearGradient id={`samsungGloss_${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
             </linearGradient>
             <filter id={`samsungShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#002966" floodOpacity="0.5" />
+              <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#00225E" floodOpacity="0.6" />
             </filter>
           </defs>
 
           <g filter={`url(#samsungShadow_${uid})`}>
             {/* Iconic Tilted Samsung Ellipse (3D Oval Pill) */}
             <ellipse
-              cx="60"
-              cy="27"
-              rx="56"
-              ry="23"
-              transform="rotate(-10 60 27)"
+              cx="75"
+              cy="37.5"
+              rx="70"
+              ry="29"
+              transform="rotate(-9 75 37.5)"
               fill={`url(#samsungBlue_${uid})`}
             />
 
             {/* 3D Glass Specular Reflection on Top Half */}
             <ellipse
-              cx="60"
-              cy="20"
-              rx="48"
-              ry="13"
-              transform="rotate(-10 60 27)"
+              cx="75"
+              cy="28"
+              rx="60"
+              ry="16"
+              transform="rotate(-9 75 37.5)"
               fill={`url(#samsungGloss_${uid})`}
             />
 
             {/* Official SAMSUNG Bold Typography */}
             <text
-              x="60"
-              y="34"
+              x="75"
+              y="44"
               textAnchor="middle"
               fill="#FFFFFF"
-              fontSize="16.5"
+              fontSize="19"
               fontWeight="900"
               fontFamily="system-ui, -apple-system, sans-serif"
-              letterSpacing="0.09em"
-              transform="rotate(-10 60 27)"
-              filter="drop-shadow(0 1px 2px rgba(0,0,0,0.6))"
+              letterSpacing="0.1em"
+              transform="rotate(-9 75 37.5)"
+              filter="drop-shadow(0 1.5px 2px rgba(0,0,0,0.6))"
             >
               SAMSUNG
             </text>
@@ -308,32 +288,32 @@ export function BrandLogo({
     case "sony":
       return (
         <svg
-          viewBox="0 0 110 45"
+          viewBox="0 0 140 60"
           className={`${className} shrink-0`}
           aria-label="Sony Official Wordmark"
         >
           <defs>
             <linearGradient id={`sonyChrome_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="35%" stopColor="#E2E8F0" />
-              <stop offset="70%" stopColor="#94A3B8" />
-              <stop offset="100%" stopColor="#475569" />
+              <stop offset="35%" stopColor="#F1F5F9" />
+              <stop offset="70%" stopColor="#CBD5E1" />
+              <stop offset="100%" stopColor="#64748B" />
             </linearGradient>
             <filter id={`sonyBevel_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#sonyBevel_${uid})`}>
             <text
-              x="55"
-              y="32"
+              x="70"
+              y="43"
               textAnchor="middle"
               fill={`url(#sonyChrome_${uid})`}
-              fontSize="30"
+              fontSize="36"
               fontWeight="900"
               fontFamily="'Cinzel', 'Times New Roman', Times, serif"
-              letterSpacing="0.18em"
+              letterSpacing="0.16em"
             >
               SONY
             </text>
@@ -345,7 +325,7 @@ export function BrandLogo({
     case "chanel":
       return (
         <svg
-          viewBox="0 0 100 85"
+          viewBox="0 0 140 100"
           className={`${className} shrink-0`}
           aria-label="Chanel Interlocking CC Logo"
         >
@@ -357,32 +337,32 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#64748B" />
             </linearGradient>
             <filter id={`chanelGlow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000000" floodOpacity="0.4" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.5" />
             </filter>
           </defs>
 
           <g filter={`url(#chanelGlow_${uid})`}>
             {/* Left C */}
             <path
-              d="M38 12 C22 12 10 25 10 42 C10 59 22 72 38 72 C49 72 58 65 63 56 L54 50 C51 56 45 60 38 60 C28 60 21 52 21 42 C21 32 28 24 38 24 C45 24 51 28 54 34 L63 28 C58 19 49 12 38 12 Z"
+              d="M52 14 C34 14 20 28 20 45 C20 62 34 76 52 76 C64 76 74 69 80 59 L70 53 C66 59 60 64 52 64 C41 64 32 55 32 45 C32 35 41 26 52 26 C60 26 66 31 70 37 L80 31 C74 21 64 14 52 14 Z"
               fill={`url(#chanelSilver_${uid})`}
             />
             {/* Right C - Interlocked with Precision Crossing */}
             <path
-              d="M62 12 C51 12 42 19 37 28 L46 34 C49 28 55 24 62 24 C72 24 79 32 79 42 C79 52 72 60 62 60 C55 60 49 56 46 50 L37 56 C42 65 51 72 62 72 C78 72 90 59 90 42 C90 25 78 12 62 12 Z"
+              d="M88 14 C76 14 66 21 60 31 L70 37 C74 31 80 26 88 26 C99 26 108 35 108 45 C108 55 99 64 88 64 C80 64 74 59 70 53 L60 59 C66 69 76 76 88 76 C106 76 120 62 120 45 C120 28 106 14 88 14 Z"
               fill={`url(#chanelSilver_${uid})`}
             />
 
             {/* CHANEL Wordmark */}
             <text
-              x="50"
-              y="82"
+              x="70"
+              y="94"
               textAnchor="middle"
               fill={`url(#chanelSilver_${uid})`}
-              fontSize="9"
+              fontSize="13"
               fontWeight="900"
               fontFamily="system-ui, sans-serif"
-              letterSpacing="0.38em"
+              letterSpacing="0.36em"
             >
               CHANEL
             </text>
@@ -394,7 +374,7 @@ export function BrandLogo({
     case "adidas":
       return (
         <svg
-          viewBox="0 0 100 75"
+          viewBox="0 0 140 90"
           className={`${className} shrink-0`}
           aria-label="Adidas Official 3-Stripes Emblem"
         >
@@ -406,25 +386,25 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#0369A1" />
             </linearGradient>
             <filter id={`adidasShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#0284C7" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#0284C7" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#adidasShadow_${uid})`}>
             {/* Stripe 1 (Smallest Left) */}
-            <path d="M16 48 L28 48 L46 22 L34 22 Z" fill={`url(#adidasGrad_${uid})`} />
+            <path d="M22 55 L38 55 L62 21 L46 21 Z" fill={`url(#adidasGrad_${uid})`} />
             {/* Stripe 2 (Medium Center) */}
-            <path d="M38 48 L50 48 L74 10 L62 10 Z" fill={`url(#adidasGrad_${uid})`} />
+            <path d="M51 55 L67 55 L99 6 L83 6 Z" fill={`url(#adidasGrad_${uid})`} />
             {/* Stripe 3 (Tallest Right) */}
-            <path d="M60 48 L72 48 L100 -2 L88 -2 Z" fill={`url(#adidasGrad_${uid})`} />
+            <path d="M80 55 L96 55 L133 -9 L117 -9 Z" fill={`url(#adidasGrad_${uid})`} />
 
             {/* adidas Wordmark */}
             <text
-              x="50"
-              y="66"
+              x="70"
+              y="78"
               textAnchor="middle"
               fill={`url(#adidasGrad_${uid})`}
-              fontSize="14.5"
+              fontSize="19"
               fontWeight="900"
               fontFamily="system-ui, sans-serif"
               letterSpacing="0.12em"
@@ -439,7 +419,7 @@ export function BrandLogo({
     case "gucci":
       return (
         <svg
-          viewBox="0 0 100 78"
+          viewBox="0 0 140 95"
           className={`${className} shrink-0`}
           aria-label="Gucci Interlocking GG Emblem"
         >
@@ -451,29 +431,29 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#78350F" />
             </linearGradient>
             <filter id={`gucciShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#78350F" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#78350F" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#gucciShadow_${uid})`}>
             {/* Left G */}
             <path
-              d="M44 26 C44 14 34 5 22 5 C10 5 1 14 1 26 C1 38 10 47 22 47 C30 47 37 43 41 37 L33 37 C30 40 26 41 22 41 C15 41 8 34 8 26 C8 18 15 11 22 11 C28 11 33 15 34 21 L25 21 L25 27 L44 27 Z"
+              d="M62 33 C62 18 49 7 34 7 C18 7 6 18 6 33 C6 48 18 60 34 60 C44 60 53 54 58 47 L47 47 C44 51 39 53 34 53 C24 53 15 44 15 33 C15 23 24 14 34 14 C42 14 48 19 50 26 L38 26 L38 33 L62 33 Z"
               fill={`url(#gucciGold_${uid})`}
             />
             {/* Right G (Interlocked back-to-back) */}
             <path
-              d="M56 26 C56 38 66 47 78 47 C90 47 99 38 99 26 C99 14 90 5 78 5 C70 5 63 9 59 15 L67 15 C70 12 74 11 78 11 C85 11 92 18 92 26 C92 34 85 41 78 41 C72 41 67 37 66 31 L75 31 L75 25 L56 25 Z"
+              d="M78 33 C78 48 91 60 106 60 C122 60 134 48 134 33 C134 18 122 7 106 7 C96 7 87 13 82 20 L93 20 C96 16 101 14 106 14 C116 14 125 23 125 33 C125 44 116 53 106 53 C98 53 92 48 90 41 L102 41 L102 33 L78 33 Z"
               fill={`url(#gucciGold_${uid})`}
             />
 
             {/* GUCCI Wordmark */}
             <text
-              x="50"
-              y="68"
+              x="70"
+              y="84"
               textAnchor="middle"
               fill={`url(#gucciGold_${uid})`}
-              fontSize="12.5"
+              fontSize="16"
               fontWeight="900"
               fontFamily="serif"
               letterSpacing="0.32em"
@@ -489,7 +469,7 @@ export function BrandLogo({
     case "louis-vuitton":
       return (
         <svg
-          viewBox="0 0 100 82"
+          viewBox="0 0 140 100"
           className={`${className} shrink-0`}
           aria-label="Louis Vuitton Official LV Monogram"
         >
@@ -501,24 +481,24 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#78350F" />
             </linearGradient>
             <filter id={`lvShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#78350F" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#78350F" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#lvShadow_${uid})`}>
             {/* Serif 'L' */}
             <path
-              d="M26 10 H37 V44 H58 V53 H26 Z"
+              d="M38 14 H51 V54 H76 V64 H38 Z"
               fill={`url(#lvGold_${uid})`}
             />
             {/* Serif 'V' Interlocking over 'L' */}
             <path
-              d="M42 10 H54 L66 44 L78 10 H90 L73 53 H59 Z"
+              d="M57 14 H71 L86 54 L101 14 H115 L94 64 H78 Z"
               fill={`url(#lvGold_${uid})`}
             />
 
             {/* 4-Petal Monogram Floral Star Motif at Corner */}
-            <g transform="translate(12, 26) scale(0.65)">
+            <g transform="translate(18, 30) scale(0.8)">
               <path
                 d="M10 0 C10 6 6 10 0 10 C6 10 10 14 10 20 C10 14 14 10 20 10 C14 10 10 6 10 0 Z"
                 fill={`url(#lvGold_${uid})`}
@@ -528,11 +508,11 @@ export function BrandLogo({
 
             {/* LOUIS VUITTON Wordmark */}
             <text
-              x="50"
-              y="74"
+              x="70"
+              y="88"
               textAnchor="middle"
               fill={`url(#lvGold_${uid})`}
-              fontSize="8.5"
+              fontSize="10.5"
               fontWeight="900"
               fontFamily="system-ui, sans-serif"
               letterSpacing="0.28em"
@@ -547,7 +527,7 @@ export function BrandLogo({
     case "dyson":
       return (
         <svg
-          viewBox="0 0 110 50"
+          viewBox="0 0 140 70"
           className={`${className} shrink-0`}
           aria-label="Dyson Official 3D Emblem"
         >
@@ -559,31 +539,31 @@ export function BrandLogo({
               <stop offset="100%" stopColor="#701A75" />
             </linearGradient>
             <filter id={`dysonGlow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#D946EF" floodOpacity="0.5" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="3" floodColor="#D946EF" floodOpacity="0.55" />
             </filter>
           </defs>
 
           <g filter={`url(#dysonGlow_${uid})`}>
             {/* Cyclonic Halo Ring behind 'd' */}
             <ellipse
-              cx="26"
-              cy="25"
-              rx="18"
-              ry="18"
+              cx="35"
+              cy="35"
+              rx="24"
+              ry="24"
               fill="none"
               stroke={`url(#dysonMagenta_${uid})`}
-              strokeWidth="2.8"
-              strokeDasharray="26 8"
-              opacity="0.85"
+              strokeWidth="3.5"
+              strokeDasharray="36 10"
+              opacity="0.8"
             />
 
             {/* Authentic dyson Lowercase Typography */}
             <text
-              x="55"
-              y="33"
+              x="70"
+              y="45"
               textAnchor="middle"
               fill={`url(#dysonMagenta_${uid})`}
-              fontSize="24"
+              fontSize="32"
               fontWeight="900"
               fontFamily="system-ui, -apple-system, sans-serif"
               letterSpacing="0.04em"
@@ -598,7 +578,7 @@ export function BrandLogo({
     case "zara":
       return (
         <svg
-          viewBox="0 0 110 45"
+          viewBox="0 0 140 60"
           className={`${className} shrink-0`}
           aria-label="ZARA Official Wordmark"
         >
@@ -607,21 +587,21 @@ export function BrandLogo({
               <stop offset="0%" stopColor="#FFFFFF" />
               <stop offset="40%" stopColor="#E2E8F0" />
               <stop offset="80%" stopColor="#94A3B8" />
-              <stop offset="100%" stopColor="#475569" />
+              <stop offset="100%" stopColor="#64748B" />
             </linearGradient>
             <filter id={`zaraShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000000" floodOpacity="0.4" />
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.5" />
             </filter>
           </defs>
 
           <g filter={`url(#zaraShadow_${uid})`}>
             {/* Iconic Interconnected ZARA Serifs */}
             <text
-              x="55"
-              y="33"
+              x="70"
+              y="44"
               textAnchor="middle"
               fill={`url(#zaraGrad_${uid})`}
-              fontSize="33"
+              fontSize="42"
               fontWeight="900"
               fontFamily="'Playfair Display', Didot, 'Bodoni MT', Georgia, serif"
               letterSpacing="-0.09em"
@@ -636,7 +616,7 @@ export function BrandLogo({
     case "prada":
       return (
         <svg
-          viewBox="0 0 100 65"
+          viewBox="0 0 130 80"
           className={`${className} shrink-0`}
           aria-label="Prada Milano Triangle Logo"
         >
@@ -646,37 +626,49 @@ export function BrandLogo({
               <stop offset="50%" stopColor="#CBD5E1" />
               <stop offset="100%" stopColor="#475569" />
             </linearGradient>
+            <filter id={`pradaShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.5" />
+            </filter>
           </defs>
-          <polygon
-            points="50,60 6,8 94,8"
-            fill="#0F172A"
-            stroke={`url(#pradaSilver_${uid})`}
-            strokeWidth="3"
-          />
-          <text
-            x="50"
-            y="24"
-            textAnchor="middle"
-            fill="#FFFFFF"
-            fontSize="12"
-            fontWeight="900"
-            fontFamily="serif"
-            letterSpacing="0.2em"
-          >
-            PRADA
-          </text>
-          <text
-            x="50"
-            y="36"
-            textAnchor="middle"
-            fill={`url(#pradaSilver_${uid})`}
-            fontSize="6"
-            fontWeight="700"
-            fontFamily="sans-serif"
-            letterSpacing="0.25em"
-          >
-            MILANO
-          </text>
+          <g filter={`url(#pradaShadow_${uid})`}>
+            <polygon
+              points="65,72 8,10 122,10"
+              fill="#0F172A"
+              stroke={`url(#pradaSilver_${uid})`}
+              strokeWidth="3.5"
+            />
+            <polygon
+              points="65,66 14,14 116,14"
+              fill="none"
+              stroke={`url(#pradaSilver_${uid})`}
+              strokeWidth="1"
+              opacity="0.6"
+            />
+            <text
+              x="65"
+              y="32"
+              textAnchor="middle"
+              fill="#FFFFFF"
+              fontSize="16"
+              fontWeight="900"
+              fontFamily="serif"
+              letterSpacing="0.22em"
+            >
+              PRADA
+            </text>
+            <text
+              x="65"
+              y="46"
+              textAnchor="middle"
+              fill={`url(#pradaSilver_${uid})`}
+              fontSize="7.5"
+              fontWeight="700"
+              fontFamily="sans-serif"
+              letterSpacing="0.28em"
+            >
+              MILANO
+            </text>
+          </g>
         </svg>
       );
 
@@ -685,42 +677,47 @@ export function BrandLogo({
     case "hermès":
       return (
         <svg
-          viewBox="0 0 100 75"
+          viewBox="0 0 140 90"
           className={`${className} shrink-0`}
           aria-label="Hermes Paris Logo"
         >
           <defs>
             <linearGradient id={`hermesOrange_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FED7AA" />
-              <stop offset="40%" stopColor="#F97316" />
-              <stop offset="85%" stopColor="#C2410C" />
+              <stop offset="35%" stopColor="#F97316" />
+              <stop offset="80%" stopColor="#C2410C" />
               <stop offset="100%" stopColor="#7C2D12" />
             </linearGradient>
+            <filter id={`hermesShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#C2410C" floodOpacity="0.5" />
+            </filter>
           </defs>
-          <circle cx="50" cy="28" r="20" fill="none" stroke={`url(#hermesOrange_${uid})`} strokeWidth="2.5" />
-          <text
-            x="50"
-            y="36"
-            textAnchor="middle"
-            fill={`url(#hermesOrange_${uid})`}
-            fontSize="22"
-            fontWeight="900"
-            fontFamily="serif"
-          >
-            H
-          </text>
-          <text
-            x="50"
-                y="66"
-            textAnchor="middle"
-            fill={`url(#hermesOrange_${uid})`}
-            fontSize="11"
-            fontWeight="900"
-            fontFamily="serif"
-            letterSpacing="0.25em"
-          >
-            HERMÈS
-          </text>
+          <g filter={`url(#hermesShadow_${uid})`}>
+            <circle cx="70" cy="32" r="22" fill="none" stroke={`url(#hermesOrange_${uid})`} strokeWidth="3" />
+            <text
+              x="70"
+              y="42"
+              textAnchor="middle"
+              fill={`url(#hermesOrange_${uid})`}
+              fontSize="26"
+              fontWeight="900"
+              fontFamily="serif"
+            >
+              H
+            </text>
+            <text
+              x="70"
+              y="76"
+              textAnchor="middle"
+              fill={`url(#hermesOrange_${uid})`}
+              fontSize="14"
+              fontWeight="900"
+              fontFamily="serif"
+              letterSpacing="0.28em"
+            >
+              HERMÈS
+            </text>
+          </g>
         </svg>
       );
 
@@ -728,30 +725,35 @@ export function BrandLogo({
     case "cartier":
       return (
         <svg
-          viewBox="0 0 110 50"
+          viewBox="0 0 140 60"
           className={`${className} shrink-0`}
           aria-label="Cartier Official Logo"
         >
           <defs>
             <linearGradient id={`cartierGold_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FFFBEB" />
-              <stop offset="40%" stopColor="#FDE68A" />
-              <stop offset="85%" stopColor="#D97706" />
+              <stop offset="35%" stopColor="#FDE68A" />
+              <stop offset="75%" stopColor="#D97706" />
               <stop offset="100%" stopColor="#78350F" />
             </linearGradient>
+            <filter id={`cartierShadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#78350F" floodOpacity="0.5" />
+            </filter>
           </defs>
-          <text
-            x="55"
-            y="34"
-            textAnchor="middle"
-            fill={`url(#cartierGold_${uid})`}
-            fontSize="26"
-            fontWeight="700"
-            fontFamily="'Brush Script MT', 'Great Vibes', cursive, serif"
-            fontStyle="italic"
-          >
-            Cartier
-          </text>
+          <g filter={`url(#cartierShadow_${uid})`}>
+            <text
+              x="70"
+              y="42"
+              textAnchor="middle"
+              fill={`url(#cartierGold_${uid})`}
+              fontSize="34"
+              fontWeight="700"
+              fontFamily="'Brush Script MT', 'Great Vibes', cursive, serif"
+              fontStyle="italic"
+            >
+              Cartier
+            </text>
+          </g>
         </svg>
       );
 
