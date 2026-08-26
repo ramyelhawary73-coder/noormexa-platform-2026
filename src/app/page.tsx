@@ -105,14 +105,14 @@ const copy = {
       securePay: "دفع آمن بالبطاقات، مدى، Apple Pay، والدفع عند الاستلام",
     },
     hero: {
-      badge: "منصة التجارة الإلكترونية العالمية المعتمدة — NOORMEXA GLOBAL",
-      title: "عالم متكامل للتسوق الذكي وتجارة المستقبل",
-      subtitle: "استكشف آلاف المنتجات المضمونة من أرقى المتاجر والعلامات التجارية الموثقة، أو افتح متجرك الخاص وابدأ البيع فوراً بأعلى معايير الأمان والسرعة والأرباح المباشرة.",
-      searchPlaceholder: "ابحث عن منتج، متجر رسمي، علامة تجارية، أو كود خصم...",
+      badge: "الوجهة الأولى للتسوق الفاخر والتجارة الموثوقة",
+      title: "عالمك المتكامل للتسوق الذكي وتجارة المستقبل",
+      subtitle: "استمتع بتجربة تسوق استثنائية مع آلاف المنتجات الأصلية 100% من أرقى العلامات التجارية العالمية، أو أطلق متجرك الخاص وحقق أرباحك بأعلى معايير الأمان والسرعة.",
+      searchPlaceholder: "ابحث عن منتجات أصلية، ماركات فاخرة، متاجر موثقة، أو كود خصم...",
       searchButton: "بحث فوري",
       quickTags: ["ساعات ذكية وفخمة", "عطور وبخور ملكي", "أجهزة وإلكترونيات", "أزياء وموضة", "مستلزمات المنزل"],
       ctaShop: "ابدأ التسوق الآن",
-      ctaSell: "انضم كتاجر معتمد",
+      ctaSell: "انضم كشريك تجاري موثوق",
       ctaMarket: "تصفح السوق الشامل",
     },
     officialSection: {
@@ -354,14 +354,14 @@ const copy = {
       securePay: "Secure checkout via Cards, Apple Pay, Mada & COD",
     },
     hero: {
-      badge: "CERTIFIED GLOBAL MULTI-VENDOR COMMERCE PLATFORM — NOORMEXA",
-      title: "The Ultimate Ecosystem for Smart Commerce",
-      subtitle: "Discover thousands of guaranteed products from verified flagship stores and authorized global brands, or launch your high-growth seller store with military-grade speed and secure payouts.",
-      searchPlaceholder: "Search luxury watches, perfumes, electronics, fashion, or discount codes...",
+      badge: "Premier Destination for Luxury & Smart Commerce",
+      title: "Your Ultimate Ecosystem for Smart Shopping & Future Commerce",
+      subtitle: "Experience exceptional shopping with thousands of 100% authentic products from world-renowned brands, or launch your thriving store with cutting-edge security and instant payouts.",
+      searchPlaceholder: "Search authentic products, luxury brands, verified stores, or discount codes...",
       searchButton: "Instant Search",
       quickTags: ["Smartwatches", "Royal Oud", "Pro Audio", "Designer Fashion", "Smart Living"],
-      ctaShop: "Shop Catalog Now",
-      ctaSell: "Become a Verified Merchant",
+      ctaShop: "Start Shopping Now",
+      ctaSell: "Partner as a Verified Merchant",
       ctaMarket: "Explore Marketplace",
     },
     officialSection: {
@@ -819,13 +819,15 @@ export default function HomePage() {
       <section className="relative py-8 md:py-16 border-b border-line bg-gradient-to-b from-surface via-surface-soft to-surface">
         <div className="noormexa-container grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left / Primary Text Column */}
-          <div className="lg:col-span-6 space-y-6 text-start">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-black shadow-xs">
-              <Crown size={14} className="text-orange-500" />
-              <span>{text.hero.badge}</span>
+          <div className="lg:col-span-6 space-y-5 sm:space-y-6 text-start">
+            {/* Ultra-Clean Hero Trust Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border border-orange-500/25 text-orange-600 dark:text-orange-400 text-xs font-black shadow-xs max-w-full">
+              <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse shrink-0" />
+              <Crown size={14} className="text-orange-500 shrink-0" />
+              <span className="leading-tight truncate">{text.hero.badge}</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight leading-[1.18]">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight leading-[1.2] sm:leading-[1.18]">
               {text.hero.title}
             </h1>
 
@@ -848,7 +850,7 @@ export default function HomePage() {
                 />
                 <button
                   type="submit"
-                  className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
+                  className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs sm:text-sm shrink-0 shadow-sm transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
                 >
                   <span>{text.hero.searchButton}</span>
                   <DirectionIcon size={13} className="shrink-0" />
@@ -857,13 +859,13 @@ export default function HomePage() {
 
               {/* Quick Suggestion Pills */}
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5 text-[11px]">
-                <span className="text-muted font-bold">{isAr ? "شائع الآن:" : "Trending:"}</span>
+                <span className="text-muted font-bold shrink-0">{isAr ? "شائع الآن:" : "Trending:"}</span>
                 {text.hero.quickTags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => router.push(`/marketplace?search=${encodeURIComponent(tag)}`)}
-                    className="px-2.5 py-0.5 rounded-lg bg-surface-soft border border-line text-foreground/80 hover:border-orange-500/50 hover:text-foreground transition-all cursor-pointer"
+                    className="px-2.5 py-0.5 rounded-lg bg-surface-soft border border-line text-foreground/80 hover:border-orange-500/50 hover:text-foreground transition-all cursor-pointer whitespace-nowrap active:scale-95"
                   >
                     {tag}
                   </button>
@@ -872,10 +874,10 @@ export default function HomePage() {
             </form>
 
             {/* Call to Actions */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex items-center gap-2.5 sm:gap-3 pt-2">
               <Link
                 href="/marketplace"
-                className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white text-xs sm:text-sm font-black shadow-md hover:shadow-orange-500/25 flex items-center gap-2 transition-all"
+                className="flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-orange-500 hover:bg-orange-600 !text-white text-xs sm:text-sm font-black shadow-md hover:shadow-orange-500/25 flex items-center justify-center gap-2 transition-all active:scale-95 text-center"
               >
                 <ShoppingBag size={16} />
                 <span>{text.hero.ctaShop}</span>
@@ -883,7 +885,7 @@ export default function HomePage() {
 
               <Link
                 href="/seller/dashboard"
-                className="px-5 py-3.5 rounded-2xl bg-surface border border-line hover:border-slate-400 text-foreground font-bold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-xs"
+                className="flex-1 sm:flex-none px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-surface border border-line hover:border-slate-400 text-foreground font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-xs active:scale-95 text-center"
               >
                 <Store size={16} className="text-orange-500" />
                 <span>{text.hero.ctaSell}</span>
