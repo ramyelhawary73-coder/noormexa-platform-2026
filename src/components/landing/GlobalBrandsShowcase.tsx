@@ -370,13 +370,127 @@ export const GLOBAL_BRANDS: GlobalBrand[] = [
 
 // 100% Vector Official Brand Badges & Logos with 3D Embossed Depth & Luxury Styling
 export function BrandVectorLogo({ brandId }: { brandId: string; theme?: string }) {
-  return (
-    <div className="w-full h-full rounded-2xl bg-surface dark:bg-slate-950/80 border border-line/80 shadow-xs flex items-center justify-center relative overflow-hidden p-2 group-hover:border-slate-400/60 dark:group-hover:border-slate-500/60 transition-all duration-200">
-      {/* Specular lighting overlay */}
-      <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent pointer-events-none" />
-      <BrandLogo brandId={brandId} className="w-full h-full max-w-[120px] max-h-[56px]" />
-    </div>
-  );
+  const normId = (brandId || "").toLowerCase().trim();
+
+  // Distinctive 3D luxury pod styling tailored to each brand's identity and heritage
+  switch (normId) {
+    case "apple":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#252830] via-[#15171c] to-[#0b0c0f] border border-slate-600/70 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.35),0_4px_12px_rgba(0,0,0,0.35)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-slate-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.5),0_6px_18px_rgba(255,255,255,0.12)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.22),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="apple" className="w-full h-full max-w-[85px] max-h-[52px] relative z-10" />
+        </div>
+      );
+
+    case "nike":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#201812] via-[#140e0a] to-[#0a0705] border border-orange-500/50 shadow-[inset_0_1.5px_1.5px_rgba(255,122,0,0.45),0_4px_12px_rgba(234,88,12,0.25)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-orange-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(255,154,64,0.6),0_6px_18px_rgba(234,88,12,0.35)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,122,0,0.25),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+          <BrandLogo brandId="nike" className="w-full h-full max-w-[95px] max-h-[46px] relative z-10" />
+        </div>
+      );
+
+    case "rolex":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#004722] via-[#002b14] to-[#00170a] border border-emerald-500/60 shadow-[inset_0_1.5px_1.5px_rgba(253,224,71,0.45),0_4px_12px_rgba(5,150,105,0.3)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-amber-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(253,224,71,0.6),0_6px_20px_rgba(217,119,6,0.35)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(253,224,71,0.3),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+          <BrandLogo brandId="rolex" className="w-full h-full max-w-[90px] max-h-[52px] relative z-10" />
+        </div>
+      );
+
+    case "dior":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#241f19] via-[#151310] to-[#0a0907] border border-amber-500/40 shadow-[inset_0_1.5px_1.5px_rgba(253,230,138,0.4),0_4px_12px_rgba(0,0,0,0.4)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-amber-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(253,230,138,0.6),0_6px_18px_rgba(217,119,6,0.3)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(253,230,138,0.22),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="dior" className="w-full h-full max-w-[85px] max-h-[50px] relative z-10" />
+        </div>
+      );
+
+    case "samsung":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#0459b8] via-[#023c7f] to-[#012147] border border-blue-400/50 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.45),0_4px_12px_rgba(3,78,162,0.35)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-blue-300 group-hover:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.65),0_6px_20px_rgba(3,78,162,0.45)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.3),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="samsung" className="w-full h-full max-w-[100px] max-h-[48px] relative z-10" />
+        </div>
+      );
+
+    case "sony":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#22242a] via-[#131418] to-[#090a0d] border border-slate-600/70 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.35),0_4px_12px_rgba(0,0,0,0.35)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-slate-300 group-hover:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.5),0_6px_18px_rgba(255,255,255,0.15)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.22),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="sony" className="w-full h-full max-w-[95px] max-h-[46px] relative z-10" />
+        </div>
+      );
+
+    case "chanel":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#1f1f24] via-[#111114] to-[#08080a] border border-neutral-600/70 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.35),0_4px_12px_rgba(0,0,0,0.4)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-neutral-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.5),0_6px_18px_rgba(255,255,255,0.15)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.25),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="chanel" className="w-full h-full max-w-[85px] max-h-[50px] relative z-10" />
+        </div>
+      );
+
+    case "adidas":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#0b2446] via-[#06152b] to-[#020b17] border border-sky-500/50 shadow-[inset_0_1.5px_1.5px_rgba(56,189,248,0.45),0_4px_12px_rgba(2,132,199,0.3)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-sky-300 group-hover:shadow-[inset_0_1.5px_2px_rgba(125,211,252,0.65),0_6px_20px_rgba(2,132,199,0.4)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(56,189,248,0.25),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="adidas" className="w-full h-full max-w-[88px] max-h-[48px] relative z-10" />
+        </div>
+      );
+
+    case "gucci":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#2d190b] via-[#1b0f06] to-[#0c0702] border border-amber-600/50 shadow-[inset_0_1.5px_1.5px_rgba(253,230,138,0.4),0_4px_12px_rgba(180,83,9,0.3)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-amber-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(253,230,138,0.6),0_6px_20px_rgba(180,83,9,0.4)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(253,230,138,0.25),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="gucci" className="w-full h-full max-w-[88px] max-h-[48px] relative z-10" />
+        </div>
+      );
+
+    case "lv":
+    case "louis-vuitton":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#341b0d] via-[#1f1007] to-[#0e0703] border border-amber-700/50 shadow-[inset_0_1.5px_1.5px_rgba(253,230,138,0.4),0_4px_12px_rgba(120,53,15,0.3)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-amber-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(253,230,138,0.6),0_6px_20px_rgba(120,53,15,0.4)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(253,230,138,0.25),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="lv" className="w-full h-full max-w-[90px] max-h-[50px] relative z-10" />
+        </div>
+      );
+
+    case "dyson":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#241235] via-[#150a20] to-[#09040e] border border-fuchsia-500/50 shadow-[inset_0_1.5px_1.5px_rgba(244,114,182,0.45),0_4px_12px_rgba(217,70,239,0.3)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-fuchsia-400 group-hover:shadow-[inset_0_1.5px_2px_rgba(244,114,182,0.65),0_6px_20px_rgba(217,70,239,0.4)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(217,70,239,0.25),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="dyson" className="w-full h-full max-w-[95px] max-h-[46px] relative z-10" />
+        </div>
+      );
+
+    case "zara":
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#202024] via-[#111114] to-[#08080a] border border-neutral-600/70 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.35),0_4px_12px_rgba(0,0,0,0.35)] flex items-center justify-center relative overflow-hidden p-2.5 transition-all duration-300 group-hover:border-neutral-300 group-hover:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.5),0_6px_18px_rgba(255,255,255,0.15)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.25),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          <BrandLogo brandId="zara" className="w-full h-full max-w-[95px] max-h-[46px] relative z-10" />
+        </div>
+      );
+
+    default:
+      return (
+        <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#1f232b] via-[#12141a] to-[#090a0d] border border-slate-700/80 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.25),0_4px_12px_rgba(0,0,0,0.35)] flex items-center justify-center relative overflow-hidden p-2.5">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.2),transparent_65%)] pointer-events-none" />
+          <BrandLogo brandId={brandId} className="w-full h-full max-w-[90px] max-h-[50px] relative z-10" />
+        </div>
+      );
+  }
 }
 
 export default function GlobalBrandsShowcase({ isAr = true }: { isAr?: boolean }) {
