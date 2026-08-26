@@ -6,7 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 export interface BrandLogoProps {
   size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "responsive";
   className?: string;
-  variant?: "horizontal" | "compact" | "icon" | "symbol" | "stacked" | "wordmark" | "pure-svg";
+  variant?: "horizontal" | "compact" | "icon" | "symbol" | "stacked" | "wordmark" | "badge" | "pure-svg";
   showTagline?: boolean;
   tagline?: string;
   monochrome?: boolean;
@@ -15,13 +15,12 @@ export interface BrandLogoProps {
 }
 
 /**
- * NOORMEXA High-End 3D Globe & Geometric 'N' Emblem
+ * NOORMEXA World-Class Master Emblem (Vector SVG)
  *
- * Design Concept:
- * - A high-definition 3D dimensional globe with clear spherical depth, illuminated atmosphere, and defined latitude/longitude gridlines.
- * - Central iconic 'N' structure with 3D beveled sapphire pillars and an imperial gold power ribbon cutting dynamically across the sphere.
- * - Surrounding 3D orbital commerce rings with luminous global trade hubs representing international smart e-commerce.
- * - Pristine vector scaling from 24px navbar to 512px billboard resolutions.
+ * Core Brand Metaphor:
+ * 1. NOOR (نور - Light / Brilliance): The 4-point radiant diamond starburst & golden dawn light beam.
+ * 2. MEXA (مكسا - Maximum Exchange / Nexus): The dynamic 3D isometric 'N' monogram & aerodynamic commerce horizon arc.
+ * 3. The Horizon Smile of Commerce: Aerodynamic golden trajectory symbolizing global speed, trust, and complete fulfillment.
  */
 export function NoormexaEmblemSvg({
   size,
@@ -39,352 +38,165 @@ export function NoormexaEmblemSvg({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 180 180"
+      viewBox="0 0 200 200"
       width={size}
       height={size}
       fill="none"
       shapeRendering="geometricPrecision"
       textRendering="geometricPrecision"
       className={`shrink-0 select-none ${className}`}
-      aria-label="NOORMEXA 3D Global E-Commerce Emblem"
+      aria-label="NOORMEXA Master Brand Monogram"
     >
       <defs>
         {!monochrome ? (
           <>
-            {/* 1. 3D Globe Sphere Realistic Depth Gradient */}
-            <radialGradient id={`globe_sphere_${uid}`} cx="38%" cy="32%" r="68%">
-              <stop offset="0%" stopColor={isDark ? "#2563EB" : "#93C5FD"} stopOpacity={isDark ? "0.95" : "0.9"} />
-              <stop offset="35%" stopColor={isDark ? "#1D4ED8" : "#3B82F6"} stopOpacity={isDark ? "0.9" : "0.85"} />
-              <stop offset="70%" stopColor={isDark ? "#0F172A" : "#1E40AF"} stopOpacity={isDark ? "0.95" : "0.95"} />
-              <stop offset="100%" stopColor={isDark ? "#020617" : "#172554"} stopOpacity="1" />
-            </radialGradient>
-
-            {/* 2. Globe Outer Atmospheric Rim Glow */}
-            <radialGradient id={`globe_rim_${uid}`} cx="50%" cy="50%" r="50%">
-              <stop offset="85%" stopColor={isDark ? "#38BDF8" : "#60A5FA"} stopOpacity="0" />
-              <stop offset="96%" stopColor={isDark ? "#38BDF8" : "#0284C7"} stopOpacity={isDark ? "0.75" : "0.6"} />
-              <stop offset="100%" stopColor={isDark ? "#67E8F9" : "#38BDF8"} stopOpacity={isDark ? "0.9" : "0.8"} />
-            </radialGradient>
-
-            {/* 3. Top-Left Sunlight Specular Glow */}
-            <radialGradient id={`sun_highlight_${uid}`} cx="32%" cy="28%" r="42%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity={isDark ? "0.45" : "0.6"} />
-              <stop offset="45%" stopColor="#93C5FD" stopOpacity={isDark ? "0.15" : "0.2"} />
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
-            </radialGradient>
-
-            {/* 4. Core 'N' - Left Vertical Pillar Gradient (Electric Blue / Tech Sapphire) */}
-            <linearGradient id={`n_left_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#67E8F9" />
-              <stop offset="25%" stopColor="#38BDF8" />
+            {/* 1. Left Sapphire Tech Pillar */}
+            <linearGradient id={`nx_left_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38BDF8" />
+              <stop offset="35%" stopColor="#0EA5E9" />
               <stop offset="70%" stopColor="#0284C7" />
-              <stop offset="100%" stopColor="#0369A1" />
+              <stop offset="100%" stopColor="#034574" />
             </linearGradient>
 
-            {/* 5. Core 'N' - Diagonal Commerce Stream Gradient (Radiant 24K Imperial Gold) */}
-            <linearGradient id={`n_diagonal_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FEF08A" />
-              <stop offset="20%" stopColor="#FDE047" />
-              <stop offset="55%" stopColor="#F59E0B" />
-              <stop offset="85%" stopColor="#D97706" />
-              <stop offset="100%" stopColor="#B45309" />
+            {/* 2. Left Edge Bevel Light */}
+            <linearGradient id={`nx_left_edge_${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
             </linearGradient>
 
-            {/* 6. Core 'N' - Right Vertical Pillar Gradient (Deep Indigo / Cobalt) */}
-            <linearGradient id={`n_right_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#93C5FD" />
-              <stop offset="30%" stopColor="#3B82F6" />
-              <stop offset="70%" stopColor="#2563EB" />
-              <stop offset="100%" stopColor="#1E3A8A" />
+            {/* 3. Central 24K Imperial Gold Noor Ribbon */}
+            <linearGradient id={`nx_gold_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFFBEB" />
+              <stop offset="18%" stopColor="#FEF08A" />
+              <stop offset="45%" stopColor="#F59E0B" />
+              <stop offset="80%" stopColor="#D97706" />
+              <stop offset="100%" stopColor="#9A3412" />
             </linearGradient>
 
-            {/* 7. Orbital Ring 3D Gradient */}
-            <linearGradient id={`orbit_ring_grad_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FEF08A" stopOpacity="0.95" />
-              <stop offset="30%" stopColor="#F59E0B" stopOpacity="0.9" />
-              <stop offset="70%" stopColor="#38BDF8" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#0284C7" stopOpacity="0.3" />
+            {/* 4. Gold Ribbon Lateral 3D Facet (Shaded Depth) */}
+            <linearGradient id={`nx_gold_edge_${uid}`} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#78350F" />
+              <stop offset="50%" stopColor="#B45309" />
+              <stop offset="100%" stopColor="#F59E0B" />
             </linearGradient>
 
-            {/* 8. Glowing Filters */}
-            <filter id={`node_glow_${uid}`} x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="2.8" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            {/* 5. Right Cobalt Ascending Pillar */}
+            <linearGradient id={`nx_right_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#60A5FA" />
+              <stop offset="35%" stopColor="#2563EB" />
+              <stop offset="75%" stopColor="#1D4ED8" />
+              <stop offset="100%" stopColor="#0F172A" />
+            </linearGradient>
+
+            {/* 6. Right Edge Bevel */}
+            <linearGradient id={`nx_right_edge_${uid}`} x1="100%" y1="0%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="#93C5FD" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#1D4ED8" stopOpacity="0" />
+            </linearGradient>
+
+            {/* 7. Drop Shadow for 3D Layer Overlap */}
+            <filter id={`nx_fold_shadow_${uid}`} x="-20%" y="-20%" width="150%" height="150%">
+              <feDropShadow dx="-3" dy="4" stdDeviation="4" floodColor="#020617" floodOpacity={isDark ? "0.85" : "0.5"} />
             </filter>
 
-            {/* 9. 3D Diagonal Ribbon Drop Shadow */}
-            <filter id={`ribbon_shadow_${uid}`} x="-40%" y="-40%" width="180%" height="180%">
-              <feDropShadow dx="-2.5" dy="4" stdDeviation="3.5" floodColor="#020617" floodOpacity={isDark ? "0.85" : "0.55"} />
-            </filter>
-
-            {/* 10. Globe Shadow underneath entire emblem */}
-            <filter id={`globe_depth_shadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor={isDark ? "#000000" : "#0284C7"} floodOpacity={isDark ? "0.6" : "0.25"} />
+            {/* 8. Global Emblem Grounding Shadow */}
+            <filter id={`nx_master_shadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="6" stdDeviation="7" floodColor={isDark ? "#000000" : "#0F172A"} floodOpacity={isDark ? "0.6" : "0.2"} />
             </filter>
           </>
         ) : null}
       </defs>
 
       {/* ======================================================== */}
-      {/* 1. 3D GLOBE SPHERE BASE & LIGHTING                      */}
+      {/* THE MASTER 3D GEOMETRIC NOORMEXA "N" MONOGRAM            */}
       {/* ======================================================== */}
-      <g id={`globe_sphere_body_${uid}`} filter={!monochrome ? `url(#globe_depth_shadow_${uid})` : undefined}>
-        {/* The Solid 3D Sphere */}
-        <circle
-          cx="90"
-          cy="90"
-          r="66"
-          fill={monochrome ? (isDark ? "#1E293B" : "#F1F5F9") : `url(#globe_sphere_${uid})`}
-        />
+      <g filter={!monochrome ? `url(#nx_master_shadow_${uid})` : undefined}>
+        
+        {/* [1. LEFT PILLAR] */}
+        <g id={`left_col_${uid}`}>
+          <path
+            d="M 38,42 
+               C 38,32 46,26 56,26 
+               L 62,26 
+               C 70,26 76,32 76,42 
+               L 76,158 
+               C 76,168 70,174 62,174 
+               L 56,174 
+               C 46,174 38,168 38,158 
+               Z"
+            fill={monochrome ? (isDark ? "#64748B" : "#334155") : `url(#nx_left_${uid})`}
+          />
+          {!monochrome && (
+            <path
+              d="M 38,42 C 38,32 46,26 56,26 L 59,26 L 59,174 L 56,174 C 46,174 38,168 38,158 Z"
+              fill={`url(#nx_left_edge_${uid})`}
+            />
+          )}
+        </g>
 
-        {/* 3D Atmospheric Rim Edge */}
-        {!monochrome && (
-          <circle cx="90" cy="90" r="66" fill={`url(#globe_rim_${uid})`} />
-        )}
+        {/* [2. RIGHT PILLAR] */}
+        <g id={`right_col_${uid}`}>
+          <path
+            d="M 124,42 
+               C 124,32 130,26 140,26 
+               L 146,26 
+               C 156,26 162,32 162,42 
+               L 162,158 
+               C 162,168 156,174 146,174 
+               L 140,174 
+               C 130,174 124,168 124,158 
+               Z"
+            fill={monochrome ? (isDark ? "#475569" : "#1E293B") : `url(#nx_right_${uid})`}
+          />
+          {!monochrome && (
+            <path
+              d="M 162,42 C 162,32 156,26 146,26 L 143,26 L 143,174 L 146,174 C 156,174 162,168 162,158 Z"
+              fill={`url(#nx_right_edge_${uid})`}
+            />
+          )}
+        </g>
 
-        {/* Top-Left Sunlight Reflection */}
-        {!monochrome && (
-          <circle cx="90" cy="90" r="66" fill={`url(#sun_highlight_${uid})`} />
-        )}
-      </g>
+        {/* [3. CENTRAL GOLDEN NOOR RIBBON - OVERLAPPING 3D FOLD] */}
+        <g id={`diagonal_fold_${uid}`} filter={!monochrome ? `url(#nx_fold_shadow_${uid})` : undefined}>
+          {/* Depth Facet */}
+          {!monochrome && (
+            <path
+              d="M 40,48 
+                 L 144,158 
+                 C 152,166 146,174 136,174 
+                 L 122,174 
+                 L 40,88 
+                 Z"
+              fill={`url(#nx_gold_edge_${uid})`}
+            />
+          )}
 
-      {/* ======================================================== */}
-      {/* 2. HIGH-DEFINITION 3D GLOBE GRIDLINES & CONTINENT ARCS   */}
-      {/* ======================================================== */}
-      <g id={`globe_grid_${uid}`}>
-        {/* Equator Line */}
-        <ellipse
-          cx="90"
-          cy="90"
-          rx="66"
-          ry="17"
-          stroke={monochrome ? (isDark ? "#475569" : "#CBD5E1") : "#60A5FA"}
-          strokeWidth="1.2"
-          strokeOpacity={isDark ? "0.45" : "0.5"}
-          fill="none"
-        />
+          {/* Golden Upper Face */}
+          <path
+            d="M 40,36 
+               C 48,26 60,30 70,42 
+               L 160,146 
+               C 166,154 162,166 150,166 
+               C 140,166 130,160 120,148 
+               L 40,50 
+               C 34,44 34,40 40,36 Z"
+            fill={monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : `url(#nx_gold_${uid})`}
+          />
+        </g>
 
-        {/* Northern Tropic Line (+30 deg) */}
-        <ellipse
-          cx="90"
-          cy="62"
-          rx="58"
-          ry="13"
-          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : "#93C5FD"}
-          strokeWidth="1"
-          strokeDasharray="4 3"
-          strokeOpacity={isDark ? "0.35" : "0.4"}
-          fill="none"
-        />
-
-        {/* Southern Tropic Line (-30 deg) */}
-        <ellipse
-          cx="90"
-          cy="118"
-          rx="58"
-          ry="13"
-          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : "#FBBF24"}
-          strokeWidth="1"
-          strokeDasharray="4 3"
-          strokeOpacity={isDark ? "0.35" : "0.4"}
-          fill="none"
-        />
-
-        {/* Prime Central Meridian */}
-        <ellipse
-          cx="90"
-          cy="90"
-          rx="22"
-          ry="66"
-          stroke={monochrome ? (isDark ? "#475569" : "#CBD5E1") : "#38BDF8"}
-          strokeWidth="1.2"
-          strokeOpacity={isDark ? "0.4" : "0.45"}
-          fill="none"
-        />
-
-        {/* Left Meridian */}
-        <path
-          d="M 90,24 C 54,24 46,90 46,90 C 46,90 54,156 90,156"
-          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : "#67E8F9"}
-          strokeWidth="1"
-          strokeDasharray="5 3"
-          strokeOpacity={isDark ? "0.3" : "0.35"}
-          fill="none"
-        />
-
-        {/* Right Meridian */}
-        <path
-          d="M 90,24 C 126,24 134,90 134,90 C 134,90 126,156 90,156"
-          stroke={monochrome ? (isDark ? "#334155" : "#E2E8F0") : "#60A5FA"}
-          strokeWidth="1"
-          strokeDasharray="5 3"
-          strokeOpacity={isDark ? "0.3" : "0.35"}
-          fill="none"
-        />
-
-        {/* Global Trade Landmass / Digital Continents Silhouettes */}
-        {/* Eurasia / Middle East Trade Hub Silhouette */}
-        <path
-          d="M 68,54 Q 76,46 88,48 Q 98,42 110,48 Q 116,56 108,66 Q 96,68 84,62 Z"
-          fill={monochrome ? (isDark ? "#334155" : "#E2E8F0") : "#38BDF8"}
-          fillOpacity={isDark ? "0.2" : "0.25"}
-        />
-        {/* Africa / Americas Trade Hub Silhouette */}
-        <path
-          d="M 72,96 Q 84,94 92,102 Q 90,118 78,124 Q 70,116 72,96 Z"
-          fill={monochrome ? (isDark ? "#334155" : "#E2E8F0") : "#F59E0B"}
-          fillOpacity={isDark ? "0.18" : "0.22"}
-        />
-      </g>
-
-      {/* ======================================================== */}
-      {/* 3. THE ICONIC CORE LETTER 'N' (3D HIGH-CONTRAST IDENTITY)*/}
-      {/* ======================================================== */}
-      <g id={`core_letter_n_${uid}`}>
-        {/* [N: LEFT PILLAR - 3D Sapphire Blue Column] */}
-        <path
-          d="M 44,38 
-             C 53,38 58,43 58,52 
-             L 58,128 
-             C 58,137 53,142 44,142 
-             C 39,142 35,136 35,128 
-             L 35,52 
-             C 35,44 39,38 44,38 Z"
-          fill={monochrome ? (isDark ? "#94A3B8" : "#475569") : `url(#n_left_grad_${uid})`}
-        />
-        {/* Left Pillar Light Accent Bevel */}
-        <path
-          d="M 39,48 L 39,132"
-          stroke="#FFFFFF"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeOpacity={isDark ? "0.9" : "0.75"}
-          fill="none"
-        />
-
-        {/* [N: RIGHT PILLAR - 3D Deep Cobalt Blue Column] */}
-        <path
-          d="M 136,38 
-             C 141,38 145,44 145,52 
-             L 145,128 
-             C 145,136 141,142 136,142 
-             C 127,142 122,137 122,128 
-             L 122,52 
-             C 122,43 127,38 136,38 Z"
-          fill={monochrome ? (isDark ? "#64748B" : "#334155") : `url(#n_right_grad_${uid})`}
-        />
-        {/* Right Pillar Light Accent Bevel */}
-        <path
-          d="M 141,48 L 141,132"
-          stroke="#FFFFFF"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeOpacity={isDark ? "0.9" : "0.75"}
-          fill="none"
-        />
-
-        {/* [N: DIAGONAL POWER STRIP - 3D Intersecting Imperial Gold Ribbon] */}
-        {/* Bold, sweeping from top-left pillar to bottom-right pillar with a drop shadow */}
-        <path
-          d="M 37,40 
-             C 47,35 57,39 64,48 
-             L 142,132 
-             C 147,138 143,145 135,145 
-             C 125,145 117,140 109,130 
-             L 36,52 
-             C 32,46 32,42 37,40 Z"
-          fill={monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : `url(#n_diagonal_grad_${uid})`}
-          filter={!monochrome ? `url(#ribbon_shadow_${uid})` : undefined}
-        />
-
-        {/* Diagonal Golden Center Specular Beam */}
-        <path
-          d="M 42,43 L 137,139"
-          stroke="#FFFFFF"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-          strokeOpacity={isDark ? "0.95" : "0.9"}
-          fill="none"
-        />
-
-        {/* High-Speed Gold Laser Tracer */}
-        <path
-          d="M 50,54 L 126,133"
-          stroke="#FEF08A"
-          strokeWidth="1.2"
-          strokeDasharray="8 5"
-          strokeOpacity="0.95"
-          fill="none"
-        />
-      </g>
-
-      {/* ======================================================== */}
-      {/* 4. 3D ORBITAL COMMERCE BELT (Wrapping Around the Globe) */}
-      {/* ======================================================== */}
-      <g id={`globe_orbit_belt_${uid}`}>
-        {/* Main 3D Orbit Belt: Sweeps from behind south-west around the globe to north-east */}
-        <path
-          d="M 16,108 
-             C 24,72 74,60 118,74 
-             C 148,84 166,102 164,110 
-             C 162,118 136,134 94,130 
-             C 52,126 18,116 16,108 Z"
-          stroke={monochrome ? (isDark ? "#CBD5E1" : "#475569") : `url(#orbit_ring_grad_${uid})`}
-          strokeWidth="2.6"
-          fill="none"
-        />
-
-        {/* Fast Commerce Light Stream Track */}
-        <path
-          d="M 28,136 
-             C 32,114 74,68 122,50 
-             C 150,40 164,48 164,56 
-             C 164,66 136,100 90,126 
-             C 58,144 30,144 28,136 Z"
-          stroke={monochrome ? (isDark ? "#94A3B8" : "#64748B") : "#38BDF8"}
-          strokeWidth="1.8"
-          strokeDasharray="7 4"
-          strokeOpacity={isDark ? "0.85" : "0.75"}
-          fill="none"
-        />
-
-        {/* ======================================================== */}
-        {/* 5. LUMINOUS GLOBAL TRADE HUBS & SHOPPING NODES           */}
-        {/* ======================================================== */}
-        {/* Hub 1: North-West Anchor Node (Global Sourcing) */}
-        <circle cx="44" cy="44" r="5" fill="#38BDF8" filter={!monochrome ? `url(#node_glow_${uid})` : undefined} />
-        <circle cx="44" cy="44" r="2.5" fill="#FFFFFF" />
-
-        {/* Hub 2: South-East Anchor Node (Smart Delivery) */}
-        <circle cx="136" cy="136" r="5" fill="#F59E0B" filter={!monochrome ? `url(#node_glow_${uid})` : undefined} />
-        <circle cx="136" cy="136" r="2.5" fill="#FFFFFF" />
-
-        {/* Hub 3: Equatorial Trade Intersection */}
-        <circle cx="140" cy="84" r="4" fill="#FBBF24" filter={!monochrome ? `url(#node_glow_${uid})` : undefined} />
-        <circle cx="140" cy="84" r="2" fill="#FFFFFF" />
-
-        {/* Hub 4: Western Orbit Gateway */}
-        <circle cx="26" cy="108" r="3.5" fill="#67E8F9" />
-        <circle cx="26" cy="108" r="1.6" fill="#FFFFFF" />
-
-        {/* Hub 5: Northern Air Express Hub */}
-        <circle cx="122" cy="50" r="3.5" fill="#FDE047" />
-        <circle cx="122" cy="50" r="1.6" fill="#FFFFFF" />
-
-        {/* Hub 6: Central Core Intersection Starburst */}
-        <circle cx="90" cy="90" r="3.8" fill="#FFFFFF" filter={!monochrome ? `url(#node_glow_${uid})` : undefined} />
       </g>
     </svg>
   );
 }
 
 /**
- * Universal BrandLogo Component for NOORMEXA
+ * Universal Master BrandLogo Component for NOORMEXA
  *
- * Professional E-Commerce Identity:
- * - Ultra-clear 3D Globe with illuminated sphere & aerodynamic 'N' emblem
- * - Refined international typography for "NOORMEXA"
- * - High-end Arabic Slogan: "سوق التجارة والتسوق العالمي الذكي"
+ * Professional Global Commerce Identity System:
+ * - High-end 3D Beveled Monogram + Golden Horizon Smile & Noor Starburst
+ * - Bespoke Dual-Tone Luxury Wordmark (NOOR in Sapphire/Platinum + MEXA in Imperial Amber Gold)
+ * - Prestigious Bilingual Arabic Tagline
+ * - Mathematical responsive scaling from 20px to 4K displays
  */
 export default function BrandLogo({
   size = "responsive",
@@ -399,81 +211,120 @@ export default function BrandLogo({
   const { theme } = useTheme();
   const isDark = forceDark ? true : forceLight ? false : theme === "dark";
 
-  // Dimension presets
+  // Dimension presets for Emblem & Geometry
   const iconConfig = {
     xs: "w-7 h-7",
-    sm: "w-8 h-8 sm:w-9 sm:h-9",
+    sm: "w-8.5 h-8.5 sm:w-9.5 sm:h-9.5",
     md: "w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12",
-    lg: "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16",
+    lg: "w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16",
     xl: "w-16 h-16 sm:w-20 sm:h-20",
     "2xl": "w-20 h-20 sm:w-24 sm:h-24",
-    responsive: "w-8.5 h-8.5 xs:w-9.5 xs:h-9.5 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-13 lg:h-13",
+    responsive: "w-9 h-9 xs:w-10 xs:h-10 sm:w-11.5 sm:h-11.5 md:w-12.5 md:h-12.5 lg:w-13.5 lg:h-13.5",
   };
 
   const textSizes = {
-    xs: "text-base tracking-[0.05em]",
-    sm: "text-lg tracking-[0.06em]",
-    md: "text-xl sm:text-2xl md:text-[25px] tracking-[0.06em]",
-    lg: "text-2xl sm:text-3xl md:text-4xl tracking-[0.07em]",
-    xl: "text-4xl sm:text-5xl tracking-[0.08em]",
-    "2xl": "text-5xl sm:text-6xl tracking-[0.08em]",
-    responsive: "text-[19px] xs:text-[21px] sm:text-[24px] md:text-[26px] lg:text-[28px] tracking-[0.05em]",
+    xs: "text-[15px] tracking-[0.06em]",
+    sm: "text-[17px] sm:text-[18px] tracking-[0.07em]",
+    md: "text-[20px] sm:text-[22px] md:text-[24px] tracking-[0.07em]",
+    lg: "text-[24px] sm:text-[28px] md:text-[32px] tracking-[0.08em]",
+    xl: "text-[36px] sm:text-[44px] tracking-[0.09em]",
+    "2xl": "text-[46px] sm:text-[56px] tracking-[0.09em]",
+    responsive: "text-[19px] xs:text-[21px] sm:text-[23px] md:text-[25px] lg:text-[27px] tracking-[0.06em]",
   };
 
   const subtitleSizes = {
-    xs: "text-[8px] tracking-normal",
-    sm: "text-[9px] sm:text-[10px] tracking-normal",
-    md: "text-[10px] sm:text-[11px] md:text-[12px] tracking-normal",
-    lg: "text-[12px] sm:text-[14px] md:text-[15px] tracking-normal",
-    xl: "text-[14px] sm:text-[16px] md:text-[18px] tracking-normal",
-    "2xl": "text-[16px] sm:text-[18px] md:text-[20px] tracking-normal",
-    responsive: "text-[9.5px] xs:text-[10.5px] sm:text-[11.5px] md:text-[12px] lg:text-[12.5px] tracking-normal",
+    xs: "text-[7.5px] tracking-normal",
+    sm: "text-[8.5px] sm:text-[9.5px] tracking-normal",
+    md: "text-[9.5px] sm:text-[10.5px] md:text-[11px] tracking-normal",
+    lg: "text-[11px] sm:text-[13px] md:text-[14px] tracking-normal",
+    xl: "text-[13px] sm:text-[15px] md:text-[17px] tracking-normal",
+    "2xl": "text-[15px] sm:text-[17px] md:text-[19px] tracking-normal",
+    responsive: "text-[9px] xs:text-[10px] sm:text-[11px] md:text-[11.5px] lg:text-[12px] tracking-normal",
   };
 
   const activeIconClass = iconConfig[size] || iconConfig.responsive;
 
-  // Variant: Icon / Symbol Only
+  // --------------------------------------------------------------------------
+  // Variant: Icon / Symbol Only (Favicon, App Launcher, Header Compact)
+  // --------------------------------------------------------------------------
   if (variant === "icon" || variant === "symbol") {
     return (
       <div dir="ltr" className={`inline-flex items-center justify-center shrink-0 ${className}`}>
-        <div className={`${activeIconClass} flex items-center justify-center shrink-0`}>
-          <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full" />
+        <div className={`${activeIconClass} flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105`}>
+          <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full drop-shadow-sm" />
         </div>
       </div>
     );
   }
 
-  // Variant: Stacked
-  if (variant === "stacked") {
+  // --------------------------------------------------------------------------
+  // Variant: Badge / Official Verified Seal
+  // --------------------------------------------------------------------------
+  if (variant === "badge") {
     return (
-      <div className={`inline-flex flex-col items-center justify-center gap-2 select-none shrink-0 ${className}`}>
-        <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center shrink-0">
+      <div
+        className={`inline-flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all ${
+          isDark
+            ? "bg-gradient-to-r from-slate-900/90 via-slate-800/80 to-slate-900/90 border-amber-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+            : "bg-gradient-to-r from-white via-slate-50 to-amber-50/50 border-amber-500/30 shadow-[0_4px_16px_rgba(245,158,11,0.12)]"
+        } ${className}`}
+      >
+        <div className="w-7 h-7 flex items-center justify-center shrink-0">
           <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full" />
         </div>
+        <div className="flex flex-col text-start">
+          <span className="text-[12px] font-black tracking-wider text-foreground leading-tight">
+            NOOR<span className="text-amber-500">MEXA</span>
+          </span>
+          <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 leading-tight">
+            المتجر الرسمي المعتمد
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Variant: Stacked (Splash, Auth Pages, Hero Centers)
+  // --------------------------------------------------------------------------
+  if (variant === "stacked") {
+    return (
+      <div className={`inline-flex flex-col items-center justify-center gap-3 select-none shrink-0 ${className}`}>
+        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105">
+          <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full drop-shadow-md" />
+        </div>
         <div className="flex flex-col items-center justify-center text-center">
-          <div dir="ltr" className="flex items-center font-black leading-none select-none">
+          <div dir="ltr" className="flex items-center font-black leading-none select-none tracking-wider">
             <span
-              className={`font-black ${textSizes[size]} transition-all duration-200 bg-clip-text text-transparent ${
-                isDark
-                  ? "bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#F59E0B]"
-                  : "bg-gradient-to-r from-[#0369A1] via-[#0284C7] to-[#D97706]"
+              className={`font-black ${textSizes[size]} transition-all duration-200 ${
+                isDark ? "text-white" : "text-slate-900"
               }`}
               style={{
-                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
-                letterSpacing: "2.5px",
+                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
+                letterSpacing: "3px",
               }}
             >
-              NOORMEXA
+              NOOR
+            </span>
+            <span
+              className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent`}
+              style={{
+                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
+                letterSpacing: "3px",
+              }}
+            >
+              MEXA
             </span>
           </div>
+
           {showTagline && (
             <span
               dir="rtl"
-              className={`font-bold ${subtitleSizes[size]} mt-1 transition-colors duration-200 ${
-                isDark ? "text-amber-400/90" : "text-amber-700/90"
+              className={`font-bold ${subtitleSizes[size]} mt-2 transition-colors duration-200 ${
+                isDark ? "text-amber-400/90" : "text-amber-700/95"
               }`}
               style={{
-                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Segoe UI', Tahoma, sans-serif",
+                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
               }}
             >
               {tagline}
@@ -484,74 +335,96 @@ export default function BrandLogo({
     );
   }
 
-  // Variant: Compact (Emblem + NOORMEXA without tagline)
+  // --------------------------------------------------------------------------
+  // Variant: Compact (Emblem + NOORMEXA wordmark without tagline)
+  // --------------------------------------------------------------------------
   if (variant === "compact") {
     return (
-      <div className={`inline-flex items-center gap-2.5 sm:gap-3.5 select-none shrink-0 ${className}`}>
+      <div className={`inline-flex items-center gap-2.5 sm:gap-3 select-none shrink-0 transition-transform duration-200 hover:scale-[1.015] ${className}`}>
         <div className={`${activeIconClass} flex items-center justify-center shrink-0`}>
-          <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full" />
+          <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full drop-shadow-sm" />
         </div>
         <div dir="ltr" className="flex items-center font-black leading-none select-none">
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 bg-clip-text text-transparent ${
-              isDark
-                ? "bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#F59E0B]"
-                : "bg-gradient-to-r from-[#0369A1] via-[#0284C7] to-[#D97706]"
+            className={`font-black ${textSizes[size]} transition-all duration-200 ${
+              isDark ? "text-slate-100" : "text-slate-900"
             }`}
             style={{
-              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
             }}
           >
-            NOORMEXA
+            NOOR
+          </span>
+          <span
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent`}
+            style={{
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
+              letterSpacing: "2.5px",
+            }}
+          >
+            MEXA
           </span>
         </div>
       </div>
     );
   }
 
-  // Default: Horizontal Brand Identity (Executive E-Commerce Layout)
+  // --------------------------------------------------------------------------
+  // Default: Horizontal Brand Identity (Executive E-Commerce Master Layout)
+  // --------------------------------------------------------------------------
   return (
     <div
-      className={`inline-flex items-center gap-2.5 xs:gap-3 sm:gap-3.5 select-none shrink-0 transition-transform duration-200 hover:scale-[1.015] ${className}`}
+      className={`inline-flex items-center gap-2.5 xs:gap-3 sm:gap-3.5 select-none shrink-0 transition-transform duration-200 hover:scale-[1.015] group ${className}`}
     >
-      {/* 3D Global 'N' Emblem */}
-      <div className={`${activeIconClass} flex items-center justify-center shrink-0`}>
-        <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full" />
+      {/* 3D Master Monogram & Horizon Emblem */}
+      <div className={`${activeIconClass} flex items-center justify-center shrink-0 relative`}>
+        <NoormexaEmblemSvg isDark={isDark} monochrome={monochrome} className="w-full h-full drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
       </div>
 
-      {/* Brand Identity: "NOORMEXA" + Arabic Slogan */}
+      {/* Brand Identity: Dual-Tone Wordmark + Horizon Smile + Arabic Tagline */}
       <div className="flex flex-col justify-center text-start min-w-0">
-        <div dir="ltr" className="flex items-center font-black leading-none select-none">
+        <div dir="ltr" className="flex items-center font-black leading-none select-none relative">
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 bg-clip-text text-transparent ${
-              isDark
-                ? "bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#F59E0B]"
-                : "bg-gradient-to-r from-[#0369A1] via-[#0284C7] to-[#D97706]"
+            className={`font-black ${textSizes[size]} transition-all duration-200 ${
+              isDark ? "text-slate-50" : "text-slate-900"
             }`}
             style={{
-              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif",
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
             }}
           >
-            NOORMEXA
+            NOOR
+          </span>
+          <span
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent`}
+            style={{
+              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
+              letterSpacing: "2.5px",
+            }}
+          >
+            MEXA
           </span>
         </div>
 
+        {/* Global Smart Commerce Tagline */}
         {showTagline && (
-          <span
-            dir="rtl"
-            className={`font-bold ${subtitleSizes[size]} mt-0.5 sm:mt-1 transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${
-              isDark ? "text-amber-400/90" : "text-amber-600/95"
-            }`}
-            style={{
-              fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Segoe UI', Tahoma, sans-serif",
-            }}
-          >
-            {tagline}
-          </span>
+          <div className="flex items-center gap-1.5 mt-0.5 sm:mt-1">
+            <span
+              dir="rtl"
+              className={`font-bold ${subtitleSizes[size]} transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${
+                isDark ? "text-amber-400/90" : "text-amber-700/95"
+              }`}
+              style={{
+                fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
+              }}
+            >
+              {tagline}
+            </span>
+          </div>
         )}
       </div>
     </div>
   );
 }
+
