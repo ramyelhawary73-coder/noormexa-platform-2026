@@ -17,7 +17,6 @@ import {
   Clock,
   Radio,
   Info,
-  MapPin,
   Sparkles,
 } from "lucide-react";
 

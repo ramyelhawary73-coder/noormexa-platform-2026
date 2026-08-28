@@ -7,22 +7,14 @@ import {
   CheckCircle2,
   Phone,
   MessageSquare,
-  Key,
   ShieldCheck,
   MapPin,
-  Clock,
-  Compass,
   AlertCircle,
-  ExternalLink,
-  ChevronRight,
-  Sparkles,
   RefreshCw,
   LocateFixed,
   Package,
-  Layers,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Shipment, ShipmentStatus } from "@/types/marketplace";
 
 export default function CourierDispatchApp() {
   const { shipments, updateShipmentStatus } = useMarketplace();
