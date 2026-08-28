@@ -3,6 +3,15 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Shipment } from "@/lib/shippingService";
 import {
+  getCityCoordinates,
+  getIntelligentLocalOrigin,
+  requestUserGpsLocation,
+  calculateDistanceKm,
+  getNearestFulfillmentHub,
+  LatLng,
+  DetectedLocation,
+} from "@/lib/locationService";
+import {
   Navigation,
   Compass,
   Layers,
@@ -25,58 +34,42 @@ interface LiveShipmentMapProps {
   isAr?: boolean;
 }
 
-interface LatLng {
-  lat: number;
-  lng: number;
-}
-
-// Reference coordinates for major cities
-const CITY_COORDS: Record<string, LatLng> = {
-  الرياض: { lat: 24.7136, lng: 46.6753 },
-  جدة: { lat: 21.5433, lng: 39.1728 },
-  الدمام: { lat: 26.4207, lng: 50.0888 },
-  مكة: { lat: 21.3891, lng: 39.8579 },
-  المدينة: { lat: 24.5247, lng: 39.5692 },
-  القاهرة: { lat: 30.0444, lng: 31.2357 },
-  الجيزة: { lat: 30.0131, lng: 31.2089 },
-  الإسكندرية: { lat: 31.2001, lng: 29.9187 },
-  دبي: { lat: 25.2048, lng: 55.2708 },
-  أبوظبي: { lat: 24.4539, lng: 54.3773 },
-  الكويت: { lat: 29.3759, lng: 47.9774 },
-  الدوحة: { lat: 25.2854, lng: 51.5310 },
-};
-
-function getCityCoord(cityName?: string, fallbackLat?: number, fallbackLng?: number): LatLng {
-  if (fallbackLat && fallbackLng) return { lat: fallbackLat, lng: fallbackLng };
-  if (!cityName) return { lat: 24.7136, lng: 46.6753 };
-  for (const [key, coord] of Object.entries(CITY_COORDS)) {
-    if (cityName.includes(key) || key.includes(cityName)) {
-      return coord;
-    }
-  }
-  return { lat: 24.7136, lng: 46.6753 };
-}
-
-// Calculate distance in KM using Haversine formula
-function calculateDistanceKm(c1: LatLng, c2: LatLng): number {
-  const R = 6371; // Earth radius in km
-  const dLat = ((c2.lat - c1.lat) * Math.PI) / 180;
-  const dLng = ((c2.lng - c1.lng) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((c1.lat * Math.PI) / 180) *
-      Math.cos((c2.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Number((R * c).toFixed(1));
-}
-
 export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentMapProps) {
   const [mapEngine, setMapEngine] = useState<"interactive" | "satellite">("interactive");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
-  const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+
+  // Lazy load any cached user location from this session without unsolicited popups
+  const [userLocation, setUserLocation] = useState<LatLng | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = sessionStorage.getItem("noormexa_detected_location");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed.lat === "number" && typeof parsed.lng === "number") {
+            return { lat: parsed.lat, lng: parsed.lng };
+          }
+        }
+      } catch {}
+    }
+    return null;
+  });
+
+  const [detectedData, setDetectedData] = useState<DetectedLocation | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = sessionStorage.getItem("noormexa_detected_location");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed.lat === "number") {
+            return parsed as DetectedLocation;
+          }
+        }
+      } catch {}
+    }
+    return null;
+  });
+
   const [geoError, setGeoError] = useState<string | null>(null);
   const [locationSuccessMsg, setLocationSuccessMsg] = useState<string | null>(null);
 
@@ -92,17 +85,17 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
     shipment.courier?.current_speed_kmh || (shipment.status === "out_for_delivery" ? 42 : 0)
   );
 
-  // Base endpoints
+  // Base endpoints resolved with multi-lingual city coordinate intelligence
   const rawOrigin = useMemo(
-    () => getCityCoord(shipment.sender_city, shipment.sender_lat, shipment.sender_lng),
+    () => getCityCoordinates(shipment.sender_city, shipment.sender_lat, shipment.sender_lng),
     [shipment.sender_city, shipment.sender_lat, shipment.sender_lng]
   );
   const rawDestination = useMemo(
-    () => getCityCoord(shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng),
+    () => getCityCoordinates(shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng),
     [shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng]
   );
 
-  // Effective coordinates: If user detected location via GPS, dynamically adapt local hub to user vicinity
+  // Effective coordinates: If user detected location via GPS, dynamically adapt to realistic regional hub
   const destination: LatLng = useMemo(() => {
     if (userLocation) return userLocation;
     return rawDestination;
@@ -110,14 +103,19 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
 
   const origin: LatLng = useMemo(() => {
     if (userLocation) {
-      // Local NOORMEXA Fulfillment Hub in user's immediate city / zone (~4.5 km away)
-      return {
-        lat: userLocation.lat + 0.028,
-        lng: userLocation.lng - 0.032,
-      };
+      // Find nearest regional NOORMEXA Fulfillment Hub or calculate safe inland dispatch hub
+      return getIntelligentLocalOrigin(userLocation);
     }
     return rawOrigin;
   }, [userLocation, rawOrigin]);
+
+  // Nearest hub label
+  const nearestHub = useMemo(() => {
+    if (userLocation) {
+      return getNearestFulfillmentHub(userLocation);
+    }
+    return null;
+  }, [userLocation]);
 
   // Compute live courier position along route
   const currentCourierPos: LatLng = useMemo(() => {
@@ -138,74 +136,44 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
   const isDelivered = shipment.status === "delivered";
   const isOutForDelivery = shipment.status === "out_for_delivery";
 
-  // Real device Geolocation capture
-  const handleDetectUserLocation = useCallback(() => {
-    if (typeof window === "undefined" || !("geolocation" in navigator)) {
-      setGeoError(isAr ? "المتصفح لا يدعم تحديد الموقع الجغرافي" : "Geolocation not supported");
-      return;
-    }
-
+  // Explicit, user-initiated high-accuracy device Geolocation capture
+  const handleDetectUserLocation = useCallback(async () => {
     setIsLocatingUser(true);
     setGeoError(null);
     setLocationSuccessMsg(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        };
-        setUserLocation(coords);
-        setIsLocatingUser(false);
+    try {
+      const result = await requestUserGpsLocation(isAr ? "ar" : "en");
+      setIsLocatingUser(false);
+
+      if (result.success && result.location) {
+        setUserLocation({
+          lat: result.location.lat,
+          lng: result.location.lng,
+        });
+        setDetectedData(result.location);
+
+        const accuracyText = result.location.accuracyMeters
+          ? ` (${isAr ? "دقة" : "Acc"} ±${Math.round(result.location.accuracyMeters)}m)`
+          : "";
+
         setLocationSuccessMsg(
           isAr
-            ? `تم ضبط إحداثياتك بدقة (${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}°) وتحديث مسار التوصيل المحلي.`
-            : `GPS Synced (${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}°)`
+            ? `تم تحديد موقعك بدقة: ${result.location.cityAr} - ${result.location.countryAr}${accuracyText}`
+            : `GPS Synced: ${result.location.cityEn}, ${result.location.countryEn}${accuracyText}`
         );
-        setTimeout(() => setLocationSuccessMsg(null), 5000);
-      },
-      (err) => {
-        console.warn("Geolocation error:", err.message);
-        setIsLocatingUser(false);
-        if (err.code === 1) {
-          setGeoError(
-            isAr
-              ? "يرجى الضغط على زر القفل بجانب عنوان الموقع والسماح بإذن الموقع (Allow Location)."
-              : "Please allow location permission in browser settings."
-          );
-        } else {
-          setGeoError(
-            isAr
-              ? "تعذر التقاط إشارة GPS المباشرة، تم الاعتماد على عنوان التسليم المسجل."
-              : "Unable to lock GPS signal, using default address."
-          );
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  }, [isAr]);
-
-  // Request location once smoothly on mount
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (typeof window !== "undefined" && "geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setUserLocation({
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-            });
-          },
-          () => {
-            // Silently fallback without error popup
-          },
-          { enableHighAccuracy: false, timeout: 6000 }
+        setTimeout(() => setLocationSuccessMsg(null), 6000);
+      } else {
+        setGeoError(
+          (isAr ? result.errorMessageAr : result.errorMessageEn) ||
+            (isAr ? "تعذر التقاط إشارة GPS بدقة." : "Failed to acquire GPS lock.")
         );
       }
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, []);
+    } catch {
+      setIsLocatingUser(false);
+      setGeoError(isAr ? "حدث خطأ أثناء الاتصال بمستشعر الموقع." : "Error accessing location sensor.");
+    }
+  }, [isAr]);
 
   // Smooth live vehicle movement animation without page refresh
   useEffect(() => {
@@ -260,9 +228,9 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
               </h3>
             </div>
             <p className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
-              <span>{userLocation ? (isAr ? "الفرع المحلي لنورمكسا" : "Local NOORMEXA Hub") : shipment.sender_city}</span>
+              <span>{nearestHub ? (isAr ? nearestHub.nameAr : nearestHub.nameEn) : shipment.sender_city}</span>
               <span className="text-orange-500 font-bold">➔</span>
-              <span>{userLocation ? (isAr ? "موقعك الحالي (GPS)" : "Your Location") : shipment.recipient_city}</span>
+              <span>{detectedData ? (isAr ? detectedData.cityAr : detectedData.cityEn) : shipment.recipient_city}</span>
               <span>•</span>
               <span className="font-semibold text-foreground">
                 {shipment.carrier_name || (isAr ? "أسطول نورمكسا الرسمي" : "NOORMEXA Fleet")}
@@ -471,7 +439,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
               <div>
                 <span className="text-[10px] text-slate-400 block">{isAr ? "نقطة انطلاق المندوب" : "Origin Hub"}</span>
                 <span className="text-xs font-bold">
-                  {userLocation ? (isAr ? "مستودع نورمكسا الإقليمي" : "NOORMEXA Hub") : shipment.sender_city}
+                  {nearestHub ? (isAr ? nearestHub.nameAr : nearestHub.nameEn) : shipment.sender_city}
                 </span>
               </div>
             </div>
@@ -484,7 +452,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
                   {userLocation ? (isAr ? "موقعك الفعلي (GPS Live)" : "Your Live Location") : isAr ? "عنوان التسليم" : "Destination"}
                 </span>
                 <span className="text-xs font-bold text-emerald-300">
-                  {userLocation ? (isAr ? "موقع جهازك الحالي" : "Current Device GPS") : shipment.recipient_city}
+                  {detectedData ? (isAr ? `${detectedData.cityAr} (${detectedData.countryAr})` : `${detectedData.cityEn}, ${detectedData.countryEn}`) : shipment.recipient_city}
                 </span>
               </div>
             </div>

@@ -15,6 +15,7 @@ import {
   Package,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { getCityCoordinates } from "@/lib/locationService";
 
 export default function CourierDispatchApp() {
   const { shipments, updateShipmentStatus } = useMarketplace();
@@ -23,7 +24,10 @@ export default function CourierDispatchApp() {
   const [driverName] = useState("الكابتن أحمد المنصور");
   const [vehicleNumber] = useState("أ ن ب 4482");
   const [isBroadcastingGps, setIsBroadcastingGps] = useState(true);
-  const [driverGps, setDriverGps] = useState<{ lat: number; lng: number } | null>(null);
+  const [driverGps, setDriverGps] = useState<{ lat: number; lng: number }>(() =>
+    getCityCoordinates("الرياض")
+  );
+  const [gpsStatusMsg, setGpsStatusMsg] = useState<string | null>(null);
 
   // Selected shipment for active dispatch
   const activeShipments = shipments.filter(
@@ -40,35 +44,67 @@ export default function CourierDispatchApp() {
 
   const selectedShipment = shipments.find((s) => s.id === selectedShipmentId) || shipments[0];
 
-  // Watch real device GPS position for driver
-  const updateDriverLocation = useCallback(() => {
-    if (typeof window !== "undefined" && "geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
+  // Manual GPS refresh request
+  const handleRefreshGps = useCallback(() => {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setDriverGps({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+        setGpsStatusMsg(
+          `تم تحديث GPS: (${pos.coords.latitude.toFixed(4)}°, ${pos.coords.longitude.toFixed(4)}°) دقة ±${Math.round(pos.coords.accuracy || 10)}م`
+        );
+      },
+      (err) => {
+        console.warn("GPS refresh error:", err.message);
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, []);
+
+  // Watch real device GPS position for driver efficiently via watchPosition
+  useEffect(() => {
+    if (!isBroadcastingGps || typeof window === "undefined" || !("geolocation" in navigator)) {
+      return;
+    }
+
+    let watchId: number | null = null;
+
+    try {
+      watchId = navigator.geolocation.watchPosition(
         (pos) => {
           setDriverGps({
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
           });
+          setGpsStatusMsg(
+            `GPS نشط: (${pos.coords.latitude.toFixed(4)}°, ${pos.coords.longitude.toFixed(4)}°) دقة ±${Math.round(pos.coords.accuracy || 10)}م`
+          );
         },
         (err) => {
           console.warn("Driver GPS warning:", err.message);
-          // Fallback to Riyadh default
-          setDriverGps({ lat: 24.7136, lng: 46.6753 });
+          const fallback = getCityCoordinates(selectedShipment?.originCity || "الرياض");
+          setDriverGps((prev) => prev || fallback);
+          if (err.code === 1) {
+            setGpsStatusMsg("يرجى تفعيل إذن الموقع الجغرافي لبث الموقع للعملاء.");
+          } else {
+            setGpsStatusMsg("إشارة GPS غير متوفرة، تم تفعيل الإحداثيات التقريبية للمركز.");
+          }
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
       );
+    } catch {
+      // Ignored if geolocation watch cannot be registered
     }
-  }, []);
 
-  useEffect(() => {
-    updateDriverLocation();
-    const interval = setInterval(() => {
-      if (isBroadcastingGps) {
-        updateDriverLocation();
+    return () => {
+      if (watchId !== null && typeof navigator !== "undefined" && "geolocation" in navigator) {
+        navigator.geolocation.clearWatch(watchId);
       }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isBroadcastingGps, updateDriverLocation]);
+    };
+  }, [isBroadcastingGps, selectedShipment]);
 
   // Handle verify delivery OTP
   const handleVerifyAndDeliver = (e: React.FormEvent) => {
@@ -136,7 +172,9 @@ export default function CourierDispatchApp() {
           <div className="flex items-center gap-2.5">
             <LocateFixed size={18} className="text-orange-400 animate-pulse" />
             <div>
-              <span className="text-[10px] text-slate-400 block">موقعك الحالي الفعلي (Driver GPS):</span>
+              <span className="text-[10px] text-slate-400 block">
+                {gpsStatusMsg || "موقعك الحالي الفعلي (Driver GPS):"}
+              </span>
               <span className="text-xs font-mono font-bold text-white">
                 {driverGps ? `${driverGps.lat.toFixed(5)}° N, ${driverGps.lng.toFixed(5)}° E` : "جارِ استقبال إشارة الأقمار الصناعية..."}
               </span>
@@ -144,7 +182,7 @@ export default function CourierDispatchApp() {
           </div>
           <button
             type="button"
-            onClick={updateDriverLocation}
+            onClick={handleRefreshGps}
             className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300"
             title="تحديث الإشارة"
           >
