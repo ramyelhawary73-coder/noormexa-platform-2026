@@ -921,6 +921,15 @@ function ShippingLogisticsContent() {
                             <span>{isAr ? "واتساب" : "WhatsApp"}</span>
                           </a>
                         </div>
+
+                        {/* Driver Dispatch Portal Button */}
+                        <a
+                          href="/courier/dispatch"
+                          className="w-full py-2 px-3 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs"
+                        >
+                          <Navigation size={13} />
+                          <span>{isAr ? "دخول بوابة كابتن التوصيل (Driver App)" : "Open Driver App Portal"}</span>
+                        </a>
                       </div>
                     ) : (
                       <div className="p-4 rounded-2xl bg-surface-soft border border-line text-center space-y-2.5">

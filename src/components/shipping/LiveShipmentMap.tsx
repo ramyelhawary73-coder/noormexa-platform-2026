@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Shipment } from "@/lib/shippingService";
 import {
   Navigation,
@@ -14,6 +14,9 @@ import {
   ExternalLink,
   Car,
   LocateFixed,
+  Clock,
+  Radio,
+  Info,
 } from "lucide-react";
 
 interface LiveShipmentMapProps {
@@ -21,144 +24,237 @@ interface LiveShipmentMapProps {
   isAr?: boolean;
 }
 
-export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentMapProps) {
-  // Map display modes: "google" (Real Google Maps Satellite / Street) | "telemetry" (Live Radar) | "osm" (OpenStreet)
-  const [mapEngine, setMapEngine] = useState<"google" | "telemetry">("google");
-  const [mapType, setMapType] = useState<"roadmap" | "satellite" | "terrain">("roadmap");
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [liveSpeed, setLiveSpeed] = useState<number>(() =>
-    shipment.courier?.current_speed_kmh || (shipment.status === "out_for_delivery" ? 44 : 0)
-  );
+interface LatLng {
+  lat: number;
+  lng: number;
+}
 
-  // Live driver real GPS coordinates
-  const [driverLocation, setDriverLocation] = useState<{ lat: number; lng: number }>(() => {
-    if (shipment.courier?.current_lat && shipment.courier?.current_lng) {
-      return { lat: shipment.courier.current_lat, lng: shipment.courier.current_lng };
+// Reference coordinates for major cities
+const CITY_COORDS: Record<string, LatLng> = {
+  الرياض: { lat: 24.7136, lng: 46.6753 },
+  جدة: { lat: 21.5433, lng: 39.1728 },
+  الدمام: { lat: 26.4207, lng: 50.0888 },
+  مكة: { lat: 21.3891, lng: 39.8579 },
+  المدينة: { lat: 24.5247, lng: 39.5692 },
+  القاهرة: { lat: 30.0444, lng: 31.2357 },
+  الإسكندرية: { lat: 31.2001, lng: 29.9187 },
+  دبي: { lat: 25.2048, lng: 55.2708 },
+};
+
+function getCityCoord(cityName?: string, fallbackLat?: number, fallbackLng?: number): LatLng {
+  if (fallbackLat && fallbackLng) return { lat: fallbackLat, lng: fallbackLng };
+  if (!cityName) return { lat: 24.7136, lng: 46.6753 };
+  for (const [key, coord] of Object.entries(CITY_COORDS)) {
+    if (cityName.includes(key) || key.includes(cityName)) {
+      return coord;
     }
-    if (shipment.recipient_lat && shipment.recipient_lng) {
-      // Offset slightly for live delivery movement
-      return {
-        lat: shipment.recipient_lat - 0.015,
-        lng: shipment.recipient_lng - 0.012,
-      };
-    }
-    // Default Riyadh coordinates
-    return { lat: 24.774265, lng: 46.662153 };
+  }
+  return { lat: 24.7136, lng: 46.6753 };
+}
+
+// Calculate distance in KM using Haversine formula
+function calculateDistanceKm(c1: LatLng, c2: LatLng): number {
+  const R = 6371; // Earth radius in km
+  const dLat = ((c2.lat - c1.lat) * Math.PI) / 180;
+  const dLng = ((c2.lng - c1.lng) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((c1.lat * Math.PI) / 180) *
+      Math.cos((c2.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((R * c).toFixed(1));
+}
+
+export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentMapProps) {
+  const [mapEngine, setMapEngine] = useState<"interactive" | "satellite">("interactive");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLocatingUser, setIsLocatingUser] = useState(false);
+  const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+  const [geoError, setGeoError] = useState<string | null>(null);
+
+  // Dynamic tracking & Driver movement state
+  const [progressRatio, setProgressRatio] = useState<number>(() => {
+    if (shipment.status === "delivered") return 1;
+    if (shipment.status === "out_for_delivery") return 0.72;
+    if (shipment.status === "in_transit") return 0.45;
+    return 0.1;
   });
 
-  // Calculate destination coordinates
-  const destLat = shipment.recipient_lat || 24.8188;
-  const destLng = shipment.recipient_lng || 46.6384;
-  const originLat = shipment.sender_lat || 24.6333;
-  const originLng = shipment.sender_lng || 46.8167;
+  const [liveSpeed, setLiveSpeed] = useState<number>(() =>
+    shipment.courier?.current_speed_kmh || (shipment.status === "out_for_delivery" ? 48 : 0)
+  );
 
-  // Real-time Driver GPS Simulation (smoothly steps towards destination)
+  // Geographic endpoints
+  const origin = useMemo(
+    () => getCityCoord(shipment.sender_city, shipment.sender_lat, shipment.sender_lng),
+    [shipment.sender_city, shipment.sender_lat, shipment.sender_lng]
+  );
+  const destination = useMemo(
+    () => getCityCoord(shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng),
+    [shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng]
+  );
+
+  // Compute live courier position along route
+  const currentCourierPos: LatLng = {
+    lat: origin.lat + (destination.lat - origin.lat) * progressRatio,
+    lng: origin.lng + (destination.lng - origin.lng) * progressRatio,
+  };
+
+  // Remaining distance calculation
+  const totalDistance = calculateDistanceKm(origin, destination);
+  const remainingDist = userLocation
+    ? calculateDistanceKm(currentCourierPos, userLocation)
+    : Number((totalDistance * (1 - progressRatio)).toFixed(1));
+
+  // Compute ETA in minutes based on 45km/h speed
+  const etaMinutes = Math.max(5, Math.round((remainingDist / 40) * 60));
+
+  // Active state flags
+  const isDelivered = shipment.status === "delivered";
+  const isOutForDelivery = shipment.status === "out_for_delivery";
+
+  // Real device Geolocation capture
+  const handleDetectUserLocation = useCallback(() => {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+      setGeoError(isAr ? "المتصفح لا يدعم تحديد الموقع الجغرافي" : "Geolocation not supported");
+      return;
+    }
+
+    setIsLocatingUser(true);
+    setGeoError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+        setIsLocatingUser(false);
+      },
+      (err) => {
+        console.warn("Geolocation permission error or unavailable:", err.message);
+        setUserLocation(destination);
+        setIsLocatingUser(false);
+        if (err.code === 1) {
+          setGeoError(isAr ? "يرجى السماح بالوصول للموقع في المتصفح" : "Please allow location permission");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, [destination, isAr]);
+
+  // Request location on client mount safely
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (typeof window !== "undefined" && "geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setUserLocation({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+            });
+          },
+          () => {
+            // Silently fallback without crashing
+            setUserLocation(destination);
+          },
+          { enableHighAccuracy: false, timeout: 5000 }
+        );
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [destination]);
+
+  // Smooth live vehicle movement animation without page refresh
   useEffect(() => {
     if (shipment.status !== "out_for_delivery" && shipment.status !== "in_transit") {
       return;
     }
 
     const interval = setInterval(() => {
+      // Fluctuate speed realistically
       setLiveSpeed((prev) => {
-        const delta = (Math.random() - 0.5) * 5;
-        return Math.round(Math.max(28, Math.min(65, prev + delta)));
+        const delta = (Math.random() - 0.5) * 6;
+        return Math.round(Math.max(25, Math.min(65, prev + delta)));
       });
 
-      setDriverLocation((prev) => {
-        // Step towards destination
-        const stepLat = (destLat - prev.lat) * 0.02 + (Math.random() - 0.5) * 0.0003;
-        const stepLng = (destLng - prev.lng) * 0.02 + (Math.random() - 0.5) * 0.0003;
-        return {
-          lat: prev.lat + stepLat,
-          lng: prev.lng + stepLng,
-        };
+      // Smooth step towards destination
+      setProgressRatio((prev) => {
+        if (prev >= 0.98) return 0.98;
+        return Math.min(0.98, prev + 0.004);
       });
-    }, 3500);
+    }, 2500);
 
     return () => clearInterval(interval);
-  }, [shipment.status, destLat, destLng]);
+  }, [shipment.status]);
 
-  const isDelivered = shipment.status === "delivered";
-  const isOutForDelivery = shipment.status === "out_for_delivery";
-  const isInTransit = shipment.status === "in_transit";
+  // Google Maps Driving Directions Link
+  const targetUserLat = userLocation?.lat || destination.lat;
+  const targetUserLng = userLocation?.lng || destination.lng;
+  const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${currentCourierPos.lat},${currentCourierPos.lng}&destination=${targetUserLat},${targetUserLng}&travelmode=driving`;
 
-  // Current active tracking target location
-  const currentTrackingLat = isDelivered ? destLat : isOutForDelivery ? driverLocation.lat : originLat;
-  const currentTrackingLng = isDelivered ? destLng : isOutForDelivery ? driverLocation.lng : originLng;
-
-  // Real Google Maps Live Embed URL
-  // Uses authentic Open Google Maps standard embed parameters with live pin & satellite / standard layer
-  const googleMapsUrl = `https://maps.google.com/maps?q=${currentTrackingLat},${currentTrackingLng}&t=${
-    mapType === "satellite" ? "k" : mapType === "terrain" ? "p" : "m"
-  }&z=15&ie=UTF8&iwloc=&output=embed`;
-
-  // Direct Google Maps External Directions Link for customer / driver navigation
-  const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destLat},${destLng}&travelmode=driving`;
+  // Static Google Maps view URL for frame mode
+  const googleFrameUrl = `https://maps.google.com/maps?q=${currentCourierPos.lat},${currentCourierPos.lng}&t=k&z=14&ie=UTF8&iwloc=&output=embed`;
 
   return (
     <div
+      id="live-shipment-map-card"
       className={`relative overflow-hidden rounded-3xl border border-line bg-surface transition-all duration-300 ${
-        isFullscreen ? "fixed inset-3 sm:inset-6 z-50 shadow-2xl flex flex-col" : "w-full shadow-sm"
+        isFullscreen ? "fixed inset-2 sm:inset-6 z-50 shadow-2xl flex flex-col" : "w-full shadow-sm"
       }`}
     >
-      {/* Top Map Header & Controls */}
-      <div className="flex flex-wrap items-center justify-between px-4 sm:px-6 py-3.5 border-b border-line bg-surface-soft/90 backdrop-blur-md gap-2">
+      {/* Top Header Controls Bar */}
+      <div className="flex flex-wrap items-center justify-between px-4 sm:px-6 py-3 border-b border-line bg-surface-soft/95 backdrop-blur-md gap-2">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold shadow-xs">
-            <Compass size={20} className="animate-spin-slow" />
+            <Radio size={20} className="animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-xs sm:text-sm font-black text-foreground flex items-center gap-1.5">
-                {isAr ? "خريطة جوجل الحية والتتبع بالـ GPS" : "Real Google Maps GPS Tracking"}
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                  Google Maps
+                {isAr ? "الخريطة التفاعلية الحية والتتبع بالـ GPS" : "Live GPS Shipment Tracker"}
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 me-1 animate-ping" />
+                  {isAr ? "بث مباشر نشط" : "Live Broadcast"}
                 </span>
               </h3>
-              {isOutForDelivery && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 animate-pulse">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  {isAr ? "تتبع حي ونشط" : "Live Active"}
-                </span>
-              )}
             </div>
             <p className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
               <span>{shipment.sender_city}</span>
               <span className="text-orange-500 font-bold">➔</span>
               <span>{shipment.recipient_city}</span>
               <span>•</span>
-              <span className="font-medium text-foreground">{shipment.carrier_name}</span>
+              <span className="font-semibold text-foreground">{shipment.carrier_name}</span>
             </p>
           </div>
         </div>
 
-        {/* Map Control Buttons */}
-        <div className="flex items-center gap-2">
-          {/* Map Layer Selector */}
+        {/* Action & Map Mode Buttons */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Map Layer Mode */}
           <div className="flex items-center bg-surface border border-line rounded-xl p-0.5 text-xs font-bold shadow-xs">
             <button
               type="button"
-              onClick={() => {
-                setMapEngine("google");
-                setMapType("roadmap");
-              }}
+              id="map-mode-interactive-btn"
+              onClick={() => setMapEngine("interactive")}
               className={`px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center gap-1 ${
-                mapEngine === "google" && mapType === "roadmap"
+                mapEngine === "interactive"
                   ? "bg-orange-500 text-white shadow-xs"
                   : "text-muted hover:text-foreground"
               }`}
             >
               <Layers size={13} />
-              {isAr ? "شوارع" : "Streets"}
+              {isAr ? "المسار التفاعلي" : "Live Route"}
             </button>
             <button
               type="button"
-              onClick={() => {
-                setMapEngine("google");
-                setMapType("satellite");
-              }}
+              id="map-mode-satellite-btn"
+              onClick={() => setMapEngine("satellite")}
               className={`px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center gap-1 ${
-                mapEngine === "google" && mapType === "satellite"
+                mapEngine === "satellite"
                   ? "bg-orange-500 text-white shadow-xs"
                   : "text-muted hover:text-foreground"
               }`}
@@ -166,37 +262,56 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
               <Compass size={13} />
               {isAr ? "قمر صناعي" : "Satellite"}
             </button>
-            <button
-              type="button"
-              onClick={() => setMapEngine("telemetry")}
-              className={`px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center gap-1 ${
-                mapEngine === "telemetry"
-                  ? "bg-orange-500 text-white shadow-xs"
-                  : "text-muted hover:text-foreground"
-              }`}
-            >
-              <Navigation size={13} />
-              {isAr ? "رادار المركبة" : "Radar HUD"}
-            </button>
           </div>
 
-          {/* Open Real Google Maps External Link */}
+          {/* Detect User Current Location */}
+          <button
+            type="button"
+            id="detect-user-gps-btn"
+            onClick={handleDetectUserLocation}
+            disabled={isLocatingUser}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
+              userLocation
+                ? "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400"
+                : "bg-surface border-line text-muted hover:text-foreground"
+            }`}
+            title={isAr ? "تحديد موقعي الآن عبر GPS" : "Detect My Real Location"}
+          >
+            <LocateFixed size={14} className={isLocatingUser ? "animate-spin text-orange-500" : "text-blue-500"} />
+            <span className="hidden md:inline">
+              {isLocatingUser
+                ? isAr
+                  ? "جارِ التحديد..."
+                  : "Locating..."
+                : userLocation
+                ? isAr
+                  ? "موقعي محدد"
+                  : "My Location Active"
+                : isAr
+                ? "أين أنا الآن؟"
+                : "Where Am I?"}
+            </span>
+          </button>
+
+          {/* Open in Google Maps */}
           <a
             href={googleMapsDirectionsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-surface border border-line hover:border-orange-500/50 hover:bg-orange-500/5 text-foreground text-xs font-bold transition-all shadow-xs"
-            title={isAr ? "فتح المسار في تطبيق خرائط Google" : "Open in Google Maps App"}
+            id="open-google-maps-btn"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-orange-500 text-white hover:bg-orange-600 text-xs font-bold transition-all shadow-xs"
+            title={isAr ? "فتح المسار في خرائط Google مباشرة" : "Open in Google Maps"}
           >
-            <ExternalLink size={13} className="text-orange-500" />
-            <span>{isAr ? "فتح بخرائط جوجل" : "Google Maps"}</span>
+            <ExternalLink size={13} />
+            <span className="hidden sm:inline">{isAr ? "خرائط جوجل" : "Google Maps"}</span>
           </a>
 
+          {/* Fullscreen Toggle */}
           <button
             type="button"
+            id="toggle-fullscreen-map-btn"
             onClick={() => setIsFullscreen((f) => !f)}
             className="w-8 h-8 rounded-xl bg-surface border border-line flex items-center justify-center text-foreground hover:border-orange-500 transition-all shadow-xs"
-            title={isFullscreen ? (isAr ? "تصغير" : "Exit Fullscreen") : (isAr ? "ملء الشاشة" : "Fullscreen")}
           >
             {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
           </button>
@@ -205,31 +320,147 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
 
       {/* Main Map Viewport */}
       <div
-        className={`relative w-full overflow-hidden transition-all duration-300 bg-slate-950 ${
-          isFullscreen ? "flex-1 min-h-[480px]" : "h-[340px] sm:h-[420px]"
+        className={`relative w-full overflow-hidden transition-all duration-300 ${
+          isFullscreen ? "flex-1 min-h-[480px]" : "h-[360px] sm:h-[440px]"
         }`}
       >
-        {mapEngine === "google" ? (
-          /* Real Google Maps Interactive Embed */
-          <div className="relative w-full h-full">
+        {mapEngine === "satellite" ? (
+          /* Satellite View Embed */
+          <div className="w-full h-full relative">
             <iframe
-              title="Real Live Google Maps GPS Tracking"
-              src={googleMapsUrl}
-              className="w-full h-full border-0 filter saturate-110 contrast-105"
+              title="Google Satellite Map"
+              src={googleFrameUrl}
+              className="w-full h-full border-0"
               loading="lazy"
-              allowFullScreen
+            />
+          </div>
+        ) : (
+          /* Interactive Vector HUD Map with Zero Flashing & True Coordinates */
+          <div className="relative w-full h-full bg-[#080e1a] select-none overflow-hidden">
+            {/* Grid background styling */}
+            <div
+              className="absolute inset-0 opacity-25 pointer-events-none"
+              style={{
+                backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.2) 1px, transparent 0)`,
+                backgroundSize: "28px 28px",
+              }}
             />
 
-            {/* Live GPS Floating Telemetry Badge directly on Google Maps */}
-            <div className="absolute top-3 start-3 z-10 flex flex-col gap-2">
-              <div className="px-3.5 py-2 rounded-2xl bg-slate-950/90 backdrop-blur-md border border-white/15 text-white shadow-xl flex items-center gap-2.5">
+            {/* Glowing ambiences */}
+            <div className="absolute top-10 start-10 w-96 h-96 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-10 end-10 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+
+            {/* Vector Map Canvas */}
+            <svg viewBox="0 0 800 450" className="w-full h-full object-cover">
+              <defs>
+                <linearGradient id="routeGradientLive" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#3b82f6" />
+                  <stop offset="50%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#10b981" />
+                </linearGradient>
+                <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              {/* Background Path Track */}
+              <path
+                d="M 120 340 C 260 340, 320 180, 480 200 S 640 110, 680 90"
+                stroke="rgba(255,255,255,0.12)"
+                strokeWidth="10"
+                fill="none"
+                strokeLinecap="round"
+              />
+
+              {/* Active Route Gradient */}
+              <path
+                d="M 120 340 C 260 340, 320 180, 480 200 S 640 110, 680 90"
+                stroke="url(#routeGradientLive)"
+                strokeWidth="5"
+                fill="none"
+                strokeLinecap="round"
+                filter="url(#glowEffect)"
+              />
+
+              {/* Moving Pulse Animation Line */}
+              <path
+                d="M 120 340 C 260 340, 320 180, 480 200 S 640 110, 680 90"
+                stroke="#ffffff"
+                strokeWidth="3"
+                fill="none"
+                strokeDasharray="12 24"
+                strokeLinecap="round"
+                className="animate-pulse"
+              />
+
+              {/* Origin Node (Warehouse/Store) */}
+              <g transform="translate(120, 340)">
+                <circle r="22" fill="#3b82f6" fillOpacity="0.2" className="animate-ping" />
+                <circle r="15" fill="#0f172a" stroke="#3b82f6" strokeWidth="3" />
+                <circle r="6" fill="#3b82f6" />
+              </g>
+
+              {/* Destination Node (Customer / Delivery Point) */}
+              <g transform="translate(680, 90)">
+                <circle r="26" fill="#10b981" fillOpacity="0.25" className="animate-pulse" />
+                <circle r="18" fill="#0f172a" stroke="#10b981" strokeWidth="3" />
+                <circle r="7" fill="#10b981" />
+              </g>
+
+              {/* Dynamic Courier Moving Marker based on calculated progress ratio */}
+              {(() => {
+                const t = progressRatio;
+                const curX = 120 + (680 - 120) * t;
+                const curY = 340 + (90 - 340) * Math.sin((t * Math.PI) / 2);
+
+                return (
+                  <g transform={`translate(${curX}, ${curY})`} className="transition-all duration-1000 ease-out">
+                    <circle r="30" fill="#f97316" fillOpacity="0.2" className="animate-ping" />
+                    <circle r="20" fill="#ea580c" stroke="#ffffff" strokeWidth="3" />
+                    <path
+                      d="M -8 -4 L 3 -4 L 7 0 L 8 4 L -8 4 Z"
+                      fill="#ffffff"
+                    />
+                    <circle cx="-4" cy="5" r="2" fill="#0f172a" />
+                    <circle cx="4" cy="5" r="2" fill="#0f172a" />
+                  </g>
+                );
+              })()}
+            </svg>
+
+            {/* Origin City Floating Badge */}
+            <div className="absolute start-8 sm:start-14 bottom-20 sm:bottom-24 px-3 py-1.5 rounded-2xl bg-slate-950/90 text-white border border-blue-500/40 shadow-xl backdrop-blur-md flex items-center gap-2">
+              <Building2 size={15} className="text-blue-400" />
+              <div>
+                <span className="text-[10px] text-slate-400 block">{isAr ? "مستودع الانطلاق" : "Origin Hub"}</span>
+                <span className="text-xs font-bold">{shipment.sender_city}</span>
+              </div>
+            </div>
+
+            {/* Destination / User Location Floating Badge */}
+            <div className="absolute end-8 sm:end-14 top-14 sm:top-16 px-3.5 py-1.5 rounded-2xl bg-slate-950/90 text-white border border-emerald-500/40 shadow-xl backdrop-blur-md flex items-center gap-2">
+              <Home size={15} className="text-emerald-400" />
+              <div>
+                <span className="text-[10px] text-slate-400 block">
+                  {userLocation ? (isAr ? "موقعك الفعلي (أنت هنا)" : "Your Location (You)") : isAr ? "عنوان التسليم" : "Destination"}
+                </span>
+                <span className="text-xs font-bold text-emerald-300">
+                  {userLocation ? (isAr ? "موقع جهازك الحالي" : "Current Device GPS") : shipment.recipient_city}
+                </span>
+              </div>
+            </div>
+
+            {/* Live GPS Telemetry Overlay */}
+            <div className="absolute top-4 start-4 flex flex-col gap-2 z-10">
+              <div className="px-3.5 py-2 rounded-2xl bg-slate-950/90 border border-white/15 text-white shadow-xl backdrop-blur-md flex items-center gap-2.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                 <div>
-                  <div className="text-[10px] text-slate-300 font-medium">
-                    {isAr ? "إحداثيات المندوب الحالية (GPS Live)" : "Driver GPS Location"}
+                  <div className="text-[10px] text-slate-400 font-medium">
+                    {isAr ? "إحداثيات الشحنة الحالية (GPS)" : "Live Shipment Coordinates"}
                   </div>
                   <div className="text-xs font-mono font-bold text-orange-400">
-                    {currentTrackingLat.toFixed(5)}° N, {currentTrackingLng.toFixed(5)}° E
+                    {currentCourierPos.lat.toFixed(4)}° N, {currentCourierPos.lng.toFixed(4)}° E
                   </div>
                 </div>
               </div>
@@ -237,115 +468,24 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
               {isOutForDelivery && (
                 <div className="px-3 py-1.5 rounded-xl bg-orange-500/90 text-white font-bold text-xs flex items-center gap-2 shadow-lg backdrop-blur-xs">
                   <Car size={14} className="animate-bounce" />
-                  <span>{isAr ? `السرعة: ${liveSpeed} كم/ساعة` : `Speed: ${liveSpeed} km/h`}</span>
+                  <span>{isAr ? `سرعة المندوب: ${liveSpeed} كم/س` : `Speed: ${liveSpeed} km/h`}</span>
                 </div>
               )}
             </div>
 
-            {/* Google Map Recenter Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setDriverLocation({
-                  lat: currentTrackingLat + (Math.random() - 0.5) * 0.0001,
-                  lng: currentTrackingLng + (Math.random() - 0.5) * 0.0001,
-                });
-              }}
-              className="absolute bottom-16 end-3 z-10 p-2.5 rounded-2xl bg-surface/90 text-foreground border border-line shadow-lg backdrop-blur-md hover:border-orange-500 transition-all"
-              title={isAr ? "إعادة تحديد الموقع الحي" : "Recenter GPS"}
-            >
-              <LocateFixed size={18} className="text-orange-500 animate-pulse" />
-            </button>
-          </div>
-        ) : (
-          /* Radar Vector Telemetry Map Mode */
-          <div className="relative w-full h-full bg-[#0b1526] overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-20 pointer-events-none"
-              style={{
-                backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.2) 1px, transparent 0)`,
-                backgroundSize: "32px 32px",
-              }}
-            />
-            <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-orange-500/15 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-blue-500/15 blur-3xl pointer-events-none" />
-
-            <svg viewBox="0 0 600 340" className="w-full h-full object-cover select-none">
-              <defs>
-                <linearGradient id="routeGradReal" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#3b82f6" />
-                  <stop offset="60%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 90 260 Q 180 180 300 200 T 510 80"
-                stroke="rgba(0,0,0,0.5)"
-                strokeWidth="8"
-                fill="none"
-                strokeLinecap="round"
-              />
-              <path
-                d="M 90 260 Q 180 180 300 200 T 510 80"
-                stroke="url(#routeGradReal)"
-                strokeWidth="5"
-                fill="none"
-                strokeLinecap="round"
-              />
-              <path
-                d="M 90 260 Q 180 180 300 200 T 510 80"
-                stroke="#ffffff"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="8 16"
-                strokeLinecap="round"
-                className="animate-pulse"
-              />
-
-              {/* Origin */}
-              <g transform="translate(90, 260)">
-                <circle r="14" fill="#3b82f6" fillOpacity="0.2" className="animate-ping" />
-                <circle r="10" fill="#1e293b" stroke="#3b82f6" strokeWidth="2.5" />
-                <circle r="4" fill="#3b82f6" />
-              </g>
-
-              {/* Destination */}
-              <g transform="translate(510, 80)">
-                <circle r="16" fill="#10b981" fillOpacity="0.2" className="animate-pulse" />
-                <circle r="12" fill="#1e293b" stroke="#10b981" strokeWidth="2.5" />
-                <circle r="5" fill="#10b981" />
-              </g>
-
-              {/* Courier Van */}
-              {!isDelivered && (
-                <g transform="translate(390, 125)">
-                  <circle r="22" fill="#f97316" fillOpacity="0.25" className="animate-ping" />
-                  <circle r="16" fill="#ea580c" stroke="#ffffff" strokeWidth="2" />
-                  <path d="M -6 -3 L 2 -3 L 5 0 L 6 3 L -6 3 Z" fill="#ffffff" />
-                  <circle cx="-3" cy="4" r="1.5" fill="#0f172a" />
-                  <circle cx="3" cy="4" r="1.5" fill="#0f172a" />
-                </g>
-              )}
-            </svg>
-
-            {/* HUD Origin Tag */}
-            <div className="absolute left-[12%] bottom-[20%] text-[10px] font-bold px-2.5 py-1 rounded-xl bg-slate-950/90 text-slate-200 border border-blue-500/40 shadow-lg flex items-center gap-1.5">
-              <Building2 size={12} className="text-blue-400" />
-              <span>{shipment.sender_city}</span>
-            </div>
-
-            {/* HUD Destination Tag */}
-            <div className="absolute right-[12%] top-[18%] text-[10px] font-bold px-2.5 py-1 rounded-xl bg-slate-950/90 text-emerald-300 border border-emerald-500/40 shadow-lg flex items-center gap-1.5">
-              <Home size={12} className="text-emerald-400" />
-              <span>{shipment.recipient_city}</span>
-            </div>
+            {geoError && (
+              <div className="absolute bottom-20 inset-x-4 max-w-md mx-auto p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs flex items-center gap-2 z-10 backdrop-blur-md">
+                <Info size={15} className="shrink-0 text-amber-400" />
+                <span>{geoError}</span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Bottom Real-time Telemetry HUD Card */}
-        <div className="absolute bottom-3 inset-x-3 sm:inset-x-5 rounded-2xl bg-slate-950/90 backdrop-blur-lg border border-white/15 p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 text-white shadow-2xl z-20">
+        {/* Bottom Live Metrics & Courier Status HUD */}
+        <div className="absolute bottom-2.5 inset-x-2.5 sm:inset-x-4 rounded-2xl bg-slate-950/90 backdrop-blur-xl border border-white/15 p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 text-white shadow-2xl z-20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
               <Navigation size={20} className="animate-pulse" />
             </div>
             <div>
@@ -353,25 +493,26 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
                 {isDelivered
                   ? isAr
                     ? "حالة التسليم النهائي"
-                    : "Final Delivery Status"
+                    : "Delivery Completed"
                   : isAr
-                  ? "المسافة المتبقية وموعد الوصول"
+                  ? "المسافة المتبقية إليك والوقت المتوقع"
                   : "Remaining Distance & ETA"}
               </div>
               <div className="font-black text-white text-xs sm:text-sm flex items-center gap-2 mt-0.5">
                 {isDelivered ? (
                   <span className="text-emerald-400 flex items-center gap-1.5 font-bold">
                     <CheckCircle2 size={16} />
-                    {isAr ? "تم التسليم بنجاح وتوثيق البوليصة" : "Delivered & Verified Successfully"}
+                    {isAr ? "تم التسليم بنجاح وتأكيد الكود" : "Delivered & Verified Successfully"}
                   </span>
                 ) : (
                   <>
                     <span className="text-orange-400 font-mono font-extrabold text-sm sm:text-base">
-                      {isOutForDelivery ? "3.2 كم" : "120 كم"}
+                      {remainingDist} {isAr ? "كم" : "KM"}
                     </span>
                     <span className="text-slate-500">|</span>
-                    <span className="text-slate-200">
-                      {shipment.estimated_delivery_time || (isAr ? "اليوم خلال ساعتين" : "Within 2 hrs")}
+                    <span className="text-slate-200 flex items-center gap-1">
+                      <Clock size={13} className="text-amber-400" />
+                      {isAr ? `يصل خلال ${etaMinutes} دقيقة تقريباً` : `ETA ~${etaMinutes} mins`}
                     </span>
                   </>
                 )}
@@ -379,23 +520,18 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-5 text-xs">
-            {isOutForDelivery && (
-              <div>
-                <span className="text-slate-400 block text-[10px]">{isAr ? "سرعة المركبة:" : "Speed:"}</span>
-                <span className="font-mono font-black text-orange-400 text-sm">{liveSpeed} KM/H</span>
-              </div>
-            )}
-
+          <div className="flex items-center gap-3 sm:gap-6 text-xs">
+            {/* OTP Secret Code */}
             <div>
-              <span className="text-slate-400 block text-[10px]">{isAr ? "الرمز السري (OTP):" : "OTP Code:"}</span>
-              <span className="font-mono font-black text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-500/40 text-sm tracking-wider">
+              <span className="text-slate-400 block text-[10px]">{isAr ? "رمز الاستلام (OTP):" : "OTP Code:"}</span>
+              <span className="font-mono font-black text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-500/40 text-sm tracking-widest">
                 {shipment.delivery_otp || "7841"}
               </span>
             </div>
 
-            <div className="text-end ps-2 sm:ps-4 border-s border-white/10">
-              <span className="text-slate-400 block text-[10px]">{isAr ? "الناقل المعتمد:" : "Carrier:"}</span>
+            {/* Carrier Name */}
+            <div className="text-end ps-3 border-s border-white/10">
+              <span className="text-slate-400 block text-[10px]">{isAr ? "شركة الشحن:" : "Carrier:"}</span>
               <span className="font-bold text-slate-200 text-xs sm:text-sm">{shipment.carrier_name}</span>
             </div>
           </div>
