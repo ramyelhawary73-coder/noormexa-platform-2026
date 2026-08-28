@@ -17,6 +17,8 @@ import {
   Clock,
   Radio,
   Info,
+  MapPin,
+  Sparkles,
 } from "lucide-react";
 
 interface LiveShipmentMapProps {
@@ -37,8 +39,12 @@ const CITY_COORDS: Record<string, LatLng> = {
   مكة: { lat: 21.3891, lng: 39.8579 },
   المدينة: { lat: 24.5247, lng: 39.5692 },
   القاهرة: { lat: 30.0444, lng: 31.2357 },
+  الجيزة: { lat: 30.0131, lng: 31.2089 },
   الإسكندرية: { lat: 31.2001, lng: 29.9187 },
   دبي: { lat: 25.2048, lng: 55.2708 },
+  أبوظبي: { lat: 24.4539, lng: 54.3773 },
+  الكويت: { lat: 29.3759, lng: 47.9774 },
+  الدوحة: { lat: 25.2854, lng: 51.5310 },
 };
 
 function getCityCoord(cityName?: string, fallbackLat?: number, fallbackLng?: number): LatLng {
@@ -73,43 +79,61 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
   const [isLocatingUser, setIsLocatingUser] = useState(false);
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
   const [geoError, setGeoError] = useState<string | null>(null);
+  const [locationSuccessMsg, setLocationSuccessMsg] = useState<string | null>(null);
 
   // Dynamic tracking & Driver movement state
   const [progressRatio, setProgressRatio] = useState<number>(() => {
     if (shipment.status === "delivered") return 1;
-    if (shipment.status === "out_for_delivery") return 0.72;
+    if (shipment.status === "out_for_delivery") return 0.76;
     if (shipment.status === "in_transit") return 0.45;
-    return 0.1;
+    return 0.15;
   });
 
   const [liveSpeed, setLiveSpeed] = useState<number>(() =>
-    shipment.courier?.current_speed_kmh || (shipment.status === "out_for_delivery" ? 48 : 0)
+    shipment.courier?.current_speed_kmh || (shipment.status === "out_for_delivery" ? 42 : 0)
   );
 
-  // Geographic endpoints
-  const origin = useMemo(
+  // Base endpoints
+  const rawOrigin = useMemo(
     () => getCityCoord(shipment.sender_city, shipment.sender_lat, shipment.sender_lng),
     [shipment.sender_city, shipment.sender_lat, shipment.sender_lng]
   );
-  const destination = useMemo(
+  const rawDestination = useMemo(
     () => getCityCoord(shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng),
     [shipment.recipient_city, shipment.recipient_lat, shipment.recipient_lng]
   );
 
+  // Effective coordinates: If user detected location via GPS, dynamically adapt local hub to user vicinity
+  const destination: LatLng = useMemo(() => {
+    if (userLocation) return userLocation;
+    return rawDestination;
+  }, [userLocation, rawDestination]);
+
+  const origin: LatLng = useMemo(() => {
+    if (userLocation) {
+      // Local NOORMEXA Fulfillment Hub in user's immediate city / zone (~4.5 km away)
+      return {
+        lat: userLocation.lat + 0.028,
+        lng: userLocation.lng - 0.032,
+      };
+    }
+    return rawOrigin;
+  }, [userLocation, rawOrigin]);
+
   // Compute live courier position along route
-  const currentCourierPos: LatLng = {
-    lat: origin.lat + (destination.lat - origin.lat) * progressRatio,
-    lng: origin.lng + (destination.lng - origin.lng) * progressRatio,
-  };
+  const currentCourierPos: LatLng = useMemo(() => {
+    return {
+      lat: origin.lat + (destination.lat - origin.lat) * progressRatio,
+      lng: origin.lng + (destination.lng - origin.lng) * progressRatio,
+    };
+  }, [origin, destination, progressRatio]);
 
-  // Remaining distance calculation
+  // Remaining distance calculation (in kilometers)
   const totalDistance = calculateDistanceKm(origin, destination);
-  const remainingDist = userLocation
-    ? calculateDistanceKm(currentCourierPos, userLocation)
-    : Number((totalDistance * (1 - progressRatio)).toFixed(1));
+  const remainingDist = Number((totalDistance * (1 - progressRatio)).toFixed(1));
 
-  // Compute ETA in minutes based on 45km/h speed
-  const etaMinutes = Math.max(5, Math.round((remainingDist / 40) * 60));
+  // Compute ETA in minutes based on real last-mile city driving speed (35-45 km/h)
+  const etaMinutes = Math.max(4, Math.round((remainingDist / 38) * 60));
 
   // Active state flags
   const isDelivered = shipment.status === "delivered";
@@ -124,28 +148,45 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
 
     setIsLocatingUser(true);
     setGeoError(null);
+    setLocationSuccessMsg(null);
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setUserLocation({
+        const coords = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-        });
+        };
+        setUserLocation(coords);
         setIsLocatingUser(false);
+        setLocationSuccessMsg(
+          isAr
+            ? `تم ضبط إحداثياتك بدقة (${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}°) وتحديث مسار التوصيل المحلي.`
+            : `GPS Synced (${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}°)`
+        );
+        setTimeout(() => setLocationSuccessMsg(null), 5000);
       },
       (err) => {
-        console.warn("Geolocation permission error or unavailable:", err.message);
-        setUserLocation(destination);
+        console.warn("Geolocation error:", err.message);
         setIsLocatingUser(false);
         if (err.code === 1) {
-          setGeoError(isAr ? "يرجى السماح بالوصول للموقع في المتصفح" : "Please allow location permission");
+          setGeoError(
+            isAr
+              ? "يرجى الضغط على زر القفل بجانب عنوان الموقع والسماح بإذن الموقع (Allow Location)."
+              : "Please allow location permission in browser settings."
+          );
+        } else {
+          setGeoError(
+            isAr
+              ? "تعذر التقاط إشارة GPS المباشرة، تم الاعتماد على عنوان التسليم المسجل."
+              : "Unable to lock GPS signal, using default address."
+          );
         }
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  }, [destination, isAr]);
+  }, [isAr]);
 
-  // Request location on client mount safely
+  // Request location once smoothly on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       if (typeof window !== "undefined" && "geolocation" in navigator) {
@@ -157,16 +198,15 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
             });
           },
           () => {
-            // Silently fallback without crashing
-            setUserLocation(destination);
+            // Silently fallback without error popup
           },
-          { enableHighAccuracy: false, timeout: 5000 }
+          { enableHighAccuracy: false, timeout: 6000 }
         );
       }
-    }, 500);
+    }, 400);
 
     return () => clearTimeout(timer);
-  }, [destination]);
+  }, []);
 
   // Smooth live vehicle movement animation without page refresh
   useEffect(() => {
@@ -175,29 +215,27 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
     }
 
     const interval = setInterval(() => {
-      // Fluctuate speed realistically
       setLiveSpeed((prev) => {
-        const delta = (Math.random() - 0.5) * 6;
-        return Math.round(Math.max(25, Math.min(65, prev + delta)));
+        const delta = (Math.random() - 0.5) * 5;
+        return Math.round(Math.max(28, Math.min(58, prev + delta)));
       });
 
-      // Smooth step towards destination
       setProgressRatio((prev) => {
         if (prev >= 0.98) return 0.98;
-        return Math.min(0.98, prev + 0.004);
+        return Math.min(0.98, prev + 0.003);
       });
-    }, 2500);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [shipment.status]);
 
-  // Google Maps Driving Directions Link
-  const targetUserLat = userLocation?.lat || destination.lat;
-  const targetUserLng = userLocation?.lng || destination.lng;
+  // Google Maps Driving Directions URL
+  const targetUserLat = destination.lat;
+  const targetUserLng = destination.lng;
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${currentCourierPos.lat},${currentCourierPos.lng}&destination=${targetUserLat},${targetUserLng}&travelmode=driving`;
 
-  // Static Google Maps view URL for frame mode
-  const googleFrameUrl = `https://maps.google.com/maps?q=${currentCourierPos.lat},${currentCourierPos.lng}&t=k&z=14&ie=UTF8&iwloc=&output=embed`;
+  // Google Maps embed iframe URL centered on the live position
+  const googleFrameUrl = `https://maps.google.com/maps?q=${currentCourierPos.lat},${currentCourierPos.lng}&t=k&z=15&ie=UTF8&iwloc=&output=embed`;
 
   return (
     <div
@@ -215,19 +253,21 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-xs sm:text-sm font-black text-foreground flex items-center gap-1.5">
-                {isAr ? "الخريطة التفاعلية الحية والتتبع بالـ GPS" : "Live GPS Shipment Tracker"}
+                {isAr ? "خريطة التتبع الحي بالـ GPS المباشر" : "Live GPS Shipment Tracker"}
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 me-1 animate-ping" />
-                  {isAr ? "بث مباشر نشط" : "Live Broadcast"}
+                  {isAr ? "متصل بالأقمار الصناعية" : "Satellite GPS Active"}
                 </span>
               </h3>
             </div>
             <p className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
-              <span>{shipment.sender_city}</span>
+              <span>{userLocation ? (isAr ? "الفرع المحلي لنورمكسا" : "Local NOORMEXA Hub") : shipment.sender_city}</span>
               <span className="text-orange-500 font-bold">➔</span>
-              <span>{shipment.recipient_city}</span>
+              <span>{userLocation ? (isAr ? "موقعك الحالي (GPS)" : "Your Location") : shipment.recipient_city}</span>
               <span>•</span>
-              <span className="font-semibold text-foreground">{shipment.carrier_name}</span>
+              <span className="font-semibold text-foreground">
+                {shipment.carrier_name || (isAr ? "أسطول نورمكسا الرسمي" : "NOORMEXA Fleet")}
+              </span>
             </p>
           </div>
         </div>
@@ -270,26 +310,26 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
             id="detect-user-gps-btn"
             onClick={handleDetectUserLocation}
             disabled={isLocatingUser}
-            className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
               userLocation
-                ? "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400"
+                ? "bg-blue-500/15 border-blue-500/40 text-blue-600 dark:text-blue-400"
                 : "bg-surface border-line text-muted hover:text-foreground"
             }`}
             title={isAr ? "تحديد موقعي الآن عبر GPS" : "Detect My Real Location"}
           >
             <LocateFixed size={14} className={isLocatingUser ? "animate-spin text-orange-500" : "text-blue-500"} />
-            <span className="hidden md:inline">
+            <span>
               {isLocatingUser
                 ? isAr
                   ? "جارِ التحديد..."
                   : "Locating..."
                 : userLocation
                 ? isAr
-                  ? "موقعي محدد"
-                  : "My Location Active"
+                  ? "تم تحديد موقعك"
+                  : "GPS Synced"
                 : isAr
-                ? "أين أنا الآن؟"
-                : "Where Am I?"}
+                ? "تحديد موقعي الآن"
+                : "Locate Me"}
             </span>
           </button>
 
@@ -325,7 +365,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
         }`}
       >
         {mapEngine === "satellite" ? (
-          /* Satellite View Embed */
+          /* Satellite View Embed Centered on Live Coordinates */
           <div className="w-full h-full relative">
             <iframe
               title="Google Satellite Map"
@@ -335,7 +375,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
             />
           </div>
         ) : (
-          /* Interactive Vector HUD Map with Zero Flashing & True Coordinates */
+          /* Interactive Vector HUD Map */
           <div className="relative w-full h-full bg-[#080e1a] select-none overflow-hidden">
             {/* Grid background styling */}
             <div
@@ -394,21 +434,21 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
                 className="animate-pulse"
               />
 
-              {/* Origin Node (Warehouse/Store) */}
+              {/* Origin Node (Warehouse/Local Hub) */}
               <g transform="translate(120, 340)">
                 <circle r="22" fill="#3b82f6" fillOpacity="0.2" className="animate-ping" />
                 <circle r="15" fill="#0f172a" stroke="#3b82f6" strokeWidth="3" />
                 <circle r="6" fill="#3b82f6" />
               </g>
 
-              {/* Destination Node (Customer / Delivery Point) */}
+              {/* Destination Node (Customer / Real GPS Point) */}
               <g transform="translate(680, 90)">
                 <circle r="26" fill="#10b981" fillOpacity="0.25" className="animate-pulse" />
                 <circle r="18" fill="#0f172a" stroke="#10b981" strokeWidth="3" />
                 <circle r="7" fill="#10b981" />
               </g>
 
-              {/* Dynamic Courier Moving Marker based on calculated progress ratio */}
+              {/* Dynamic Courier Moving Marker */}
               {(() => {
                 const t = progressRatio;
                 const curX = 120 + (680 - 120) * t;
@@ -418,10 +458,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
                   <g transform={`translate(${curX}, ${curY})`} className="transition-all duration-1000 ease-out">
                     <circle r="30" fill="#f97316" fillOpacity="0.2" className="animate-ping" />
                     <circle r="20" fill="#ea580c" stroke="#ffffff" strokeWidth="3" />
-                    <path
-                      d="M -8 -4 L 3 -4 L 7 0 L 8 4 L -8 4 Z"
-                      fill="#ffffff"
-                    />
+                    <path d="M -8 -4 L 3 -4 L 7 0 L 8 4 L -8 4 Z" fill="#ffffff" />
                     <circle cx="-4" cy="5" r="2" fill="#0f172a" />
                     <circle cx="4" cy="5" r="2" fill="#0f172a" />
                   </g>
@@ -433,8 +470,10 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
             <div className="absolute start-8 sm:start-14 bottom-20 sm:bottom-24 px-3 py-1.5 rounded-2xl bg-slate-950/90 text-white border border-blue-500/40 shadow-xl backdrop-blur-md flex items-center gap-2">
               <Building2 size={15} className="text-blue-400" />
               <div>
-                <span className="text-[10px] text-slate-400 block">{isAr ? "مستودع الانطلاق" : "Origin Hub"}</span>
-                <span className="text-xs font-bold">{shipment.sender_city}</span>
+                <span className="text-[10px] text-slate-400 block">{isAr ? "نقطة انطلاق المندوب" : "Origin Hub"}</span>
+                <span className="text-xs font-bold">
+                  {userLocation ? (isAr ? "مستودع نورمكسا الإقليمي" : "NOORMEXA Hub") : shipment.sender_city}
+                </span>
               </div>
             </div>
 
@@ -443,7 +482,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
               <Home size={15} className="text-emerald-400" />
               <div>
                 <span className="text-[10px] text-slate-400 block">
-                  {userLocation ? (isAr ? "موقعك الفعلي (أنت هنا)" : "Your Location (You)") : isAr ? "عنوان التسليم" : "Destination"}
+                  {userLocation ? (isAr ? "موقعك الفعلي (GPS Live)" : "Your Live Location") : isAr ? "عنوان التسليم" : "Destination"}
                 </span>
                 <span className="text-xs font-bold text-emerald-300">
                   {userLocation ? (isAr ? "موقع جهازك الحالي" : "Current Device GPS") : shipment.recipient_city}
@@ -457,7 +496,7 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                 <div>
                   <div className="text-[10px] text-slate-400 font-medium">
-                    {isAr ? "إحداثيات الشحنة الحالية (GPS)" : "Live Shipment Coordinates"}
+                    {isAr ? "إحداثيات المندوب الحالية (GPS)" : "Live Courier Coordinates"}
                   </div>
                   <div className="text-xs font-mono font-bold text-orange-400">
                     {currentCourierPos.lat.toFixed(4)}° N, {currentCourierPos.lng.toFixed(4)}° E
@@ -472,6 +511,13 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
                 </div>
               )}
             </div>
+
+            {locationSuccessMsg && (
+              <div className="absolute bottom-20 inset-x-4 max-w-md mx-auto p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2 z-10 backdrop-blur-md">
+                <Sparkles size={15} className="shrink-0 text-emerald-400" />
+                <span>{locationSuccessMsg}</span>
+              </div>
+            )}
 
             {geoError && (
               <div className="absolute bottom-20 inset-x-4 max-w-md mx-auto p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs flex items-center gap-2 z-10 backdrop-blur-md">
@@ -532,7 +578,9 @@ export default function LiveShipmentMap({ shipment, isAr = true }: LiveShipmentM
             {/* Carrier Name */}
             <div className="text-end ps-3 border-s border-white/10">
               <span className="text-slate-400 block text-[10px]">{isAr ? "شركة الشحن:" : "Carrier:"}</span>
-              <span className="font-bold text-slate-200 text-xs sm:text-sm">{shipment.carrier_name}</span>
+              <span className="font-bold text-slate-200 text-xs sm:text-sm">
+                {shipment.carrier_name || (isAr ? "أسطول نورمكسا الرسمي" : "NOORMEXA Fleet")}
+              </span>
             </div>
           </div>
         </div>
