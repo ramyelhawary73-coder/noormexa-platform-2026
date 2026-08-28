@@ -124,7 +124,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     return product.image_url ? [product.image_url] : [];
   }, [product]);
 
-  const [activeImage, setActiveImage] = useState<string>(gallery[0] || "");
+  const [activeImage, setActiveImage] = useState<string>("");
+  const currentDisplayImage = (activeImage && gallery.includes(activeImage)) ? activeImage : (gallery[0] || product?.image_url || "");
   const [selectedVariants, setSelectedVariants] = useState<SelectedVariant>({});
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"specs" | "desc" | "reviews">("specs");
@@ -280,12 +281,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Left / Gallery Column (5 cols on lg) */}
           <div className="lg:col-span-6 space-y-4">
             {/* Main Highlight Image */}
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-surface border border-line shadow-sm">
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-surface border border-line shadow-sm group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={activeImage || product.image_url || ""}
+                src={currentDisplayImage}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
 
               {/* Badges */}
@@ -328,7 +329,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     type="button"
                     onClick={() => setActiveImage(imgUrl)}
                     className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${
-                      (activeImage || gallery[0]) === imgUrl ? "border-gold scale-105 shadow-md" : "border-line opacity-70 hover:opacity-100"
+                      currentDisplayImage === imgUrl ? "border-gold scale-105 shadow-md" : "border-line opacity-70 hover:opacity-100"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
