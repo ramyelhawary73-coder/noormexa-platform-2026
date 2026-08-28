@@ -5,11 +5,13 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { CartProvider } from "@/context/CartContext";
 import { MarketplaceProvider } from "@/context/MarketplaceContext";
+import { LocationProvider } from "@/context/LocationContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AIAssistant from "@/components/AIAssistant";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import LocationSelectorModal from "@/components/location/LocationSelectorModal";
 
 export const metadata: Metadata = {
   title: "NOORMEXA — التسوق الذكي",
@@ -102,16 +104,19 @@ export default function RootLayout({
           <LanguageProvider>
             <AuthProvider>
               <MarketplaceProvider>
-                <CartProvider>
-                  <div className="noormexa-app-shell">
-                    <Navbar />
-                    {children}
-                    <Footer />
-                    <AIAssistant />
-                    <MobileBottomNav />
-                    <PwaInstallPrompt />
-                  </div>
-                </CartProvider>
+                <LocationProvider>
+                  <CartProvider>
+                    <div className="noormexa-app-shell">
+                      <Navbar />
+                      {children}
+                      <Footer />
+                      <AIAssistant />
+                      <MobileBottomNav />
+                      <PwaInstallPrompt />
+                      <LocationSelectorModal />
+                    </div>
+                  </CartProvider>
+                </LocationProvider>
               </MarketplaceProvider>
             </AuthProvider>
           </LanguageProvider>

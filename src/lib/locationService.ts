@@ -25,10 +25,54 @@ export interface DetectedLocation {
   countryCode: string;
   currency: CurrencyCode;
   accuracyMeters?: number;
-  source: "gps" | "timezone" | "cached" | "city_lookup";
+  source: "gps" | "ip" | "timezone" | "cached" | "city_lookup" | "static_default";
   timestamp: number;
   isHighAccuracy?: boolean;
 }
+
+export const DEFAULT_STATIC_LOCATION: DetectedLocation = {
+  lat: 24.7136,
+  lng: 46.6753,
+  cityAr: "الرياض",
+  cityEn: "Riyadh",
+  countryAr: "المملكة العربية السعودية",
+  countryEn: "Saudi Arabia",
+  countryCode: "SA",
+  currency: "SAR",
+  accuracyMeters: 5000,
+  source: "static_default",
+  timestamp: Date.now(),
+};
+
+export interface DeliveryDestinationItem {
+  key: string;
+  cityAr: string;
+  cityEn: string;
+  countryAr: string;
+  countryEn: string;
+  countryCode: string;
+  flagEmoji: string;
+  currency: CurrencyCode;
+  coords: LatLng;
+}
+
+export const POPULAR_DELIVERY_DESTINATIONS: DeliveryDestinationItem[] = [
+  { key: "riyadh", cityAr: "الرياض", cityEn: "Riyadh", countryAr: "المملكة العربية السعودية", countryEn: "Saudi Arabia", countryCode: "SA", flagEmoji: "🇸🇦", currency: "SAR", coords: { lat: 24.7136, lng: 46.6753 } },
+  { key: "jeddah", cityAr: "جدة", cityEn: "Jeddah", countryAr: "المملكة العربية السعودية", countryEn: "Saudi Arabia", countryCode: "SA", flagEmoji: "🇸🇦", currency: "SAR", coords: { lat: 21.5433, lng: 39.1728 } },
+  { key: "dammam", cityAr: "الدمام", cityEn: "Dammam", countryAr: "المملكة العربية السعودية", countryEn: "Saudi Arabia", countryCode: "SA", flagEmoji: "🇸🇦", currency: "SAR", coords: { lat: 26.4207, lng: 50.0888 } },
+  { key: "cairo", cityAr: "القاهرة", cityEn: "Cairo", countryAr: "جمهورية مصر العربية", countryEn: "Egypt", countryCode: "EG", flagEmoji: "🇪🇬", currency: "EGP", coords: { lat: 30.0444, lng: 31.2357 } },
+  { key: "alexandria", cityAr: "الإسكندرية", cityEn: "Alexandria", countryAr: "جمهورية مصر العربية", countryEn: "Egypt", countryCode: "EG", flagEmoji: "🇪🇬", currency: "EGP", coords: { lat: 31.2001, lng: 29.9187 } },
+  { key: "dubai", cityAr: "دبي", cityEn: "Dubai", countryAr: "الإمارات العربية المتحدة", countryEn: "UAE", countryCode: "AE", flagEmoji: "🇦🇪", currency: "AED", coords: { lat: 25.2048, lng: 55.2708 } },
+  { key: "abudhabi", cityAr: "أبوظبي", cityEn: "Abu Dhabi", countryAr: "الإمارات العربية المتحدة", countryEn: "UAE", countryCode: "AE", flagEmoji: "🇦🇪", currency: "AED", coords: { lat: 24.4539, lng: 54.3773 } },
+  { key: "kuwait", cityAr: "الكويت", cityEn: "Kuwait City", countryAr: "دولة الكويت", countryEn: "Kuwait", countryCode: "KW", flagEmoji: "🇰🇼", currency: "KWD", coords: { lat: 29.3759, lng: 47.9774 } },
+  { key: "doha", cityAr: "الدوحة", cityEn: "Doha", countryAr: "دولة قطر", countryEn: "Qatar", countryCode: "QA", flagEmoji: "🇶🇦", currency: "QAR", coords: { lat: 25.2854, lng: 51.5310 } },
+  { key: "manama", cityAr: "المنامة", cityEn: "Manama", countryAr: "مملكة البحرين", countryEn: "Bahrain", countryCode: "BH", flagEmoji: "🇧🇭", currency: "USD", coords: { lat: 26.2285, lng: 50.5860 } },
+  { key: "muscat", cityAr: "مسقط", cityEn: "Muscat", countryAr: "سلطنة عمان", countryEn: "Oman", countryCode: "OM", flagEmoji: "🇴🇲", currency: "USD", coords: { lat: 23.5880, lng: 58.3829 } },
+  { key: "amman", cityAr: "عمان", cityEn: "Amman", countryAr: "المملكة الأردنية", countryEn: "Jordan", countryCode: "JO", flagEmoji: "🇯🇴", currency: "USD", coords: { lat: 31.9539, lng: 35.9106 } },
+  { key: "london", cityAr: "لندن", cityEn: "London", countryAr: "المملكة المتحدة", countryEn: "United Kingdom", countryCode: "GB", flagEmoji: "🇬🇧", currency: "USD", coords: { lat: 51.5074, lng: -0.1278 } },
+  { key: "newyork", cityAr: "نيويورك", cityEn: "New York", countryAr: "الولايات المتحدة", countryEn: "United States", countryCode: "US", flagEmoji: "🇺🇸", currency: "USD", coords: { lat: 40.7128, lng: -74.0060 } },
+  { key: "paris", cityAr: "باريس", cityEn: "Paris", countryAr: "فرنسا", countryEn: "France", countryCode: "FR", flagEmoji: "🇫🇷", currency: "EUR", coords: { lat: 48.8566, lng: 2.3522 } },
+];
 
 export interface FulfillmentHub {
   id: string;
@@ -786,20 +830,169 @@ export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promis
 }
 
 /**
- * Loads cached location or gets zero-permission timezone location
+ * Fetches approximate location using IP-based geolocation services
+ * with strict timeouts and error resilience.
  */
-export function getInitialLocation(): DetectedLocation {
-  if (typeof window !== "undefined") {
+export async function fetchIpBasedLocation(): Promise<DetectedLocation | null> {
+  if (typeof window === "undefined") return null;
+
+  const services = [
+    {
+      url: "https://ipapi.co/json/",
+      parser: (data: Record<string, unknown>): DetectedLocation | null => {
+        if (!data || !data.latitude || !data.longitude) return null;
+        const countryCode = String(data.country_code || "SA").toUpperCase();
+        const city = String(data.city || data.region || "الرياض");
+        const country = String(data.country_name || "Saudi Arabia");
+        
+        const currencyMap: Record<string, CurrencyCode> = {
+          SA: "SAR",
+          EG: "EGP",
+          AE: "AED",
+          KW: "KWD",
+          QA: "QAR",
+          BH: "USD",
+          OM: "USD",
+          JO: "USD",
+          US: "USD",
+          GB: "USD",
+          FR: "EUR",
+          DE: "EUR",
+        };
+
+        return {
+          lat: Number(data.latitude),
+          lng: Number(data.longitude),
+          cityAr: city,
+          cityEn: city,
+          countryAr: country,
+          countryEn: country,
+          countryCode,
+          currency: (data.currency as CurrencyCode) || currencyMap[countryCode] || "SAR",
+          accuracyMeters: 10000,
+          source: "ip",
+          timestamp: Date.now(),
+        };
+      },
+    },
+    {
+      url: "https://ipwho.is/",
+      parser: (data: Record<string, unknown>): DetectedLocation | null => {
+        if (!data || !data.latitude || !data.longitude || data.success === false) return null;
+        const countryCode = String(data.country_code || "SA").toUpperCase();
+        const city = String(data.city || data.region || "الرياض");
+        const country = String(data.country || "Saudi Arabia");
+        const connection = data.connection as Record<string, unknown> | undefined;
+
+        return {
+          lat: Number(data.latitude),
+          lng: Number(data.longitude),
+          cityAr: city,
+          cityEn: city,
+          countryAr: country,
+          countryEn: country,
+          countryCode,
+          currency: (connection?.currency as CurrencyCode) || "SAR",
+          accuracyMeters: 15000,
+          source: "ip",
+          timestamp: Date.now(),
+        };
+      },
+    },
+  ];
+
+  for (const svc of services) {
     try {
-      const cached = sessionStorage.getItem("noormexa_detected_location");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && parsed.lat && parsed.lng) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+      const res = await fetch(svc.url, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const json = await res.json();
+        const parsed = svc.parser(json);
+        if (parsed) {
+          // Normalize with known city database if nearby
+          const closestCoords = getCityCoordinates(parsed.cityEn);
+          if (closestCoords) {
+            parsed.lat = closestCoords.lat;
+            parsed.lng = closestCoords.lng;
+          }
           return parsed;
         }
       }
-    } catch {}
+    } catch {
+      // Continue to next fallback service
+    }
   }
 
+  return null;
+}
+
+/**
+ * Saves detected location into local and session storage
+ */
+export function saveDetectedLocation(loc: DetectedLocation): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = JSON.stringify(loc);
+    localStorage.setItem("noormexa_detected_location_v2", raw);
+    sessionStorage.setItem("noormexa_detected_location", raw);
+    window.dispatchEvent(new CustomEvent("noormexa-location-updated", { detail: loc }));
+  } catch {}
+}
+
+/**
+ * Loads saved location from local or session storage
+ */
+export function loadSavedLocation(): DetectedLocation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("noormexa_detected_location_v2") || sessionStorage.getItem("noormexa_detected_location");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.lat === "number" && typeof parsed.lng === "number") {
+        return parsed;
+      }
+    }
+  } catch {}
+  return null;
+}
+
+/**
+ * Robust master detection function that follows an intelligent priority order:
+ * 1. Previously saved/selected user location
+ * 2. Timezone & Locale heuristics (zero-permission)
+ * 3. Fallback to Static Default
+ */
+export function getInitialLocation(): DetectedLocation {
+  const saved = loadSavedLocation();
+  if (saved) return saved;
+
   return detectUserRegionFromTimezone();
+}
+
+/**
+ * Performs full multi-stage location detection:
+ * Tries GPS (if user allows) -> IP Geolocation -> Timezone Heuristic -> Static Default
+ */
+export async function detectBestAvailableLocation(_locale: "ar" | "en" = "ar"): Promise<DetectedLocation> {
+  const saved = loadSavedLocation();
+  if (saved) return saved;
+
+  try {
+    const ipLoc = await fetchIpBasedLocation();
+    if (ipLoc) {
+      saveDetectedLocation(ipLoc);
+      return ipLoc;
+    }
+  } catch {}
+
+  const tzLoc = detectUserRegionFromTimezone();
+  saveDetectedLocation(tzLoc);
+  return tzLoc;
 }

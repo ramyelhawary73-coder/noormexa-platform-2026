@@ -24,11 +24,14 @@ import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useLocation } from "@/context/LocationContext";
+import { MapPin } from "lucide-react";
 
 export default function TopUtilityBar() {
   const { isAr, toggleLanguage } = useLanguage();
   const { currency } = useMarketplace();
   const { theme, toggleTheme } = useTheme();
+  const { location, openLocationModal, isLocating } = useLocation();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -208,6 +211,20 @@ export default function TopUtilityBar() {
         {/* Right (RTL End): Fast Global Utility Navigation Links (Responsive: Desktop & Tablet) */}
         <div className="hidden sm:flex items-center gap-2 sm:gap-4 shrink-0 text-[11px] font-semibold text-slate-400">
           
+          {/* Global Delivery Location Quick Indicator */}
+          <button
+            type="button"
+            onClick={openLocationModal}
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-slate-200 hover:text-white transition-all cursor-pointer group"
+            title={isAr ? "انقر لتغيير وجهة التوصيل وتحديد موقعك" : "Click to select delivery destination"}
+          >
+            <MapPin size={11} className={`text-orange-400 shrink-0 ${isLocating ? "animate-bounce" : "group-hover:scale-110 transition-transform"}`} />
+            <span className="text-[10px] text-slate-400 hidden md:inline">{isAr ? "التوصيل إلى:" : "Ship to:"}</span>
+            <span className="text-[10px] font-bold text-orange-300 truncate max-w-[110px]">
+              {isAr ? location.cityAr : location.cityEn}
+            </span>
+          </button>
+
           {/* Track Orders Link */}
           <Link
             href="/orders"

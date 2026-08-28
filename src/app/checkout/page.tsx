@@ -16,8 +16,12 @@ import {
   Truck,
   Wallet,
   Zap,
+  LocateFixed,
+  AlertTriangle,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { useLocation } from "@/context/LocationContext";
+import { requestUserGpsLocation } from "@/lib/locationService";
 import type { PaymentGatewayKey, ShippingAddress, Order } from "@/types/marketplace";
 
 type Language = "ar" | "en";
@@ -129,22 +133,73 @@ export default function CheckoutPage() {
     createOrder,
   } = useMarketplace();
 
+  const { location: globalLocation } = useLocation();
+
   // Form State
   const [shippingSpeed, setShippingSpeed] = useState<"standard" | "priority">("standard");
   const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayKey>("applePayMada");
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
+  // GPS Auto-Fill feedback state
+  const [isLocatingGps, setIsLocatingGps] = useState(false);
+  const [gpsFeedback, setGpsFeedback] = useState<{
+    type: "success" | "error" | "warning";
+    message: string;
+  } | null>(null);
+
   const [address, setAddress] = useState<ShippingAddress>({
     fullName: "رامي الهواري",
     email: "ramy@example.com",
     phone: "+966 50 123 4567",
-    country: "المملكة العربية السعودية",
-    city: "الرياض",
+    country: globalLocation?.countryAr || "المملكة العربية السعودية",
+    city: globalLocation?.cityAr || "الرياض",
     address: "طريق الملك فهد، برج الفيصلية، حي العليا",
     postalCode: "12214",
     notes: "يرجى الاتصال قبل الوصول بنصف ساعة",
   });
+
+  const handleGpsAutoFill = async () => {
+    setIsLocatingGps(true);
+    setGpsFeedback(null);
+
+    try {
+      const result = await requestUserGpsLocation(language);
+      setIsLocatingGps(false);
+
+      if (result.success && result.location) {
+        const loc = result.location;
+        const accuracyText = loc.accuracyMeters ? `(±${Math.round(loc.accuracyMeters)}متر)` : "";
+        
+        setAddress((prev) => ({
+          ...prev,
+          country: loc.countryAr || prev.country,
+          city: loc.cityAr || prev.city,
+          address: `${loc.cityAr} - موقع محدد بدقة GPS`,
+        }));
+
+        setGpsFeedback({
+          type: "success",
+          message: language === "ar"
+            ? `تم التقاط وتعبئة الموقع بدقة عبر GPS: ${loc.cityAr}، ${loc.countryAr} ${accuracyText}`
+            : `GPS Location detected and populated: ${loc.cityEn}, ${loc.countryEn} (accuracy: ±${Math.round(loc.accuracyMeters || 10)}m)`,
+        });
+      } else {
+        setGpsFeedback({
+          type: result.isPermissionDenied ? "warning" : "error",
+          message:
+            (language === "ar" ? result.errorMessageAr : result.errorMessageEn) ||
+            (language === "ar" ? "تعذر استقبال إشارة GPS." : "Could not acquire GPS signal."),
+        });
+      }
+    } catch {
+      setIsLocatingGps(false);
+      setGpsFeedback({
+        type: "error",
+        message: language === "ar" ? "حدث خطأ غير متوقع أثناء تحديد الموقع." : "Unexpected error during geolocation.",
+      });
+    }
+  };
 
   const availableGateways = Object.values(settings.gateways).filter((g) => g.enabled);
 
@@ -353,10 +408,57 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-6">
             {/* Section 1: Customer & Address */}
             <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm space-y-4">
-              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2 border-b border-line pb-3">
-                <Truck size={17} className="text-gold" />
-                <span>{text.shippingSection}</span>
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
+                <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">
+                  <Truck size={17} className="text-gold" />
+                  <span>{text.shippingSection}</span>
+                </h2>
+
+                {/* GPS Auto-Fill Action Button */}
+                <button
+                  type="button"
+                  onClick={handleGpsAutoFill}
+                  disabled={isLocatingGps}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold text-xs transition-all cursor-pointer disabled:opacity-50"
+                  title={language === "ar" ? "تحديد الموقع وتعبئة العنوان تلقائياً عبر GPS" : "Detect and auto-fill address via GPS"}
+                >
+                  <LocateFixed size={14} className={isLocatingGps ? "animate-spin text-orange-500" : "text-orange-500"} />
+                  <span>
+                    {isLocatingGps
+                      ? language === "ar" ? "جاري التقاط GPS..." : "Detecting GPS..."
+                      : language === "ar" ? "تحديد العنوان عبر GPS" : "Auto-fill with GPS"}
+                  </span>
+                </button>
+              </div>
+
+              {/* Real-time GPS Detection Feedback Banner */}
+              {gpsFeedback && (
+                <div
+                  className={`p-3 rounded-2xl border text-xs flex items-start gap-2.5 animate-in fade-in ${
+                    gpsFeedback.type === "success"
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                      : gpsFeedback.type === "warning"
+                      ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                      : "bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300"
+                  }`}
+                >
+                  {gpsFeedback.type === "success" ? (
+                    <Check size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <p className="font-semibold">{gpsFeedback.message}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setGpsFeedback(null)}
+                    className="text-muted hover:text-foreground text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="space-y-1">

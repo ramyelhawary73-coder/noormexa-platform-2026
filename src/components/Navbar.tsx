@@ -25,6 +25,7 @@ import {
   Sparkles,
   Package,
   Search,
+  MapPin,
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import TopUtilityBar from "@/components/TopUtilityBar";
@@ -34,6 +35,7 @@ import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { useLocation } from "@/context/LocationContext";
 import type { CurrencyCode } from "@/types/marketplace";
 
 import { getUserRole } from "@/lib/authHelpers";
@@ -108,6 +110,7 @@ export default function Navbar() {
 
   const { user, profile, signOut } = useAuth();
   const { currency, setCurrency, currencies, cartCount, wishlist } = useMarketplace();
+  const { location, openLocationModal, isLocating } = useLocation();
 
   // Dynamic user role evaluation based on email and profile
   const userRole = getUserRole(user, profile);
@@ -276,6 +279,26 @@ export default function Navbar() {
             >
               <BrandLogo size="responsive" showTagline={true} tagline={isAr ? "سوق التجارة والتسوق العالمي الذكي" : "Global Smart Commerce Marketplace"} />
             </Link>
+
+            {/* Delivery Destination & Geolocation Trigger (Desktop) */}
+            <button
+              type="button"
+              onClick={openLocationModal}
+              className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full border border-line bg-surface dark:bg-slate-900/90 hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-start group cursor-pointer shrink-0 max-w-[200px]"
+              title={isAr ? "انقر لتغيير وجهة التوصيل وتحديد موقعك" : "Click to select delivery destination"}
+            >
+              <div className="w-6 h-6 rounded-full bg-orange-500/15 text-orange-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <MapPin size={13} className={isLocating ? "animate-bounce text-orange-500" : ""} />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] text-muted font-medium leading-none">
+                  {isAr ? "التوصيل إلى" : "Deliver to"}
+                </span>
+                <span className="text-xs font-bold text-foreground truncate mt-0.5 group-hover:text-orange-500 transition-colors">
+                  {isAr ? location.cityAr : location.cityEn}
+                </span>
+              </div>
+            </button>
           </div>
 
           {/* Center: Global Marketplace Omni-Search Bar (Amazon / Noon / Farfetch Tier) */}
@@ -843,6 +866,35 @@ export default function Navbar() {
                 </Link>
               </div>
             )}
+
+            {/* Delivery Destination Button in Mobile Drawer */}
+            <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                    <MapPin size={16} className={isLocating ? "animate-bounce" : ""} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-muted font-bold block">
+                      {isAr ? "وجهة التوصيل الحالية:" : "Delivery Destination:"}
+                    </span>
+                    <span className="text-xs font-black text-foreground truncate block">
+                      {isAr ? location.cityAr : location.cityEn}، {isAr ? location.countryAr : location.countryEn}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    openLocationModal();
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white text-[11px] font-bold shrink-0 transition-colors cursor-pointer"
+                >
+                  {isAr ? "تغيير" : "Change"}
+                </button>
+              </div>
+            </div>
 
             {/* Controls Bar in Mobile Menu (Currency, Language, Theme) */}
             <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-2.5">
