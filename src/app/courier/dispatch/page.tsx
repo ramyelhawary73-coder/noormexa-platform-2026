@@ -20,8 +20,8 @@ export default function CourierDispatchApp() {
   const { shipments, updateShipmentStatus } = useMarketplace();
 
   // Active driver identity
-  const [driverName, setDriverName] = useState("الكابتن أحمد المنصور");
-  const [vehicleNumber, setVehicleNumber] = useState("أ ن ب 4482");
+  const [driverName] = useState("الكابتن أحمد المنصور");
+  const [vehicleNumber] = useState("أ ن ب 4482");
   const [isBroadcastingGps, setIsBroadcastingGps] = useState(true);
   const [driverGps, setDriverGps] = useState<{ lat: number; lng: number } | null>(null);
 
