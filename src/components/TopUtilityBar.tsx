@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Truck,
@@ -18,30 +18,15 @@ import {
   Coins,
   Sun,
   Moon,
+  Globe2,
 } from "lucide-react";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { useTheme } from "@/context/ThemeContext";
-
-const LANGUAGE_KEY = "noormexa-language";
-
-function getLanguageSnapshot(): "ar" | "en" {
-  if (typeof window === "undefined") return "ar";
-  return window.localStorage.getItem(LANGUAGE_KEY) === "en" ? "en" : "ar";
-}
-
-function subscribeToLanguage(callback: () => void) {
-  window.addEventListener("noormexa-language-change", callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    window.removeEventListener("noormexa-language-change", callback);
-    window.removeEventListener("storage", callback);
-  };
-}
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function TopUtilityBar() {
-  const language = useSyncExternalStore(subscribeToLanguage, getLanguageSnapshot, () => "ar");
-  const isAr = language === "ar";
+  const { isAr, toggleLanguage } = useLanguage();
   const { currency } = useMarketplace();
   const { theme, toggleTheme } = useTheme();
 
@@ -259,6 +244,17 @@ export default function TopUtilityBar() {
           >
             <Smartphone size={11} className="text-orange-400" />
             <span>{isAr ? "تثبيت التطبيق" : "Get App"}</span>
+          </button>
+
+          {/* Top Bar Language Switcher */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 hover:text-white text-[10px] font-bold transition-all cursor-pointer active:scale-95"
+            title={isAr ? "Switch website language to English" : "تبديل لغة الموقع إلى العربية"}
+          >
+            <Globe2 size={11} className="text-orange-400" />
+            <span>{isAr ? "EN" : "عربي"}</span>
           </button>
 
           {/* Top Bar Theme Switcher */}

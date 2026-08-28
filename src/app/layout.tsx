@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { CartProvider } from "@/context/CartContext";
 import { MarketplaceProvider } from "@/context/MarketplaceContext";
 import Navbar from "@/components/Navbar";
@@ -98,20 +99,22 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <AuthProvider>
-            <MarketplaceProvider>
-              <CartProvider>
-                <div className="noormexa-app-shell">
-                  <Navbar />
-                  {children}
-                  <Footer />
-                  <AIAssistant />
-                  <MobileBottomNav />
-                  <PwaInstallPrompt />
-                </div>
-              </CartProvider>
-            </MarketplaceProvider>
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <MarketplaceProvider>
+                <CartProvider>
+                  <div className="noormexa-app-shell">
+                    <Navbar />
+                    {children}
+                    <Footer />
+                    <AIAssistant />
+                    <MobileBottomNav />
+                    <PwaInstallPrompt />
+                  </div>
+                </CartProvider>
+              </MarketplaceProvider>
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

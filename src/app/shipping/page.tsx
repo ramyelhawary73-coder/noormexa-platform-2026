@@ -23,9 +23,15 @@ import {
   Navigation,
   Layers,
   Zap,
+  Database,
+  QrCode,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { CarrierIntegrationManager } from "@/components/CarrierIntegrationManager";
+import LiveShipmentMap from "@/components/shipping/LiveShipmentMap";
+import PrintableWaybill from "@/components/shipping/PrintableWaybill";
+import { adaptMarketplaceToLogisticsShipment } from "@/lib/shippingService";
+import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import type {
   Shipment,
   ShipmentStatus,
@@ -619,9 +625,15 @@ function ShippingLogisticsContent() {
             {currentShipment ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                {/* Left (8 Cols): Live Status Card, Interactive Stepper & Checkpoints */}
+                {/* Left (8 Cols): Live GPS Map, Status Card, Interactive Stepper & Checkpoints */}
                 <div className="lg:col-span-8 space-y-6">
                   
+                  {/* Live Interactive Map with Real GPS Telemetry and Van Navigation */}
+                  <LiveShipmentMap
+                    shipment={adaptMarketplaceToLogisticsShipment(currentShipment)}
+                    isAr={isAr}
+                  />
+
                   {/* Status Hero Card */}
                   <div className="p-5 sm:p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-6 relative overflow-hidden">
                     {/* Top Row: Carrier Logo, AWB, Copy & Actions */}
@@ -1910,99 +1922,14 @@ function ShippingLogisticsContent() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: AIR WAYBILL & BARCODE PRINT MODAL (معاينة وطباعة البوليصة)       */}
+      {/* MODAL 3: OFFICIAL AIR WAYBILL & QR CODE PRINT (معاينة وطباعة البوليصة الذكية) */}
       {/* ========================================================================= */}
       {showWaybillModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="w-full max-w-lg bg-white text-slate-900 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            {/* Header: Carrier Logo & Barcode */}
-            <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3.5">
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black text-xs">
-                    NX
-                  </div>
-                  <span className="font-black text-sm tracking-tight">NOORMEXA LOGISTICS</span>
-                </div>
-                <div className="text-xs text-slate-600 font-bold mt-0.5">
-                  {showWaybillModal.carrierName}
-                </div>
-              </div>
-
-              <div className="text-end">
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">{isAr ? "بوليصة شحن جوي / بري" : "AIR WAYBILL (AWB)"}</span>
-                <span className="font-mono font-black text-xs sm:text-sm text-slate-900">{showWaybillModal.awbNumber}</span>
-              </div>
-            </div>
-
-            {/* Visual Barcode Simulator */}
-            <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-center space-y-1.5">
-              <div className="font-mono font-black text-xl sm:text-2xl tracking-[0.35em] py-1.5 bg-white border border-slate-300 rounded-lg text-slate-900 select-all">
-                ||| | |||| || | ||||| || |||
-              </div>
-              <div className="font-mono text-[11px] font-bold text-slate-700">{showWaybillModal.awbNumber}</div>
-            </div>
-
-            {/* Sender & Receiver Info */}
-            <div className="grid grid-cols-2 gap-3 text-xs border border-slate-200 p-3.5 rounded-2xl">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">{isAr ? "المرسل (المتجر):" : "SHIP FROM:"}</span>
-                <strong className="text-slate-900 block">{showWaybillModal.storeName}</strong>
-                <div className="text-slate-600 text-[11px]">{showWaybillModal.originWarehouse}</div>
-                <div className="text-slate-600 font-bold">{showWaybillModal.originCity}, {showWaybillModal.originCountry}</div>
-              </div>
-
-              <div className="space-y-1 border-s border-slate-200 ps-3">
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">{isAr ? "المستلم (العميل):" : "SHIP TO:"}</span>
-                <strong className="text-slate-900 block">{showWaybillModal.recipientName}</strong>
-                <div className="text-slate-600 text-[11px] font-mono">{showWaybillModal.recipientPhone}</div>
-                <div className="text-slate-600 text-[11px]">{showWaybillModal.recipientAddress}</div>
-                <div className="text-slate-900 font-black">{showWaybillModal.recipientCity}, {showWaybillModal.recipientCountry}</div>
-              </div>
-            </div>
-
-            {/* Package Details & OTP Code */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-2.5 bg-slate-100 rounded-xl">
-                <span className="text-[10px] text-slate-500 font-bold block">{isAr ? "الوزن" : "WEIGHT"}</span>
-                <span className="font-mono font-bold text-slate-900">{showWaybillModal.packageWeightKg} KG</span>
-              </div>
-              <div className="p-2.5 bg-slate-100 rounded-xl">
-                <span className="text-[10px] text-slate-500 font-bold block">{isAr ? "الدفع" : "PAYMENT"}</span>
-                <span className="font-bold text-amber-600 uppercase">
-                  {showWaybillModal.paymentType === "cod" ? "COD" : "PREPAID"}
-                </span>
-              </div>
-              <div className="p-2.5 bg-slate-900 text-white rounded-xl">
-                <span className="text-[10px] text-amber-400 font-bold block">{isAr ? "رمز الاستلام" : "OTP"}</span>
-                <span className="font-mono font-black text-amber-400">{showWaybillModal.deliveryOtp || "7841"}</span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="pt-2 flex justify-between items-center">
-              <button
-                type="button"
-                onClick={() => setShowWaybillModal(null)}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 font-bold text-xs text-slate-700 cursor-pointer"
-              >
-                {isAr ? "إغلاق" : "Close"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  window.print();
-                  showToast(isAr ? "تم إرسال أمر الطباعة بنجاح" : "Printed successfully");
-                }}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
-              >
-                <Printer size={13} />
-                <span>{isAr ? "طباعة البوليصة الحرارية (4x6)" : "Print (4x6)"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <PrintableWaybill
+          shipment={adaptMarketplaceToLogisticsShipment(showWaybillModal)}
+          isAr={isAr}
+          onClose={() => setShowWaybillModal(null)}
+        />
       )}
 
       {/* ========================================================================= */}

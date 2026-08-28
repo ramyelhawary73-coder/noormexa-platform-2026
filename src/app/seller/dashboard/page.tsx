@@ -27,8 +27,10 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order, Store, ShipmentStatus } from "@/types/marketplace";
+import type { Order, Store, ShipmentStatus, Shipment } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
+import PrintableWaybill from "@/components/shipping/PrintableWaybill";
+import { adaptMarketplaceToLogisticsShipment } from "@/lib/shippingService";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -111,6 +113,7 @@ export default function SellerDashboardPage() {
   const [showOfficialStoreModal, setShowOfficialStoreModal] = useState(false);
   const [showAddMarketingModal, setShowAddMarketingModal] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
+  const [selectedShipmentForWaybill, setSelectedShipmentForWaybill] = useState<Shipment | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
   // Search & Filter in Products Tab
@@ -1095,13 +1098,24 @@ export default function SellerDashboardPage() {
                         </select>
                       </div>
 
-                      <Link
-                        href={`/shipping?track=${shp.awbNumber}`}
-                        className="text-xs font-bold text-gold hover:underline flex items-center gap-1"
-                      >
-                        <span>{isAr ? "عرض بوليصة الشحن وطباعة الباركود" : "View Waybill & Print"}</span>
-                        <ArrowUpRight size={13} />
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedShipmentForWaybill(shp)}
+                          className="text-xs font-black text-amber-500 hover:text-amber-400 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all cursor-pointer"
+                        >
+                          <Printer size={13} />
+                          <span>{isAr ? "طباعة البوليصة الذكية (QR)" : "Print Waybill (QR)"}</span>
+                        </button>
+
+                        <Link
+                          href={`/shipping?track=${shp.awbNumber}`}
+                          className="text-xs font-bold text-gold hover:underline flex items-center gap-1"
+                        >
+                          <span>{isAr ? "عرض بوليصة الشحن" : "View Logistics"}</span>
+                          <ArrowUpRight size={13} />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2038,6 +2052,15 @@ export default function SellerDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal 6: Official Printable Waybill with Live QR */}
+      {selectedShipmentForWaybill && (
+        <PrintableWaybill
+          shipment={adaptMarketplaceToLogisticsShipment(selectedShipmentForWaybill)}
+          isAr={isAr}
+          onClose={() => setSelectedShipmentForWaybill(null)}
+        />
       )}
     </main>
   );

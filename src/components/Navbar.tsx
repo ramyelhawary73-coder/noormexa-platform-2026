@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useSyncExternalStore, useRef, useEffect, type FormEvent } from "react";
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import {
   Coins,
   Crown,
-  Globe2,
   Heart,
   LayoutDashboard,
   LogOut,
@@ -30,15 +29,14 @@ import {
 import BrandLogo from "@/components/BrandLogo";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import ThemeToggle from "@/components/ThemeToggle";
+import LanguageToggle from "@/components/LanguageToggle";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { CurrencyCode } from "@/types/marketplace";
 
 import { getUserRole } from "@/lib/authHelpers";
-
-type Language = "ar" | "en";
-const LANGUAGE_KEY = "noormexa-language";
 
 const copy = {
   ar: {
@@ -95,34 +93,10 @@ const copy = {
   },
 } as const;
 
-function getLanguageSnapshot(): Language {
-  if (typeof window === "undefined") return "ar";
-  return window.localStorage.getItem(LANGUAGE_KEY) === "en" ? "en" : "ar";
-}
-
-function subscribeToLanguage(callback: () => void) {
-  window.addEventListener("noormexa-language-change", callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    window.removeEventListener("noormexa-language-change", callback);
-    window.removeEventListener("storage", callback);
-  };
-}
-
-function useNoormexaLanguage() {
-  return useSyncExternalStore<Language>(subscribeToLanguage, getLanguageSnapshot, () => "ar");
-}
-
-function setDocumentLanguage(language: Language) {
-  document.documentElement.lang = language;
-  document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-}
-
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const language = useNoormexaLanguage();
-  const isAr = language === "ar";
+  const { language, isAr } = useLanguage();
   const [open, setOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -187,10 +161,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    setDocumentLanguage(language);
-  }, [language]);
-
   const handleLogout = async () => {
     setUserDropdownOpen(false);
     setOpen(false);
@@ -206,16 +176,6 @@ export default function Navbar() {
     }
 
     window.location.href = "/";
-  };
-
-  const toggleLanguage = () => {
-    const next: Language = language === "ar" ? "en" : "ar";
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(LANGUAGE_KEY, next);
-      setDocumentLanguage(next);
-      window.dispatchEvent(new CustomEvent("noormexa-language-change", { detail: next }));
-      window.dispatchEvent(new Event("storage"));
-    }
   };
 
   const currencyList = Object.keys(currencies) as CurrencyCode[];
@@ -470,17 +430,10 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Language Switcher (Tablet & Desktop) */}
-            <button
-              type="button"
-              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface dark:bg-slate-900 hover:border-orange-500 hover:text-foreground transition-all shadow-xs active:scale-95 cursor-pointer"
-              onClick={toggleLanguage}
-              title={isAr ? "Switch to English" : "التبديل إلى العربية"}
-              aria-label="Toggle language"
-            >
-              <Globe2 size={13} className="text-orange-500" />
-              <span className="text-[11px] font-bold">{isAr ? "EN" : "عربي"}</span>
-            </button>
+            {/* Language Switcher Component (Tablet & Desktop) */}
+            <div className="hidden sm:block">
+              <LanguageToggle size="md" />
+            </div>
 
             {/* Professional Day / Night Theme Toggle with buttery smooth motion */}
             <ThemeToggle size="md" />
@@ -916,14 +869,7 @@ export default function Navbar() {
               <div className="flex items-center justify-between pt-2 border-t border-line/60">
                 <span className="text-[11px] font-bold text-muted">{isAr ? "اللغة والمظهر:" : "Language & Theme:"}</span>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={toggleLanguage}
-                    className="px-2.5 py-1 rounded-xl bg-surface dark:bg-slate-800 border border-line text-xs font-bold flex items-center gap-1 text-foreground cursor-pointer active:scale-95"
-                  >
-                    <Globe2 size={13} className="text-orange-500" />
-                    <span>{isAr ? "EN" : "عربي"}</span>
-                  </button>
+                  <LanguageToggle size="sm" showLabel={true} />
                   <ThemeToggle size="sm" showLabel={true} />
                 </div>
               </div>
