@@ -31,6 +31,7 @@ import type {
   ShipmentStatus,
 } from "@/types/marketplace";
 import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
+import { storeCloudServices } from "@/lib/supabaseClient";
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
   EGP: {
@@ -2026,6 +2027,10 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       reviews_count: 1,
     };
     setProductsState((prev) => [newProd, ...prev]);
+    // Cloud sync to isolated store space
+    if (newProd.store_id) {
+      storeCloudServices.syncStoreProduct(newProd.store_id, newProd).catch(() => {});
+    }
     return newProd;
   }, []);
 
@@ -2087,6 +2092,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         created_at: new Date().toISOString(),
       };
       setStoresState((prev) => [newStore, ...prev]);
+      // Provision isolated cloud space in Supabase
+      storeCloudServices.provisionStoreWorkspace(newStore).catch(() => {});
       return { store: newStore, autoApproved };
     },
     [settings]
@@ -2165,6 +2172,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       };
       setStoresState((prev) => [newOfficialStore, ...prev]);
       setCurrentStoreIdState(newOfficialStore.id);
+      // Provision isolated cloud space in Supabase
+      storeCloudServices.provisionStoreWorkspace(newOfficialStore).catch(() => {});
       return newOfficialStore;
     },
     []
@@ -2572,6 +2581,11 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
 
       setShipmentsState((prev) => [newShipment, ...prev]);
 
+      // Cloud sync to store's isolated workspace in Supabase
+      if (newShipment.storeId) {
+        storeCloudServices.syncStoreShipment(newShipment.storeId, newShipment).catch(() => {});
+      }
+
       // Also update linked order if found
       if (data.orderId) {
         updateOrderStatus(data.orderId, "processing", awbNumber);
@@ -2587,6 +2601,11 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       setShipmentsState((prev) =>
         prev.map((shp) => {
           if (shp.id !== id) return shp;
+
+          // Cloud sync status update to store in Supabase
+          if (shp.storeId) {
+            storeCloudServices.updateStoreShipmentStatus(shp.storeId, shp.id, status).catch(() => {});
+          }
 
           const loc = location || shp.recipientCity;
           const statusTitles: Record<ShipmentStatus, { ar: string; en: string }> = {

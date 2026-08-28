@@ -43,9 +43,9 @@ export default function ExcelExportModal({
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
 
-  // Filter shipments based on selection
+  // Filter shipments strictly for the active store
   const filteredShipments = shipments.filter((shp) => {
-    const matchStore = shp.storeId === store.id || shp.storeName === store.name || true;
+    const matchStore = shp.storeId === store.id || (shp.storeName && shp.storeName.trim() === store.name.trim());
     const matchCarrier = carrierFilter === "all" || shp.carrierId === carrierFilter || shp.carrierName === carrierFilter;
     const matchStatus = statusFilter === "all" || shp.status === statusFilter;
     return matchStore && matchCarrier && matchStatus;
@@ -157,7 +157,8 @@ export default function ExcelExportModal({
           "المتجر",
         ];
 
-        const rows = products.map((p) => [
+        const storeProducts = products.filter((p) => p.store_id === store.id);
+        const rows = (storeProducts.length > 0 ? storeProducts : products.filter((p) => p.store_name === store.name)).map((p) => [
           p.id,
           p.name,
           p.name_en || p.name,
@@ -175,7 +176,7 @@ export default function ExcelExportModal({
         const filename = `NOORMEXA_Products_Shipping_Specs_${store.slug}_${dateStr}.csv`;
         downloadCsvFile(filename, csv);
       } else {
-        // Full Orders & Address Book Export
+        // Full Orders & Address Book Export strictly for this store
         const headers = [
           "رقم الطلب (Order #)",
           "تاريخ ووقت الطلب",
@@ -192,7 +193,8 @@ export default function ExcelExportModal({
           "رقم البوليصة المرتبط",
         ];
 
-        const rows = orders.map((o) => [
+        const storeOrders = orders.filter((o) => o.store_id === store.id || (o.store_name && o.store_name.trim() === store.name.trim()));
+        const rows = storeOrders.map((o) => [
           o.orderNumber,
           new Date(o.created_at).toLocaleString("ar-SA"),
           o.shipping_info.fullName,

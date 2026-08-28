@@ -91,9 +91,9 @@ export default function StoreLogisticsHub({
   const [selectedShipmentForPrint, setSelectedShipmentForPrint] = useState<Shipment | null>(null);
   const [showExcelExport, setShowExcelExport] = useState(false);
 
-  // Filter shipments for active store
+  // Filter shipments strictly for active store (Complete Store Isolation)
   const storeShipments = shipments.filter(
-    (s) => s.storeId === store.id || s.storeName === store.name || true
+    (s) => s.storeId === store.id || (s.storeName && s.storeName.trim() === store.name.trim())
   );
 
   const filteredShipments = storeShipments.filter((s) => {
