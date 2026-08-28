@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Shipment, WaypointLocation } from "@/lib/shippingService";
+import { Shipment } from "@/lib/shippingService";
 import {
   Navigation,
-  MapPin,
   Compass,
   Layers,
   Maximize2,
   Minimize2,
-  RefreshCw,
   Building2,
   Home,
   CheckCircle2,

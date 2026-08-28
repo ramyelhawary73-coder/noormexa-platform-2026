@@ -23,15 +23,12 @@ import {
   Navigation,
   Layers,
   Zap,
-  Database,
-  QrCode,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { CarrierIntegrationManager } from "@/components/CarrierIntegrationManager";
 import LiveShipmentMap from "@/components/shipping/LiveShipmentMap";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import { adaptMarketplaceToLogisticsShipment } from "@/lib/shippingService";
-import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import type {
   Shipment,
   ShipmentStatus,
