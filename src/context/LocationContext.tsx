@@ -34,7 +34,7 @@ interface LocationContextType {
   isModalOpen: boolean;
   openLocationModal: () => void;
   closeLocationModal: () => void;
-  detectGps: () => Promise<boolean>;
+  detectGps: (autoFallbackToIp?: boolean) => Promise<boolean>;
   detectIp: () => Promise<boolean>;
   selectPopularDestination: (item: DeliveryDestinationItem) => void;
   selectCityByName: (cityName: string) => void;
@@ -95,76 +95,159 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setIsModalOpen(false);
   }, []);
 
-  // GPS Detection with robust permission and error handling
-  const detectGps = useCallback(async (): Promise<boolean> => {
-    setIsLocating(true);
-    setLocatingType("gps");
-    setFeedback(null);
+  // GPS Detection with robust permission handling and automatic IP fallback
+  const detectGps = useCallback(
+    async (autoFallbackToIp = true): Promise<boolean> => {
+      setIsLocating(true);
+      setLocatingType("gps");
+      setFeedback(null);
 
-    try {
-      const result = await requestUserGpsLocation(language);
-      setIsLocating(false);
-      setLocatingType(null);
+      try {
+        const result = await requestUserGpsLocation(language);
 
-      if (result.success && result.location) {
-        setLocation(result.location);
-        saveDetectedLocation(result.location);
-        setPermissionState("granted");
+        if (result.success && result.location) {
+          setIsLocating(false);
+          setLocatingType(null);
+          setLocation(result.location);
+          saveDetectedLocation(result.location);
+          setPermissionState("granted");
 
-        // Sync platform currency if needed
-        if (result.location.currency && result.location.currency !== currency) {
-          try {
-            setCurrency(result.location.currency);
-          } catch {}
+          // Sync platform currency if needed
+          if (result.location.currency && result.location.currency !== currency) {
+            try {
+              setCurrency(result.location.currency);
+            } catch {}
+          }
+
+          const accuracyText = result.location.accuracyMeters
+            ? `(دقة ±${Math.round(result.location.accuracyMeters)} متر)`
+            : "";
+
+          setFeedback({
+            type: "success",
+            title: isAr ? "تم تحديد موقعك بدقة عبر GPS بنجاح" : "GPS Location Detected Successfully",
+            message: isAr
+              ? `موقعك الحالي: ${result.location.cityAr}، ${result.location.countryAr} ${accuracyText}`
+              : `Current location: ${result.location.cityEn}, ${result.location.countryEn} (accuracy: ±${Math.round(result.location.accuracyMeters || 10)}m)`,
+          });
+          return true;
         }
 
-        const accuracyText = result.location.accuracyMeters
-          ? `(دقة ±${Math.round(result.location.accuracyMeters)} متر)`
-          : "";
-
-        setFeedback({
-          type: "success",
-          title: isAr ? "تم تحديد موقعك بدقة عبر GPS بنجاح" : "GPS Location Detected Successfully",
-          message: isAr
-            ? `موقعك الحالي: ${result.location.cityAr}، ${result.location.countryAr} ${accuracyText}`
-            : `Current location: ${result.location.cityEn}, ${result.location.countryEn} (accuracy: ±${Math.round(result.location.accuracyMeters || 10)}m)`,
-        });
-        return true;
-      } else {
+        // GPS Failed or was Denied
         if (result.isPermissionDenied) {
           setPermissionState("denied");
-          setFeedback({
-            type: "warning",
-            title: isAr ? "إذن الوصول للموقع الجغرافي محظور" : "Location Permission Blocked",
-            message:
-              (isAr ? result.errorMessageAr : result.errorMessageEn) ||
-              (isAr
-                ? "يرجى الضغط على أيقونة القفل أو إعدادات الموقع في المتصفح واختيار 'سماح'."
-                : "Please click the lock icon in your address bar to enable Location Permissions."),
-          });
-        } else {
-          setFeedback({
-            type: "error",
-            title: isAr ? "تعذر استقبال إشارة GPS" : "GPS Signal Unavailable",
-            message:
-              (isAr ? result.errorMessageAr : result.errorMessageEn) ||
-              (isAr ? "تعذر استقبال إحداثيات GPS. يمكنك اختيار مدينتك يدوياً." : "Could not obtain GPS fix. You can select your city manually."),
-          });
         }
+
+        if (autoFallbackToIp) {
+          // Gracefully fallback to IP Geolocation
+          setLocatingType("ip");
+          const ipLoc = await fetchIpBasedLocation();
+          setIsLocating(false);
+          setLocatingType(null);
+
+          if (ipLoc) {
+            setLocation(ipLoc);
+            saveDetectedLocation(ipLoc);
+
+            if (ipLoc.currency && ipLoc.currency !== currency) {
+              try {
+                setCurrency(ipLoc.currency);
+              } catch {}
+            }
+
+            if (result.isPermissionDenied) {
+              setFeedback({
+                type: "warning",
+                title: isAr
+                  ? "تم تفعيل التحديد عبر شبكة الإنترنت (IP) تلقائياً"
+                  : "Switched to IP-Based Location",
+                message: isAr
+                  ? `تم حظر إذن GPS — تم تحديد موقعك التقديري تلقائياً عبر شبكة الإنترنت: ${ipLoc.cityAr}، ${ipLoc.countryAr}. يمكنك تغيير المدينة يدوياً في أي وقت.`
+                  : `GPS permission was denied — automatically fell back to IP network location: ${ipLoc.cityEn}, ${ipLoc.countryEn}. You can select any city manually anytime.`,
+              });
+            } else {
+              setFeedback({
+                type: "info",
+                title: isAr
+                  ? "تم تحديد الموقع تقريبياً عبر شبكة الإنترنت"
+                  : "Location Estimated via IP Network",
+                message: isAr
+                  ? `تعذر استقبال إشارة GPS — تم الاعتماد على موقع الشبكة: ${ipLoc.cityAr}، ${ipLoc.countryAr}.`
+                  : `GPS signal unavailable — defaulted to estimated IP location: ${ipLoc.cityEn}, ${ipLoc.countryEn}.`,
+              });
+            }
+            return true;
+          } else {
+            // Further fallback to timezone
+            const tzLoc = detectUserRegionFromTimezone();
+            setLocation(tzLoc);
+            saveDetectedLocation(tzLoc);
+
+            setFeedback({
+              type: "warning",
+              title: isAr ? "تم تعيين المنطقة الافتراضية" : "Regional Default Applied",
+              message: isAr
+                ? `تعذر الوصول إلى GPS وشبكة الموقع — تم تعيين وجهة التوصيل: ${tzLoc.cityAr}، ${tzLoc.countryAr}.`
+                : `Could not access GPS or IP lookup — applied regional fallback: ${tzLoc.cityEn}, ${tzLoc.countryEn}.`,
+            });
+            return true;
+          }
+        } else {
+          setIsLocating(false);
+          setLocatingType(null);
+
+          if (result.isPermissionDenied) {
+            setFeedback({
+              type: "warning",
+              title: isAr ? "إذن الوصول للموقع الجغرافي محظور" : "Location Permission Blocked",
+              message:
+                (isAr ? result.errorMessageAr : result.errorMessageEn) ||
+                (isAr
+                  ? "يرجى الضغط على أيقونة القفل أو إعدادات الموقع في المتصفح واختيار 'سماح'."
+                  : "Please click the lock icon in your address bar to enable Location Permissions."),
+            });
+          } else {
+            setFeedback({
+              type: "error",
+              title: isAr ? "تعذر استقبال إشارة GPS" : "GPS Signal Unavailable",
+              message:
+                (isAr ? result.errorMessageAr : result.errorMessageEn) ||
+                (isAr ? "تعذر استقبال إحداثيات GPS. يمكنك اختيار مدينتك يدوياً." : "Could not obtain GPS fix. You can select your city manually."),
+            });
+          }
+          return false;
+        }
+      } catch (err: unknown) {
+        setIsLocating(false);
+        setLocatingType(null);
+        // Fallback to IP even on unhandled exception
+        try {
+          const ipLoc = await fetchIpBasedLocation();
+          if (ipLoc) {
+            setLocation(ipLoc);
+            saveDetectedLocation(ipLoc);
+            setFeedback({
+              type: "info",
+              title: isAr ? "تم تحديد الموقع عبر شبكة الإنترنت" : "Location Set via IP",
+              message: isAr
+                ? `حدث استثناء في GPS، تم التحويل تلقائياً لموقع الشبكة: ${ipLoc.cityAr}، ${ipLoc.countryAr}`
+                : `GPS sensor issue, switched to IP location: ${ipLoc.cityEn}, ${ipLoc.countryEn}`,
+            });
+            return true;
+          }
+        } catch {}
+
+        const msg = err instanceof Error ? err.message : undefined;
+        setFeedback({
+          type: "error",
+          title: isAr ? "خطأ في تحديد الموقع" : "Location Detection Error",
+          message: msg || (isAr ? "حدث خطأ غير متوقع أثناء استشعار الموقع." : "An unexpected error occurred."),
+        });
         return false;
       }
-    } catch (err: unknown) {
-      setIsLocating(false);
-      setLocatingType(null);
-      const msg = err instanceof Error ? err.message : undefined;
-      setFeedback({
-        type: "error",
-        title: isAr ? "خطأ في تحديد الموقع" : "Location Detection Error",
-        message: msg || (isAr ? "حدث خطأ غير متوقع أثناء استشعار الموقع." : "An unexpected error occurred."),
-      });
-      return false;
-    }
-  }, [isAr, language, currency, setCurrency]);
+    },
+    [isAr, language, currency, setCurrency]
+  );
 
   // IP Geolocation fallback detection
   const detectIp = useCallback(async (): Promise<boolean> => {

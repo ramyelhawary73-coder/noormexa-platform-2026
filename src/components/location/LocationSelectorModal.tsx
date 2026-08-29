@@ -219,10 +219,10 @@ export default function LocationSelectorModal() {
 
           {/* Action 1: GPS Real Detection Button & IP Geolocation */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Live GPS Detection Button */}
+            {/* Live GPS Detection Button with Auto Fallback */}
             <button
               type="button"
-              onClick={() => detectGps()}
+              onClick={() => detectGps(true)}
               disabled={isLocating}
               className="p-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-between shadow-lg shadow-orange-500/20 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group text-start"
             >
@@ -237,7 +237,7 @@ export default function LocationSelectorModal() {
                       : isAr ? "تحديد موقعي الدقيق عبر GPS" : "Detect My Live GPS Location"}
                   </span>
                   <span className="text-[11px] text-white/80 block">
-                    {isAr ? "دقة عالية عبر الأقمار الصناعية" : "High-accuracy browser sensor"}
+                    {isAr ? "دقة عالية (تحويل تلقائي لـ IP عند الحظر)" : "High accuracy (auto IP fallback if blocked)"}
                   </span>
                 </div>
               </div>
@@ -270,20 +270,29 @@ export default function LocationSelectorModal() {
             </button>
           </div>
 
-          {/* Permission Blocked Guide Banner */}
+          {/* Permission Blocked Guide & Fallback Banner */}
           {permissionState === "denied" && (
-            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
-              <ShieldCheck size={16} className="text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold block">
-                  {isAr ? "كيفية تفعيل إذن الموقع في المتصفح:" : "How to enable location permissions:"}
-                </span>
-                <p className="text-[11px] text-amber-200/90 mt-0.5">
-                  {isAr
-                    ? "انقر على رمز القفل 🔒 بجانب رابط الموقع في شريط العنوان أعلى المتصفح ⬅️ فعّل 'الموقع الجغرافي / Location' ⬅️ أعد المحاولة."
-                    : "Click the lock icon 🔒 next to the URL in your browser bar ➡️ Turn on 'Location' ➡️ Try again."}
-                </p>
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <ShieldCheck size={18} className="text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold block text-sm">
+                    {isAr ? "تم رفض إذن GPS — تم تطبيق التحديد التقديري عبر الإنترنت (IP)" : "GPS Permission Blocked — Operating on IP Fallback"}
+                  </span>
+                  <p className="text-[11px] text-amber-200/90 mt-0.5">
+                    {isAr
+                      ? "إذا أردت دقة GPS عالية، انقر على رمز القفل 🔒 بجانب الرابط في شريط عنوان المتصفح ⬅️ فعّل 'الموقع الجغرافي' ثم انقر إعادة المحاولة."
+                      : "To enable precise GPS, click the lock icon 🔒 in your browser address bar ➡️ Turn on 'Location' and retry."}
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => detectGps(true)}
+                className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 font-bold text-xs shrink-0 transition-colors cursor-pointer"
+              >
+                {isAr ? "إعادة محاولة GPS" : "Retry GPS"}
+              </button>
             </div>
           )}
 
