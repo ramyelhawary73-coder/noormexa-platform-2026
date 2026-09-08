@@ -30,6 +30,7 @@ const copy = {
     secure: "جميع المراسلات الرسمية تتم عبر نطاق noormexa.com",
     formTitle: "أرسل رسالتك مباشرة",
     formHint: "أرسل من داخل الموقع مباشرة. لا تحتاج إلى Gmail أو Outlook مفتوح على جهازك.",
+    cardHint: "للإرسال استخدم النموذج المباشر بالأسفل",
     name: "الاسم",
     email: "بريدك الإلكتروني",
     type: "نوع الاستفسار",
@@ -57,6 +58,7 @@ const copy = {
     secure: "Official communication is handled through the noormexa.com domain",
     formTitle: "Send your message directly",
     formHint: "Send from the website directly. No Gmail or Outlook app is required on your device.",
+    cardHint: "Use the direct form below to send your message",
     name: "Name",
     email: "Your email",
     type: "Inquiry type",
@@ -150,7 +152,7 @@ export default function ContactPage() {
             </div>
 
             <div className="grid gap-4">
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="rounded-2xl border border-line bg-surface-soft p-5 transition hover:border-gold/40 hover:shadow-[var(--soft-shadow)]">
+              <div className="rounded-2xl border border-line bg-surface-soft p-5">
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold-soft text-gold-strong">
                     <Headphones size={21} />
@@ -161,11 +163,12 @@ export default function ContactPage() {
                     <div className="mt-3 flex items-center gap-2 text-sm font-black text-gold-strong" dir="ltr">
                       <Mail size={15} /> {SUPPORT_EMAIL}
                     </div>
+                    <p className="mt-2 text-[11px] font-bold text-muted">{text.cardHint}</p>
                   </div>
                 </div>
-              </a>
+              </div>
 
-              <a href={`mailto:${INFO_EMAIL}`} className="rounded-2xl border border-line bg-surface-soft p-5 transition hover:border-gold/40 hover:shadow-[var(--soft-shadow)]">
+              <div className="rounded-2xl border border-line bg-surface-soft p-5">
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-foreground">
                     <MessageSquareText size={21} />
@@ -176,9 +179,10 @@ export default function ContactPage() {
                     <div className="mt-3 flex items-center gap-2 text-sm font-black text-foreground" dir="ltr">
                       <Mail size={15} /> {INFO_EMAIL}
                     </div>
+                    <p className="mt-2 text-[11px] font-bold text-muted">{text.cardHint}</p>
                   </div>
                 </div>
-              </a>
+              </div>
             </div>
           </div>
         </section>
