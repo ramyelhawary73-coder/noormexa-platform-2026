@@ -1,11 +1,13 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
+  CheckCircle2,
   Headphones,
+  Loader2,
   Mail,
   MessageSquareText,
   Send,
@@ -18,227 +20,223 @@ const INFO_EMAIL = "info@noormexa.com";
 
 const copy = {
   ar: {
-    badge: "قنوات التواصل الرسمية",
+    eyebrow: "مركز التواصل الرسمي",
     title: "تواصل مع فريق NOORMEXA",
-    subtitle:
-      "يسعدنا مساعدتك في الاستفسارات العامة، الدعم الفني، الحسابات، الطلبات، والتعاون التجاري عبر قنواتنا الرسمية.",
+    subtitle: "قنوات رسمية واضحة للدعم الفني، خدمة العملاء، الاستفسارات التجارية والشراكات.",
     supportTitle: "الدعم الفني وخدمة العملاء",
-    supportText: "للمساعدة في الحساب، الطلبات، أو أي مشكلة داخل المنصة.",
+    supportText: "للحسابات، تسجيل الدخول، الطلبات، الشحن، أو أي مشكلة داخل المنصة.",
     infoTitle: "الاستفسارات العامة والتجارية",
-    infoText: "للشراكات، التعاون، والاستفسارات العامة عن NOORMEXA.",
-    official: "عناوين رسمية على نطاق noormexa.com",
-    formTitle: "أرسل رسالة لفريق الدعم",
-    formHint:
-      "بعد الضغط على إرسال، سيفتح تطبيق البريد على جهازك برسالة مجهزة إلى فريق الدعم. لن يتم حفظ بيانات الرسالة داخل NOORMEXA.",
+    infoText: "للشراكات، التعاون، الموردين، العلامات التجارية والاستفسارات العامة.",
+    secure: "جميع المراسلات الرسمية تتم عبر نطاق noormexa.com",
+    formTitle: "أرسل رسالتك مباشرة",
+    formHint: "أرسل من داخل الموقع مباشرة. لا تحتاج إلى Gmail أو Outlook مفتوح على جهازك.",
     name: "الاسم",
     email: "بريدك الإلكتروني",
     type: "نوع الاستفسار",
     message: "الرسالة",
-    namePlaceholder: "اكتب اسمك",
+    namePlaceholder: "اكتب اسمك الكامل",
     emailPlaceholder: "name@example.com",
     messagePlaceholder: "اكتب تفاصيل استفسارك بوضوح...",
     types: ["دعم فني", "حساب وتسجيل دخول", "طلب أو شحنة", "تاجر أو متجر", "شراكة تجارية", "استفسار عام"],
-    submit: "فتح رسالة الدعم",
+    submit: "إرسال الرسالة",
+    sending: "جارٍ الإرسال...",
+    success: "تم إرسال رسالتك بنجاح إلى فريق NOORMEXA.",
+    error: "تعذر إرسال الرسالة الآن. حاول مرة أخرى بعد قليل.",
+    validation: "من فضلك أكمل كل البيانات المطلوبة بشكل صحيح.",
     back: "العودة للرئيسية",
     privacy: "لن نطلب منك كلمة مرور أو API Key أو بيانات بطاقة بنكية عبر البريد.",
-    required: "من فضلك أكمل كل البيانات المطلوبة.",
-    subjectPrefix: "طلب تواصل NOORMEXA",
   },
   en: {
-    badge: "Official contact channels",
+    eyebrow: "Official contact center",
     title: "Contact the NOORMEXA team",
-    subtitle:
-      "We can help with general inquiries, technical support, accounts, orders, and business partnerships through our official channels.",
+    subtitle: "Official channels for technical support, customer service, business inquiries and partnerships.",
     supportTitle: "Customer & technical support",
-    supportText: "For account, order, or platform assistance.",
+    supportText: "For accounts, sign-in, orders, shipping, or any platform issue.",
     infoTitle: "General & business inquiries",
-    infoText: "For partnerships, collaborations, and general NOORMEXA inquiries.",
-    official: "Official addresses on the noormexa.com domain",
-    formTitle: "Message the support team",
-    formHint:
-      "Submitting opens your email app with a prepared message to our support team. The message is not stored inside NOORMEXA.",
+    infoText: "For partnerships, suppliers, brands, collaboration and general inquiries.",
+    secure: "Official communication is handled through the noormexa.com domain",
+    formTitle: "Send your message directly",
+    formHint: "Send from the website directly. No Gmail or Outlook app is required on your device.",
     name: "Name",
     email: "Your email",
     type: "Inquiry type",
     message: "Message",
-    namePlaceholder: "Your name",
+    namePlaceholder: "Your full name",
     emailPlaceholder: "name@example.com",
     messagePlaceholder: "Describe your request clearly...",
     types: ["Technical support", "Account & sign-in", "Order or shipment", "Seller or store", "Business partnership", "General inquiry"],
-    submit: "Open support email",
+    submit: "Send message",
+    sending: "Sending...",
+    success: "Your message was sent successfully to the NOORMEXA team.",
+    error: "We could not send your message right now. Please try again shortly.",
+    validation: "Please complete all required fields correctly.",
     back: "Back to home",
     privacy: "We will never ask for passwords, API keys, or card details by email.",
-    required: "Please complete all required fields.",
-    subjectPrefix: "NOORMEXA contact request",
   },
 } as const;
+
+type SubmitState = "idle" | "sending" | "success" | "error";
 
 export default function ContactPage() {
   const { language, isAr } = useLanguage();
   const text = copy[language];
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState<SubmitState>("idle");
+  const [feedback, setFeedback] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const directionClass = useMemo(() => (isAr ? "text-right" : "text-left"), [isAr]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
+    setStatus("sending");
+    setFeedback("");
 
-    const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const inquiryType = String(data.get("inquiryType") ?? "").trim();
-    const message = String(data.get("message") ?? "").trim();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const payload = {
+      name: String(data.get("name") ?? "").trim(),
+      email: String(data.get("email") ?? "").trim(),
+      inquiryType: String(data.get("inquiryType") ?? "").trim(),
+      message: String(data.get("message") ?? "").trim(),
+      website: String(data.get("website") ?? "").trim(),
+      language,
+    };
 
-    if (!name || !email || !inquiryType || !message) {
-      setError(text.required);
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!payload.name || !emailPattern.test(payload.email) || !payload.inquiryType || !payload.message) {
+      setStatus("error");
+      setFeedback(text.validation);
       return;
     }
 
-    const subject = `${text.subjectPrefix} — ${inquiryType}`;
-    const body = isAr
-      ? `الاسم: ${name}\nالبريد الإلكتروني: ${email}\nنوع الاستفسار: ${inquiryType}\n\nالرسالة:\n${message}\n\n---\nتم إنشاء هذه الرسالة من صفحة التواصل الرسمية في NOORMEXA.`
-      : `Name: ${name}\nEmail: ${email}\nInquiry type: ${inquiryType}\n\nMessage:\n${message}\n\n---\nCreated from the official NOORMEXA contact page.`;
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      if (!response.ok) throw new Error("contact_send_failed");
+
+      setStatus("success");
+      setFeedback(text.success);
+      form.reset();
+    } catch {
+      setStatus("error");
+      setFeedback(text.error);
+    }
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 md:py-16">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-6 py-10 text-white md:px-10 md:py-14">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-2 text-sm font-bold text-orange-300">
-              <BadgeCheck size={17} />
-              {text.badge}
+    <main className="min-h-screen bg-background py-8 md:py-12">
+      <div className="noormexa-container max-w-6xl">
+        <section className="relative overflow-hidden rounded-[28px] border border-line bg-surface shadow-[var(--safe-shadow)]">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold via-orange-500 to-amber-400" />
+
+          <div className="grid gap-8 px-6 py-8 md:grid-cols-[1.2fr_0.8fr] md:px-10 md:py-10">
+            <div className={directionClass}>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface-soft px-3.5 py-2 text-xs font-black text-gold-strong">
+                <BadgeCheck size={16} />
+                {text.eyebrow}
+              </div>
+              <h1 className="max-w-3xl text-3xl font-black leading-tight text-foreground md:text-5xl">{text.title}</h1>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-muted md:text-base">{text.subtitle}</p>
+
+              <div className="mt-7 flex flex-wrap gap-3 text-xs font-bold text-muted">
+                <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-soft px-3 py-2">
+                  <ShieldCheck size={15} className="text-emerald-500" />
+                  {text.secure}
+                </span>
+              </div>
             </div>
-            <h1 className="max-w-3xl text-3xl font-black leading-tight md:text-5xl">{text.title}</h1>
-            <p className="mt-5 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">{text.subtitle}</p>
-          </div>
 
-          <div className="grid gap-6 p-6 md:grid-cols-2 md:p-10">
-            <a
-              href={`mailto:${SUPPORT_EMAIL}`}
-              className="group rounded-2xl border border-slate-200 p-6 transition hover:border-orange-300 hover:shadow-md dark:border-slate-700 dark:hover:border-orange-500"
-            >
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
-                <Headphones size={24} />
-              </div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">{text.supportTitle}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{text.supportText}</p>
-              <div className="mt-4 flex items-center gap-2 font-bold text-orange-600 dark:text-orange-400">
-                <Mail size={17} />
-                <span dir="ltr">{SUPPORT_EMAIL}</span>
-              </div>
-            </a>
+            <div className="grid gap-4">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="rounded-2xl border border-line bg-surface-soft p-5 transition hover:border-gold/40 hover:shadow-[var(--soft-shadow)]">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold-soft text-gold-strong">
+                    <Headphones size={21} />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="font-black text-foreground">{text.supportTitle}</h2>
+                    <p className="mt-1 text-xs leading-6 text-muted">{text.supportText}</p>
+                    <div className="mt-3 flex items-center gap-2 text-sm font-black text-gold-strong" dir="ltr">
+                      <Mail size={15} /> {SUPPORT_EMAIL}
+                    </div>
+                  </div>
+                </div>
+              </a>
 
-            <a
-              href={`mailto:${INFO_EMAIL}`}
-              className="group rounded-2xl border border-slate-200 p-6 transition hover:border-orange-300 hover:shadow-md dark:border-slate-700 dark:hover:border-orange-500"
-            >
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400">
-                <MessageSquareText size={24} />
-              </div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">{text.infoTitle}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{text.infoText}</p>
-              <div className="mt-4 flex items-center gap-2 font-bold text-sky-700 dark:text-sky-400">
-                <Mail size={17} />
-                <span dir="ltr">{INFO_EMAIL}</span>
-              </div>
-            </a>
-          </div>
-
-          <div className="mx-6 mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 md:mx-10 md:mb-10 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
-            <ShieldCheck size={19} className="shrink-0" />
-            {text.official}
+              <a href={`mailto:${INFO_EMAIL}`} className="rounded-2xl border border-line bg-surface-soft p-5 transition hover:border-gold/40 hover:shadow-[var(--soft-shadow)]">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-foreground">
+                    <MessageSquareText size={21} />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="font-black text-foreground">{text.infoTitle}</h2>
+                    <p className="mt-1 text-xs leading-6 text-muted">{text.infoText}</p>
+                    <div className="mt-3 flex items-center gap-2 text-sm font-black text-foreground" dir="ltr">
+                      <Mail size={15} /> {INFO_EMAIL}
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
           </div>
         </section>
 
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-10 dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white">{text.formTitle}</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">{text.formHint}</p>
+        <section className="mt-6 rounded-[28px] border border-line bg-surface p-6 shadow-[var(--soft-shadow)] md:p-10">
+          <div className={directionClass}>
+            <h2 className="text-2xl font-black text-foreground md:text-3xl">{text.formTitle}</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-muted">{text.formHint}</p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 grid gap-5 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-bold text-slate-800 dark:text-slate-200">
+          <form onSubmit={handleSubmit} className="mt-7 grid gap-5 md:grid-cols-2">
+            <input name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+
+            <label className="grid gap-2 text-sm font-black text-foreground">
               {text.name}
-              <input
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                placeholder={text.namePlaceholder}
-                className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              />
+              <input name="name" type="text" autoComplete="name" required maxLength={100} placeholder={text.namePlaceholder} className="h-12 rounded-xl border border-line bg-surface-soft px-4 text-foreground outline-none transition placeholder:text-muted/60 focus:border-gold focus:ring-2 focus:ring-gold/15" />
             </label>
 
-            <label className="grid gap-2 text-sm font-bold text-slate-800 dark:text-slate-200">
+            <label className="grid gap-2 text-sm font-black text-foreground">
               {text.email}
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder={text.emailPlaceholder}
-                dir="ltr"
-                className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-left text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              />
+              <input name="email" type="email" autoComplete="email" required maxLength={160} placeholder={text.emailPlaceholder} dir="ltr" className="h-12 rounded-xl border border-line bg-surface-soft px-4 text-left text-foreground outline-none transition placeholder:text-muted/60 focus:border-gold focus:ring-2 focus:ring-gold/15" />
             </label>
 
-            <label className="grid gap-2 text-sm font-bold text-slate-800 md:col-span-2 dark:text-slate-200">
+            <label className="grid gap-2 text-sm font-black text-foreground md:col-span-2">
               {text.type}
-              <select
-                name="inquiryType"
-                required
-                defaultValue=""
-                className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              >
-                <option value="" disabled>
-                  {text.type}
-                </option>
-                {text.types.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
+              <select name="inquiryType" required defaultValue="" className="h-12 rounded-xl border border-line bg-surface-soft px-4 text-foreground outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/15">
+                <option value="" disabled>{text.type}</option>
+                {text.types.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
             </label>
 
-            <label className="grid gap-2 text-sm font-bold text-slate-800 md:col-span-2 dark:text-slate-200">
+            <label className="grid gap-2 text-sm font-black text-foreground md:col-span-2">
               {text.message}
-              <textarea
-                name="message"
-                required
-                rows={7}
-                placeholder={text.messagePlaceholder}
-                className="resize-y rounded-xl border border-slate-300 bg-white p-4 text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              />
+              <textarea name="message" required rows={7} maxLength={4000} placeholder={text.messagePlaceholder} className="resize-y rounded-xl border border-line bg-surface-soft p-4 text-foreground outline-none transition placeholder:text-muted/60 focus:border-gold focus:ring-2 focus:ring-gold/15" />
             </label>
 
-            {error ? (
-              <p className="md:col-span-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
-                {error}
-              </p>
+            {feedback ? (
+              <div className={`md:col-span-2 flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-bold ${status === "success" ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "border-red-500/25 bg-red-500/10 text-red-600 dark:text-red-400"}`}>
+                {status === "success" ? <CheckCircle2 size={18} /> : <ShieldCheck size={18} />}
+                {feedback}
+              </div>
             ) : null}
 
             <div className="md:col-span-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <button
-                type="submit"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-6 font-black text-white shadow-md transition hover:from-orange-600 hover:to-amber-600"
-              >
-                <Send size={18} />
-                {text.submit}
+              <button type="submit" disabled={status === "sending"} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gold to-gold-strong px-7 font-black text-white shadow-[var(--soft-shadow)] transition hover:brightness-95 disabled:cursor-wait disabled:opacity-70">
+                {status === "sending" ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                {status === "sending" ? text.sending : text.submit}
               </button>
 
-              <Link
-                href="/"
-                className="inline-flex items-center justify-center gap-2 text-sm font-bold text-slate-600 transition hover:text-orange-600 dark:text-slate-300"
-              >
+              <Link href="/" className="inline-flex items-center justify-center gap-2 text-sm font-black text-muted transition hover:text-gold-strong">
                 {text.back}
                 <ArrowRight size={17} className={isAr ? "" : "rotate-180"} />
               </Link>
             </div>
           </form>
 
-          <div className="mt-7 flex items-start gap-3 rounded-2xl bg-slate-100 px-4 py-4 text-xs font-semibold leading-6 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-600" />
+          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-line bg-surface-soft px-4 py-4 text-xs font-semibold leading-6 text-muted">
+            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-500" />
             {text.privacy}
           </div>
         </section>
