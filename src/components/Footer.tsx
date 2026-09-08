@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
-import { Download } from "lucide-react";
+import { Download, Mail } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 
@@ -21,6 +21,10 @@ const copy = {
       { title: "البيع", items: ["ابدأ البيع", "اعرض منتجاتك", "اعرض متجرك"] },
       { title: "الإعلانات", items: ["أعلن عن عروضك", "منتجات مميزة", "عروض واضحة"] },
     ],
+    contactTitle: "تواصل معنا",
+    contactPage: "صفحة التواصل الرسمية",
+    supportLabel: "الدعم الفني",
+    infoLabel: "الاستفسارات العامة",
     rights: "© 2026 NOORMEXA. جميع الحقوق محفوظة.",
   },
   en: {
@@ -33,6 +37,10 @@ const copy = {
       { title: "Selling", items: ["Start selling", "Show products", "Show store"] },
       { title: "Ads", items: ["Promote offers", "Featured products", "Clear deals"] },
     ],
+    contactTitle: "Contact",
+    contactPage: "Official contact page",
+    supportLabel: "Customer support",
+    infoLabel: "General inquiries",
     rights: "© 2026 NOORMEXA. All rights reserved.",
   },
 } as const;
@@ -91,6 +99,31 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+
+          <div className="noormexa-footer-list">
+            <h4>{text.contactTitle}</h4>
+            <ul>
+              <li>
+                <Link href="/contact">{text.contactPage}</Link>
+              </li>
+              <li>
+                <a href="mailto:support@noormexa.com" className="inline-flex items-center gap-2">
+                  <Mail size={14} />
+                  <span>{text.supportLabel}</span>
+                </a>
+              </li>
+              <li>
+                <a href="mailto:info@noormexa.com" className="inline-flex items-center gap-2">
+                  <Mail size={14} />
+                  <span>{text.infoLabel}</span>
+                </a>
+              </li>
+            </ul>
+            <div className="mt-3 space-y-1 text-xs opacity-80" dir="ltr">
+              <a href="mailto:support@noormexa.com" className="block hover:underline">support@noormexa.com</a>
+              <a href="mailto:info@noormexa.com" className="block hover:underline">info@noormexa.com</a>
+            </div>
+          </div>
         </section>
       </div>
 
