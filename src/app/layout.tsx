@@ -14,17 +14,17 @@ import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import LocationSelectorModal from "@/components/location/LocationSelectorModal";
 
 export const metadata: Metadata = {
-  title: "NOORMEXA — التسوق الذكي",
+  title: "NOORMEXA",
   description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
   manifest: "/manifest.json",
   applicationName: "NOORMEXA",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "NOORMEXA — التسوق الذكي",
+    title: "NOORMEXA",
   },
   openGraph: {
-    title: "NOORMEXA — التسوق الذكي",
+    title: "NOORMEXA",
     description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
     siteName: "NOORMEXA",
     locale: "ar_AR",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "NOORMEXA — التسوق الذكي",
+    title: "NOORMEXA",
     description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
   },
   formatDetection: {

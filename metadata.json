@@ -1,6 +1,6 @@
 {
   "name": "NOORMEXA",
-  "description": "NOORMEXA — منصة وسوق التجارة الإلكترونية العالمية الذكية",
+  "description": "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

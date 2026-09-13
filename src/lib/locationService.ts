@@ -980,7 +980,7 @@ export function getInitialLocation(): DetectedLocation {
  * Performs full multi-stage location detection:
  * Tries GPS (if user allows) -> IP Geolocation -> Timezone Heuristic -> Static Default
  */
-export async function detectBestAvailableLocation(_locale: "ar" | "en" = "ar"): Promise<DetectedLocation> {
+export async function detectBestAvailableLocation(): Promise<DetectedLocation> {
   const saved = loadSavedLocation();
   if (saved) return saved;
 
