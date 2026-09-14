@@ -4,12 +4,14 @@ interface AosaAvatarProps {
   size?: number;
   className?: string;
   showOnlineBadge?: boolean;
+  badgeStatus?: "online" | "readonly" | "offline";
 }
 
 export default function AosaAvatar({
   size = 40,
   className = "",
   showOnlineBadge = true,
+  badgeStatus = "online",
 }: AosaAvatarProps) {
   return (
     <div
@@ -163,17 +165,35 @@ export default function AosaAvatar({
         />
       </svg>
 
-      {/* Online indicator badge */}
+      {/* Online / ReadOnly indicator badge */}
       {showOnlineBadge && (
         <span
-          className="absolute bottom-0 end-0 block rounded-full ring-2 ring-surface bg-emerald-500"
+          className={`absolute bottom-0 end-0 block rounded-full ring-2 ring-surface ${
+            badgeStatus === "readonly"
+              ? "bg-amber-500"
+              : badgeStatus === "offline"
+              ? "bg-slate-400"
+              : "bg-emerald-500"
+          }`}
           style={{
             width: Math.max(8, Math.round(size * 0.22)),
             height: Math.max(8, Math.round(size * 0.22)),
           }}
-          title="AOSA متصلة وجاهزة"
+          title={
+            badgeStatus === "readonly"
+              ? "AOSA في وضع القراءة والاستعلام الذكي المستقل"
+              : badgeStatus === "offline"
+              ? "AOSA غير متصلة"
+              : "AOSA متصلة سحابياً وجاهزة"
+          }
         >
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          {badgeStatus !== "offline" && (
+            <span
+              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                badgeStatus === "readonly" ? "bg-amber-400" : "bg-emerald-400"
+              }`}
+            />
+          )}
         </span>
       )}
     </div>

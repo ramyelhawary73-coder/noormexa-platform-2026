@@ -2,6 +2,8 @@
 
 import { use, useState, useSyncExternalStore, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import ProductImage from "@/components/ProductImage";
 import {
   BadgeCheck,
   Check,
@@ -147,11 +149,14 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
 
       {/* Store Banner Hero */}
       <div className="relative h-48 sm:h-64 md:h-80 w-full overflow-hidden bg-navy">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={store.banner_url || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80"}
-          alt=""
-          className="w-full h-full object-cover opacity-60"
+          alt={store.name || "Store Banner"}
+          fill
+          loading="lazy"
+          sizes="100vw"
+          referrerPolicy="no-referrer"
+          className="object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
       </div>
@@ -166,11 +171,14 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               </div>
             ) : (
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden bg-surface-soft border border-line shadow-md shrink-0 relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={store.logo_url || "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80"}
                   alt={store.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 640px) 80px, 96px"
+                  referrerPolicy="no-referrer"
+                  className="object-cover"
                 />
               </div>
             )}
@@ -288,8 +296,15 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
 
                     {post.image_url && (
                       <div className="rounded-2xl overflow-hidden border border-line/60 aspect-video relative">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
+                        <Image
+                          src={post.image_url}
+                          alt={post.title}
+                          fill
+                          loading="lazy"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          referrerPolicy="no-referrer"
+                          className="object-cover"
+                        />
                       </div>
                     )}
 
@@ -435,11 +450,12 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                 <div>
                   {/* Image Container */}
                   <Link href={`/marketplace/${prod.id}`} className="block relative aspect-square overflow-hidden bg-surface-soft">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={prod.image_url || ""}
+                    <ProductImage
+                      src={prod.image_url}
                       alt={prod.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {prod.free_shipping && (

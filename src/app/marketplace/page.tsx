@@ -27,6 +27,7 @@ import {
 import { useMarketplace } from "@/context/MarketplaceContext";
 import type { Product } from "@/types/marketplace";
 import { BrandLogo } from "@/components/marketplace/BrandLogo";
+import ProductImage from "@/components/ProductImage";
 
 // Available Brands list (module-level constant)
 export const AVAILABLE_BRANDS = [
@@ -1446,22 +1447,14 @@ function MarketplaceContent() {
                     >
                       {/* Product Image & Badges */}
                       <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-surface-soft mb-2 sm:mb-3.5">
-                        <Link href={`/marketplace/${product.id}`} className="block w-full h-full">
-                          {product.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              onError={(e) => {
-                                e.currentTarget.src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80";
-                              }}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted">
-                              <Package size={28} />
-                            </div>
-                          )}
+                        <Link href={`/marketplace/${product.id}`} className="block w-full h-full relative">
+                          <ProductImage
+                            src={product.image_url}
+                            alt={product.name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </Link>
 
                         {/* Top Badges (Discount & Featured) */}

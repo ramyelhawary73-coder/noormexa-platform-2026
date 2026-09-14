@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import ProductImage from "@/components/ProductImage";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -216,8 +217,13 @@ export default function CartPage() {
                 {/* Thumbnail & Titles */}
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-surface-soft border border-line shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl || ""} alt={item.name} className="w-full h-full object-cover" />
+                    <ProductImage
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      sizes="80px"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
                   <div className="space-y-1 min-w-0">

@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useSyncExternalStore, use } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import ProductImage from "@/components/ProductImage";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -282,11 +284,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-6 space-y-4">
             {/* Main Highlight Image */}
             <div className="relative aspect-square rounded-3xl overflow-hidden bg-surface border border-line shadow-sm group">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={currentDisplayImage}
+              <Image
+                src={currentDisplayImage || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80"}
                 alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                referrerPolicy="no-referrer"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
 
               {/* Badges */}
@@ -332,8 +337,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       currentDisplayImage === imgUrl ? "border-gold scale-105 shadow-md" : "border-line opacity-70 hover:opacity-100"
                     }`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                    <Image
+                      src={imgUrl}
+                      alt=""
+                      fill
+                      loading="lazy"
+                      sizes="80px"
+                      referrerPolicy="no-referrer"
+                      className="object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -732,9 +744,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   href={`/marketplace/${rel.id}`}
                   className="group rounded-3xl bg-surface border border-line p-4 shadow-sm hover:shadow-md transition-all space-y-3"
                 >
-                  <div className="aspect-square rounded-2xl overflow-hidden bg-surface-soft">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={rel.image_url || ""} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  <div className="aspect-square rounded-2xl overflow-hidden bg-surface-soft relative">
+                    <ProductImage
+                      src={rel.image_url}
+                      alt={rel.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform"
+                    />
                   </div>
                   <h4 className="font-bold text-xs text-foreground line-clamp-2">{rel.name}</h4>
                   <div className="font-black text-sm text-gold">{formatPrice(rel.price)}</div>

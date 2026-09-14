@@ -19,6 +19,9 @@ const copy = {
   ar: {
     title: "أوسا (AOSA)",
     slogan: "رفيقتكِ الذكية للتسوق وإدارة تجارتكِ",
+    statusBadgeLive: "متصلة بالذكاء السحابي 🟢",
+    statusBadgeReadOnly: "وضع القراءة والاستفسار الذكي 🟡",
+    readOnlyBanner: "AOSA تعمل في وضع القراءة والاستفسار المستقل: الكتالوج والشحن والدفع متاح 100%",
     statusBadge: "متصلة الآن 🟢",
     buyerMode: "متسوق",
     sellerMode: "بائع / تاجر",
@@ -44,6 +47,9 @@ const copy = {
   en: {
     title: "AOSA Agent",
     slogan: "Your Smart Shopping & Commerce Companion",
+    statusBadgeLive: "Cloud AI Live 🟢",
+    statusBadgeReadOnly: "Smart Read-Only Mode 🟡",
+    readOnlyBanner: "AOSA operating in Smart Read-Only Mode: Catalog, delivery & payments 100% active",
     statusBadge: "Online & Ready 🟢",
     buyerMode: "Shopper",
     sellerMode: "Seller / Merchant",
@@ -83,7 +89,31 @@ export default function AIAssistant() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [, setReadOnlyReason] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Proactively check connection status & operational mode on mount
+  useEffect(() => {
+    let ignore = false;
+    fetch("/api/chat")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!ignore && data && typeof data.isReadOnly === "boolean") {
+          setIsReadOnly(data.isReadOnly);
+          if (data.readOnlyReason) setReadOnlyReason(data.readOnlyReason);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setIsReadOnly(true);
+          setReadOnlyReason("network_fallback");
+        }
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -106,21 +136,29 @@ export default function AIAssistant() {
 
       if (res.ok) {
         const data = await res.json();
+        if (typeof data.isReadOnly === "boolean") {
+          setIsReadOnly(data.isReadOnly);
+          setReadOnlyReason(data.readOnlyReason || null);
+        }
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: data.reply, actions: data.actions },
         ]);
       } else {
-        // Zero-failure fallback: If server returns error, AOSA Local Core answers immediately
-        const fallback = generateAosaResponse(value, mode, language);
+        // Zero-failure fallback: If server returns error, AOSA Local Core answers immediately in read-only mode
+        setIsReadOnly(true);
+        setReadOnlyReason("network_fallback");
+        const fallback = generateAosaResponse(value, mode, language, "network_fallback");
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: fallback.reply, actions: fallback.actions },
         ]);
       }
     } catch {
-      // Offline / network exception fallback: AOSA answers immediately
-      const fallback = generateAosaResponse(value, mode, language);
+      // Offline / network exception fallback: AOSA answers immediately in read-only mode
+      setIsReadOnly(true);
+      setReadOnlyReason("network_fallback");
+      const fallback = generateAosaResponse(value, mode, language, "network_fallback");
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: fallback.reply, actions: fallback.actions },
@@ -145,15 +183,23 @@ export default function AIAssistant() {
           {/* Header with AOSA Avatar & Professional Slogan */}
           <div className="noormexa-ai-panel-header">
             <div className="flex items-center gap-2.5">
-              <AosaAvatar size={42} showOnlineBadge={true} />
+              <AosaAvatar size={42} showOnlineBadge={true} badgeStatus={isReadOnly ? "readonly" : "online"} />
               <div className="flex flex-col">
                 <span className="font-black text-sm text-white tracking-wide">{text.title}</span>
                 <span className="text-[11px] text-amber-300/90 font-medium line-clamp-1">
                   {text.slogan}
                 </span>
-                <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                  {text.statusBadge}
+                <span
+                  className={`flex items-center gap-1 text-[10px] font-bold mt-0.5 ${
+                    isReadOnly ? "text-amber-300" : "text-emerald-400"
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full animate-pulse inline-block ${
+                      isReadOnly ? "bg-amber-400" : "bg-emerald-400"
+                    }`}
+                  />
+                  {isReadOnly ? text.statusBadgeReadOnly : text.statusBadgeLive}
                 </span>
               </div>
             </div>
@@ -200,6 +246,14 @@ export default function AIAssistant() {
               {text.sellerMode}
             </button>
           </div>
+
+          {/* Read-Only Mode Banner */}
+          {isReadOnly && (
+            <div className="mx-3.5 my-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[11px] flex items-center gap-2 font-medium leading-relaxed shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 animate-pulse" />
+              <span>{text.readOnlyBanner}</span>
+            </div>
+          )}
 
           {/* Messages list */}
           <div className="noormexa-ai-messages" ref={listRef}>
@@ -312,12 +366,12 @@ export default function AIAssistant() {
         className="noormexa-ai-fab group transition-transform hover:scale-105"
         onClick={() => setOpen((value) => !value)}
         aria-label={text.title}
-        title={text.title}
+        title={isReadOnly ? `${text.title} - ${text.statusBadgeReadOnly}` : `${text.title} - ${text.statusBadgeLive}`}
       >
         {open ? (
           <X size={22} className="text-white" />
         ) : (
-          <AosaAvatar size={48} showOnlineBadge={true} />
+          <AosaAvatar size={48} showOnlineBadge={true} badgeStatus={isReadOnly ? "readonly" : "online"} />
         )}
       </button>
     </div>

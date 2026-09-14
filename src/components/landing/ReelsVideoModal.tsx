@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   X,
   Play,
@@ -321,10 +322,13 @@ export default function ReelsVideoModal({
               className="w-full h-full object-cover md:object-contain"
             />
           ) : (
-            <img
+            <Image
               src={currentReel.posterImage}
               alt={currentReel.productNameAr}
-              className="w-full h-full object-cover md:object-contain"
+              fill
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              className="object-cover md:object-contain"
             />
           )}
 

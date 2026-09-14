@@ -2,6 +2,8 @@
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import ProductImage from "@/components/ProductImage";
 import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -982,13 +984,12 @@ export default function HomePage() {
                   className="group rounded-3xl bg-surface border border-line hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between"
                 >
                   <div className="relative aspect-square overflow-hidden bg-surface-soft shrink-0">
-                    <img
-                      src={prod.image_url || "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80"}
+                    <ProductImage
+                      src={prod.image_url}
                       alt={prod.name}
-                      onError={(e) => {
-                        e.currentTarget.src = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80";
-                      }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Discount Badge */}
@@ -1112,10 +1113,14 @@ export default function HomePage() {
                   className="group relative rounded-3xl overflow-hidden border border-line bg-surface hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all duration-300 flex flex-col"
                 >
                   <div className="aspect-[4/3] relative overflow-hidden bg-surface-soft">
-                    <img
+                    <Image
                       src={cat.image}
                       alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 50vw, 20vw"
+                      referrerPolicy="no-referrer"
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute top-3 end-3 p-2 rounded-xl bg-surface/90 backdrop-blur-xs border border-line text-foreground">
@@ -1315,13 +1320,14 @@ export default function HomePage() {
                 className="group rounded-3xl overflow-hidden bg-surface border border-line hover:border-orange-500/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
-                  <img
+                  <Image
                     src={story.posterImage}
                     alt={story.productNameAr}
-                    onError={(e) => {
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&auto=format&fit=crop&q=80";
-                    }}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    referrerPolicy="no-referrer"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                   
@@ -1341,9 +1347,13 @@ export default function HomePage() {
                   {/* Author & City */}
                   <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between text-white text-xs font-bold">
                     <div className="flex items-center gap-2 truncate">
-                      <img
+                      <Image
                         src={story.authorAvatar}
                         alt={story.author}
+                        width={24}
+                        height={24}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
                         className="w-6 h-6 rounded-full object-cover border border-white/40 shrink-0"
                       />
                       <span className="truncate">{story.author}</span>

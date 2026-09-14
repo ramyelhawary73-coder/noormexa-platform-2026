@@ -40,17 +40,56 @@ Your mission:
   },
 };
 
-// Candidate models in prioritized order
+// Candidate models in prioritized order (fast, resilient models first)
 const GEMINI_MODELS_CASCADE = [
   process.env.GEMINI_MODEL,
-  "gemini-3.6-flash",
   "gemini-3.1-flash-lite",
   "gemini-flash-latest",
+  "gemini-3.6-flash",
+  "gemini-3.8-flash",
 ].filter(Boolean) as string[];
 
+// In-memory key validity tracking to prevent repeated failing network calls on known invalid keys
+const invalidKeyCache = new Map<string, { timestamp: number; reason: string }>();
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
+
+function isKeyMarkedInvalid(key: string): { invalid: boolean; reason?: string } {
+  const cached = invalidKeyCache.get(key);
+  if (!cached) return { invalid: false };
+  if (Date.now() - cached.timestamp > CACHE_TTL_MS) {
+    invalidKeyCache.delete(key);
+    return { invalid: false };
+  }
+  return { invalid: true, reason: cached.reason };
+}
+
+function markKeyInvalid(key: string, reason: string) {
+  invalidKeyCache.set(key, { timestamp: Date.now(), reason });
+}
+
+export async function GET() {
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  const isKeyMissing = !geminiKey || geminiKey === "undefined" || geminiKey.length < 8;
+  const { invalid: isKeyInvalid, reason } = geminiKey ? isKeyMarkedInvalid(geminiKey) : { invalid: false };
+
+  const isReadOnly = isKeyMissing || isKeyInvalid;
+
+  return NextResponse.json({
+    status: "healthy",
+    mode: isReadOnly ? "read_only" : "live_ai",
+    isReadOnly,
+    provider: isReadOnly ? "aosa-core" : "google-gemini",
+    keyConfigured: !isKeyMissing,
+    keyValid: !isKeyInvalid,
+    readOnlyReason: isKeyMissing ? "missing_key" : isKeyInvalid ? (reason || "invalid_key") : null,
+    models: GEMINI_MODELS_CASCADE,
+    timestamp: new Date().toISOString(),
+  });
+}
+
 export async function POST(req: NextRequest) {
-  const geminiKey = process.env.GEMINI_API_KEY;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
 
   let body: { messages?: ChatMessage[]; role?: "buyer" | "seller"; language?: "ar" | "en" };
   try {
@@ -68,59 +107,90 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "لا توجد رسائل" }, { status: 400 });
   }
 
-  // Pre-generate AOSA local intelligence fallback
-  const aosaFallback = generateAosaResponse(lastUserMsg, role, language);
+  const isGeminiMissing = !geminiKey || geminiKey === "undefined" || geminiKey.length < 8;
+  const isGeminiCachedInvalid = geminiKey ? isKeyMarkedInvalid(geminiKey).invalid : false;
 
-  // If no cloud AI keys exist, immediately use AOSA Agent Core
-  if (!geminiKey && !anthropicKey) {
+  // 1. If Google API key is missing or previously identified as invalid:
+  // Immediately serve from AOSA Smart Read-Only Core with zero network latency
+  if (isGeminiMissing || isGeminiCachedInvalid) {
+    const reason = isGeminiMissing ? "missing_key" : "invalid_key";
+    console.warn(`[AOSA] Operating in Smart Read-Only Mode (Reason: ${reason}).`);
+    const aosaFallback = generateAosaResponse(lastUserMsg, role, language, reason);
     return NextResponse.json({
       reply: aosaFallback.reply,
       actions: aosaFallback.actions,
       model: "aosa-agent-core",
+      isReadOnly: true,
+      readOnlyReason: reason,
     });
   }
 
+  // Pre-generate AOSA local intelligence fallback
+  const aosaFallback = generateAosaResponse(lastUserMsg, role, language);
   const systemPrompt = SYSTEM_PROMPTS[role][language];
 
   try {
-    let result: { text: string | null; debug?: string; modelUsed?: string } = { text: null };
+    let result: {
+      text: string | null;
+      debug?: string;
+      modelUsed?: string;
+      isKeyInvalid?: boolean;
+      invalidReason?: string;
+    } = { text: null };
 
-    // 1. Try Google Gemini with multi-model cascade & timeout protection
-    if (geminiKey) {
-      result = await callGeminiWithFallback(geminiKey, systemPrompt, messages);
-    }
+    // 2. Try Google Gemini with multi-model cascade & early exit on invalid key
+    result = await callGeminiWithFallback(geminiKey, systemPrompt, messages);
 
-    // 2. Secondary fallback to Anthropic if Gemini failed
-    if (result.text === null && anthropicKey) {
-      console.warn("Gemini cascade failed, calling Anthropic...");
-      result = await callAnthropic(anthropicKey, systemPrompt, messages);
-    }
-
-    // 3. Autonomous Fallback: If both fail, NEVER fail to the user!
-    // Hand over smoothly to AOSA Autonomous Agent Core
-    if (result.text === null) {
-      console.warn("External AI endpoints failed/delayed. AOSA local core engaged seamlessly.");
+    // If Google API reported invalid key, switch directly to Read-Only mode without retrying
+    if (result.isKeyInvalid) {
+      console.warn("[AOSA] Google API Key is invalid. Switching smoothly to Smart Read-Only Mode.");
+      const readOnlyFallback = generateAosaResponse(lastUserMsg, role, language, "invalid_key");
       return NextResponse.json({
-        reply: aosaFallback.reply,
-        actions: aosaFallback.actions,
+        reply: readOnlyFallback.reply,
+        actions: readOnlyFallback.actions,
         model: "aosa-agent-core",
+        isReadOnly: true,
+        readOnlyReason: "invalid_key",
       });
     }
 
-    // Derive contextual actions for the user
-    const actions = deriveActionsFromQuery(lastUserMsg, role, language, aosaFallback.actions);
+    // 3. Secondary fallback to Anthropic if Gemini had transient network/demand errors
+    if (result.text === null && anthropicKey) {
+      console.warn("[AOSA] Gemini service unavailable, calling Anthropic fallback...");
+      result = await callAnthropic(anthropicKey, systemPrompt, messages);
+    }
 
+    // 4. Autonomous Read-Only Fallback: If external AI is unreachable, NEVER fail to the user!
+    if (result.text === null) {
+      console.warn("[AOSA] External AI endpoints unreachable. AOSA Smart Read-Only Core engaged.");
+      const readOnlyFallback = generateAosaResponse(lastUserMsg, role, language, "network_fallback");
+      return NextResponse.json({
+        reply: readOnlyFallback.reply,
+        actions: readOnlyFallback.actions,
+        model: "aosa-agent-core",
+        isReadOnly: true,
+        readOnlyReason: "network_fallback",
+      });
+    }
+
+    // Live AI Success
+    const actions = deriveActionsFromQuery(lastUserMsg, role, language, aosaFallback.actions);
     return NextResponse.json({
       reply: result.text || aosaFallback.reply,
       actions,
-      model: result.modelUsed || "aosa-agent",
+      model: result.modelUsed || "gemini",
+      isReadOnly: false,
+      readOnlyReason: null,
     });
   } catch (error) {
-    console.error("Chat route error, falling back to AOSA Core:", error);
+    console.error("[AOSA] Chat route exception, falling back to AOSA Core:", error);
+    const readOnlyFallback = generateAosaResponse(lastUserMsg, role, language, "network_fallback");
     return NextResponse.json({
-      reply: aosaFallback.reply,
-      actions: aosaFallback.actions,
+      reply: readOnlyFallback.reply,
+      actions: readOnlyFallback.actions,
       model: "aosa-agent-core",
+      isReadOnly: true,
+      readOnlyReason: "network_fallback",
     });
   }
 }
@@ -159,7 +229,13 @@ async function callGeminiWithFallback(
   apiKey: string,
   systemPrompt: string,
   messages: ChatMessage[]
-): Promise<{ text: string | null; debug?: string; modelUsed?: string }> {
+): Promise<{
+  text: string | null;
+  debug?: string;
+  modelUsed?: string;
+  isKeyInvalid?: boolean;
+  invalidReason?: string;
+}> {
   let lastError = "";
 
   for (const model of GEMINI_MODELS_CASCADE) {
@@ -193,22 +269,43 @@ async function callGeminiWithFallback(
         const parts = data.candidates?.[0]?.content?.parts as { text?: string }[] | undefined;
         const text = parts?.map((p) => p.text || "").join("").trim();
         if (text) {
-          return { text, modelUsed: model };
+          return { text, modelUsed: model, isKeyInvalid: false };
         }
       } else {
         const errText = await response.text();
         lastError = `Model ${model} (${response.status}): ${errText.slice(0, 120)}`;
-        console.warn(`Gemini cascade fallback from ${model}:`, response.status);
+        console.warn(`[AOSA] Gemini response error on ${model}:`, response.status);
+
+        // Detect if API key itself is invalid or unauthorized
+        const isKeyInvalid =
+          errText.includes("API_KEY_INVALID") ||
+          errText.includes("API key not valid") ||
+          errText.includes("PERMISSION_DENIED") ||
+          errText.includes("CONSUMER_INVALID") ||
+          errText.includes("API_KEY_EXPIRED") ||
+          errText.includes("UNAUTHENTICATED") ||
+          (response.status === 400 && errText.includes("API key"));
+
+        if (isKeyInvalid) {
+          markKeyInvalid(apiKey, "invalid_key");
+          console.warn("[AOSA] Key marked as invalid. Halting cascade immediately.");
+          return {
+            text: null,
+            isKeyInvalid: true,
+            invalidReason: "invalid_key",
+            debug: lastError,
+          };
+        }
       }
     } catch (e: unknown) {
       clearTimeout(timeoutId);
       const errMsg = e instanceof Error ? e.message : String(e);
       lastError = `Exception with ${model}: ${errMsg}`;
-      console.warn(`Gemini network exception on ${model}:`, errMsg);
+      console.warn(`[AOSA] Gemini network exception on ${model}:`, errMsg);
     }
   }
 
-  return { text: null, debug: lastError };
+  return { text: null, debug: lastError, isKeyInvalid: false };
 }
 
 async function callAnthropic(

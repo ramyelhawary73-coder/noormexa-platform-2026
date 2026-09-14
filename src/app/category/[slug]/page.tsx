@@ -6,6 +6,7 @@ import { Package } from "lucide-react";
 import { getCategoryBySlug, getProductsByCategorySlug } from "@/lib/marketplace";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
 import type { Category, Product } from "@/types/marketplace";
+import ProductImage from "@/components/ProductImage";
 
 const copy = {
   ar: {
@@ -81,13 +82,13 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             <div className="noormexa-product-grid">
               {products.map((product) => (
                 <Link key={product.id} href={`/product/${product.id}`} className="noormexa-product-card">
-                  <div className="noormexa-product-image">
-                    {product.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={product.image_url} alt={product.name} />
-                    ) : (
-                      <Package size={28} />
-                    )}
+                  <div className="noormexa-product-image relative overflow-hidden">
+                    <ProductImage
+                      src={product.image_url}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
                   </div>
                   <div className="noormexa-product-info">
                     <span>{product.name}</span>

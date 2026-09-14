@@ -27,6 +27,7 @@ import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
 import { requestUserGpsLocation } from "@/lib/locationService";
 import type { PaymentGatewayKey, ShippingAddress, Order } from "@/types/marketplace";
+import ProductImage from "@/components/ProductImage";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -928,9 +929,14 @@ export default function CheckoutPage() {
                 {cartItems.map((item, idx) => (
                   <div key={idx} className="pt-2.5 first:pt-0 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-soft border border-line shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.imageUrl || ""} alt="" className="w-full h-full object-cover" />
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-soft border border-line shrink-0 relative">
+                        <ProductImage
+                          src={item.imageUrl}
+                          alt={item.name}
+                          fill
+                          sizes="40px"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="truncate max-w-[170px]">
                         <p className="font-bold text-foreground truncate">{item.name}</p>

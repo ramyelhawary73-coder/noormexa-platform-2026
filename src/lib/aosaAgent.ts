@@ -15,14 +15,107 @@ export interface AgentResponse {
   reply: string;
   actions?: AgentAction[];
   source?: "gemini" | "aosa_core";
+  isReadOnly?: boolean;
+  readOnlyReason?: "missing_key" | "invalid_key" | "network_fallback" | null;
+  readOnlyNotice?: string;
 }
 
-export function generateAosaResponse(
-  userQuery: string,
-  role: "buyer" | "seller" = "buyer",
-  lang: "ar" | "en" = "ar"
-): AgentResponse {
-  const q = (userQuery || "").toLowerCase().trim();
+function getRawAosaResponse(
+  q: string,
+  role: "buyer" | "seller",
+  lang: "ar" | "en"
+): { reply: string; actions?: AgentAction[] } {
+  // Check for write/mutation requests that cannot be directly committed in read-only mode
+  const isWriteRequest =
+    q.includes("احذف") ||
+    q.includes("مسح") ||
+    q.includes("حذف") ||
+    q.includes("تعديل") ||
+    q.includes("عدل") ||
+    q.includes("غير") ||
+    q.includes("تغيير") ||
+    q.includes("ادفع لي") ||
+    q.includes("شراء تلقائي") ||
+    q.includes("قاعدة البيانات") ||
+    q.includes("delete") ||
+    q.includes("remove") ||
+    q.includes("change password") ||
+    q.includes("modify database") ||
+    q.includes("write to db") ||
+    q.includes("update my");
+
+  if (isWriteRequest) {
+    if (lang === "ar") {
+      return {
+        reply: `🔒 **تنبيه أمان وخصوصية (وضع القراءة والاستفسار):**
+أعمل حالياً بنظام **القراءة والاستفسار الذكي المستقل (Smart Read-Only Mode)**. حرصاً على سرية وأمان بياناتك المالية والشخصية، لا يمكن لأوسا تعديل السجلات أو تنفيذ المعاملات البنكية نيابة عنك بشكل مباشر وتلقائي.
+
+يمكنك إتمام هذا الإجراء بأمان وسرية تامة بنفسك عبر الروابط المباشرة التالية:`,
+        actions: [
+          { label: "إدارة وتعديل الطلبات 📦", href: "/orders" },
+          { label: "سلة المشتريات وإتمام الطلب 🛒", href: "/checkout" },
+          { label: "لوحة تحكم البائع 🏪", href: "/seller/dashboard" },
+        ],
+      };
+    } else {
+      return {
+        reply: `🔒 **Security Notice (Smart Read-Only Mode):**
+I am operating in **Smart Read-Only Mode**. To ensure maximum safety for your sensitive financial and personal data, I cannot execute direct database mutations or automated transactions on your behalf.
+
+You can safely and securely complete this action directly via the verified platform links below:`,
+        actions: [
+          { label: "Manage Orders 📦", href: "/orders" },
+          { label: "Checkout & Payments 🛒", href: "/checkout" },
+          { label: "Seller Dashboard 🏪", href: "/seller/dashboard" },
+        ],
+      };
+    }
+  }
+
+  // Inquiry about read-only mode or agent status
+  if (
+    q.includes("وضع القراءة") ||
+    q.includes("read only") ||
+    q.includes("readonly") ||
+    q.includes("حالة الاتصال") ||
+    q.includes("connection status")
+  ) {
+    if (lang === "ar") {
+      return {
+        reply: `🛡️ **حالة عمل أوسا (AOSA) - وضع القراءة الذكي:**
+أنا أعمل حالياً في **وضع القراءة والاستفسار الذكي المستقل (Autonomous Read-Only Mode)**.
+تم تصميم هذا النظام لضمان استمرارية الخدمة بنسبة 100% حتى في حال غياب أو عدم صلاحية مفتاح Google API الخارجي أو حدوث ضغط على خوادم الذكاء الاصطناعي السحابية.
+
+✅ **ما يمكنك القيام به بحرية تامة:**
+• البحث في كتالوج المنتجات وتصنيفاتها (إلكترونيات، أزياء، عطور، وساعات).
+• الاستفسار عن الشحن السريع ومواعيد التوصيل في السعودية ومصر والإمارات.
+• معرفة خيارات الدفع والتقسيط عبر تمارا وتابي ومدى والدفع عند الاستلام.
+• تتبع الطلبات والاستعلام عن سياسة الإرجاع والضمان الذهبي 14 يوماً.
+• استشارات بدء المتاجر، الباقات، ونظام العمولات للبائعين.`,
+        actions: [
+          { label: "تصفح السوق 🛍️", href: "/marketplace" },
+          { label: "خيارات الشحن والتوصيل 🚚", href: "/orders" },
+        ],
+      };
+    } else {
+      return {
+        reply: `🛡️ **AOSA System Status - Smart Read-Only Mode:**
+I am currently operating in **Autonomous Read-Only Mode**.
+This robust fallback engine was engineered to ensure zero downtime even if the external Google API key is missing, invalid, or experiencing temporary cloud service spikes.
+
+✅ **Available Capabilities (Zero Latency):**
+• Discover products & categories (Tech, Luxury Fashion, Perfumes, Watches, Home).
+• Inquire about express delivery & logistics across KSA, Egypt, and UAE.
+• Explore secure payments & 4-month installment plans (Tamara, Tabby, Mada, COD).
+• Track orders and review the 100% authenticity guarantee & 14-day returns.
+• Access seller guides, merchant tiers, and fee structures.`,
+        actions: [
+          { label: "Browse Marketplace 🛍️", href: "/marketplace" },
+          { label: "Track Shipments 🚚", href: "/orders" },
+        ],
+      };
+    }
+  }
 
   // Arabic responses for Buyers
   if (lang === "ar" && role === "buyer") {
@@ -311,5 +404,26 @@ What would you like to achieve today?`,
       { label: "Open Store 🚀", href: "/seller/register" },
       { label: "Seller Dashboard 📊", href: "/seller/dashboard" },
     ],
+  };
+}
+
+export function generateAosaResponse(
+  userQuery: string,
+  role: "buyer" | "seller" = "buyer",
+  lang: "ar" | "en" = "ar",
+  readOnlyReason?: "missing_key" | "invalid_key" | "network_fallback" | null
+): AgentResponse {
+  const q = (userQuery || "").toLowerCase().trim();
+  const raw = getRawAosaResponse(q, role, lang);
+
+  return {
+    ...raw,
+    source: "aosa_core",
+    isReadOnly: true,
+    readOnlyReason: readOnlyReason ?? null,
+    readOnlyNotice:
+      lang === "ar"
+        ? "وضع القراءة والاستفسار الذكي: تصفح المنتجات والشحن والدفع متاح بالكامل"
+        : "Smart Read-Only Mode: Catalog, shipping & payments fully available",
   };
 }
