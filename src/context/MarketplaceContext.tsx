@@ -31,6 +31,7 @@ import type {
   ShipmentStatus,
 } from "@/types/marketplace";
 import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
+import { generateInitialDemoOrders } from "@/data/initialOrders";
 import { storeCloudServices } from "@/lib/supabaseClient";
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
@@ -1770,7 +1771,16 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         }
 
         const savedOrders = window.localStorage.getItem(STORAGE_KEYS.ORDERS);
-        if (savedOrders) setOrdersState(JSON.parse(savedOrders));
+        if (savedOrders) {
+          const parsed = JSON.parse(savedOrders);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setOrdersState(parsed);
+          } else {
+            setOrdersState(generateInitialDemoOrders());
+          }
+        } else {
+          setOrdersState(generateInitialDemoOrders());
+        }
 
         const savedCarriers = window.localStorage.getItem(STORAGE_KEYS.CARRIERS);
         if (savedCarriers) {

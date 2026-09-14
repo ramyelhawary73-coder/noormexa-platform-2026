@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -9,14 +9,11 @@ import {
   BarChart3,
   Boxes,
   Check,
-  ChevronRight,
   Coins,
   CreditCard,
   Crown,
-  Download,
   Eye,
   EyeOff,
-  FileSpreadsheet,
   Megaphone,
   Percent,
   Plus,
@@ -35,7 +32,8 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { CurrencyCode, Store, Order } from "@/types/marketplace";
+import type { CurrencyCode, Store } from "@/types/marketplace";
+import { VirtualizedOrdersTable } from "@/components/VirtualizedOrdersTable";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -207,11 +205,19 @@ export default function SuperAdminPage() {
 
   const [savedNotice, setSavedNotice] = useState(false);
 
-  // Financial KPIs
-  const gmv = orders.reduce((sum, o) => sum + o.total_amount, 0) + 185400; // base demo GMV + live
-  const netCommission = orders.reduce((sum, o) => sum + o.commission_amount, 0) + 16800;
+  // Financial KPIs - memoized for performance during high-volume financial reconciliation
+  const { gmv, netCommission } = useMemo(() => {
+    let gross = 185400; // base demo GMV
+    let commission = 16800; // base platform commission
+    for (let i = 0; i < orders.length; i++) {
+      gross += orders[i].total_amount || 0;
+      commission += orders[i].commission_amount || 0;
+    }
+    return { gmv: gross, netCommission: commission };
+  }, [orders]);
+
   const totalOrdersCount = orders.length + 42;
-  const activeStoresCount = stores.filter((s) => s.status === "approved").length;
+  const activeStoresCount = useMemo(() => stores.filter((s) => s.status === "approved").length, [stores]);
 
   // Payout Transaction Ref helper state
   const [payoutTrxRefs, setPayoutTrxRefs] = useState<Record<string, string>>({});
@@ -915,82 +921,16 @@ export default function SuperAdminPage() {
                   {orders.length}
                 </span>
               </div>
-
-              <div className="flex items-center gap-2">
-                {exportNotice && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-xl animate-in fade-in">
-                    <Check size={13} />
-                    <span>{text.exportOrdersSuccess}</span>
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleExportOrdersCsv}
-                  disabled={orders.length === 0}
-                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 touch-manipulation shrink-0"
-                  title={isAr ? "تصدير جميع بيانات الطلبات بصيغة CSV للتسوية المحاسبية والمالية" : "Export orders list to CSV for accounting & financial reconciliation"}
-                >
-                  <FileSpreadsheet size={15} />
-                  <span>{text.exportOrdersCsv}</span>
-                  <Download size={13} className="opacity-80" />
-                </button>
-              </div>
             </div>
 
-            {orders.length === 0 ? (
-              <div className="text-center py-10 text-muted text-xs">
-                لم يتم تسجيل أي طلبات بعد في الجلسة الحالية.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map((ord) => (
-                  <div key={ord.id} className="p-4 rounded-2xl bg-surface-soft border border-line space-y-3 text-xs">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line/60 pb-2">
-                      <div>
-                        <span className="font-mono font-bold text-foreground">{ord.orderNumber}</span>
-                        <span className="text-muted ms-2 text-[11px]">
-                          تتبع: <strong className="text-gold">{ord.trackingNumber}</strong>
-                        </span>
-                      </div>
-                      <span className="text-gold font-black">{formatPrice(ord.total_amount)}</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-muted text-[11px]">
-                      <div>العميل: <strong className="text-foreground">{ord.shipping_info.fullName}</strong></div>
-                      <div>الهاتف: <strong className="text-foreground">{ord.shipping_info.phone}</strong></div>
-                      <div>المدينة: <strong className="text-foreground">{ord.shipping_info.city}</strong></div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line/60">
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted">حالة الشحن:</span>
-                        <select
-                          value={ord.status}
-                          onChange={(e) => updateOrderStatus(ord.id, e.target.value as Order["status"])}
-                          className="px-2.5 py-1 rounded-xl bg-surface border border-line text-foreground font-bold"
-                        >
-                          <option value="pending">قيد الانتظار (Pending)</option>
-                          <option value="paid">مدفوع ومؤكد (Paid)</option>
-                          <option value="processing">جاري التجهيز والتغليف (Processing)</option>
-                          <option value="shipped">تم الشحن في الطريق (Shipped)</option>
-                          <option value="delivered">تم التسليم بنجاح (Delivered)</option>
-                          <option value="cancelled">ملغي (Cancelled)</option>
-                        </select>
-                      </div>
-
-                      <Link
-                        href={`/orders?track=${ord.trackingNumber}`}
-                        className="text-gold hover:underline font-bold flex items-center gap-1"
-                      >
-                        <span>عرض تتبع الشحنة الحي</span>
-                        <ChevronRight size={13} />
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <VirtualizedOrdersTable
+              orders={orders}
+              formatPrice={formatPrice}
+              updateOrderStatus={updateOrderStatus}
+              onExportCsv={handleExportOrdersCsv}
+              exportNotice={exportNotice}
+              isAr={isAr}
+            />
           </div>
         )}
 
