@@ -700,12 +700,12 @@ export default function Navbar() {
             {/* Mobile Hamburger Drawer Trigger */}
             <button
               type="button"
-              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 flex items-center justify-center text-foreground hover:border-slate-400 transition-all shadow-xs cursor-pointer active:scale-95"
+              className="lg:hidden w-10 h-10 rounded-full border border-line bg-surface dark:bg-slate-900 flex items-center justify-center text-foreground hover:border-slate-400 transition-all shadow-xs cursor-pointer active:scale-95 touch-manipulation"
               onClick={() => setOpen(!open)}
               aria-label={open ? text.close : text.menu}
               aria-expanded={open}
             >
-              {open ? <X size={18} /> : <Menu size={18} />}
+              {open ? <X size={20} /> : <Menu size={20} />}
             </button>
 
           </div>
@@ -723,7 +723,7 @@ export default function Navbar() {
                   value={navCategory}
                   onChange={(e) => setNavCategory(e.target.value)}
                   aria-label={isAr ? "اختيار القسم" : "Select Department"}
-                  className="appearance-none bg-surface dark:bg-slate-800 text-foreground font-bold text-[10px] py-1 ps-2.5 pe-5 rounded-full border border-line focus:outline-hidden cursor-pointer"
+                  className="appearance-none bg-surface dark:bg-slate-800 text-foreground font-bold text-[11px] py-1.5 ps-2.5 pe-5 rounded-full border border-line focus:outline-hidden cursor-pointer"
                 >
                   {searchCategories.map((cat) => (
                     <option key={cat.id} value={cat.id} className="bg-surface dark:bg-slate-900 text-foreground">
@@ -734,14 +734,14 @@ export default function Navbar() {
                 <ChevronDown size={10} className="absolute end-1.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
               </div>
 
-              {/* Input */}
+              {/* Input - font-size 15px/16px prevents iOS Safari auto zoom */}
               <div className="flex-1 min-w-0 px-2">
                 <input
                   type="text"
                   value={navSearchQuery}
                   onChange={(e) => setNavSearchQuery(e.target.value)}
                   placeholder={text.searchPlaceholder}
-                  className="w-full bg-transparent text-foreground placeholder:text-muted/60 text-xs font-medium focus:outline-hidden"
+                  className="w-full bg-transparent text-foreground placeholder:text-muted/60 text-[14px] sm:text-xs font-medium focus:outline-hidden"
                 />
               </div>
 
@@ -749,9 +749,9 @@ export default function Navbar() {
               <button
                 type="submit"
                 aria-label={isAr ? "بحث" : "Search"}
-                className="w-7 h-7 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 !text-white flex items-center justify-center shrink-0 shadow-xs active:scale-95 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 !text-white flex items-center justify-center shrink-0 shadow-xs active:scale-95 cursor-pointer touch-manipulation"
               >
-                <Search size={13} className="stroke-[2.5]" />
+                <Search size={14} className="stroke-[2.5]" />
               </button>
             </div>
           </form>

@@ -989,7 +989,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full py-4 rounded-2xl bg-gold text-navy hover:bg-gold-strong font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 disabled:opacity-60"
+                  className="w-full py-4 rounded-2xl bg-gold text-navy hover:bg-gold-strong font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 disabled:opacity-60 cursor-pointer"
                 >
                   <Lock size={16} />
                   <span>{isProcessing ? text.processing : text.confirmOrder}</span>
@@ -1003,6 +1003,29 @@ export default function CheckoutPage() {
             </div>
           </div>
         </form>
+      </div>
+
+      {/* Mobile Sticky Confirm Order Bar (Fixed above bottom nav with safe area) */}
+      <div className="sm:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] inset-x-0 z-35 bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-t border-line px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <span className="text-[10px] text-muted block leading-tight">{text.grandTotal}</span>
+          <span className="text-base font-black text-gold truncate block">
+            {formatPrice(grandTotal)}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          disabled={isProcessing}
+          onClick={() => {
+            const form = document.querySelector("form");
+            if (form) form.requestSubmit();
+          }}
+          className="h-11 px-5 rounded-xl bg-gold text-navy hover:bg-gold-strong flex items-center justify-center gap-2 text-xs font-black shadow-md active:scale-95 disabled:opacity-60 shrink-0 cursor-pointer"
+        >
+          <Lock size={15} />
+          <span>{isProcessing ? text.processing : text.confirmOrder}</span>
+        </button>
       </div>
     </main>
   );

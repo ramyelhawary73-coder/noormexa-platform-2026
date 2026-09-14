@@ -731,25 +731,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Related Products Grid */}
         {relatedProducts.length > 0 && (
-          <div className="space-y-6 pt-6 border-t border-line">
+          <div className="space-y-6 pt-6 pb-20 sm:pb-6 border-t border-line">
             <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
               <Sparkles size={20} className="text-gold" />
               <span>{text.relatedProducts}</span>
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               {relatedProducts.map((rel) => (
                 <Link
                   key={rel.id}
                   href={`/marketplace/${rel.id}`}
-                  className="group rounded-3xl bg-surface border border-line p-4 shadow-sm hover:shadow-md transition-all space-y-3"
+                  className="group rounded-2xl sm:rounded-3xl bg-surface border border-line p-2.5 sm:p-4 shadow-sm hover:shadow-md transition-all space-y-2.5"
                 >
-                  <div className="aspect-square rounded-2xl overflow-hidden bg-surface-soft relative">
+                  <div className="aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-surface-soft relative">
                     <ProductImage
                       src={rel.image_url}
                       alt={rel.name}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform"
                     />
                   </div>
@@ -760,6 +760,39 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
         )}
+      </div>
+
+      {/* Mobile Sticky Bottom Action Bar (Fixed above bottom nav with safe-area support) */}
+      <div className="sm:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] inset-x-0 z-35 bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-t border-line px-3.5 py-2.5 shadow-2xl flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <span className="text-[10px] text-muted block leading-tight">{text.subtotal}</span>
+          <span className="text-base font-black text-gold truncate block">
+            {formatPrice(calculatedPrice * quantity)}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            disabled={product.stock <= 0}
+            onClick={handleAddToCart}
+            className="h-11 px-3.5 rounded-xl border border-orange-500 text-orange-600 dark:text-orange-400 bg-surface flex items-center justify-center gap-1.5 text-xs font-black shadow-xs active:scale-95 disabled:opacity-50"
+            aria-label={text.addToCart}
+          >
+            <ShoppingCart size={16} />
+            <span>{text.addToCart}</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={product.stock <= 0}
+            onClick={handleBuyNow}
+            className="h-11 px-4 rounded-xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white flex items-center justify-center gap-1.5 text-xs font-black shadow-md shadow-orange-500/30 active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            <Zap size={16} className="fill-white" />
+            <span>{text.buyNow}</span>
+          </button>
+        </div>
       </div>
     </main>
   );

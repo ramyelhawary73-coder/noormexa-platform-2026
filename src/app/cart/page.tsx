@@ -464,6 +464,24 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Sticky Checkout Bar (Fixed above bottom nav) */}
+      <div className="sm:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] inset-x-0 z-35 bg-surface/95 dark:bg-[#0b1322]/95 backdrop-blur-xl border-t border-line px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <span className="text-[10px] text-muted block leading-tight">{text.total}</span>
+          <span className="text-base font-black text-gold truncate block">
+            {formatPrice(grandTotal)}
+          </span>
+        </div>
+
+        <Link
+          href="/checkout"
+          className="h-11 px-5 rounded-xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white flex items-center justify-center gap-2 text-xs font-black shadow-md shadow-orange-500/30 active:scale-95 shrink-0"
+        >
+          <ShoppingBag size={16} />
+          <span>{text.proceedToCheckout}</span>
+        </Link>
+      </div>
     </main>
   );
 }

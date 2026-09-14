@@ -180,12 +180,17 @@ export default function AIAssistant() {
     <div className="noormexa-ai-widget">
       {open && (
         <div className="noormexa-ai-panel">
+          {/* Mobile Drag/Pull Indicator Bar (Visible on mobile screens) */}
+          <div className="sm:hidden flex justify-center pt-2.5 pb-1 bg-navy">
+            <div className="w-10 h-1 rounded-full bg-white/30" />
+          </div>
+
           {/* Header with AOSA Avatar & Professional Slogan */}
           <div className="noormexa-ai-panel-header">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
               <AosaAvatar size={42} showOnlineBadge={true} badgeStatus={isReadOnly ? "readonly" : "online"} />
-              <div className="flex flex-col">
-                <span className="font-black text-sm text-white tracking-wide">{text.title}</span>
+              <div className="flex flex-col min-w-0">
+                <span className="font-black text-sm text-white tracking-wide truncate">{text.title}</span>
                 <span className="text-[11px] text-amber-300/90 font-medium line-clamp-1">
                   {text.slogan}
                 </span>
@@ -204,25 +209,25 @@ export default function AIAssistant() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               {messages.length > 0 && (
                 <button
                   type="button"
-                  className="noormexa-icon-button hover:text-amber-400 transition-colors"
+                  className="noormexa-icon-button hover:text-amber-400 transition-colors p-2 cursor-pointer"
                   onClick={handleClear}
                   title={text.clear}
                   aria-label={text.clear}
                 >
-                  <RotateCcw size={15} />
+                  <RotateCcw size={16} />
                 </button>
               )}
               <button
                 type="button"
-                className="noormexa-icon-button hover:text-red-400 transition-colors"
+                className="noormexa-icon-button hover:text-red-400 transition-colors p-2 cursor-pointer active:scale-95"
                 onClick={() => setOpen(false)}
                 aria-label="close"
               >
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
           </div>

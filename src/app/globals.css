@@ -2122,13 +2122,13 @@ html[dir="rtl"] .noormexa-password-shell {
 
 .noormexa-ai-widget {
   position: fixed;
-  inset-block-end: calc(76px + env(safe-area-inset-bottom, 12px));
-  inset-inline-end: 14px;
+  inset-block-end: calc(74px + env(safe-area-inset-bottom, 10px));
+  inset-inline-end: 12px;
   z-index: 50;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 12px;
+  gap: 10px;
   pointer-events: none;
 }
 
@@ -2136,24 +2136,25 @@ html[dir="rtl"] .noormexa-password-shell {
   .noormexa-ai-widget {
     inset-block-end: 24px;
     inset-inline-end: 24px;
+    gap: 14px;
   }
 }
 
 .noormexa-ai-fab {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 2px solid rgba(245, 158, 11, 0.5);
+  border: 2px solid rgba(245, 158, 11, 0.6);
   background: var(--navy);
   color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
   cursor: pointer;
   pointer-events: auto;
   touch-action: manipulation;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
   padding: 0;
 }
 
@@ -2166,7 +2167,7 @@ html[dir="rtl"] .noormexa-password-shell {
 
 .noormexa-ai-fab:hover {
   transform: scale(1.06);
-  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 10px 32px rgba(245, 158, 11, 0.4);
 }
 
 .noormexa-ai-fab:active {
@@ -2174,20 +2175,88 @@ html[dir="rtl"] .noormexa-password-shell {
 }
 
 .dark .noormexa-ai-fab {
-  border-color: rgba(245, 158, 11, 0.7);
+  border-color: rgba(245, 158, 11, 0.75);
 }
 
-.noormexa-ai-panel {
-  width: min(390px, calc(100vw - 24px));
-  max-height: 75vh;
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: var(--safe-shadow);
-  overflow: hidden;
-  pointer-events: auto;
+/* On mobile phones: sleek bottom sheet mode */
+@media (max-width: 640px) {
+  .noormexa-ai-panel {
+    position: fixed !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: 0 !important;
+    inset-block-end: 0 !important;
+    inset-block-top: auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 88vh !important;
+    max-height: 88vh !important;
+    border-radius: 24px 24px 0 0 !important;
+    border-inline: none !important;
+    border-block-end: none !important;
+    border-block-start: 1px solid rgba(245, 158, 11, 0.3) !important;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--surface) !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+    z-index: 100 !important;
+    animation: aosaMobileSlideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes aosaMobileSlideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0.8;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .noormexa-ai-panel-header {
+    padding: 12px 14px 10px !important;
+    position: relative;
+  }
+
+  .noormexa-ai-messages {
+    flex: 1 1 0% !important;
+    padding: 12px 12px 6px !important;
+    min-height: 160px !important;
+  }
+
+  .noormexa-ai-input-row {
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 8px)) !important;
+    background: var(--surface) !important;
+  }
+
+  .noormexa-ai-input-row input {
+    font-size: 15px !important; /* Prevents auto-zoom on iOS Safari */
+    padding: 11px 12px !important;
+  }
+
+  .noormexa-ai-input-row button {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+@media (min-width: 641px) {
+  .noormexa-ai-panel {
+    width: min(400px, calc(100vw - 32px));
+    max-height: 76vh;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--safe-shadow);
+    overflow: hidden;
+    pointer-events: auto;
+  }
 }
 
 .noormexa-ai-panel-header {
@@ -2899,18 +2968,13 @@ html[dir="rtl"] .noormexa-password-shell {
 
 @media (max-width: 480px) {
   .noormexa-ai-widget {
-    inset-block-end: 80px;
-    inset-inline-end: 14px;
+    inset-block-end: calc(72px + env(safe-area-inset-bottom, 8px));
+    inset-inline-end: 12px;
   }
 
   .noormexa-ai-fab {
-    width: 46px;
-    height: 46px;
-  }
-
-  .noormexa-ai-panel {
-    width: min(320px, calc(100vw - 24px));
-    max-height: 60vh;
+    width: 48px;
+    height: 48px;
   }
 
   .noormexa-stats-grid,
