@@ -112,6 +112,38 @@ export default function Navbar() {
   const { currency, setCurrency, currencies, cartCount, wishlist } = useMarketplace();
   const { location, openLocationModal, isLocating } = useLocation();
 
+  // Subtle pop animation for cart icon when item is added
+  const [cartPopping, setCartPopping] = useState(false);
+  const prevCartCountRef = useRef(cartCount);
+  const isCartMountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isCartMountedRef.current) {
+      isCartMountedRef.current = true;
+      prevCartCountRef.current = cartCount;
+      return;
+    }
+
+    if (cartCount > prevCartCountRef.current) {
+      setCartPopping(true);
+      const timer = setTimeout(() => setCartPopping(false), 650);
+      prevCartCountRef.current = cartCount;
+      return () => clearTimeout(timer);
+    }
+    prevCartCountRef.current = cartCount;
+  }, [cartCount]);
+
+  useEffect(() => {
+    const handleCartItemAdded = () => {
+      setCartPopping(true);
+      const timer = setTimeout(() => setCartPopping(false), 650);
+      return () => clearTimeout(timer);
+    };
+
+    window.addEventListener("noormexa:cart:item-added", handleCartItemAdded);
+    return () => window.removeEventListener("noormexa:cart:item-added", handleCartItemAdded);
+  }, []);
+
   // Dynamic user role evaluation based on email and profile
   const userRole = getUserRole(user, profile);
   const isAdmin = userRole === "admin";
@@ -479,16 +511,27 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Cart Icon Button with Amazon-Style Orange Badge */}
+            {/* Cart Icon Button with Amazon-Style Orange Badge & Pop Animation */}
             <Link
               href="/cart"
-              className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/60 flex items-center justify-center text-foreground hover:text-orange-500 transition-all shadow-xs"
+              className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border bg-surface dark:bg-slate-900 flex items-center justify-center transition-all shadow-xs ${
+                cartPopping
+                  ? "border-orange-500 text-orange-500 ring-2 ring-orange-400/40 shadow-orange-500/20 shadow-md"
+                  : "border-line hover:border-orange-500/60 text-foreground hover:text-orange-500"
+              }`}
               title={text.cart}
               aria-label={text.cart}
             >
-              <ShoppingCart size={16} />
+              {cartPopping && <span className="cart-pop-ripple" />}
+              <span className={`inline-flex items-center justify-center transition-transform ${cartPopping ? "animate-cart-pop text-orange-500" : ""}`}>
+                <ShoppingCart size={16} />
+              </span>
               {cartCount > 0 && (
-                <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-black px-1 shadow-sm animate-pulse">
+                <span
+                  className={`absolute -top-1 -end-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-black px-1 shadow-sm ${
+                    cartPopping ? "animate-cart-badge-pop" : "animate-pulse"
+                  }`}
+                >
                   {cartCount}
                 </span>
               )}

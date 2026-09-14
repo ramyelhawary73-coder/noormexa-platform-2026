@@ -2149,6 +2149,13 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       selectedVariants?: SelectedVariant,
       selectedVariantsLabel?: string
     ) => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("noormexa:cart:item-added", {
+            detail: { productId: product.id, quantity },
+          })
+        );
+      }
       setCartItemsState((prev) => {
         // Find if identical product with same variants is in cart
         const variantKey = selectedVariants ? JSON.stringify(selectedVariants) : "";

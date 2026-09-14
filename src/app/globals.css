@@ -3040,3 +3040,72 @@ html[dir="rtl"] .noormexa-password-shell {
 .noormexa-theme-toggle {
   flex: 0 0 auto;
 }
+
+/* ========================================================================= */
+/* Subtle Cart Pop & Visual Feedback Animations */
+/* ========================================================================= */
+@keyframes noormexaCartPop {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.28);
+  }
+  50% {
+    transform: scale(0.92);
+  }
+  75% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes noormexaBadgePop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.45);
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  80% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes noormexaCartGlowRing {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.animate-cart-pop {
+  animation: noormexaCartPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  will-change: transform;
+}
+
+.animate-cart-badge-pop {
+  animation: noormexaBadgePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  will-change: transform;
+}
+
+.cart-pop-ripple {
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 2px solid rgba(249, 115, 22, 0.85);
+  pointer-events: none;
+  animation: noormexaCartGlowRing 0.55s ease-out forwards;
+}

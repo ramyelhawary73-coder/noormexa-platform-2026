@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, useState, useEffect, useRef } from "react";
 import {
   Home,
   ShoppingBag,
@@ -63,6 +63,38 @@ export default function MobileBottomNav() {
   const text = labels[language];
   const { cartCount } = useMarketplace();
   const { user, profile, loading: authLoading } = useAuth();
+
+  // Subtle pop animation for cart icon when item is added
+  const [cartPopping, setCartPopping] = useState(false);
+  const prevCartCountRef = useRef(cartCount);
+  const isCartMountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isCartMountedRef.current) {
+      isCartMountedRef.current = true;
+      prevCartCountRef.current = cartCount;
+      return;
+    }
+
+    if (cartCount > prevCartCountRef.current) {
+      setCartPopping(true);
+      const timer = setTimeout(() => setCartPopping(false), 650);
+      prevCartCountRef.current = cartCount;
+      return () => clearTimeout(timer);
+    }
+    prevCartCountRef.current = cartCount;
+  }, [cartCount]);
+
+  useEffect(() => {
+    const handleCartItemAdded = () => {
+      setCartPopping(true);
+      const timer = setTimeout(() => setCartPopping(false), 650);
+      return () => clearTimeout(timer);
+    };
+
+    window.addEventListener("noormexa:cart:item-added", handleCartItemAdded);
+    return () => window.removeEventListener("noormexa:cart:item-added", handleCartItemAdded);
+  }, []);
 
   // Dynamic user role evaluation based on email and profile
   const role = authLoading ? "guest" : getUserRole(user, profile);
@@ -139,6 +171,7 @@ export default function MobileBottomNav() {
       icon: ShoppingCart,
       badge: cartCount,
       active: pathname.startsWith("/cart"),
+      isCart: true,
     },
   ];
 
@@ -148,6 +181,7 @@ export default function MobileBottomNav() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.active;
+          const isCartItem = "isCart" in item && item.isCart;
 
           if (item.isSpecial) {
             return (
@@ -190,9 +224,16 @@ export default function MobileBottomNav() {
               }`}
             >
               <div className="relative">
-                <Icon size={20} className={isActive ? "stroke-[2.5]" : "stroke-[1.8]"} />
+                {isCartItem && cartPopping && <span className="cart-pop-ripple" />}
+                <span className={`inline-flex items-center justify-center transition-transform ${isCartItem && cartPopping ? "animate-cart-pop text-orange-500" : ""}`}>
+                  <Icon size={20} className={isActive ? "stroke-[2.5]" : "stroke-[1.8]"} />
+                </span>
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1.5 -end-2 min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black px-1 shadow-sm">
+                  <span
+                    className={`absolute -top-1.5 -end-2 min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black px-1 shadow-sm ${
+                      isCartItem && cartPopping ? "animate-cart-badge-pop" : ""
+                    }`}
+                  >
                     {item.badge}
                   </span>
                 )}
