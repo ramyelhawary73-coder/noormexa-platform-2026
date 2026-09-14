@@ -29,6 +29,7 @@ const copy = {
     send: "إرسال",
     intro: "أهلاً بك! أنا أوسا (AOSA)، رفيقتكِ الذكية في NOORMEXA ✨ جاهزة لمساعدتك في استكشاف أفضل المنتجات، خيارات الدفع والتقسيط، الشحن السريع لنفس اليوم، أو إطلاق متجرك ومضاعفة مبيعاتك!",
     clear: "محادثة جديدة",
+    close: "إغلاق النافذة",
     thinking: "أوسا تصيغ لك الرد المناسب...",
     suggestionsTitle: "أسئلة شائعة مقترحة:",
     buyerSuggestions: [
@@ -57,6 +58,7 @@ const copy = {
     send: "Send",
     intro: "Welcome! I am AOSA, your smart shopping & commerce companion on NOORMEXA ✨ Ready to help you discover deals, flexible payments & installments, same-day delivery, or launching and growing your store!",
     clear: "New Chat",
+    close: "Close Window",
     thinking: "AOSA is preparing your answer...",
     suggestionsTitle: "Suggested Quick Questions:",
     buyerSuggestions: [
@@ -209,25 +211,26 @@ export default function AIAssistant() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               {messages.length > 0 && (
                 <button
                   type="button"
-                  className="noormexa-icon-button hover:text-amber-400 transition-colors p-2 cursor-pointer"
+                  className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 dark:bg-slate-800/80 hover:bg-amber-500/20 active:scale-95 border border-white/20 dark:border-slate-700/80 text-amber-300 dark:text-amber-400 hover:text-amber-200 transition-all cursor-pointer shadow-xs"
                   onClick={handleClear}
                   title={text.clear}
                   aria-label={text.clear}
                 >
-                  <RotateCcw size={16} />
+                  <RotateCcw size={15} className="stroke-[2.2]" />
                 </button>
               )}
               <button
                 type="button"
-                className="noormexa-icon-button hover:text-red-400 transition-colors p-2 cursor-pointer active:scale-95"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 dark:bg-slate-800/80 hover:bg-red-500/25 active:scale-95 border border-white/20 dark:border-slate-700/80 text-white dark:text-slate-200 hover:text-red-300 transition-all cursor-pointer shadow-xs"
                 onClick={() => setOpen(false)}
-                aria-label="close"
+                title={text.close}
+                aria-label={text.close}
               >
-                <X size={20} />
+                <X size={18} className="stroke-[2.5]" />
               </button>
             </div>
           </div>
@@ -356,10 +359,11 @@ export default function AIAssistant() {
               type="button"
               onClick={() => handleSend()}
               disabled={sending || !input.trim()}
+              title={text.send}
               aria-label={text.send}
-              className="hover:text-amber-400 transition-colors"
+              className="cursor-pointer"
             >
-              <Send size={16} />
+              <Send size={17} className="stroke-[2.2]" />
             </button>
           </div>
         </div>
@@ -370,11 +374,11 @@ export default function AIAssistant() {
         type="button"
         className="noormexa-ai-fab group transition-transform hover:scale-105"
         onClick={() => setOpen((value) => !value)}
-        aria-label={text.title}
-        title={isReadOnly ? `${text.title} - ${text.statusBadgeReadOnly}` : `${text.title} - ${text.statusBadgeLive}`}
+        aria-label={open ? text.close : text.title}
+        title={open ? text.close : isReadOnly ? `${text.title} - ${text.statusBadgeReadOnly}` : `${text.title} - ${text.statusBadgeLive}`}
       >
         {open ? (
-          <X size={22} className="text-white" />
+          <X size={24} className="text-white stroke-[2.5]" />
         ) : (
           <AosaAvatar size={48} showOnlineBadge={true} badgeStatus={isReadOnly ? "readonly" : "online"} />
         )}
