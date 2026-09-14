@@ -2140,27 +2140,33 @@ html[dir="rtl"] .noormexa-password-shell {
 }
 
 .noormexa-ai-fab {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  border: 2px solid rgba(245, 158, 11, 0.5);
   background: var(--navy);
-  color: var(--gold);
+  color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.35);
   cursor: pointer;
   pointer-events: auto;
   touch-action: manipulation;
-  transition: transform 0.15s ease, background-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
 }
 
 @media (min-width: 769px) {
   .noormexa-ai-fab {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
   }
+}
+
+.noormexa-ai-fab:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
 }
 
 .noormexa-ai-fab:active {
@@ -2168,14 +2174,12 @@ html[dir="rtl"] .noormexa-password-shell {
 }
 
 .dark .noormexa-ai-fab {
-  background: var(--gold);
-  color: var(--navy);
-  border-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(245, 158, 11, 0.7);
 }
 
 .noormexa-ai-panel {
-  width: min(360px, calc(100vw - 28px));
-  max-height: 70vh;
+  width: min(390px, calc(100vw - 24px));
+  max-height: 75vh;
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);

@@ -2,61 +2,68 @@
 
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Bot, Send, Sparkles, Store as StoreIcon, User, X, RotateCcw } from "lucide-react";
+import Link from "next/link";
+import { Send, Store as StoreIcon, User, X, RotateCcw } from "lucide-react";
 import { useNoormexaLanguage } from "@/lib/useLanguage";
+import AosaAvatar from "@/components/AosaAvatar";
+import { generateAosaResponse, type AgentAction } from "@/lib/aosaAgent";
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  actions?: AgentAction[];
+};
 type Mode = "buyer" | "seller";
 
 const copy = {
   ar: {
-    title: "مساعد NOORMEXA الذكي",
-    statusBadge: "Google Gemini 3.6 Flash",
+    title: "أوسا (AOSA)",
+    slogan: "رفيقتكِ الذكية للتسوق وإدارة تجارتكِ",
+    statusBadge: "متصلة الآن 🟢",
     buyerMode: "متسوق",
     sellerMode: "بائع / تاجر",
-    placeholder: "اكتب استفسارك هنا...",
+    placeholder: "اسألي أوسا عن أي شيء في المنصة...",
     send: "إرسال",
-    intro: "أهلاً بك! أنا مساعد NOORMEXA الذكي. جاهز لمساعدتك في استكشاف المنتجات، خيارات الدفع، تتبع الشحن، أو إطلاق متجرك.",
+    intro: "أهلاً بك! أنا أوسا (AOSA)، رفيقتكِ الذكية في NOORMEXA ✨ جاهزة لمساعدتك في استكشاف أفضل المنتجات، خيارات الدفع والتقسيط، الشحن السريع لنفس اليوم، أو إطلاق متجرك ومضاعفة مبيعاتك!",
     clear: "محادثة جديدة",
-    error: "حدث خطأ مؤقت، يرجى المحاولة مرة أخرى.",
-    notConfigured: "المساعد الذكي غير مفعّل بعد في بيئة التشغيل الحالية.",
-    thinking: "جاري التفكير وصياغة الرد...",
+    thinking: "أوسا تصيغ لك الرد المناسب...",
+    suggestionsTitle: "أسئلة شائعة مقترحة:",
     buyerSuggestions: [
-      "ما هي طرق الدفع المتاحة في المنصة؟",
       "كيف يعمل الشحن السريع والتوصيل؟",
-      "ما هي سياسة الضمان والاسترجاع؟",
-      "أريد ترشيحاً لأفضل المنتجات التقنية.",
+      "ما هي طرق الدفع وخيارات التقسيط المتاحة؟",
+      "ما هي سياسة الضمان الذهبي والاسترجاع؟",
+      "رشحي لي أفضل المنتجات والخصومات الحالية.",
     ],
     sellerSuggestions: [
-      "كيف أبدأ وأفتح متجر جديد في نورمكسا؟",
-      "ساعدني في كتابة وصف تسويقي لمنتجي.",
-      "ما هي باقات الاشتراك والعمولات للتجار؟",
-      "كيف أطلق حملة إعلانات ريلز ممولة؟",
+      "كيف أفتح متجر جديد وأبدأ البيع في نورمكسا؟",
+      "ساعديني في كتابة وصف تسويقي احترافي لمنتجي.",
+      "ما هي باقات التجار ونظام العمولات؟",
+      "كيف أطلق فيديو ريلز تسويقي لزيادة المبيعات؟",
     ],
   },
   en: {
-    title: "NOORMEXA AI Assistant",
-    statusBadge: "Google Gemini 3.6 Flash",
+    title: "AOSA Agent",
+    slogan: "Your Smart Shopping & Commerce Companion",
+    statusBadge: "Online & Ready 🟢",
     buyerMode: "Shopper",
     sellerMode: "Seller / Merchant",
-    placeholder: "Ask me anything...",
+    placeholder: "Ask AOSA anything about NOORMEXA...",
     send: "Send",
-    intro: "Welcome! I am the NOORMEXA AI Assistant. I can help you discover products, payment options, express shipping, or growing your store.",
+    intro: "Welcome! I am AOSA, your smart shopping & commerce companion on NOORMEXA ✨ Ready to help you discover deals, flexible payments & installments, same-day delivery, or launching and growing your store!",
     clear: "New Chat",
-    error: "Something went wrong, please try again.",
-    notConfigured: "The AI assistant isn't enabled on this deployment yet.",
-    thinking: "Thinking and drafting response...",
+    thinking: "AOSA is preparing your answer...",
+    suggestionsTitle: "Suggested Quick Questions:",
     buyerSuggestions: [
-      "What payment methods are supported?",
-      "How does express delivery work?",
-      "What is the return and guarantee policy?",
-      "Suggest top trending tech products.",
+      "How does express delivery and shipping work?",
+      "What are the supported payment & installment methods?",
+      "What is the 100% authenticity guarantee & return policy?",
+      "Suggest the best trending categories & deals.",
     ],
     sellerSuggestions: [
-      "How do I set up a store on NOORMEXA?",
+      "How do I open a new store and start selling?",
       "Help me write a compelling product description.",
-      "What are the merchant tiers and fees?",
-      "How do sponsored reels campaigns work?",
+      "What are the merchant tiers and commission rates?",
+      "How do I launch promotional reels to boost sales?",
     ],
   },
 } as const;
@@ -69,7 +76,10 @@ export default function AIAssistant() {
   const [open, setOpen] = useState(false);
   const [userMode, setUserMode] = useState<Mode | null>(null);
   const mode: Mode =
-    userMode ?? (pathname?.startsWith("/dashboard") || pathname?.startsWith("/seller") || pathname?.startsWith("/admin") ? "seller" : "buyer");
+    userMode ??
+    (pathname?.startsWith("/dashboard") || pathname?.startsWith("/seller") || pathname?.startsWith("/admin")
+      ? "seller"
+      : "buyer");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -93,16 +103,28 @@ export default function AIAssistant() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages: nextMessages, role: mode, language }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        const friendly = res.status === 503 ? text.notConfigured : (data.error || text.error);
-        setMessages((prev) => [...prev, { role: "assistant", content: friendly }]);
-        if (data.debug) console.error("AI assistant error:", data.debug);
+
+      if (res.ok) {
+        const data = await res.json();
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: data.reply, actions: data.actions },
+        ]);
       } else {
-        setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+        // Zero-failure fallback: If server returns error, AOSA Local Core answers immediately
+        const fallback = generateAosaResponse(value, mode, language);
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: fallback.reply, actions: fallback.actions },
+        ]);
       }
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: text.error }]);
+      // Offline / network exception fallback: AOSA answers immediately
+      const fallback = generateAosaResponse(value, mode, language);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: fallback.reply, actions: fallback.actions },
+      ]);
     } finally {
       setSending(false);
     }
@@ -120,22 +142,27 @@ export default function AIAssistant() {
     <div className="noormexa-ai-widget">
       {open && (
         <div className="noormexa-ai-panel">
+          {/* Header with AOSA Avatar & Professional Slogan */}
           <div className="noormexa-ai-panel-header">
-            <div className="noormexa-ai-panel-title">
-              <Sparkles size={18} className="text-gold" />
+            <div className="flex items-center gap-2.5">
+              <AosaAvatar size={42} showOnlineBadge={true} />
               <div className="flex flex-col">
-                <span className="font-bold text-sm">{text.title}</span>
-                <span className="flex items-center gap-1 text-[10px] text-emerald-500 dark:text-emerald-400 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                <span className="font-black text-sm text-white tracking-wide">{text.title}</span>
+                <span className="text-[11px] text-amber-300/90 font-medium line-clamp-1">
+                  {text.slogan}
+                </span>
+                <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                   {text.statusBadge}
                 </span>
               </div>
             </div>
+
             <div className="flex items-center gap-1">
               {messages.length > 0 && (
                 <button
                   type="button"
-                  className="noormexa-icon-button"
+                  className="noormexa-icon-button hover:text-amber-400 transition-colors"
                   onClick={handleClear}
                   title={text.clear}
                   aria-label={text.clear}
@@ -145,7 +172,7 @@ export default function AIAssistant() {
               )}
               <button
                 type="button"
-                className="noormexa-icon-button"
+                className="noormexa-icon-button hover:text-red-400 transition-colors"
                 onClick={() => setOpen(false)}
                 aria-label="close"
               >
@@ -154,6 +181,7 @@ export default function AIAssistant() {
             </div>
           </div>
 
+          {/* Mode switch */}
           <div className="noormexa-ai-mode-switch">
             <button
               type="button"
@@ -173,13 +201,20 @@ export default function AIAssistant() {
             </button>
           </div>
 
+          {/* Messages list */}
           <div className="noormexa-ai-messages" ref={listRef}>
             {messages.length === 0 && (
-              <div className="space-y-3">
-                <p className="noormexa-ai-intro">{text.intro}</p>
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-[11px] font-semibold text-muted block">
-                    {language === "ar" ? "أسئلة مقترحة سريعة:" : "Suggested quick questions:"}
+              <div className="space-y-3.5">
+                <div className="flex items-start gap-2.5">
+                  <AosaAvatar size={32} showOnlineBadge={false} className="mt-1 flex-shrink-0" />
+                  <div className="noormexa-ai-bubble leading-relaxed text-xs">
+                    {text.intro}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-line/60">
+                  <span className="text-[11px] font-bold text-muted block px-1">
+                    {text.suggestionsTitle}
                   </span>
                   <div className="flex flex-col gap-1.5">
                     {suggestions.map((s, idx) => (
@@ -188,7 +223,7 @@ export default function AIAssistant() {
                         type="button"
                         onClick={() => handleSend(s)}
                         disabled={sending}
-                        className="text-start text-xs p-2 rounded-xl bg-surface-soft hover:bg-gold/10 border border-line hover:border-gold/30 text-foreground transition-all cursor-pointer"
+                        className="text-start text-xs p-2.5 rounded-xl bg-surface-soft hover:bg-amber-500/10 border border-line hover:border-amber-500/40 text-foreground transition-all cursor-pointer font-medium"
                       >
                         💡 {s}
                       </button>
@@ -197,22 +232,54 @@ export default function AIAssistant() {
                 </div>
               </div>
             )}
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`noormexa-ai-bubble${message.role === "user" ? " noormexa-ai-bubble-user" : ""}`}
-              >
-                {message.content}
-              </div>
-            ))}
+
+            {messages.map((message, index) => {
+              if (message.role === "user") {
+                return (
+                  <div key={index} className="noormexa-ai-bubble noormexa-ai-bubble-user text-xs leading-relaxed">
+                    {message.content}
+                  </div>
+                );
+              }
+
+              return (
+                <div key={index} className="flex items-start gap-2 max-w-[95%] self-start">
+                  <AosaAvatar size={28} showOnlineBadge={false} className="mt-1 flex-shrink-0" />
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className="noormexa-ai-bubble text-xs leading-relaxed whitespace-pre-line">
+                      {message.content}
+                    </div>
+                    {message.actions && message.actions.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {message.actions.map((action, aIdx) => (
+                          <Link
+                            key={aIdx}
+                            href={action.href}
+                            onClick={() => setOpen(false)}
+                            className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 transition-all cursor-pointer"
+                          >
+                            {action.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
             {sending && (
-              <div className="noormexa-ai-bubble noormexa-ai-thinking flex items-center gap-2">
-                <span className="animate-spin text-gold text-xs">✨</span>
-                <span>{text.thinking}</span>
+              <div className="flex items-start gap-2 self-start">
+                <AosaAvatar size={28} showOnlineBadge={false} className="mt-1 flex-shrink-0 animate-pulse" />
+                <div className="noormexa-ai-bubble noormexa-ai-thinking flex items-center gap-2 text-xs">
+                  <span className="animate-spin text-amber-500 text-sm">✨</span>
+                  <span>{text.thinking}</span>
+                </div>
               </div>
             )}
           </div>
 
+          {/* Input field */}
           <div className="noormexa-ai-input-row">
             <input
               value={input}
@@ -231,6 +298,7 @@ export default function AIAssistant() {
               onClick={() => handleSend()}
               disabled={sending || !input.trim()}
               aria-label={text.send}
+              className="hover:text-amber-400 transition-colors"
             >
               <Send size={16} />
             </button>
@@ -238,14 +306,21 @@ export default function AIAssistant() {
         </div>
       )}
 
+      {/* Floating Action Button (FAB) displaying AOSA Avatar */}
       <button
         type="button"
-        className="noormexa-ai-fab"
+        className="noormexa-ai-fab group transition-transform hover:scale-105"
         onClick={() => setOpen((value) => !value)}
         aria-label={text.title}
+        title={text.title}
       >
-        {open ? <X size={22} /> : <Bot size={22} />}
+        {open ? (
+          <X size={22} className="text-white" />
+        ) : (
+          <AosaAvatar size={48} showOnlineBadge={true} />
+        )}
       </button>
     </div>
   );
 }
+
