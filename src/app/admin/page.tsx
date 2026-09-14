@@ -13,8 +13,10 @@ import {
   Coins,
   CreditCard,
   Crown,
+  Download,
   Eye,
   EyeOff,
+  FileSpreadsheet,
   Megaphone,
   Percent,
   Plus,
@@ -58,6 +60,8 @@ const copy = {
     totalOrdersLabel: "إجمالي الطلبات المسجلة",
     totalProductsLabel: "المنتجات المعروضة",
     avgOrderValue: "متوسط قيمة الطلب (AOV)",
+    exportOrdersCsv: "تصدير كشف الطلبات (CSV)",
+    exportOrdersSuccess: "تم تصدير كشف التسوية المالية بنجاح",
     saveChanges: "حفظ التعديلات",
     savedSuccess: "تم حفظ التعديلات بنجاح!",
   },
@@ -80,6 +84,8 @@ const copy = {
     totalOrdersLabel: "Total Logged Orders",
     totalProductsLabel: "Catalog Products",
     avgOrderValue: "Average Order Value (AOV)",
+    exportOrdersCsv: "Export Orders CSV",
+    exportOrdersSuccess: "Financial reconciliation CSV exported successfully",
     saveChanges: "Save Changes",
     savedSuccess: "Settings saved successfully!",
   },
@@ -209,6 +215,89 @@ export default function SuperAdminPage() {
 
   // Payout Transaction Ref helper state
   const [payoutTrxRefs, setPayoutTrxRefs] = useState<Record<string, string>>({});
+  const [exportNotice, setExportNotice] = useState(false);
+
+  const handleExportOrdersCsv = () => {
+    if (orders.length === 0) return;
+
+    // Build comprehensive CSV columns for financial reconciliation
+    const headers = [
+      "Order Number",
+      "Tracking Number",
+      "Order Date",
+      "Store ID",
+      "Customer Name",
+      "Customer Phone",
+      "City",
+      "Country",
+      "Order Status",
+      "Payment Status",
+      "Payment Method",
+      "Items Count",
+      "Items Summary",
+      "Subtotal (EGP)",
+      "Discount (EGP)",
+      "Shipping Fee (EGP)",
+      "VAT (EGP)",
+      "Platform Commission (EGP)",
+      "Vendor Net Payable (EGP)",
+      "Total Amount (EGP)",
+    ];
+
+    const escapeCsv = (val: unknown): string => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const rows = orders.map((o) => {
+      const itemsCount = o.items.reduce((acc, item) => acc + item.quantity, 0);
+      const itemsSummary = o.items
+        .map((item) => `${item.product_name} (x${item.quantity})`)
+        .join(" | ");
+      // Vendor Net = Total Amount - Platform Commission
+      const vendorNet = Math.max(0, o.total_amount - (o.commission_amount || 0));
+
+      return [
+        escapeCsv(o.orderNumber),
+        escapeCsv(o.trackingNumber),
+        escapeCsv(o.created_at ? new Date(o.created_at).toISOString() : new Date().toISOString()),
+        escapeCsv(o.store_id || ""),
+        escapeCsv(o.shipping_info?.fullName || ""),
+        escapeCsv(o.shipping_info?.phone || ""),
+        escapeCsv(o.shipping_info?.city || ""),
+        escapeCsv(o.shipping_info?.country || ""),
+        escapeCsv(o.status),
+        escapeCsv(o.payment_status || "paid"),
+        escapeCsv(o.payment_method || ""),
+        escapeCsv(itemsCount),
+        escapeCsv(itemsSummary),
+        escapeCsv(Number(o.subtotal || 0).toFixed(2)),
+        escapeCsv(Number(o.discount_amount || 0).toFixed(2)),
+        escapeCsv(Number(o.shipping_cost || 0).toFixed(2)),
+        escapeCsv(Number(o.vat_amount || 0).toFixed(2)),
+        escapeCsv(Number(o.commission_amount || 0).toFixed(2)),
+        escapeCsv(Number(vendorNet).toFixed(2)),
+        escapeCsv(Number(o.total_amount || 0).toFixed(2)),
+      ].join(",");
+    });
+
+    // Add UTF-8 Byte Order Mark (\uFEFF) to ensure Arabic letters & special characters open cleanly in Excel & financial software
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const dateStr = new Date().toISOString().split("T")[0];
+    link.setAttribute("href", url);
+    link.setAttribute("download", `noormexa_orders_reconciliation_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setExportNotice(true);
+    setTimeout(() => setExportNotice(false), 3000);
+  };
 
   const handleSavePlatformSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -818,10 +907,36 @@ export default function SuperAdminPage() {
         {/* Tab 4: Orders & Dispatch Management */}
         {activeTab === "orders" && (
           <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2 border-b border-line pb-3">
-              <Truck size={18} className="text-gold" />
-              <span>{text.tabOrders}</span>
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
+              <div className="flex items-center gap-2">
+                <Truck size={18} className="text-gold" />
+                <h2 className="text-base font-bold text-foreground">{text.tabOrders}</h2>
+                <span className="text-xs font-bold text-muted bg-surface-soft px-2 py-0.5 rounded-full border border-line">
+                  {orders.length}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {exportNotice && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-xl animate-in fade-in">
+                    <Check size={13} />
+                    <span>{text.exportOrdersSuccess}</span>
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleExportOrdersCsv}
+                  disabled={orders.length === 0}
+                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 touch-manipulation shrink-0"
+                  title={isAr ? "تصدير جميع بيانات الطلبات بصيغة CSV للتسوية المحاسبية والمالية" : "Export orders list to CSV for accounting & financial reconciliation"}
+                >
+                  <FileSpreadsheet size={15} />
+                  <span>{text.exportOrdersCsv}</span>
+                  <Download size={13} className="opacity-80" />
+                </button>
+              </div>
+            </div>
 
             {orders.length === 0 ? (
               <div className="text-center py-10 text-muted text-xs">
