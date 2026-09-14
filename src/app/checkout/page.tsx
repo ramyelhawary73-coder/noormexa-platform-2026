@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -18,9 +18,13 @@ import {
   Zap,
   LocateFixed,
   AlertTriangle,
+  MapPin,
+  Search,
+  UserCheck,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { useLocation } from "@/context/LocationContext";
+import { useAuth } from "@/context/AuthContext";
 import { requestUserGpsLocation } from "@/lib/locationService";
 import type { PaymentGatewayKey, ShippingAddress, Order } from "@/types/marketplace";
 
@@ -134,6 +138,7 @@ export default function CheckoutPage() {
   } = useMarketplace();
 
   const { location: globalLocation } = useLocation();
+  const { user, profile } = useAuth();
 
   // Form State
   const [shippingSpeed, setShippingSpeed] = useState<"standard" | "priority">("standard");
@@ -141,24 +146,113 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
-  // GPS Auto-Fill feedback state
+  // Address search & GPS states
   const [isLocatingGps, setIsLocatingGps] = useState(false);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const [showAddressSearch, setShowAddressSearch] = useState(false);
+  const [addressSearchQuery, setAddressSearchQuery] = useState("");
   const [gpsFeedback, setGpsFeedback] = useState<{
     type: "success" | "error" | "warning";
     message: string;
   } | null>(null);
 
-  const [address, setAddress] = useState<ShippingAddress>({
-    fullName: "رامي الهواري",
-    email: "ramy@example.com",
-    phone: "+966 50 123 4567",
-    country: globalLocation?.countryAr || "المملكة العربية السعودية",
-    city: globalLocation?.cityAr || "الرياض",
-    address: "طريق الملك فهد، برج الفيصلية، حي العليا",
-    postalCode: "12214",
-    notes: "يرجى الاتصال قبل الوصول بنصف ساعة",
+  // Initialize address cleanly with NO hardcoded developer data
+  const [address, setAddress] = useState<ShippingAddress>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = window.localStorage.getItem("noormexa_saved_shipping_address");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return {
+            fullName: parsed.fullName || "",
+            email: parsed.email || "",
+            phone: parsed.phone || "",
+            country: parsed.country || "المملكة العربية السعودية",
+            city: parsed.city || "الرياض",
+            address: parsed.address || "",
+            postalCode: parsed.postalCode || "",
+            notes: parsed.notes || "",
+          };
+        }
+      } catch {}
+    }
+    return {
+      fullName: "",
+      email: "",
+      phone: "",
+      country: "المملكة العربية السعودية",
+      city: "الرياض",
+      address: "",
+      postalCode: "",
+      notes: "",
+    };
   });
 
+  // Auto-populate customer information dynamically from authenticated user / profile
+  useEffect(() => {
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active || (!user && !profile)) return;
+
+      setAddress((prev) => {
+        const updated = { ...prev };
+        const userEmail = user?.email || "";
+        const meta = (user?.user_metadata || {}) as Record<string, unknown>;
+        const userName =
+          (profile?.full_name as string) ||
+          (meta.full_name as string) ||
+          (userEmail ? userEmail.split("@")[0] : "");
+        const userPhone =
+          (profile?.phone as string) ||
+          (meta.phone as string) ||
+          "";
+
+        let changed = false;
+        if (!updated.email && userEmail) {
+          updated.email = userEmail;
+          changed = true;
+        }
+        if (!updated.fullName && userName) {
+          updated.fullName = userName;
+          changed = true;
+        }
+        if (!updated.phone && userPhone) {
+          updated.phone = userPhone;
+          changed = true;
+        }
+        return changed ? updated : prev;
+      });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [user, profile]);
+
+  // Sync detected country & city if address city is still default
+  useEffect(() => {
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active || !globalLocation) return;
+
+      setAddress((prev) => {
+        if (!prev.city || prev.city === "الرياض") {
+          return {
+            ...prev,
+            country: globalLocation.countryAr || prev.country,
+            city: globalLocation.cityAr || prev.city,
+          };
+        }
+        return prev;
+      });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [globalLocation]);
+
+  // Non-blocking high-speed GPS Geolocation auto-fill via Google Maps & Server Geocoding
   const handleGpsAutoFill = async () => {
     setIsLocatingGps(true);
     setGpsFeedback(null);
@@ -170,26 +264,34 @@ export default function CheckoutPage() {
       if (result.success && result.location) {
         const loc = result.location;
         const accuracyText = loc.accuracyMeters ? `(±${Math.round(loc.accuracyMeters)}متر)` : "";
-        
+
+        // Construct complete detailed address
+        let resolvedAddress = loc.formattedAddress || "";
+        if (!resolvedAddress) {
+          const parts = [loc.street, loc.district, loc.cityAr].filter(Boolean);
+          resolvedAddress = parts.length > 0 ? parts.join("، ") : `${loc.cityAr}، ${loc.countryAr}`;
+        }
+
         setAddress((prev) => ({
           ...prev,
           country: loc.countryAr || prev.country,
           city: loc.cityAr || prev.city,
-          address: `${loc.cityAr} - موقع محدد بدقة GPS`,
+          address: resolvedAddress,
+          postalCode: loc.postalCode || prev.postalCode,
         }));
 
         setGpsFeedback({
           type: "success",
           message: language === "ar"
-            ? `تم التقاط وتعبئة الموقع بدقة عبر GPS: ${loc.cityAr}، ${loc.countryAr} ${accuracyText}`
-            : `GPS Location detected and populated: ${loc.cityEn}, ${loc.countryEn} (accuracy: ±${Math.round(loc.accuracyMeters || 10)}m)`,
+            ? `تم التقاط وتعبئة العنوان بدقة من الخريطة: ${resolvedAddress} ${accuracyText}`
+            : `Location resolved from map: ${resolvedAddress} ${accuracyText}`,
         });
       } else {
         setGpsFeedback({
           type: result.isPermissionDenied ? "warning" : "error",
           message:
             (language === "ar" ? result.errorMessageAr : result.errorMessageEn) ||
-            (language === "ar" ? "تعذر استقبال إشارة GPS." : "Could not acquire GPS signal."),
+            (language === "ar" ? "تعذر استقبال إشارة GPS، يرجى كتابة العنوان أو البحث عنه بالخريطة." : "Could not acquire GPS signal. You can type or search on map."),
         });
       }
     } catch {
@@ -197,6 +299,53 @@ export default function CheckoutPage() {
       setGpsFeedback({
         type: "error",
         message: language === "ar" ? "حدث خطأ غير متوقع أثناء تحديد الموقع." : "Unexpected error during geolocation.",
+      });
+    }
+  };
+
+  // Google Maps / Geocoding Search by text/district/street
+  const handleAddressSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = addressSearchQuery.trim();
+    if (!query) return;
+
+    setIsSearchingAddress(true);
+    setGpsFeedback(null);
+
+    try {
+      const res = await fetch(`/api/geocode?query=${encodeURIComponent(query)}&locale=${language}`);
+      setIsSearchingAddress(false);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.formattedAddress) {
+          setAddress((prev) => ({
+            ...prev,
+            address: data.formattedAddress,
+          }));
+          setShowAddressSearch(false);
+          setAddressSearchQuery("");
+          setGpsFeedback({
+            type: "success",
+            message: language === "ar"
+              ? `تم العثور على العنوان وتحديده: ${data.formattedAddress}`
+              : `Address located: ${data.formattedAddress}`,
+          });
+          return;
+        }
+      }
+
+      setGpsFeedback({
+        type: "warning",
+        message: language === "ar"
+          ? "لم نتمكن من العثور على هذا العنوان بدقة، يرجى كتابته يدوياً في خانة العنوان."
+          : "Could not find this exact location. Please type it in the address field.",
+      });
+    } catch {
+      setIsSearchingAddress(false);
+      setGpsFeedback({
+        type: "error",
+        message: language === "ar" ? "تعذر الاتصال بخدمة الخرائط حالياً." : "Could not reach map search service.",
       });
     }
   };
@@ -213,6 +362,13 @@ export default function CheckoutPage() {
       router.push("/cart");
       return;
     }
+
+    // Save shipping address for user future sessions
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("noormexa_saved_shipping_address", JSON.stringify(address));
+      }
+    } catch {}
 
     setIsProcessing(true);
     setTimeout(() => {
@@ -408,30 +564,98 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-6">
             {/* Section 1: Customer & Address */}
             <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
-                <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">
-                  <Truck size={17} className="text-gold" />
-                  <span>{text.shippingSection}</span>
-                </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">
+                    <Truck size={17} className="text-gold" />
+                    <span>{text.shippingSection}</span>
+                  </h2>
+                  {user && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/10 text-gold text-[11px] font-semibold border border-gold/20">
+                      <UserCheck size={12} />
+                      <span className="max-w-[200px] truncate">{user.email}</span>
+                    </span>
+                  )}
+                </div>
 
-                {/* GPS Auto-Fill Action Button */}
-                <button
-                  type="button"
-                  onClick={handleGpsAutoFill}
-                  disabled={isLocatingGps}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold text-xs transition-all cursor-pointer disabled:opacity-50"
-                  title={language === "ar" ? "تحديد الموقع وتعبئة العنوان تلقائياً عبر GPS" : "Detect and auto-fill address via GPS"}
-                >
-                  <LocateFixed size={14} className={isLocatingGps ? "animate-spin text-orange-500" : "text-orange-500"} />
-                  <span>
-                    {isLocatingGps
-                      ? language === "ar" ? "جاري التقاط GPS..." : "Detecting GPS..."
-                      : language === "ar" ? "تحديد العنوان عبر GPS" : "Auto-fill with GPS"}
-                  </span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Map Search Action Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowAddressSearch((prev) => !prev)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-600 dark:text-sky-400 font-bold text-xs transition-all cursor-pointer"
+                    title={language === "ar" ? "البحث بالخريطة وتعبئة العنوان" : "Search address on map"}
+                  >
+                    <MapPin size={13} className="text-sky-500" />
+                    <span>{language === "ar" ? "البحث بالخريطة" : "Search Map"}</span>
+                  </button>
+
+                  {/* GPS Auto-Fill Action Button */}
+                  <button
+                    type="button"
+                    onClick={handleGpsAutoFill}
+                    disabled={isLocatingGps}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold text-xs transition-all cursor-pointer disabled:opacity-50"
+                    title={language === "ar" ? "تحديد الموقع وتعبئة العنوان تلقائياً عبر GPS" : "Detect and auto-fill address via GPS"}
+                  >
+                    <LocateFixed size={14} className={isLocatingGps ? "animate-spin text-orange-500" : "text-orange-500"} />
+                    <span>
+                      {isLocatingGps
+                        ? language === "ar" ? "جاري التقاط الموقع..." : "Detecting GPS..."
+                        : language === "ar" ? "تحديد العنوان عبر GPS" : "Auto-fill with GPS"}
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              {/* Real-time GPS Detection Feedback Banner */}
+              {/* Map Address Search Bar */}
+              {showAddressSearch && (
+                <div className="p-3.5 rounded-2xl bg-surface-soft border border-sky-500/30 space-y-2 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <MapPin size={13} className="text-sky-500" />
+                      <span>{language === "ar" ? "البحث عن العنوان عبر خرائط جوجل والمنظومة الجغرافية" : "Search address via Google Maps"}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddressSearch(false)}
+                      className="text-muted hover:text-foreground text-xs p-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={addressSearchQuery}
+                      onChange={(e) => setAddressSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddressSearch();
+                        }
+                      }}
+                      placeholder={language === "ar" ? "اكتب اسم الحي أو الشارع أو المعلم (مثال: برج المملكة، حي العليا الرياض، المعادي)..." : "Type district, street, or landmark (e.g. Al Olaya Riyadh)..."}
+                      className="flex-1 p-2.5 rounded-xl bg-surface border border-line text-xs text-foreground focus:outline-none focus:border-sky-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleAddressSearch()}
+                      disabled={isSearchingAddress || !addressSearchQuery.trim()}
+                      className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-sm"
+                    >
+                      {isSearchingAddress ? (
+                        <span className="animate-spin text-xs">⏳</span>
+                      ) : (
+                        <Search size={14} />
+                      )}
+                      <span>{language === "ar" ? "بحث وتعبئة" : "Search"}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Real-time GPS/Map Detection Feedback Banner */}
               {gpsFeedback && (
                 <div
                   className={`p-3 rounded-2xl border text-xs flex items-start gap-2.5 animate-in fade-in ${
@@ -467,6 +691,7 @@ export default function CheckoutPage() {
                     type="text"
                     required
                     value={address.fullName}
+                    placeholder={language === "ar" ? "الاسم الكامل للمستلم" : "Recipient full name"}
                     onChange={(e) => handleInputChange("fullName", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
@@ -478,6 +703,7 @@ export default function CheckoutPage() {
                     type="email"
                     required
                     value={address.email}
+                    placeholder="name@example.com"
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
@@ -489,6 +715,7 @@ export default function CheckoutPage() {
                     type="tel"
                     required
                     value={address.phone}
+                    placeholder="+966 5X XXX XXXX"
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
@@ -518,6 +745,7 @@ export default function CheckoutPage() {
                     type="text"
                     required
                     value={address.city}
+                    placeholder={language === "ar" ? "الرياض، جدة، القاهرة..." : "City"}
                     onChange={(e) => handleInputChange("city", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
@@ -528,6 +756,7 @@ export default function CheckoutPage() {
                   <input
                     type="text"
                     value={address.postalCode}
+                    placeholder="12214"
                     onChange={(e) => handleInputChange("postalCode", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
@@ -540,7 +769,7 @@ export default function CheckoutPage() {
                     required
                     value={address.address}
                     onChange={(e) => handleInputChange("address", e.target.value)}
-                    placeholder="رقم المبنى، اسم الشارع، الطابق..."
+                    placeholder={language === "ar" ? "رقم المبنى، اسم الشارع، الحي، رقم الشقة..." : "Building number, Street name, District..."}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
                 </div>
@@ -551,7 +780,7 @@ export default function CheckoutPage() {
                     type="text"
                     value={address.notes}
                     onChange={(e) => handleInputChange("notes", e.target.value)}
-                    placeholder="ملاحظات المندوب لتسهيل الاستلام..."
+                    placeholder={language === "ar" ? "ملاحظات المندوب لتسهيل الاستلام (اختياري)..." : "Delivery instructions (optional)..."}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
                 </div>

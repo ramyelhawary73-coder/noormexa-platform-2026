@@ -222,21 +222,7 @@ export const INITIAL_STORES: Store[] = [
   },
 ];
 
-export const INITIAL_PAYOUTS: StorePayout[] = [
-  {
-    id: "pay-101",
-    store_id: "store-noormexa-official",
-    store_name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    amount: 18500,
-    status: "transferred",
-    requested_at: "2026-02-10T10:00:00Z",
-    processed_at: "2026-02-11T14:30:00Z",
-    bank_name: "حساب خزينة المنصة الرئيسي (Central Treasury)",
-    iban: "SA0000000000000000000000",
-    transaction_ref: "TXN-998822-NRX",
-    notes: "تسوية مبيعات متجر نورمكسا الرسمي المباشرة",
-  },
-];
+export const INITIAL_PAYOUTS: StorePayout[] = [];
 
 export const INITIAL_MARKETING_POSTS: MarketingPost[] = [
   {

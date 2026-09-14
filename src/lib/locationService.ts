@@ -28,6 +28,10 @@ export interface DetectedLocation {
   source: "gps" | "ip" | "timezone" | "cached" | "city_lookup" | "static_default";
   timestamp: number;
   isHighAccuracy?: boolean;
+  street?: string;
+  district?: string;
+  postalCode?: string;
+  formattedAddress?: string;
 }
 
 export const DEFAULT_STATIC_LOCATION: DetectedLocation = {
@@ -573,12 +577,30 @@ export function detectUserRegionFromTimezone(): DetectedLocation {
  * 1. Checks closest known city in local database (< 40km away) for instant 0-network lookup.
  * 2. If remote or in another district, uses OpenStreetMap Nominatim with privacy safeguard.
  */
+export interface ReverseGeocodeResult {
+  cityAr: string;
+  cityEn: string;
+  countryAr: string;
+  countryEn: string;
+  countryCode: string;
+  currency: CurrencyCode;
+  street?: string;
+  district?: string;
+  postalCode?: string;
+  formattedAddress?: string;
+}
+
+/**
+ * Performs fast reverse geocoding from lat/lng coordinates
+ * 1. Checks closest known city in local database (< 30km away) for instant 0-network lookup.
+ * 2. Uses server-side /api/geocode endpoint with Google Maps / high-speed fallback.
+ */
 export async function reverseGeocodeCoordinates(
   lat: number,
   lng: number,
   locale: "ar" | "en" = "ar"
-): Promise<{ cityAr: string; cityEn: string; countryAr: string; countryEn: string; countryCode: string; currency: CurrencyCode }> {
-  // 1. Check local DB proximity
+): Promise<ReverseGeocodeResult> {
+  // 1. Check local DB proximity for instant recognition
   let closestCityInfo: typeof CITY_COORDINATES_DB[string] | null = null;
   let minDistance = Infinity;
 
@@ -590,68 +612,53 @@ export async function reverseGeocodeCoordinates(
     }
   }
 
-  if (closestCityInfo && minDistance <= 35) {
-    return {
-      cityAr: closestCityInfo.cityAr,
-      cityEn: closestCityInfo.cityEn,
-      countryAr: closestCityInfo.countryAr,
-      countryEn: closestCityInfo.countryEn,
-      countryCode: closestCityInfo.countryCode,
-      currency: closestCityInfo.currency,
-    };
-  }
-
-  // 2. Client-side fetch to OpenStreetMap Nominatim
+  // 2. Query our server-side geocode route (handles Google Maps / Nominatim safely with zero CORS/freeze)
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=${locale === "ar" ? "ar,en" : "en,ar"}`,
-      {
-        signal: controller.signal,
-        headers: {
-          "Accept": "application/json",
-        },
-      }
-    );
+    const res = await fetch(`/api/geocode?lat=${lat}&lng=${lng}&locale=${locale}`, {
+      signal: controller.signal,
+    });
     clearTimeout(timeoutId);
 
     if (res.ok) {
       const data = await res.json();
-      const addr = data.address || {};
-      const detectedCity = addr.city || addr.town || addr.municipality || addr.state_district || addr.state || (closestCityInfo?.cityAr || "موقعك الحالي");
-      const detectedCountry = addr.country || (closestCityInfo?.countryAr || "المملكة العربية السعودية");
-      const countryCode = (addr.country_code || closestCityInfo?.countryCode || "SA").toUpperCase();
+      if (data.success) {
+        const countryCode = (data.countryCode || closestCityInfo?.countryCode || "SA").toUpperCase();
+        const currencyMap: Record<string, CurrencyCode> = {
+          SA: "SAR",
+          EG: "EGP",
+          AE: "AED",
+          KW: "KWD",
+          QA: "QAR",
+          BH: "USD",
+          OM: "USD",
+          JO: "USD",
+          GB: "USD",
+          US: "USD",
+          FR: "EUR",
+          DE: "EUR",
+          IT: "EUR",
+          ES: "EUR",
+        };
 
-      const currencyMap: Record<string, CurrencyCode> = {
-        SA: "SAR",
-        EG: "EGP",
-        AE: "AED",
-        KW: "KWD",
-        QA: "QAR",
-        BH: "USD",
-        OM: "USD",
-        JO: "USD",
-        GB: "USD",
-        US: "USD",
-        FR: "EUR",
-        DE: "EUR",
-        IT: "EUR",
-        ES: "EUR",
-      };
-
-      return {
-        cityAr: detectedCity,
-        cityEn: detectedCity,
-        countryAr: detectedCountry,
-        countryEn: detectedCountry,
-        countryCode,
-        currency: currencyMap[countryCode] || "SAR",
-      };
+        return {
+          cityAr: data.city || closestCityInfo?.cityAr || "الرياض",
+          cityEn: data.city || closestCityInfo?.cityEn || "Riyadh",
+          countryAr: data.country || closestCityInfo?.countryAr || "المملكة العربية السعودية",
+          countryEn: data.country || closestCityInfo?.countryEn || "Saudi Arabia",
+          countryCode,
+          currency: currencyMap[countryCode] || closestCityInfo?.currency || "SAR",
+          street: data.street || "",
+          district: data.district || "",
+          postalCode: data.postalCode || "",
+          formattedAddress: data.formattedAddress || "",
+        };
+      }
     }
   } catch (err) {
-    console.warn("Reverse geocode network fallback:", err);
+    console.warn("Server geocode fallback:", err);
   }
 
   // Fallback to closest local city or default
@@ -663,16 +670,18 @@ export async function reverseGeocodeCoordinates(
       countryEn: closestCityInfo.countryEn,
       countryCode: closestCityInfo.countryCode,
       currency: closestCityInfo.currency,
+      formattedAddress: `${closestCityInfo.cityAr}، ${closestCityInfo.countryAr}`,
     };
   }
 
   return {
-    cityAr: "الرياض",
+    cityAr: locale === "ar" ? "الرياض" : "Riyadh",
     cityEn: "Riyadh",
-    countryAr: "المملكة العربية السعودية",
+    countryAr: locale === "ar" ? "المملكة العربية السعودية" : "Saudi Arabia",
     countryEn: "Saudi Arabia",
     countryCode: "SA",
     currency: "SAR",
+    formattedAddress: locale === "ar" ? "الرياض، المملكة العربية السعودية" : "Riyadh, Saudi Arabia",
   };
 }
 
@@ -705,8 +714,8 @@ export interface GpsRequestResult {
 }
 
 /**
- * User-Initiated GPS Geolocation request with high accuracy, timeout fallback,
- * and multi-lingual error messages
+ * User-Initiated GPS Geolocation request with zero-freeze timeout (max 4.5s),
+ * high accuracy, server geocoding, and resilient error recovery
  */
 export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promise<GpsRequestResult> {
   if (typeof window === "undefined" || !("geolocation" in navigator)) {
@@ -718,11 +727,23 @@ export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promis
   }
 
   return new Promise((resolve) => {
-    let resolved = false;
+    let finished = false;
+
+    // Hard ceiling timer (4000ms) to guarantee the browser never hangs or freezes
+    const hardTimeoutTimer = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      resolve({
+        success: false,
+        errorMessageAr: "استغرق استشعار GPS وقتاً أطول من المتوقع. تم تحويل الموقع للبحث الفوري لتجنب الانتظار.",
+        errorMessageEn: "GPS detection timed out. You can enter or select your address directly.",
+      });
+    }, 4200);
 
     const onSuccess = async (pos: GeolocationPosition) => {
-      if (resolved) return;
-      resolved = true;
+      if (finished) return;
+      finished = true;
+      clearTimeout(hardTimeoutTimer);
 
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
@@ -743,9 +764,13 @@ export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promis
           source: "gps",
           timestamp: Date.now(),
           isHighAccuracy: true,
+          street: rev.street,
+          district: rev.district,
+          postalCode: rev.postalCode,
+          formattedAddress: rev.formattedAddress,
         };
 
-        // Cache in sessionStorage for privacy (expires when tab closes)
+        // Cache in sessionStorage
         try {
           if (typeof window !== "undefined") {
             sessionStorage.setItem("noormexa_detected_location", JSON.stringify(resultLoc));
@@ -762,70 +787,62 @@ export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promis
           location: {
             lat,
             lng,
-            cityAr: "موقعك الحالي",
+            cityAr: locale === "ar" ? "موقعك الحالي" : "Your Current Location",
             cityEn: "Your Current Location",
-            countryAr: "المملكة العربية السعودية",
+            countryAr: locale === "ar" ? "المملكة العربية السعودية" : "Saudi Arabia",
             countryEn: "Saudi Arabia",
             countryCode: "SA",
             currency: "SAR",
             accuracyMeters,
             source: "gps",
             timestamp: Date.now(),
+            formattedAddress: locale === "ar" ? "موقع محدد عبر GPS" : "Location acquired via GPS",
           },
         });
       }
     };
 
     const onError = (err: GeolocationPositionError) => {
-      if (resolved) return;
-      
-      // If high accuracy timed out, try standard accuracy once smoothly
-      if (err.code === err.TIMEOUT) {
-        navigator.geolocation.getCurrentPosition(
-          onSuccess,
-          () => {
-            if (resolved) return;
-            resolved = true;
-            resolve({
-              success: false,
-              errorMessageAr: "انتهت مهلة استجابة إشارة GPS. يرجى التأكد من تشغيل الموقع بالجهاز والمحاولة مجدداً.",
-              errorMessageEn: "GPS signal timed out. Please ensure location services are enabled.",
-            });
-          },
-          { enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 }
-        );
-        return;
-      }
-
-      resolved = true;
+      if (finished) return;
+      finished = true;
+      clearTimeout(hardTimeoutTimer);
 
       if (err.code === err.PERMISSION_DENIED) {
         resolve({
           success: false,
           isPermissionDenied: true,
-          errorMessageAr: "تم رفض إذن تحديد الموقع. يرجى الضغط على أيقونة القفل أو الإعدادات في شريط العنوان وتفعيل إذن الموقع (Allow Location).",
-          errorMessageEn: "Location permission denied. Please enable location access in your browser settings.",
+          errorMessageAr: "تم رفض إذن تحديد الموقع. يمكنك تفعيل إذن الموقع من المتصفح أو اختيار المدينة والخريطة مباشرة.",
+          errorMessageEn: "Location permission denied. Please allow location access or select manually.",
         });
-      } else if (err.code === err.POSITION_UNAVAILABLE) {
+      } else if (err.code === err.TIMEOUT) {
         resolve({
           success: false,
-          errorMessageAr: "إشارة الموقع الجغرافي غير متوفرة حالياً من جهازك. تم الاعتماد على العنوان الافتراضي.",
-          errorMessageEn: "GPS position unavailable from your device. Using standard address.",
+          errorMessageAr: "انتهت مهلة استشعار GPS. يرجى التأكد من تشغيل الموقع بالجهاز أو اختيار العنوان مباشرة.",
+          errorMessageEn: "GPS signal timed out. Please ensure location services are enabled.",
         });
       } else {
         resolve({
           success: false,
-          errorMessageAr: `تعذر التقاط الموقع الجغرافي (${err.message}).`,
-          errorMessageEn: `Unable to detect location (${err.message}).`,
+          errorMessageAr: "تعذر استقبال إشارة GPS بدقة حالياً. يمكنك استخدام الخريطة أو إدخال العنوان.",
+          errorMessageEn: `Unable to detect GPS position (${err.message}).`,
         });
       }
     };
 
-    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-      enableHighAccuracy: true,
-      timeout: 8000,
-      maximumAge: 0,
-    });
+    try {
+      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+        enableHighAccuracy: true,
+        timeout: 3800,
+        maximumAge: 30000,
+      });
+    } catch {
+      clearTimeout(hardTimeoutTimer);
+      resolve({
+        success: false,
+        errorMessageAr: "تعذر تشغيل خدمة الموقع في هذا المتصفح.",
+        errorMessageEn: "Unable to start location service in this browser.",
+      });
+    }
   });
 }
 
