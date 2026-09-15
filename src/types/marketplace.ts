@@ -35,6 +35,7 @@ export type Store = {
   total_sales?: number;
   country?: string;
   currency?: CurrencyCode; // Store default currency
+  base_currency?: CurrencyCode; // Alias for store base currency (MAD, SAR, EGP, etc.)
   contact_email?: string;
   contact_phone?: string;
   cr_number?: string; // Commercial Registration

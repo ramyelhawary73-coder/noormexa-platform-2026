@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, useMemo } from "react";
+import { useState, useEffect, useSyncExternalStore, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -8,6 +8,7 @@ import {
   Boxes,
   Check,
   ChevronDown,
+  Coins,
   CreditCard,
   Crown,
   Eye,
@@ -27,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order, Store, Shipment } from "@/types/marketplace";
+import type { Order, Store, Shipment, CurrencyCode } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import StoreLogisticsHub from "@/components/shipping/StoreLogisticsHub";
@@ -68,6 +69,9 @@ export default function SellerDashboardPage() {
     shipments,
     carriers,
     formatPrice,
+    currencies,
+    convertPrice,
+    convertFromCurrencyToEGP,
     addProduct,
     deleteProductItem,
     updateStoreProfile,
@@ -132,6 +136,9 @@ export default function SellerDashboardPage() {
   const [newProdName, setNewProdName] = useState("");
   const [newProdNameEn, setNewProdNameEn] = useState("");
   const [newProdCat, setNewProdCat] = useState(categories[0]?.id || "cat-1");
+  const [newProdCurrency, setNewProdCurrency] = useState<CurrencyCode>(
+    currentStore.currency || currentStore.base_currency || "SAR"
+  );
   const [newProdPrice, setNewProdPrice] = useState("");
   const [newProdOriginalPrice, setNewProdOriginalPrice] = useState("");
   const [newProdStock, setNewProdStock] = useState("15");
@@ -167,12 +174,38 @@ export default function SellerDashboardPage() {
   const [profileName, setProfileName] = useState(currentStore.name);
   const [profileDesc, setProfileDesc] = useState(currentStore.description || "");
   const [profileCountry, setProfileCountry] = useState(currentStore.country || "");
+  const [profileCurrency, setProfileCurrency] = useState<CurrencyCode>(
+    currentStore.currency || currentStore.base_currency || "SAR"
+  );
   const [profileEmail, setProfileEmail] = useState(currentStore.contact_email || "");
   const [profilePhone, setProfilePhone] = useState(currentStore.contact_phone || "");
   const [profileIban, setProfileIban] = useState(currentStore.iban || "");
   const [profileBank, setProfileBank] = useState(currentStore.bank_name || "");
   const [profileLogoUrl, setProfileLogoUrl] = useState(currentStore.logo_url || "");
   const [profileBannerUrl, setProfileBannerUrl] = useState(currentStore.banner_url || "");
+
+  // Sync profile form state when currentStore changes
+  useEffect(() => {
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      setProfileName(currentStore.name);
+      setProfileDesc(currentStore.description || "");
+      setProfileCountry(currentStore.country || "");
+      const baseCur = currentStore.currency || currentStore.base_currency || "SAR";
+      setProfileCurrency(baseCur);
+      setNewProdCurrency(baseCur);
+      setProfileEmail(currentStore.contact_email || "");
+      setProfilePhone(currentStore.contact_phone || "");
+      setProfileIban(currentStore.iban || "");
+      setProfileBank(currentStore.bank_name || "");
+      setProfileLogoUrl(currentStore.logo_url || "");
+      setProfileBannerUrl(currentStore.banner_url || "");
+    });
+    return () => {
+      active = false;
+    };
+  }, [currentStore]);
 
   // Filter products for active store
   const storeProducts = useMemo(() => {
@@ -254,13 +287,20 @@ export default function SellerDashboardPage() {
   const handleCreateProduct = (e: React.FormEvent) => {
     e.preventDefault();
     const cat = categories.find((c) => c.id === newProdCat);
+    const enteredPrice = Number(newProdPrice);
+    const enteredOrigPrice = newProdOriginalPrice ? Number(newProdOriginalPrice) : undefined;
+
+    // Convert to platform base EGP currency for standardized marketplace calculation
+    const priceInEgp = convertFromCurrencyToEGP(enteredPrice, newProdCurrency);
+    const origPriceInEgp = enteredOrigPrice ? convertFromCurrencyToEGP(enteredOrigPrice, newProdCurrency) : undefined;
 
     addProduct({
       name: newProdName,
       name_en: newProdNameEn || newProdName,
       description: newProdDesc,
-      price: Number(newProdPrice),
-      original_price: newProdOriginalPrice ? Number(newProdOriginalPrice) : undefined,
+      price: priceInEgp,
+      original_price: origPriceInEgp,
+      currency: newProdCurrency,
       category_id: newProdCat,
       category_slug: cat?.slug,
       stock: Number(newProdStock),
@@ -275,7 +315,7 @@ export default function SellerDashboardPage() {
     });
 
     setShowAddModal(false);
-    showToast(isAr ? "تم نشر المنتج الجديد في المتجر بنجاح!" : "Product published to store successfully!");
+    showToast(isAr ? "تم نشر المنتج الجديد في المتجر بنجاح وفق العملة المحددة!" : "Product published to store successfully with selected currency!");
 
     // Reset Form
     setNewProdName("");
@@ -338,6 +378,8 @@ export default function SellerDashboardPage() {
       name: profileName,
       description: profileDesc,
       country: profileCountry,
+      currency: profileCurrency,
+      base_currency: profileCurrency,
       contact_email: profileEmail,
       contact_phone: profilePhone,
       iban: profileIban,
@@ -345,7 +387,7 @@ export default function SellerDashboardPage() {
       logo_url: profileLogoUrl || currentStore.logo_url,
       banner_url: profileBannerUrl || currentStore.banner_url,
     });
-    showToast(isAr ? "تم حفظ إعدادات وهوية المتجر بنجاح!" : "Store profile updated successfully!");
+    showToast(isAr ? "تم حفظ إعدادات وهوية المتجر والعملة الأساسية بنجاح!" : "Store profile and base currency updated successfully!");
   };
 
   return (
@@ -386,6 +428,15 @@ export default function SellerDashboardPage() {
 
               <span className="px-3 py-1 rounded-full bg-surface-soft text-muted font-bold text-xs border border-line">
                 {isAr ? `عمولة المنصة: ${commissionRate}%` : `Fee: ${commissionRate}%`}
+              </span>
+
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 text-amber-600 dark:text-gold font-bold text-xs border border-gold/25 shadow-xs">
+                <Coins size={13} className="text-gold" />
+                <span>
+                  {isAr
+                    ? `العملة الأساسية: ${currentStore.currency || currentStore.base_currency || "SAR"}`
+                    : `Base Currency: ${currentStore.currency || currentStore.base_currency || "SAR"}`}
+                </span>
               </span>
             </div>
 
@@ -672,6 +723,11 @@ export default function SellerDashboardPage() {
                             {p.original_price && (
                               <span className="text-[10px] text-muted line-through">{formatPrice(p.original_price)}</span>
                             )}
+                            {p.currency && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-gold border border-amber-500/20">
+                                {p.currency}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -757,7 +813,14 @@ export default function SellerDashboardPage() {
                             </div>
                           </td>
                           <td className="p-3">
-                            <div className="font-black text-amber-600 dark:text-gold">{formatPrice(p.price)}</div>
+                            <div className="font-black text-amber-600 dark:text-gold flex items-center gap-1.5">
+                              <span>{formatPrice(p.price)}</span>
+                              {p.currency && (
+                                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-gold border border-amber-500/20">
+                                  {p.currency}
+                                </span>
+                              )}
+                            </div>
                             {p.original_price && (
                               <div className="text-[10px] text-muted line-through">{formatPrice(p.original_price)}</div>
                             )}
@@ -1292,6 +1355,32 @@ export default function SellerDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
+                <label className="font-bold text-foreground flex items-center justify-between">
+                  <span>{isAr ? "عملة المتجر الأساسية (Store Base Currency)" : "Store Base Currency"}</span>
+                  <span className="text-[10px] text-amber-600 dark:text-gold font-normal">
+                    {isAr ? "عملة التسعير والأرباح" : "Pricing & payout currency"}
+                  </span>
+                </label>
+                <select
+                  value={profileCurrency}
+                  onChange={(e) => setProfileCurrency(e.target.value as CurrencyCode)}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs cursor-pointer"
+                >
+                  {Object.entries(currencies).map(([code, info]) => (
+                    <option key={code} value={code}>
+                      {code === "MAD" ? "🇲🇦 " : code === "SAR" ? "🇸🇦 " : code === "EGP" ? "🇪🇬 " : code === "AED" ? "🇦🇪 " : code === "QAR" ? "🇶🇦 " : code === "KWD" ? "🇰🇼 " : code === "USD" ? "🇺🇸 " : "🇪🇺 "}
+                      {isAr ? info.nameAr : info.nameEn} ({info.symbolAr} / {code})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-muted">
+                  {isAr
+                    ? "العملة الرسمية للمتجر (مثل MAD للمغرب أو SAR للسعودية). يتم تحويل الأسعار تلقائياً ولحظياً لعملات المشترين."
+                    : "Base store currency. Converted automatically in real-time to buyer's localized currency."}
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
                 <label className="font-bold text-foreground">{isAr ? "البريد الإلكتروني التجاري" : "Business Email"}</label>
                 <input
                   type="email"
@@ -1641,28 +1730,75 @@ export default function SellerDashboardPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "السعر الأساسي (EGP) *" : "Price (EGP) *"}</label>
+                  <label className="font-bold text-foreground flex items-center justify-between">
+                    <span>{isAr ? "عملة تسعير المنتج *" : "Pricing Currency *"}</span>
+                    <span className="text-[10px] text-amber-600 dark:text-gold font-normal">{isAr ? "تحويل فوري لكافة المشترين" : "Live auto-conversion"}</span>
+                  </label>
+                  <select
+                    value={newProdCurrency}
+                    onChange={(e) => setNewProdCurrency(e.target.value as CurrencyCode)}
+                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs"
+                  >
+                    {Object.entries(currencies).map(([code, info]) => (
+                      <option key={code} value={code}>
+                        {code === "MAD" ? "🇲🇦 " : code === "SAR" ? "🇸🇦 " : code === "EGP" ? "🇪🇬 " : code === "AED" ? "🇦🇪 " : code === "QAR" ? "🇶🇦 " : code === "KWD" ? "🇰🇼 " : code === "USD" ? "🇺🇸 " : "🇪🇺 "}
+                        {info.symbolAr} - {isAr ? info.nameAr : info.nameEn} ({code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-foreground">
+                    {isAr ? `السعر المطلوب (${newProdCurrency}) *` : `Price (${newProdCurrency}) *`}
+                  </label>
                   <input
                     type="number"
                     required
-                    min="10"
+                    min="1"
+                    step="any"
                     value={newProdPrice}
                     onChange={(e) => setNewProdPrice(e.target.value)}
-                    placeholder="2500"
+                    placeholder="250"
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "السعر قبل الخصم (اختياري)" : "Original Price"}</label>
+                  <label className="font-bold text-foreground">
+                    {isAr ? `السعر قبل الخصم (${newProdCurrency})` : `Original Price (${newProdCurrency})`}
+                  </label>
                   <input
                     type="number"
+                    step="any"
                     value={newProdOriginalPrice}
                     onChange={(e) => setNewProdOriginalPrice(e.target.value)}
-                    placeholder="3200"
+                    placeholder="320"
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
                 </div>
+
+                {Number(newProdPrice) > 0 && (
+                  <div className="sm:col-span-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-gold flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span className="font-bold">
+                      {isAr ? "معاينة تحويل العملة للمشترين حول العالم:" : "Global buyers auto-conversion preview:"}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-2 font-mono font-bold text-[11px]">
+                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
+                        ≈ {convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency)} EGP (ج.م)
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
+                        • {convertPrice(convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency), "MAD")} MAD (د.م)
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
+                        • {convertPrice(convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency), "SAR")} SAR (ر.س)
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
+                        • ${convertPrice(convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency), "USD")} USD
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="sm:col-span-2 space-y-1">
                   <SmartImageUploadField

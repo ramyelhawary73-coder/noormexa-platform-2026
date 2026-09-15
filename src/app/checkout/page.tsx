@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -21,11 +21,14 @@ import {
   MapPin,
   Search,
   UserCheck,
+  Navigation,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
 import { requestUserGpsLocation } from "@/lib/locationService";
+import { COUNTRIES_DATA, getCountryByName } from "@/data/regionsData";
+import InteractiveMapPicker from "@/components/location/InteractiveMapPicker";
 import type { PaymentGatewayKey, ShippingAddress, Order } from "@/types/marketplace";
 import ProductImage from "@/components/ProductImage";
 
@@ -134,6 +137,8 @@ export default function CheckoutPage() {
     calculatedVat,
     calculatedGrandTotal,
     formatPrice,
+    setCurrency,
+    currency: currentCurrency,
     settings,
     createOrder,
   } = useMarketplace();
@@ -151,7 +156,10 @@ export default function CheckoutPage() {
   const [isLocatingGps, setIsLocatingGps] = useState(false);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const [showAddressSearch, setShowAddressSearch] = useState(false);
+  const [showInteractiveMap, setShowInteractiveMap] = useState(false);
   const [addressSearchQuery, setAddressSearchQuery] = useState("");
+  const [selectedRegionId, setSelectedRegionId] = useState<string>("");
+  const [selectedCityOption, setSelectedCityOption] = useState<string>("");
   const [gpsFeedback, setGpsFeedback] = useState<{
     type: "success" | "error" | "warning";
     message: string;
@@ -281,11 +289,17 @@ export default function CheckoutPage() {
           postalCode: loc.postalCode || prev.postalCode,
         }));
 
+        if (loc.currency && loc.currency !== currentCurrency) {
+          setCurrency(loc.currency);
+        } else if (loc.countryAr?.includes("المغرب") || loc.countryCode === "MA") {
+          setCurrency("MAD");
+        }
+
         setGpsFeedback({
           type: "success",
           message: language === "ar"
-            ? `تم التقاط وتعبئة العنوان بدقة من الخريطة: ${resolvedAddress} ${accuracyText}`
-            : `Location resolved from map: ${resolvedAddress} ${accuracyText}`,
+            ? `تم التقاط وتعبئة العنوان بدقة من الخريطة: ${resolvedAddress} ${accuracyText} (تم اعتماد العملة: ${loc.currency || "MAD"})`
+            : `Location resolved from map: ${resolvedAddress} ${accuracyText} (Currency: ${loc.currency || "MAD"})`,
         });
       } else {
         setGpsFeedback({
@@ -353,8 +367,79 @@ export default function CheckoutPage() {
 
   const availableGateways = Object.values(settings.gateways).filter((g) => g.enabled);
 
+  // Resolve country data and divisions for cascading region/city picker
+  const currentCountryData = useMemo(() => {
+    return (
+      getCountryByName(address.country) ||
+      COUNTRIES_DATA.find(
+        (c) =>
+          c.nameAr === address.country ||
+          c.nameEn.toLowerCase() === address.country.toLowerCase() ||
+          address.country.includes(c.nameAr) ||
+          c.code === address.country
+      ) ||
+      null
+    );
+  }, [address.country]);
+
+  const availableDivisions = useMemo(() => {
+    return currentCountryData?.divisions || [];
+  }, [currentCountryData]);
+
+  const currentDivision = useMemo(() => {
+    return (
+      availableDivisions.find((d) => d.id === selectedRegionId) ||
+      availableDivisions[0] ||
+      null
+    );
+  }, [availableDivisions, selectedRegionId]);
+
+  const availableCities = useMemo(() => {
+    return currentDivision?.cities || [];
+  }, [currentDivision]);
+
   const handleInputChange = (field: keyof ShippingAddress, value: string) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
+
+    if (field === "country") {
+      const match =
+        getCountryByName(value) ||
+        COUNTRIES_DATA.find(
+          (c) =>
+            c.nameAr === value ||
+            c.nameEn.toLowerCase() === value.toLowerCase() ||
+            value.includes(c.nameAr)
+        );
+
+      if (match) {
+        if (match.currency && match.currency !== currentCurrency) {
+          try {
+            setCurrency(match.currency);
+          } catch {}
+        }
+        if (match.divisions && match.divisions.length > 0) {
+          const firstDiv = match.divisions[0];
+          setSelectedRegionId(firstDiv.id);
+          if (firstDiv.cities && firstDiv.cities.length > 0) {
+            const cityName = language === "ar" ? firstDiv.cities[0].nameAr : firstDiv.cities[0].nameEn;
+            setAddress((prev) => ({ ...prev, city: cityName }));
+            setSelectedCityOption(cityName);
+          }
+        }
+      } else if (value.includes("المغرب") || value.toLowerCase().includes("morocco")) {
+        try { setCurrency("MAD"); } catch {}
+      } else if (value.includes("مصر") || value.toLowerCase().includes("egypt")) {
+        try { setCurrency("EGP"); } catch {}
+      } else if (value.includes("السعودية") || value.toLowerCase().includes("saudi")) {
+        try { setCurrency("SAR"); } catch {}
+      } else if (value.includes("الإمارات") || value.toLowerCase().includes("emirates") || value.toLowerCase().includes("uae")) {
+        try { setCurrency("AED"); } catch {}
+      } else if (value.includes("الكويت") || value.toLowerCase().includes("kuwait")) {
+        try { setCurrency("KWD"); } catch {}
+      } else if (value.includes("قطر") || value.toLowerCase().includes("qatar")) {
+        try { setCurrency("QAR"); } catch {}
+      }
+    }
   };
 
   const handleCompleteOrder = (e: React.FormEvent) => {
@@ -580,6 +665,17 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                  {/* Interactive Map Pin Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowInteractiveMap((prev) => !prev)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/30 text-amber-800 dark:text-gold font-bold text-xs transition-all cursor-pointer"
+                    title={language === "ar" ? "تثبيت الدبوس بدقة على الخريطة التفاعلية" : "Drop pin on interactive map"}
+                  >
+                    <Navigation size={13} className="text-gold" />
+                    <span>{language === "ar" ? "تثبيت بالخريطة" : "Pin on Map"}</span>
+                  </button>
+
                   {/* Map Search Action Button */}
                   <button
                     type="button"
@@ -588,7 +684,7 @@ export default function CheckoutPage() {
                     title={language === "ar" ? "البحث بالخريطة وتعبئة العنوان" : "Search address on map"}
                   >
                     <MapPin size={13} className="text-sky-500" />
-                    <span>{language === "ar" ? "البحث بالخريطة" : "Search Map"}</span>
+                    <span>{language === "ar" ? "البحث بالاسم" : "Search Map"}</span>
                   </button>
 
                   {/* GPS Auto-Fill Action Button */}
@@ -602,12 +698,62 @@ export default function CheckoutPage() {
                     <LocateFixed size={14} className={isLocatingGps ? "animate-spin text-orange-500" : "text-orange-500"} />
                     <span>
                       {isLocatingGps
-                        ? language === "ar" ? "جاري التقاط الموقع..." : "Detecting GPS..."
-                        : language === "ar" ? "تحديد العنوان عبر GPS" : "Auto-fill with GPS"}
+                        ? language === "ar" ? "جاري التقاط GPS..." : "Detecting GPS..."
+                        : language === "ar" ? "تحديد عبر GPS" : "Auto-fill GPS"}
                     </span>
                   </button>
                 </div>
               </div>
+
+              {/* Inline Interactive Map Picker */}
+              {showInteractiveMap && (
+                <div className="p-3 sm:p-4 rounded-3xl bg-surface-soft border border-gold/40 space-y-3 animate-in fade-in shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Navigation size={15} className="text-gold" />
+                      <span className="text-xs font-bold text-foreground">
+                        {language === "ar"
+                          ? "تثبيت الدبوس وتحديد موقع التوصيل بدقة عالية"
+                          : "Interactive Map Pinning & Logistics Hub Resolution"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowInteractiveMap(false)}
+                      className="px-2.5 py-1 rounded-xl bg-surface border border-line hover:border-gold text-xs font-bold text-muted hover:text-foreground cursor-pointer"
+                    >
+                      ✕ {language === "ar" ? "إغلاق الخريطة" : "Close"}
+                    </button>
+                  </div>
+
+                  <InteractiveMapPicker
+                    onLocationConfirmed={(loc) => {
+                      const resolvedStreet = loc.formattedAddress || `${loc.street ? loc.street + "، " : ""}${loc.district ? loc.district + "، " : ""}${loc.cityAr}`;
+                      setAddress((prev) => ({
+                        ...prev,
+                        country: loc.countryAr || prev.country,
+                        city: loc.cityAr || prev.city,
+                        address: resolvedStreet,
+                        postalCode: loc.postalCode || prev.postalCode,
+                      }));
+
+                      if (loc.currency && loc.currency !== currentCurrency) {
+                        try { setCurrency(loc.currency); } catch {}
+                      } else if (loc.countryCode === "MA" || loc.countryAr?.includes("المغرب")) {
+                        try { setCurrency("MAD"); } catch {}
+                      }
+
+                      setShowInteractiveMap(false);
+                      setGpsFeedback({
+                        type: "success",
+                        message: language === "ar"
+                          ? `تم تثبيت الموقع بالخريطة بنجاح: ${loc.cityAr} (${loc.countryAr}) - تم تحديث العملة فورياً إلى ${loc.currency || "MAD"}`
+                          : `Pinned on map: ${loc.cityEn} (${loc.countryEn}) - Currency updated to ${loc.currency || "MAD"}`,
+                      });
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Map Address Search Bar */}
               {showAddressSearch && (
@@ -723,41 +869,143 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-foreground">{text.country} *</label>
+                  <label className="font-bold text-foreground flex items-center justify-between">
+                    <span>{text.country} *</span>
+                    {currentCountryData?.currency && (
+                      <span className="text-[10px] text-amber-600 dark:text-gold font-bold">
+                        {language === "ar" ? `العملة المعتمدة: ${currentCountryData.currency}` : `Active: ${currentCountryData.currency}`}
+                      </span>
+                    )}
+                  </label>
                   <select
                     value={address.country}
                     onChange={(e) => handleInputChange("country", e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs"
                   >
-                    <option value="المملكة العربية السعودية">المملكة العربية السعودية (KSA)</option>
-                    <option value="الإمارات العربية المتحدة">الإمارات العربية المتحدة (UAE)</option>
-                    <option value="جمهورية مصر العربية">جمهورية مصر العربية (Egypt)</option>
-                    <option value="دولة الكويت">دولة الكويت (Kuwait)</option>
-                    <option value="دولة قطر">دولة قطر (Qatar)</option>
-                    <option value="مملكة البحرين">مملكة البحرين (Bahrain)</option>
-                    <option value="سلطنة عمان">سلطنة عمان (Oman)</option>
-                    <option value="الولايات المتحدة / أوروبا">الولايات المتحدة / أوروبا (Global)</option>
+                    <option value="المملكة المغربية">🇲🇦 المملكة المغربية (Morocco - MAD د.م)</option>
+                    <option value="المملكة العربية السعودية">🇸🇦 المملكة العربية السعودية (KSA - SAR ر.س)</option>
+                    <option value="الإمارات العربية المتحدة">🇦🇪 الإمارات العربية المتحدة (UAE - AED د.إ)</option>
+                    <option value="جمهورية مصر العربية">🇪🇬 جمهورية مصر العربية (Egypt - EGP ج.م)</option>
+                    <option value="دولة الكويت">🇰🇼 دولة الكويت (Kuwait - KWD د.ك)</option>
+                    <option value="دولة قطر">🇶🇦 دولة قطر (Qatar - QAR ر.ق)</option>
+                    <option value="مملكة البحرين">🇧🇭 مملكة البحرين (Bahrain - BHD)</option>
+                    <option value="سلطنة عمان">🇴🇲 سلطنة عمان (Oman - OMR)</option>
+                    <option value="الولايات المتحدة / أوروبا">🌐 الولايات المتحدة / أوروبا / دولي (Global - USD $)</option>
                   </select>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">{text.city} *</label>
-                  <input
-                    type="text"
-                    required
-                    value={address.city}
-                    placeholder={language === "ar" ? "الرياض، جدة، القاهرة..." : "City"}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
+                {/* Cascading Administrative Division / Region */}
+                {availableDivisions.length > 0 ? (
+                  <div className="space-y-1">
+                    <label className="font-bold text-foreground flex items-center justify-between">
+                      <span>
+                        {language === "ar"
+                          ? currentCountryData?.divisionLabelAr || "الجهة / المحافظة / المنطقة"
+                          : currentCountryData?.divisionLabelEn || "Administrative Region"} *
+                      </span>
+                      <span className="text-[10px] text-muted">
+                        {availableDivisions.length} {language === "ar" ? "مناطق مسجلة" : "regions"}
+                      </span>
+                    </label>
+                    <select
+                      value={selectedRegionId || (currentDivision?.id ?? "")}
+                      onChange={(e) => {
+                        const divId = e.target.value;
+                        setSelectedRegionId(divId);
+                        const chosenDiv = availableDivisions.find((d) => d.id === divId);
+                        if (chosenDiv && chosenDiv.cities.length > 0) {
+                          const cityName = language === "ar" ? chosenDiv.cities[0].nameAr : chosenDiv.cities[0].nameEn;
+                          setAddress((prev) => ({ ...prev, city: cityName }));
+                          setSelectedCityOption(cityName);
+                        }
+                      }}
+                      className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs"
+                    >
+                      {availableDivisions.map((div) => (
+                        <option key={div.id} value={div.id}>
+                          {language === "ar" ? div.nameAr : div.nameEn}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="font-bold text-foreground">
+                      {language === "ar" ? "المنطقة / المقاطعة (اختياري)" : "State / Province (optional)"}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={language === "ar" ? "اكتب اسم المنطقة أو الولاية..." : "State/Region"}
+                      className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold text-xs"
+                    />
+                  </div>
+                )}
+
+                {/* Cascading City Selection */}
+                {availableCities.length > 0 ? (
+                  <div className="space-y-1">
+                    <label className="font-bold text-foreground flex items-center justify-between">
+                      <span>{text.city} *</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                        {language === "ar" ? "مغطاة بمحطات التوصيل" : "Logistics Hub active"}
+                      </span>
+                    </label>
+                    <select
+                      value={selectedCityOption || address.city}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedCityOption(val);
+                        if (val !== "other") {
+                          setAddress((prev) => ({ ...prev, city: val }));
+                        }
+                      }}
+                      className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs"
+                    >
+                      {availableCities.map((city) => {
+                        const cityName = language === "ar" ? city.nameAr : city.nameEn;
+                        return (
+                          <option key={city.id} value={cityName}>
+                            {cityName}
+                          </option>
+                        );
+                      })}
+                      <option value="other">
+                        {language === "ar" ? "✍️ مدينة أو جماعة ترابية أخرى (إدخال يدوي)" : "✍️ Other City / Municipality (manual entry)"}
+                      </option>
+                    </select>
+
+                    {(selectedCityOption === "other" ||
+                      !availableCities.some((c) => (language === "ar" ? c.nameAr : c.nameEn) === address.city)) && (
+                      <input
+                        type="text"
+                        required
+                        value={address.city}
+                        placeholder={language === "ar" ? "اكتب اسم مدينتك أو جماعتك..." : "Type custom city name..."}
+                        onChange={(e) => handleInputChange("city", e.target.value)}
+                        className="w-full p-2.5 mt-1.5 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold text-xs"
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="font-bold text-foreground">{text.city} *</label>
+                    <input
+                      type="text"
+                      required
+                      value={address.city}
+                      placeholder={language === "ar" ? "الدار البيضاء، الرباط، الرياض، القاهرة..." : "City"}
+                      onChange={(e) => handleInputChange("city", e.target.value)}
+                      className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-1">
                   <label className="font-bold text-foreground">{text.postalCode}</label>
                   <input
                     type="text"
                     value={address.postalCode}
-                    placeholder="12214"
+                    placeholder={address.country?.includes("المغرب") ? "20000" : "12214"}
                     onChange={(e) => handleInputChange("postalCode", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
                   />
