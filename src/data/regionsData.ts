@@ -592,3 +592,158 @@ export function getCitiesForDivision(countryCode?: string, divisionId?: string):
   const division = country.divisions.find((d) => d.id === divisionId);
   return division ? division.cities : [];
 }
+
+export const MOROCCAN_POSTAL_CODES: Record<string, string> = {
+  casablanca: "20000",
+  mohammedia: "28810",
+  settat: "26000",
+  eljadida: "24000",
+  berrechid: "26100",
+  nouaceur: "20240",
+  mediouna: "20600",
+  benslimane: "13000",
+  rabat: "10000",
+  sale: "11000",
+  kenitra: "14000",
+  temara: "12000",
+  skhirat: "12050",
+  khemisset: "15000",
+  sidikacem: "16000",
+  sidislimane: "14200",
+  marrakech: "40000",
+  safi: "46000",
+  essaouira: "44000",
+  benguerir: "43150",
+  elkelâa: "43000",
+  chichaoua: "41000",
+  tangier: "90000",
+  tetouan: "93000",
+  alhoceima: "32000",
+  larache: "92000",
+  asilah: "90051",
+  chefchaouen: "91000",
+  fnideq: "93100",
+  mdiq: "93200",
+  fes: "30000",
+  meknes: "50000",
+  taza: "35000",
+  sefrou: "31000",
+  ifrane: "53000",
+  taounate: "34000",
+  agadir: "80000",
+  inezgane: "80100",
+  aitmelloul: "80150",
+  taroudant: "83000",
+  tiznit: "85000",
+  tata: "84000",
+  oujda: "60000",
+  nador: "62000",
+  berkane: "63300",
+  taourirt: "65000",
+  guercif: "35100",
+  driouch: "62250",
+  benimellal: "23000",
+  khenifra: "54000",
+  khouribga: "25000",
+  fquihbensalah: "23200",
+  azilal: "22000",
+  errachidia: "52000",
+  ouarzazate: "45000",
+  tinghir: "45800",
+  midelt: "54350",
+  zagora: "47900",
+  guelmim: "81000",
+  tantan: "82000",
+  sidiifni: "85200",
+  assa: "84100",
+  laayoune: "70000",
+  boujdour: "71000",
+  tarfaya: "70050",
+  essemara: "72000",
+  dakhla: "73000",
+  aousserd: "73200",
+};
+
+/**
+ * Finds the nearest administrative division and city in a given country using coordinates
+ */
+export function findNearestDivisionAndCity(
+  countryCode: string,
+  lat: number,
+  lng: number
+): { division: AdministrativeDivision; city: CityItem; distanceKm: number } | null {
+  const country = getCountryByCode(countryCode);
+  if (!country || country.divisions.length === 0) return null;
+
+  let bestDivision: AdministrativeDivision | null = null;
+  let bestCity: CityItem | null = null;
+  let minDistance = Infinity;
+
+  for (const division of country.divisions) {
+    for (const city of division.cities) {
+      const dLat = ((city.lat - lat) * Math.PI) / 180;
+      const dLng = ((city.lng - lng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat * Math.PI) / 180) *
+          Math.cos((city.lat * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const dist = 6371 * c;
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        bestDivision = division;
+        bestCity = city;
+      }
+    }
+  }
+
+  if (bestDivision && bestCity) {
+    return { division: bestDivision, city: bestCity, distanceKm: minDistance };
+  }
+  return null;
+}
+
+/**
+ * Matches a text query (e.g. city name, region, address) to a Moroccan division and city
+ */
+export function matchMoroccanDivisionAndCity(textQuery?: string): {
+  division: AdministrativeDivision;
+  city: CityItem;
+} | null {
+  if (!textQuery) return null;
+  const q = textQuery.trim().toLowerCase();
+  const morocco = getCountryByCode("MA");
+  if (!morocco) return null;
+
+  // 1. Direct city match
+  for (const div of morocco.divisions) {
+    for (const city of div.cities) {
+      if (
+        q.includes(city.nameAr.toLowerCase()) ||
+        city.nameAr.toLowerCase().includes(q) ||
+        q.includes(city.nameEn.toLowerCase()) ||
+        city.nameEn.toLowerCase().includes(q) ||
+        q.includes(city.id.toLowerCase())
+      ) {
+        return { division: div, city };
+      }
+    }
+  }
+
+  // 2. Division / region name match
+  for (const div of morocco.divisions) {
+    if (
+      q.includes(div.nameAr.toLowerCase()) ||
+      div.nameAr.toLowerCase().includes(q) ||
+      q.includes(div.nameEn.toLowerCase()) ||
+      div.nameEn.toLowerCase().includes(q)
+    ) {
+      return { division: div, city: div.cities[0] };
+    }
+  }
+
+  return null;
+}

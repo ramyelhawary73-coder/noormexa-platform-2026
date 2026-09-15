@@ -27,7 +27,14 @@ import { useMarketplace } from "@/context/MarketplaceContext";
 import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
 import { requestUserGpsLocation } from "@/lib/locationService";
-import { COUNTRIES_DATA, getCountryByName } from "@/data/regionsData";
+import {
+  COUNTRIES_DATA,
+  getCountryByName,
+  getCountryByCode,
+  findNearestDivisionAndCity,
+  matchMoroccanDivisionAndCity,
+  MOROCCAN_POSTAL_CODES,
+} from "@/data/regionsData";
 import InteractiveMapPicker from "@/components/location/InteractiveMapPicker";
 import type { PaymentGatewayKey, ShippingAddress, Order } from "@/types/marketplace";
 import ProductImage from "@/components/ProductImage";
@@ -244,6 +251,68 @@ export default function CheckoutPage() {
     Promise.resolve().then(() => {
       if (!active || !globalLocation) return;
 
+      const isMorocco =
+        globalLocation.countryCode === "MA" ||
+        globalLocation.countryAr?.includes("المغرب") ||
+        globalLocation.countryEn?.toLowerCase().includes("morocco") ||
+        (globalLocation.lat && globalLocation.lng && globalLocation.lat >= 20.5 && globalLocation.lat <= 36.2 && globalLocation.lng >= -17.5 && globalLocation.lng <= -1.0);
+
+      if (isMorocco) {
+        setAddress((prev) => {
+          if (!prev.city || prev.city === "الرياض" || prev.country === "المملكة العربية السعودية") {
+            let matchedDiv = null;
+            let matchedCity = null;
+
+            if (globalLocation.lat && globalLocation.lng) {
+              const nearest = findNearestDivisionAndCity("MA", globalLocation.lat, globalLocation.lng);
+              if (nearest) {
+                matchedDiv = nearest.division;
+                matchedCity = nearest.city;
+              }
+            }
+
+            if (!matchedDiv || !matchedCity) {
+              const textMatch =
+                matchMoroccanDivisionAndCity(globalLocation.cityAr) ||
+                matchMoroccanDivisionAndCity(globalLocation.cityEn);
+              if (textMatch) {
+                matchedDiv = textMatch.division;
+                matchedCity = textMatch.city;
+              }
+            }
+
+            if (!matchedDiv) {
+              const morocco = getCountryByCode("MA");
+              matchedDiv = morocco?.divisions[0] || null;
+              matchedCity = matchedDiv?.cities[0] || null;
+            }
+
+            if (matchedDiv) {
+              setSelectedRegionId(matchedDiv.id);
+            }
+            const cityName = language === "ar"
+              ? (matchedCity?.nameAr || globalLocation.cityAr || "الدار البيضاء")
+              : (matchedCity?.nameEn || globalLocation.cityEn || "Casablanca");
+            setSelectedCityOption(cityName);
+
+            const postal = globalLocation.postalCode || (matchedCity?.id ? MOROCCAN_POSTAL_CODES[matchedCity.id] : "") || "20000";
+
+            return {
+              ...prev,
+              country: "المملكة المغربية",
+              city: cityName,
+              postalCode: postal,
+            };
+          }
+          return prev;
+        });
+
+        try {
+          setCurrency("MAD");
+        } catch {}
+        return;
+      }
+
       setAddress((prev) => {
         if (!prev.city || prev.city === "الرياض") {
           return {
@@ -259,7 +328,7 @@ export default function CheckoutPage() {
     return () => {
       active = false;
     };
-  }, [globalLocation]);
+  }, [globalLocation, language, setCurrency]);
 
   // Non-blocking high-speed GPS Geolocation auto-fill via Google Maps & Server Geocoding
   const handleGpsAutoFill = async () => {
@@ -274,46 +343,160 @@ export default function CheckoutPage() {
         const loc = result.location;
         const accuracyText = loc.accuracyMeters ? `(±${Math.round(loc.accuracyMeters)}متر)` : "";
 
-        // Construct complete detailed address
-        let resolvedAddress = loc.formattedAddress || "";
-        if (!resolvedAddress) {
-          const parts = [loc.street, loc.district, loc.cityAr].filter(Boolean);
-          resolvedAddress = parts.length > 0 ? parts.join("، ") : `${loc.cityAr}، ${loc.countryAr}`;
+        // Determine if location is in Morocco
+        const isMoroccoLocation =
+          loc.countryCode === "MA" ||
+          loc.countryAr?.includes("المغرب") ||
+          loc.countryEn?.toLowerCase().includes("morocco") ||
+          (loc.lat >= 20.5 && loc.lat <= 36.2 && loc.lng >= -17.5 && loc.lng <= -1.0) ||
+          matchMoroccanDivisionAndCity(loc.cityAr) !== null ||
+          matchMoroccanDivisionAndCity(loc.cityEn) !== null;
+
+        if (isMoroccoLocation) {
+          // 1. Resolve nearest administrative division (الجهة) and city (المدينة) in Morocco
+          let resolvedDivision = null;
+          let resolvedCity = null;
+
+          // Try nearest by GPS coordinates first
+          if (loc.lat && loc.lng) {
+            const nearest = findNearestDivisionAndCity("MA", loc.lat, loc.lng);
+            if (nearest) {
+              resolvedDivision = nearest.division;
+              resolvedCity = nearest.city;
+            }
+          }
+
+          // If not resolved by coordinates or if text match provides exact district/city
+          if (!resolvedDivision || !resolvedCity) {
+            const textMatch =
+              matchMoroccanDivisionAndCity(loc.cityAr) ||
+              matchMoroccanDivisionAndCity(loc.cityEn) ||
+              matchMoroccanDivisionAndCity(loc.regionAr) ||
+              matchMoroccanDivisionAndCity(loc.formattedAddress);
+            if (textMatch) {
+              resolvedDivision = textMatch.division;
+              resolvedCity = textMatch.city;
+            }
+          }
+
+          // Fallback to Casablanca-Settat if still not matched
+          if (!resolvedDivision) {
+            const moroccoData = getCountryByCode("MA");
+            resolvedDivision = moroccoData?.divisions[0] || null;
+            resolvedCity = resolvedDivision?.cities[0] || null;
+          }
+
+          const resolvedCityName = language === "ar"
+            ? (resolvedCity?.nameAr || loc.cityAr || "الدار البيضاء")
+            : (resolvedCity?.nameEn || loc.cityEn || "Casablanca");
+
+          const resolvedDivisionName = language === "ar"
+            ? (resolvedDivision?.nameAr || "جهة الدار البيضاء - سطات")
+            : (resolvedDivision?.nameEn || "Casablanca-Settat");
+
+          const resolvedPostalCode =
+            loc.postalCode ||
+            (resolvedCity?.id ? MOROCCAN_POSTAL_CODES[resolvedCity.id] : "") ||
+            "20000";
+
+          // Construct detailed address in Morocco
+          let resolvedAddress = loc.formattedAddress || "";
+          if (!resolvedAddress) {
+            const parts = [
+              loc.street,
+              loc.district,
+              resolvedCityName,
+              resolvedDivisionName,
+              "المملكة المغربية",
+            ].filter(Boolean);
+            resolvedAddress = parts.length > 0 ? parts.join("، ") : `${resolvedCityName}، ${resolvedDivisionName}، المملكة المغربية`;
+          }
+
+          // Automatically set cascading dropdown state
+          if (resolvedDivision) {
+            setSelectedRegionId(resolvedDivision.id);
+          }
+          setSelectedCityOption(resolvedCityName);
+
+          // Update address state
+          setAddress((prev) => ({
+            ...prev,
+            country: "المملكة المغربية",
+            city: resolvedCityName,
+            address: resolvedAddress,
+            postalCode: resolvedPostalCode,
+          }));
+
+          // Automatically activate Moroccan Dirham (MAD)
+          try {
+            setCurrency("MAD");
+          } catch {}
+
+          setGpsFeedback({
+            type: "success",
+            message:
+              language === "ar"
+                ? `🇲🇦 تم تحديد موقعك في المغرب وتعبئة البيانات بنجاح: ${resolvedDivisionName} - ${resolvedCityName} ${accuracyText} | تم تعبئة العنوان واعتماد الدرهم المغربي (MAD) تلقائياً`
+                : `🇲🇦 Morocco GPS detected: ${resolvedDivisionName} - ${resolvedCityName} ${accuracyText} | Address auto-filled & currency set to MAD`,
+          });
+        } else {
+          // General non-Morocco GPS auto-fill
+          let resolvedAddress = loc.formattedAddress || "";
+          if (!resolvedAddress) {
+            const parts = [loc.street, loc.district, loc.cityAr].filter(Boolean);
+            resolvedAddress = parts.length > 0 ? parts.join("، ") : `${loc.cityAr}، ${loc.countryAr}`;
+          }
+
+          const targetCountry = getCountryByName(loc.countryAr || loc.countryEn) || getCountryByCode(loc.countryCode);
+          if (targetCountry && targetCountry.divisions && targetCountry.divisions.length > 0) {
+            const nearestDiv = loc.lat && loc.lng ? findNearestDivisionAndCity(targetCountry.code, loc.lat, loc.lng) : null;
+            const chosenDiv = nearestDiv?.division || targetCountry.divisions[0];
+            const chosenCity = nearestDiv?.city || chosenDiv.cities[0];
+            setSelectedRegionId(chosenDiv.id);
+            const cName = language === "ar" ? chosenCity?.nameAr : chosenCity?.nameEn;
+            if (cName) {
+              setSelectedCityOption(cName);
+            }
+          }
+
+          setAddress((prev) => ({
+            ...prev,
+            country: loc.countryAr || prev.country,
+            city: loc.cityAr || prev.city,
+            address: resolvedAddress,
+            postalCode: loc.postalCode || prev.postalCode,
+          }));
+
+          if (loc.currency && loc.currency !== currentCurrency) {
+            try { setCurrency(loc.currency); } catch {}
+          }
+
+          setGpsFeedback({
+            type: "success",
+            message:
+              language === "ar"
+                ? `تم التقاط وتعبئة العنوان بدقة من الخريطة: ${resolvedAddress} ${accuracyText} (تم اعتماد العملة: ${loc.currency || "MAD"})`
+                : `Location resolved from map: ${resolvedAddress} ${accuracyText} (Currency: ${loc.currency || "MAD"})`,
+          });
         }
-
-        setAddress((prev) => ({
-          ...prev,
-          country: loc.countryAr || prev.country,
-          city: loc.cityAr || prev.city,
-          address: resolvedAddress,
-          postalCode: loc.postalCode || prev.postalCode,
-        }));
-
-        if (loc.currency && loc.currency !== currentCurrency) {
-          setCurrency(loc.currency);
-        } else if (loc.countryAr?.includes("المغرب") || loc.countryCode === "MA") {
-          setCurrency("MAD");
-        }
-
-        setGpsFeedback({
-          type: "success",
-          message: language === "ar"
-            ? `تم التقاط وتعبئة العنوان بدقة من الخريطة: ${resolvedAddress} ${accuracyText} (تم اعتماد العملة: ${loc.currency || "MAD"})`
-            : `Location resolved from map: ${resolvedAddress} ${accuracyText} (Currency: ${loc.currency || "MAD"})`,
-        });
       } else {
         setGpsFeedback({
           type: result.isPermissionDenied ? "warning" : "error",
           message:
             (language === "ar" ? result.errorMessageAr : result.errorMessageEn) ||
-            (language === "ar" ? "تعذر استقبال إشارة GPS، يرجى كتابة العنوان أو البحث عنه بالخريطة." : "Could not acquire GPS signal. You can type or search on map."),
+            (language === "ar"
+              ? "تعذر استقبال إشارة GPS، يرجى كتابة العنوان أو البحث عنه بالخريطة."
+              : "Could not acquire GPS signal. You can type or search on map."),
         });
       }
     } catch {
       setIsLocatingGps(false);
       setGpsFeedback({
         type: "error",
-        message: language === "ar" ? "حدث خطأ غير متوقع أثناء تحديد الموقع." : "Unexpected error during geolocation.",
+        message:
+          language === "ar"
+            ? "حدث خطأ غير متوقع أثناء تحديد الموقع."
+            : "Unexpected error during geolocation.",
       });
     }
   };
@@ -334,17 +517,70 @@ export default function CheckoutPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.formattedAddress) {
-          setAddress((prev) => ({
-            ...prev,
-            address: data.formattedAddress,
-          }));
+          const isMorocco =
+            data.countryCode === "MA" ||
+            data.country?.includes("المغرب") ||
+            (data.lat && data.lng && data.lat >= 20.5 && data.lat <= 36.2 && data.lng >= -17.5 && data.lng <= -1.0) ||
+            matchMoroccanDivisionAndCity(data.formattedAddress) !== null ||
+            matchMoroccanDivisionAndCity(query) !== null;
+
+          if (isMorocco) {
+            let matchedDiv = null;
+            let matchedCity = null;
+
+            if (data.lat && data.lng) {
+              const nearest = findNearestDivisionAndCity("MA", data.lat, data.lng);
+              if (nearest) {
+                matchedDiv = nearest.division;
+                matchedCity = nearest.city;
+              }
+            }
+
+            if (!matchedDiv || !matchedCity) {
+              const match = matchMoroccanDivisionAndCity(query) || matchMoroccanDivisionAndCity(data.formattedAddress);
+              if (match) {
+                matchedDiv = match.division;
+                matchedCity = match.city;
+              }
+            }
+
+            if (matchedDiv) {
+              setSelectedRegionId(matchedDiv.id);
+              const cName = language === "ar" ? matchedCity?.nameAr : matchedCity?.nameEn;
+              if (cName) {
+                setSelectedCityOption(cName);
+                setAddress((prev) => ({
+                  ...prev,
+                  country: "المملكة المغربية",
+                  city: cName,
+                  address: data.formattedAddress,
+                  postalCode: (matchedCity?.id ? MOROCCAN_POSTAL_CODES[matchedCity.id] : "") || prev.postalCode,
+                }));
+              }
+            } else {
+              setAddress((prev) => ({
+                ...prev,
+                country: "المملكة المغربية",
+                address: data.formattedAddress,
+              }));
+            }
+
+            try { setCurrency("MAD"); } catch {}
+          } else {
+            setAddress((prev) => ({
+              ...prev,
+              address: data.formattedAddress,
+            }));
+          }
+
           setShowAddressSearch(false);
           setAddressSearchQuery("");
           setGpsFeedback({
             type: "success",
-            message: language === "ar"
-              ? `تم العثور على العنوان وتحديده: ${data.formattedAddress}`
-              : `Address located: ${data.formattedAddress}`,
+            message:
+              language === "ar"
+                ? `تم العثور على العنوان وتحديده: ${data.formattedAddress}`
+                : `Address located: ${data.formattedAddress}`,
           });
           return;
         }
@@ -352,15 +588,19 @@ export default function CheckoutPage() {
 
       setGpsFeedback({
         type: "warning",
-        message: language === "ar"
-          ? "لم نتمكن من العثور على هذا العنوان بدقة، يرجى كتابته يدوياً في خانة العنوان."
-          : "Could not find this exact location. Please type it in the address field.",
+        message:
+          language === "ar"
+            ? "لم نتمكن من العثور على هذا العنوان بدقة، يرجى كتابته يدوياً في خانة العنوان."
+            : "Could not find this exact location. Please type it in the address field.",
       });
     } catch {
       setIsSearchingAddress(false);
       setGpsFeedback({
         type: "error",
-        message: language === "ar" ? "تعذر الاتصال بخدمة الخرائط حالياً." : "Could not reach map search service.",
+        message:
+          language === "ar"
+            ? "تعذر الاتصال بخدمة الخرائط حالياً."
+            : "Could not reach map search service.",
       });
     }
   };
@@ -728,6 +968,72 @@ export default function CheckoutPage() {
 
                   <InteractiveMapPicker
                     onLocationConfirmed={(loc) => {
+                      const isMoroccoLocation =
+                        loc.countryCode === "MA" ||
+                        loc.countryAr?.includes("المغرب") ||
+                        loc.countryEn?.toLowerCase().includes("morocco") ||
+                        (loc.lat && loc.lng && loc.lat >= 20.5 && loc.lat <= 36.2 && loc.lng >= -17.5 && loc.lng <= -1.0) ||
+                        matchMoroccanDivisionAndCity(loc.cityAr) !== null;
+
+                      if (isMoroccoLocation) {
+                        let resolvedDivision = null;
+                        let resolvedCity = null;
+
+                        if (loc.lat && loc.lng) {
+                          const nearest = findNearestDivisionAndCity("MA", loc.lat, loc.lng);
+                          if (nearest) {
+                            resolvedDivision = nearest.division;
+                            resolvedCity = nearest.city;
+                          }
+                        }
+
+                        if (!resolvedDivision || !resolvedCity) {
+                          const textMatch =
+                            matchMoroccanDivisionAndCity(loc.cityAr) ||
+                            matchMoroccanDivisionAndCity(loc.formattedAddress);
+                          if (textMatch) {
+                            resolvedDivision = textMatch.division;
+                            resolvedCity = textMatch.city;
+                          }
+                        }
+
+                        const resolvedCityName = language === "ar"
+                          ? (resolvedCity?.nameAr || loc.cityAr || "الدار البيضاء")
+                          : (resolvedCity?.nameEn || loc.cityEn || "Casablanca");
+
+                        const resolvedDivisionName = language === "ar"
+                          ? (resolvedDivision?.nameAr || "جهة الدار البيضاء - سطات")
+                          : (resolvedDivision?.nameEn || "Casablanca-Settat");
+
+                        const resolvedStreet =
+                          loc.formattedAddress ||
+                          `${loc.street ? loc.street + "، " : ""}${loc.district ? loc.district + "، " : ""}${resolvedCityName}`;
+
+                        if (resolvedDivision) {
+                          setSelectedRegionId(resolvedDivision.id);
+                        }
+                        setSelectedCityOption(resolvedCityName);
+
+                        setAddress((prev) => ({
+                          ...prev,
+                          country: "المملكة المغربية",
+                          city: resolvedCityName,
+                          address: resolvedStreet,
+                          postalCode: loc.postalCode || (resolvedCity?.id ? MOROCCAN_POSTAL_CODES[resolvedCity.id] : "") || prev.postalCode,
+                        }));
+
+                        try { setCurrency("MAD"); } catch {}
+
+                        setShowInteractiveMap(false);
+                        setGpsFeedback({
+                          type: "success",
+                          message: language === "ar"
+                            ? `🇲🇦 تم تثبيت موقعك بالخريطة بنجاح: ${resolvedDivisionName} - ${resolvedCityName} وتم تحديث العملة إلى MAD`
+                            : `🇲🇦 Map location confirmed: ${resolvedDivisionName} - ${resolvedCityName} - Currency updated to MAD`,
+                        });
+                        return;
+                      }
+
                       const resolvedStreet = loc.formattedAddress || `${loc.street ? loc.street + "، " : ""}${loc.district ? loc.district + "، " : ""}${loc.cityAr}`;
                       setAddress((prev) => ({
                         ...prev,
@@ -739,8 +1045,6 @@ export default function CheckoutPage() {
 
                       if (loc.currency && loc.currency !== currentCurrency) {
                         try { setCurrency(loc.currency); } catch {}
-                      } else if (loc.countryCode === "MA" || loc.countryAr?.includes("المغرب")) {
-                        try { setCurrency("MAD"); } catch {}
                       }
 
                       setShowInteractiveMap(false);

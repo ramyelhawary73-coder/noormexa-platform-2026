@@ -208,6 +208,25 @@ export async function GET(req: NextRequest) {
     }
 
     // 4. Safe fallback so client NEVER hangs
+    const isMorocco = lat >= 20.5 && lat <= 36.2 && lng >= -17.5 && lng <= -1.0;
+    if (isMorocco) {
+      return NextResponse.json({
+        success: true,
+        country: locale === "ar" ? "المملكة المغربية" : "Morocco",
+        countryCode: "MA",
+        city: locale === "ar" ? "الدار البيضاء" : "Casablanca",
+        state: locale === "ar" ? "جهة الدار البيضاء - سطات" : "Casablanca-Settat",
+        region: locale === "ar" ? "جهة الدار البيضاء - سطات" : "Casablanca-Settat",
+        district: "",
+        street: "",
+        postalCode: "20000",
+        formattedAddress: locale === "ar" ? "المملكة المغربية (تم التحديد عبر GPS)" : "Morocco (Located via GPS)",
+        lat,
+        lng,
+        source: "fallback",
+      });
+    }
+
     return NextResponse.json({
       success: true,
       country: locale === "ar" ? "المملكة العربية السعودية" : "Saudi Arabia",
