@@ -34,6 +34,8 @@ export type Store = {
   rating?: number;
   total_sales?: number;
   country?: string;
+  region?: string;
+  city?: string;
   currency?: CurrencyCode; // Store default currency
   base_currency?: CurrencyCode; // Alias for store base currency (MAD, SAR, EGP, etc.)
   contact_email?: string;

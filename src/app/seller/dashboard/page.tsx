@@ -13,7 +13,10 @@ import {
   Crown,
   Eye,
   Heart,
+  Loader2,
+  MapPin,
   Megaphone,
+  Navigation,
   Plus,
   Printer,
   Search,
@@ -33,6 +36,14 @@ import SmartImageUploadField from "@/components/SmartImageUploadField";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import StoreLogisticsHub from "@/components/shipping/StoreLogisticsHub";
 import { adaptMarketplaceToLogisticsShipment } from "@/lib/shippingService";
+import {
+  COUNTRIES_DATA,
+  getCountryByCode,
+  getCountryByName,
+  findNearestCountryDivisionAndCity,
+  findNearestDivisionAndCity,
+} from "@/data/regionsData";
+import { requestUserGpsLocation } from "@/lib/locationService";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -173,7 +184,11 @@ export default function SellerDashboardPage() {
   // Store Profile Edit State
   const [profileName, setProfileName] = useState(currentStore.name);
   const [profileDesc, setProfileDesc] = useState(currentStore.description || "");
-  const [profileCountry, setProfileCountry] = useState(currentStore.country || "");
+  const [profileCountry, setProfileCountry] = useState(currentStore.country || "المملكة العربية السعودية");
+  const [profileRegion, setProfileRegion] = useState(currentStore.region || "");
+  const [profileCity, setProfileCity] = useState(currentStore.city || "");
+  const [isGeocodingLoading, setIsGeocodingLoading] = useState(false);
+  const [geocodingFeedback, setGeocodingFeedback] = useState<{ type: "success" | "warning" | "error"; message: string } | null>(null);
   const [profileCurrency, setProfileCurrency] = useState<CurrencyCode>(
     currentStore.currency || currentStore.base_currency || "SAR"
   );
@@ -191,7 +206,9 @@ export default function SellerDashboardPage() {
       if (!active) return;
       setProfileName(currentStore.name);
       setProfileDesc(currentStore.description || "");
-      setProfileCountry(currentStore.country || "");
+      setProfileCountry(currentStore.country || "المملكة العربية السعودية");
+      setProfileRegion(currentStore.region || "");
+      setProfileCity(currentStore.city || "");
       const baseCur = currentStore.currency || currentStore.base_currency || "SAR";
       setProfileCurrency(baseCur);
       setNewProdCurrency(baseCur);
@@ -206,6 +223,184 @@ export default function SellerDashboardPage() {
       active = false;
     };
   }, [currentStore]);
+
+  // Cascading Location Logic for Store Profile
+  const selectedCountryData = useMemo(() => {
+    const match =
+      getCountryByName(profileCountry) ||
+      getCountryByCode(profileCountry);
+    return match || COUNTRIES_DATA[0];
+  }, [profileCountry]);
+
+  const availableDivisions = useMemo(() => {
+    return selectedCountryData?.divisions || [];
+  }, [selectedCountryData]);
+
+  const selectedDivision = useMemo(() => {
+    if (!availableDivisions.length) return null;
+    const match = availableDivisions.find(
+      (d) =>
+        d.id === profileRegion ||
+        d.nameAr === profileRegion ||
+        d.nameEn === profileRegion ||
+        (profileRegion && (d.nameAr.includes(profileRegion) || profileRegion.includes(d.nameAr)))
+    );
+    return match || availableDivisions[0];
+  }, [availableDivisions, profileRegion]);
+
+  const availableCities = useMemo(() => {
+    return selectedDivision?.cities || [];
+  }, [selectedDivision]);
+
+  const selectedCityName = useMemo(() => {
+    if (!availableCities.length) return profileCity || "";
+    const match = availableCities.find(
+      (c) =>
+        c.id === profileCity ||
+        c.nameAr === profileCity ||
+        c.nameEn === profileCity ||
+        (profileCity && (c.nameAr.includes(profileCity) || profileCity.includes(c.nameAr)))
+    );
+    return match
+      ? (isAr ? match.nameAr : match.nameEn)
+      : (profileCity || (isAr ? availableCities[0]?.nameAr || "" : availableCities[0]?.nameEn || ""));
+  }, [availableCities, profileCity, isAr]);
+
+  const handleCountryChange = (countryCode: string) => {
+    const country = getCountryByCode(countryCode) || COUNTRIES_DATA[0];
+    const countryName = isAr ? country.nameAr : country.nameEn;
+    setProfileCountry(countryName);
+
+    const firstDiv = country.divisions[0];
+    const divName = firstDiv ? (isAr ? firstDiv.nameAr : firstDiv.nameEn) : "";
+    setProfileRegion(divName);
+
+    const firstCity = firstDiv?.cities[0];
+    const cityName = firstCity ? (isAr ? firstCity.nameAr : firstCity.nameEn) : "";
+    setProfileCity(cityName);
+
+    if (country.currency) {
+      setProfileCurrency(country.currency);
+    }
+  };
+
+  const handleDivisionChange = (divId: string) => {
+    const division = availableDivisions.find((d) => d.id === divId);
+    if (!division) return;
+    const divName = isAr ? division.nameAr : division.nameEn;
+    setProfileRegion(divName);
+
+    const firstCity = division.cities[0];
+    const cityName = firstCity ? (isAr ? firstCity.nameAr : firstCity.nameEn) : "";
+    setProfileCity(cityName);
+  };
+
+  const handleCityChange = (cityName: string) => {
+    setProfileCity(cityName);
+  };
+
+  // Reverse Geocoding & GPS Auto-Fill
+  const handleAutoDetectLocation = async () => {
+    setIsGeocodingLoading(true);
+    setGeocodingFeedback(null);
+    try {
+      const result = await requestUserGpsLocation(isAr ? "ar" : "en");
+      setIsGeocodingLoading(false);
+
+      if (result.success && result.location) {
+        const loc = result.location;
+        let matchedCountry = null;
+        let matchedDivision = null;
+        let matchedCity = null;
+
+        // 1. Try finding nearest country, division & city by GPS coordinates (lat, lng)
+        if (loc.lat && loc.lng) {
+          const nearest = findNearestCountryDivisionAndCity(loc.lat, loc.lng);
+          if (nearest) {
+            matchedCountry = nearest.country;
+            matchedDivision = nearest.division;
+            matchedCity = nearest.city;
+          }
+        }
+
+        // 2. If country was resolved by server geocoding (e.g. countryCode or countryAr)
+        if (!matchedCountry && loc.countryCode) {
+          matchedCountry = getCountryByCode(loc.countryCode) || getCountryByName(loc.countryAr || loc.countryEn);
+        }
+
+        // If we have country but need division/city
+        if (matchedCountry && (!matchedDivision || !matchedCity)) {
+          if (loc.lat && loc.lng) {
+            const nearestDiv = findNearestDivisionAndCity(matchedCountry.code, loc.lat, loc.lng);
+            if (nearestDiv) {
+              matchedDivision = nearestDiv.division;
+              matchedCity = nearestDiv.city;
+            }
+          }
+          if (!matchedDivision) {
+            matchedDivision = matchedCountry.divisions.find(
+              (d) =>
+                ((loc.regionAr && (d.nameAr.includes(loc.regionAr) || loc.regionAr.includes(d.nameAr))) ||
+                 (loc.regionEn && d.nameEn.toLowerCase().includes(loc.regionEn.toLowerCase()))) ||
+                (loc.cityAr && d.cities.some((c) => c.nameAr.includes(loc.cityAr) || loc.cityAr.includes(c.nameAr))) ||
+                (loc.cityEn && d.cities.some((c) => c.nameEn.toLowerCase().includes(loc.cityEn.toLowerCase())))
+            ) || matchedCountry.divisions[0];
+
+            if (matchedDivision) {
+              matchedCity = matchedDivision.cities.find(
+                (c) =>
+                  (loc.cityAr && (c.nameAr.includes(loc.cityAr) || loc.cityAr.includes(c.nameAr))) ||
+                  (loc.cityEn && c.nameEn.toLowerCase().includes(loc.cityEn.toLowerCase()))
+              ) || matchedDivision.cities[0];
+            }
+          }
+        }
+
+        if (!matchedCountry) {
+          matchedCountry = COUNTRIES_DATA[0];
+          matchedDivision = matchedCountry.divisions[0];
+          matchedCity = matchedDivision.cities[0];
+        }
+
+        const countryName = isAr ? matchedCountry.nameAr : matchedCountry.nameEn;
+        const divisionName = isAr ? (matchedDivision?.nameAr || "") : (matchedDivision?.nameEn || "");
+        const cityName = isAr ? (matchedCity?.nameAr || loc.cityAr || "") : (matchedCity?.nameEn || loc.cityEn || "");
+
+        setProfileCountry(countryName);
+        setProfileRegion(divisionName);
+        setProfileCity(cityName);
+
+        if (matchedCountry.currency) {
+          setProfileCurrency(matchedCountry.currency);
+        }
+
+        const accuracyNotice = loc.accuracyMeters ? ` (دقة ±${Math.round(loc.accuracyMeters)}م)` : "";
+        setGeocodingFeedback({
+          type: "success",
+          message: isAr
+            ? `📍 تم التحديد التلقائي بنجاح عبر الإحداثيات (Reverse Geocoding): ${matchedCountry.flag} ${countryName} - ${divisionName} - ${cityName}${accuracyNotice}`
+            : `📍 Location detected via Reverse Geocoding: ${matchedCountry.flag} ${countryName} - ${divisionName} - ${cityName}${accuracyNotice}`,
+        });
+      } else {
+        setGeocodingFeedback({
+          type: result.isPermissionDenied ? "warning" : "error",
+          message:
+            (isAr ? result.errorMessageAr : result.errorMessageEn) ||
+            (isAr
+              ? "تعذر التقاط إحداثيات GPS، يرجى السماح بصلاحية الموقع أو التحديد يدوياً من القوائم."
+              : "Could not acquire GPS signal. Please allow location permissions or select manually."),
+        });
+      }
+    } catch {
+      setIsGeocodingLoading(false);
+      setGeocodingFeedback({
+        type: "error",
+        message: isAr
+          ? "حدث خطأ غير متوقع أثناء الاتصال بخدمة تحديد الموقع."
+          : "Unexpected error during geolocation.",
+      });
+    }
+  };
 
   // Filter products for active store
   const storeProducts = useMemo(() => {
@@ -378,6 +573,8 @@ export default function SellerDashboardPage() {
       name: profileName,
       description: profileDesc,
       country: profileCountry,
+      region: profileRegion,
+      city: profileCity,
       currency: profileCurrency,
       base_currency: profileCurrency,
       contact_email: profileEmail,
@@ -387,7 +584,7 @@ export default function SellerDashboardPage() {
       logo_url: profileLogoUrl || currentStore.logo_url,
       banner_url: profileBannerUrl || currentStore.banner_url,
     });
-    showToast(isAr ? "تم حفظ إعدادات وهوية المتجر والعملة الأساسية بنجاح!" : "Store profile and base currency updated successfully!");
+    showToast(isAr ? "تم حفظ إعدادات وهوية المتجر والموقع بنجاح!" : "Store profile and location updated successfully!");
   };
 
   return (
@@ -1344,14 +1541,132 @@ export default function SellerDashboardPage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-foreground">{isAr ? "الدولة والمقر الرئيسي" : "Country"}</label>
-                <input
-                  type="text"
-                  value={profileCountry}
-                  onChange={(e) => setProfileCountry(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                />
+              {/* Cascading Location Picker (Country -> Region/Governorate -> City) with Reverse Geocoding */}
+              <div className="sm:col-span-2 space-y-3.5 p-4 sm:p-5 rounded-2xl bg-surface-soft/80 border border-line">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <label className="font-black text-foreground flex items-center gap-1.5 text-xs sm:text-sm">
+                      <MapPin size={15} className="text-gold shrink-0" />
+                      <span>{isAr ? "الدولة والمقر الرئيسي للمتجر (مترابطة)" : "Store Country & Cascading Location"}</span>
+                    </label>
+                    <p className="text-[11px] text-muted">
+                      {isAr
+                        ? "اختر الدولة والمحافظة/الجهة والمدينة لمتجرك لتحديد نطاق الشحن والعملة والخدمات اللوجستية"
+                        : "Select store country, province/region, and city for accurate shipping and localized logistics"}
+                    </p>
+                  </div>
+
+                  {/* GPS Reverse Geocoding Auto-Fill Button */}
+                  <button
+                    type="button"
+                    onClick={handleAutoDetectLocation}
+                    disabled={isGeocodingLoading}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold-darker dark:text-gold font-black text-xs transition-all shadow-xs active:scale-95 disabled:opacity-60 cursor-pointer shrink-0"
+                    title={isAr ? "تحديد تلقائي بناءً على إحداثيات GPS (Reverse Geocoding)" : "Auto-fill via GPS (Reverse Geocoding)"}
+                  >
+                    {isGeocodingLoading ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        <span>{isAr ? "جارِ تحديد الموقع..." : "Detecting GPS..."}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation size={13} className="text-gold fill-gold/20" />
+                        <span>{isAr ? "تحديد تلقائي عبر GPS (Reverse Geocoding)" : "Auto-Fill with GPS"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Geocoding Status / Feedback Notice */}
+                {geocodingFeedback && (
+                  <div
+                    className={`p-3 rounded-xl text-xs flex items-center justify-between gap-2 border transition-all ${
+                      geocodingFeedback.type === "success"
+                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                        : geocodingFeedback.type === "warning"
+                        ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                        : "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30"
+                    }`}
+                  >
+                    <span className="font-semibold">{geocodingFeedback.message}</span>
+                    <button
+                      type="button"
+                      onClick={() => setGeocodingFeedback(null)}
+                      className="text-muted hover:text-foreground p-1 shrink-0 cursor-pointer"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Cascading Dropdowns: 1. Country -> 2. Province/Region -> 3. City */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* 1. Country Dropdown */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-foreground block">
+                      {isAr ? "1. الدولة (Country) *" : "1. Country *"}
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={selectedCountryData.code}
+                        onChange={(e) => handleCountryChange(e.target.value)}
+                        className="w-full p-2.5 px-3 pr-8 rounded-xl bg-surface border border-line focus:outline-none focus:border-gold font-bold text-xs appearance-none cursor-pointer"
+                      >
+                        {COUNTRIES_DATA.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.flag} {isAr ? c.nameAr : c.nameEn}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted" />
+                    </div>
+                  </div>
+
+                  {/* 2. Region / Province / Governorate Dropdown */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-foreground block">
+                      {isAr
+                        ? `2. ${selectedCountryData.divisionLabelAr || "الجهة / المحافظة"} *`
+                        : `2. ${selectedCountryData.divisionLabelEn || "Region / Province"} *`}
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={selectedDivision?.id || ""}
+                        onChange={(e) => handleDivisionChange(e.target.value)}
+                        className="w-full p-2.5 px-3 pr-8 rounded-xl bg-surface border border-line focus:outline-none focus:border-gold font-bold text-xs appearance-none cursor-pointer"
+                      >
+                        {availableDivisions.map((div) => (
+                          <option key={div.id} value={div.id}>
+                            {isAr ? div.nameAr : div.nameEn}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted" />
+                    </div>
+                  </div>
+
+                  {/* 3. City / Center Dropdown */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-foreground block">
+                      {isAr ? "3. المدينة / المركز *" : "3. City / Center *"}
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={selectedCityName}
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        className="w-full p-2.5 px-3 pr-8 rounded-xl bg-surface border border-line focus:outline-none focus:border-gold font-bold text-xs appearance-none cursor-pointer"
+                      >
+                        {availableCities.map((city) => (
+                          <option key={city.id} value={isAr ? city.nameAr : city.nameEn}>
+                            {isAr ? city.nameAr : city.nameEn}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted" />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -1985,7 +2300,9 @@ export default function SellerDashboardPage() {
                 <div className="space-y-1">
                   <span className="text-muted text-[11px] font-bold block">{isAr ? "المرسل (المتجر):" : "Sender (Store):"}</span>
                   <div className="font-bold text-foreground">{currentStore.name}</div>
-                  <div className="text-muted text-[11px]">{currentStore.country}</div>
+                  <div className="text-muted text-[11px]">
+                    {[currentStore.city, currentStore.region, currentStore.country].filter(Boolean).join("، ")}
+                  </div>
                   <div className="text-muted text-[11px]">{currentStore.contact_phone}</div>
                 </div>
 

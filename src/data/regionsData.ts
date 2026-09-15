@@ -747,3 +747,45 @@ export function matchMoroccanDivisionAndCity(textQuery?: string): {
 
   return null;
 }
+
+/**
+ * Finds the nearest country, division, and city across all available countries using coordinates
+ */
+export function findNearestCountryDivisionAndCity(
+  lat: number,
+  lng: number
+): { country: CountryRegionData; division: AdministrativeDivision; city: CityItem; distanceKm: number } | null {
+  let bestCountry: CountryRegionData | null = null;
+  let bestDivision: AdministrativeDivision | null = null;
+  let bestCity: CityItem | null = null;
+  let minDistance = Infinity;
+
+  for (const country of COUNTRIES_DATA) {
+    for (const division of country.divisions) {
+      for (const city of division.cities) {
+        const dLat = ((city.lat - lat) * Math.PI) / 180;
+        const dLng = ((city.lng - lng) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((lat * Math.PI) / 180) *
+            Math.cos((city.lat * Math.PI) / 180) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const dist = 6371 * c;
+
+        if (dist < minDistance) {
+          minDistance = dist;
+          bestCountry = country;
+          bestDivision = division;
+          bestCity = city;
+        }
+      }
+    }
+  }
+
+  if (bestCountry && bestDivision && bestCity) {
+    return { country: bestCountry, division: bestDivision, city: bestCity, distanceKm: minDistance };
+  }
+  return null;
+}

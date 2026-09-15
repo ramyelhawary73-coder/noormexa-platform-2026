@@ -1580,6 +1580,9 @@ interface MarketplaceContextType {
     slug: string;
     description: string;
     country: string;
+    region?: string;
+    city?: string;
+    currency?: CurrencyCode;
     plan?: string;
     cr_number?: string;
     tax_number?: string;
@@ -1976,6 +1979,9 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       slug: string;
       description: string;
       country: string;
+      region?: string;
+      city?: string;
+      currency?: CurrencyCode;
       plan?: string;
       cr_number?: string;
       tax_number?: string;
@@ -1999,6 +2005,10 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         slug: cleanSlug || `store-${Date.now()}`,
         description: storeData.description,
         country: storeData.country,
+        region: storeData.region,
+        city: storeData.city,
+        currency: storeData.currency,
+        base_currency: storeData.currency,
         plan: storeData.plan || "professional",
         commission_rate: settings.defaultCommissionRate || 8,
         status: autoApproved ? "approved" : "pending",
