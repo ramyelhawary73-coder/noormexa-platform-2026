@@ -59,21 +59,13 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
     symbolEn: "AED",
     rateAgainstEGP: 0.0735, // 1 EGP = 0.0735 AED (~1 AED = 13.6 EGP)
   },
-  USD: {
-    code: "USD",
-    nameAr: "دولار أمريكي",
-    nameEn: "US Dollar",
-    symbolAr: "$",
-    symbolEn: "$",
-    rateAgainstEGP: 0.02, // 1 EGP = 0.02 USD (~1 USD = 50 EGP)
-  },
-  EUR: {
-    code: "EUR",
-    nameAr: "يورو",
-    nameEn: "Euro",
-    symbolAr: "€",
-    symbolEn: "€",
-    rateAgainstEGP: 0.0185, // 1 EGP = 0.0185 EUR (~1 EUR = 54 EGP)
+  MAD: {
+    code: "MAD",
+    nameAr: "درهم مغربي",
+    nameEn: "Moroccan Dirham",
+    symbolAr: "د.م",
+    symbolEn: "MAD",
+    rateAgainstEGP: 0.20, // 1 EGP = 0.20 MAD (~1 MAD = 5.0 EGP)
   },
   KWD: {
     code: "KWD",
@@ -91,13 +83,21 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
     symbolEn: "QAR",
     rateAgainstEGP: 0.073, // 1 EGP = 0.073 QAR (~1 QAR = 13.7 EGP)
   },
-  MAD: {
-    code: "MAD",
-    nameAr: "درهم مغربي",
-    nameEn: "Moroccan Dirham",
-    symbolAr: "د.م",
-    symbolEn: "MAD",
-    rateAgainstEGP: 0.20, // 1 EGP = 0.20 MAD (~1 MAD = 5.0 EGP)
+  USD: {
+    code: "USD",
+    nameAr: "دولار أمريكي",
+    nameEn: "US Dollar",
+    symbolAr: "$",
+    symbolEn: "$",
+    rateAgainstEGP: 0.02, // 1 EGP = 0.02 USD (~1 USD = 50 EGP)
+  },
+  EUR: {
+    code: "EUR",
+    nameAr: "يورو",
+    nameEn: "Euro",
+    symbolAr: "€",
+    symbolEn: "€",
+    rateAgainstEGP: 0.0185, // 1 EGP = 0.0185 EUR (~1 EUR = 54 EGP)
   },
 };
 
@@ -1701,7 +1701,7 @@ const STORAGE_KEYS = {
   PRODUCTS: "noormexa_products_v5",
   STORES: "noormexa_stores_v4",
   ORDERS: "noormexa_orders_v2",
-  CURRENCIES: "noormexa_currencies_v2",
+  CURRENCIES: "noormexa_currencies_v3",
   PAYOUTS: "noormexa_payouts_v2",
   CURRENT_STORE: "noormexa_active_store_id_v3",
   MARKETING_POSTS: "noormexa_marketing_posts_v3",
@@ -1737,8 +1737,26 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         const savedCurrency = window.localStorage.getItem(STORAGE_KEYS.CURRENCY) as CurrencyCode;
         if (savedCurrency && CURRENCIES[savedCurrency]) setCurrencyState(savedCurrency);
 
-        const savedCurrencies = window.localStorage.getItem(STORAGE_KEYS.CURRENCIES);
-        if (savedCurrencies) setCurrenciesState(JSON.parse(savedCurrencies));
+        const savedCurrencies =
+          window.localStorage.getItem(STORAGE_KEYS.CURRENCIES) ||
+          window.localStorage.getItem("noormexa_currencies_v2");
+        if (savedCurrencies) {
+          try {
+            const parsed = JSON.parse(savedCurrencies);
+            const merged = { ...CURRENCIES, ...parsed };
+            (Object.keys(CURRENCIES) as CurrencyCode[]).forEach((code) => {
+              if (!merged[code]) {
+                merged[code] = CURRENCIES[code];
+              }
+            });
+            setCurrenciesState(merged);
+          } catch (e) {
+            console.error("Error parsing saved currencies:", e);
+            setCurrenciesState(CURRENCIES);
+          }
+        } else {
+          setCurrenciesState(CURRENCIES);
+        }
 
         const savedSettings = window.localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (savedSettings) setSettingsState(JSON.parse(savedSettings));

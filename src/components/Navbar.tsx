@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import {
-  Coins,
   Crown,
   Heart,
   LayoutDashboard,
@@ -34,9 +33,31 @@ import LanguageToggle from "@/components/LanguageToggle";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { useMarketplace } from "@/context/MarketplaceContext";
+import { useMarketplace, CURRENCIES } from "@/context/MarketplaceContext";
 import { useLocation } from "@/context/LocationContext";
 import type { CurrencyCode } from "@/types/marketplace";
+
+const ALL_CURRENCY_CODES: CurrencyCode[] = [
+  "EGP",
+  "SAR",
+  "AED",
+  "MAD",
+  "KWD",
+  "QAR",
+  "USD",
+  "EUR",
+];
+
+const CURRENCY_FLAGS: Record<CurrencyCode, string> = {
+  EGP: "🇪🇬",
+  SAR: "🇸🇦",
+  AED: "🇦🇪",
+  MAD: "🇲🇦",
+  KWD: "🇰🇼",
+  QAR: "🇶🇦",
+  USD: "🇺🇸",
+  EUR: "🇪🇺",
+};
 
 import { getUserRole } from "@/lib/authHelpers";
 
@@ -213,7 +234,7 @@ export default function Navbar() {
     window.location.href = "/";
   };
 
-  const currencyList = Object.keys(currencies) as CurrencyCode[];
+  const currencyList: CurrencyCode[] = ALL_CURRENCY_CODES;
 
   // Sub-Navigation Quick Strip Links
   const subNavLinks = [
@@ -430,12 +451,12 @@ export default function Navbar() {
             <div className="hidden md:block relative" ref={currencyMenuRef}>
               <button
                 type="button"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/50 hover:text-foreground transition-all shadow-xs cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold border border-line bg-surface dark:bg-slate-900 hover:border-orange-500/50 hover:text-foreground transition-all shadow-xs cursor-pointer"
                 onClick={() => setCurrencyOpen(!currencyOpen)}
                 title={text.currency}
                 aria-label={text.currency}
               >
-                <Coins size={13} className="text-orange-500" />
+                <span className="text-xs leading-none">{CURRENCY_FLAGS[currency] || "🪙"}</span>
                 <span className="font-mono text-[11px] font-black">{currency}</span>
                 <ChevronDown
                   size={11}
@@ -446,19 +467,28 @@ export default function Navbar() {
               </button>
 
               {currencyOpen && (
-                <div className="absolute top-full mt-2 ltr:right-0 rtl:left-0 z-[100] min-w-[220px] bg-surface dark:bg-slate-900 rounded-2xl shadow-2xl border border-line p-1.5 animate-in fade-in zoom-in-95 backdrop-blur-xl">
-                  <div className="px-3 py-1.5 text-[10px] font-bold text-muted border-b border-line mb-1 uppercase tracking-wider">
-                    {text.currency} / Select Currency
+                <div className="absolute top-full mt-2 ltr:right-0 rtl:left-0 z-[100] min-w-[245px] bg-surface dark:bg-slate-900 rounded-2xl shadow-2xl border border-line p-1.5 animate-in fade-in zoom-in-95 backdrop-blur-xl">
+                  <div className="px-3 py-1.5 text-[10px] font-bold text-muted border-b border-line mb-1 uppercase tracking-wider flex items-center justify-between">
+                    <span>{text.currency} / Select Currency</span>
+                    <span className="text-[9px] text-orange-500 font-mono font-bold">8 عملات</span>
                   </div>
-                  <div className="space-y-0.5 max-h-64 overflow-y-auto">
+                  <div className="space-y-0.5 max-h-[380px] overflow-y-auto">
                     {currencyList.map((c) => {
-                      const info = currencies[c];
+                      const info = currencies[c] || CURRENCIES[c] || {
+                        code: c,
+                        nameAr: c === "MAD" ? "درهم مغربي" : c,
+                        nameEn: c === "MAD" ? "Moroccan Dirham" : c,
+                        symbolAr: c === "MAD" ? "د.م" : c,
+                        symbolEn: c,
+                        rateAgainstEGP: 1,
+                      };
                       const active = c === currency;
+                      const flag = CURRENCY_FLAGS[c] || "🪙";
                       return (
                         <button
                           key={c}
                           type="button"
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
                             active
                               ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 font-black border border-orange-500/30"
                               : "hover:bg-surface-soft dark:hover:bg-slate-800 text-foreground"
@@ -469,6 +499,7 @@ export default function Navbar() {
                           }}
                         >
                           <span className="flex items-center gap-2">
+                            <span className="text-base leading-none">{flag}</span>
                             <span className="font-mono font-bold">{c}</span>
                             <span className="text-[10px] opacity-75">
                               ({isAr ? info.symbolAr : info.symbolEn})
@@ -943,19 +974,20 @@ export default function Navbar() {
             <div className="p-3 rounded-2xl bg-surface-soft dark:bg-slate-900 border border-line space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-muted">{isAr ? "العملة المفضلة:" : "Currency:"}</span>
-                <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] no-scrollbar">
-                  {currencyList.slice(0, 4).map((c) => (
+                <div className="flex items-center gap-1 overflow-x-auto max-w-[220px] no-scrollbar py-0.5">
+                  {currencyList.map((c) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setCurrency(c)}
-                      className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                      className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
                         currency === c
                           ? "bg-orange-500 text-white shadow-xs"
                           : "bg-surface dark:bg-slate-800 text-muted hover:text-foreground border border-line"
                       }`}
                     >
-                      {c}
+                      <span className="text-[11px] leading-none">{CURRENCY_FLAGS[c]}</span>
+                      <span>{c}</span>
                     </button>
                   ))}
                 </div>

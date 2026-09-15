@@ -894,23 +894,36 @@ export default function DashboardPage() {
                 </h3>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <span className="text-xs font-bold text-muted">{text.preferredCurrency}</span>
-                    <div className="flex items-center gap-1">
-                      {(["EGP", "SAR", "AED", "USD"] as const).map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setCurrency(c)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                            currency === c
-                              ? "bg-orange-500 text-white shadow-xs"
-                              : "bg-surface-soft dark:bg-slate-800 text-muted hover:text-foreground border border-line"
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {(["EGP", "SAR", "AED", "MAD", "KWD", "QAR", "USD", "EUR"] as const).map((c) => {
+                        const flags: Record<string, string> = {
+                          EGP: "🇪🇬",
+                          SAR: "🇸🇦",
+                          AED: "🇦🇪",
+                          MAD: "🇲🇦",
+                          KWD: "🇰🇼",
+                          QAR: "🇶🇦",
+                          USD: "🇺🇸",
+                          EUR: "🇪🇺",
+                        };
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setCurrency(c)}
+                            className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                              currency === c
+                                ? "bg-orange-500 text-white shadow-xs"
+                                : "bg-surface-soft dark:bg-slate-800 text-muted hover:text-foreground border border-line"
+                            }`}
+                          >
+                            <span>{flags[c]}</span>
+                            <span>{c}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
