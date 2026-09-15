@@ -14,7 +14,9 @@ import {
   checkGeolocationPermissionState,
   getCityCoordinates,
   CITY_COORDINATES_DB,
+  reverseGeocodeCoordinates,
 } from "@/lib/locationService";
+import { COUNTRIES_DATA, getCountryByCode } from "@/data/regionsData";
 import { useLanguage } from "@/context/LanguageContext";
 import { useMarketplace } from "@/context/MarketplaceContext";
 
@@ -38,8 +40,11 @@ interface LocationContextType {
   detectIp: () => Promise<boolean>;
   selectPopularDestination: (item: DeliveryDestinationItem) => void;
   selectCityByName: (cityName: string) => void;
+  selectLocationFromHierarchy: (countryCode: string, divisionId?: string, cityId?: string) => void;
+  selectMapCoordinates: (lat: number, lng: number) => Promise<DetectedLocation>;
   popularDestinations: DeliveryDestinationItem[];
   cityList: typeof CITY_COORDINATES_DB;
+  countriesData: typeof COUNTRIES_DATA;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
@@ -393,6 +398,132 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     [isAr, currency, setCurrency]
   );
 
+  // Select location from country / division / city hierarchy
+  const selectLocationFromHierarchy = useCallback(
+    (countryCode: string, divisionId?: string, cityId?: string) => {
+      const country = getCountryByCode(countryCode);
+      if (!country) return;
+
+      const division = country.divisions.find((d) => d.id === divisionId);
+      const city = division?.cities.find((c) => c.id === cityId);
+
+      const lat = city?.lat ?? division?.lat ?? country.defaultCenter.lat;
+      const lng = city?.lng ?? division?.lng ?? country.defaultCenter.lng;
+
+      const cityNameAr = city?.nameAr || division?.nameAr || country.nameAr;
+      const cityNameEn = city?.nameEn || division?.nameEn || country.nameEn;
+
+      const newLoc: DetectedLocation = {
+        lat,
+        lng,
+        cityAr: cityNameAr,
+        cityEn: cityNameEn,
+        regionAr: division?.nameAr,
+        regionEn: division?.nameEn,
+        countryAr: country.nameAr,
+        countryEn: country.nameEn,
+        countryCode: country.code,
+        currency: country.currency,
+        accuracyMeters: city ? 3000 : division ? 10000 : 25000,
+        source: "hierarchy_select",
+        timestamp: Date.now(),
+        formattedAddress: `${cityNameAr}، ${division?.nameAr ? division.nameAr + "، " : ""}${country.nameAr}`,
+      };
+
+      setLocation(newLoc);
+      saveDetectedLocation(newLoc);
+
+      if (country.currency && country.currency !== currency) {
+        try {
+          setCurrency(country.currency);
+        } catch {}
+      }
+
+      setFeedback({
+        type: "success",
+        title: isAr ? "تم تحديث الوجهة والعملة" : "Destination & Currency Updated",
+        message: isAr
+          ? `وجهة التوصيل: ${cityNameAr} (${country.nameAr}) - العملة المعتمدة: ${country.currency}`
+          : `Delivery destination: ${cityNameEn} (${country.nameEn}) - Active Currency: ${country.currency}`,
+      });
+
+      setIsModalOpen(false);
+    },
+    [isAr, currency, setCurrency]
+  );
+
+  // Select location by clicking / pinning on interactive map
+  const selectMapCoordinates = useCallback(
+    async (lat: number, lng: number): Promise<DetectedLocation> => {
+      setIsLocating(true);
+      setLocatingType("gps");
+      try {
+        const rev = await reverseGeocodeCoordinates(lat, lng, isAr ? "ar" : "en");
+        const newLoc: DetectedLocation = {
+          lat,
+          lng,
+          cityAr: rev.cityAr,
+          cityEn: rev.cityEn,
+          regionAr: rev.region || rev.governorate,
+          regionEn: rev.region || rev.governorate,
+          countryAr: rev.countryAr,
+          countryEn: rev.countryEn,
+          countryCode: rev.countryCode,
+          currency: rev.currency,
+          accuracyMeters: 50,
+          source: "map_picker",
+          timestamp: Date.now(),
+          isHighAccuracy: true,
+          street: rev.street,
+          district: rev.district,
+          postalCode: rev.postalCode,
+          formattedAddress: rev.formattedAddress || `${rev.cityAr}، ${rev.countryAr}`,
+        };
+
+        setLocation(newLoc);
+        saveDetectedLocation(newLoc);
+
+        if (newLoc.currency && newLoc.currency !== currency) {
+          try {
+            setCurrency(newLoc.currency);
+          } catch {}
+        }
+
+        setFeedback({
+          type: "success",
+          title: isAr ? "تم التقاط الموقع من الخريطة بنجاح" : "Location Captured from Map",
+          message: isAr
+            ? `العنوان: ${newLoc.formattedAddress || newLoc.cityAr} (العملة: ${newLoc.currency})`
+            : `Address: ${newLoc.formattedAddress || newLoc.cityEn} (Currency: ${newLoc.currency})`,
+        });
+
+        return newLoc;
+      } catch {
+        const fallbackLoc: DetectedLocation = {
+          lat,
+          lng,
+          cityAr: isAr ? "موقع محدد على الخريطة" : "Pinned Map Location",
+          cityEn: "Pinned Map Location",
+          countryAr: isAr ? "المنطقة المحددة" : "Selected Area",
+          countryEn: "Selected Area",
+          countryCode: "SA",
+          currency: "SAR",
+          accuracyMeters: 100,
+          source: "map_picker",
+          timestamp: Date.now(),
+          formattedAddress: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        };
+        setLocation(fallbackLoc);
+        saveDetectedLocation(fallbackLoc);
+        return fallbackLoc;
+      } finally {
+        setIsLocating(false);
+        setLocatingType(null);
+      }
+    },
+    [isAr, currency, setCurrency]
+  );
+
   return (
     <LocationContext.Provider
       value={{
@@ -409,8 +540,11 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         detectIp,
         selectPopularDestination,
         selectCityByName,
+        selectLocationFromHierarchy,
+        selectMapCoordinates,
         popularDestinations: POPULAR_DELIVERY_DESTINATIONS,
         cityList: CITY_COORDINATES_DB,
+        countriesData: COUNTRIES_DATA,
       }}
     >
       {children}

@@ -91,6 +91,14 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
     symbolEn: "QAR",
     rateAgainstEGP: 0.073, // 1 EGP = 0.073 QAR (~1 QAR = 13.7 EGP)
   },
+  MAD: {
+    code: "MAD",
+    nameAr: "درهم مغربي",
+    nameEn: "Moroccan Dirham",
+    symbolAr: "د.م",
+    symbolEn: "MAD",
+    rateAgainstEGP: 0.20, // 1 EGP = 0.20 MAD (~1 MAD = 5.0 EGP)
+  },
 };
 
 export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
@@ -1550,6 +1558,7 @@ interface MarketplaceContextType {
   updateExchangeRate: (code: CurrencyCode, newRate: number) => void;
   formatPrice: (amountInEGP: number, customCurrency?: CurrencyCode) => string;
   convertPrice: (amountInEGP: number, targetCurrency?: CurrencyCode) => number;
+  convertFromCurrencyToEGP: (amountInCurrency: number, sourceCurrency: CurrencyCode) => number;
 
   // Platform Settings
   settings: PlatformSettings;
@@ -1851,10 +1860,20 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       const converted = amountInEGP * rate;
       // Round nicely according to currency
       if (cur === "KWD") return Math.round(converted * 100) / 100;
-      if (cur === "USD" || cur === "EUR") return Math.round(converted * 100) / 100;
+      if (cur === "USD" || cur === "EUR" || cur === "MAD") return Math.round(converted * 100) / 100;
       return Math.round(converted * 10) / 10;
     },
     [currency, currenciesState]
+  );
+
+  const convertFromCurrencyToEGP = useCallback(
+    (amountInCurrency: number, sourceCurrency: CurrencyCode): number => {
+      const rate = currenciesState[sourceCurrency]?.rateAgainstEGP ?? 1;
+      if (rate <= 0) return amountInCurrency;
+      const baseEGP = amountInCurrency / rate;
+      return Math.round(baseEGP * 100) / 100;
+    },
+    [currenciesState]
   );
 
   const formatPrice = useCallback(
@@ -1870,7 +1889,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
           : true;
 
       const formattedVal = val.toLocaleString(isArabic ? "ar-EG" : "en-US", {
-        minimumFractionDigits: curCode === "KWD" ? 2 : curCode === "USD" || curCode === "EUR" ? 2 : 0,
+        minimumFractionDigits: curCode === "KWD" ? 2 : curCode === "USD" || curCode === "EUR" || curCode === "MAD" ? 2 : 0,
         maximumFractionDigits: 2,
       });
 
@@ -2660,6 +2679,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         updateExchangeRate,
         formatPrice,
         convertPrice,
+        convertFromCurrencyToEGP,
         settings,
         updateSettings,
         toggleGateway,

@@ -14,9 +14,12 @@ import {
   Wifi,
   ChevronRight,
   Info,
+  Building2,
 } from "lucide-react";
 import { useLocation } from "@/context/LocationContext";
 import { useLanguage } from "@/context/LanguageContext";
+import CascadingRegionDropdowns from "@/components/location/CascadingRegionDropdowns";
+import InteractiveMapPicker from "@/components/location/InteractiveMapPicker";
 
 export default function LocationSelectorModal() {
   const { isAr } = useLanguage();
@@ -37,6 +40,7 @@ export default function LocationSelectorModal() {
     cityList,
   } = useLocation();
 
+  const [activeSelectionMode, setActiveSelectionMode] = useState<"cascading" | "map" | "quick">("cascading");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountryFilter, setSelectedCountryFilter] = useState<string>("ALL");
 
@@ -61,8 +65,9 @@ export default function LocationSelectorModal() {
   // Countries for tab filter
   const countryFilters = [
     { code: "ALL", labelAr: "الكل", labelEn: "All" },
-    { code: "SA", labelAr: "🇸🇦 السعودية", labelEn: "🇸🇦 Saudi" },
+    { code: "MA", labelAr: "🇲🇦 المغرب", labelEn: "🇲🇦 Morocco" },
     { code: "EG", labelAr: "🇪🇬 مصر", labelEn: "🇪🇬 Egypt" },
+    { code: "SA", labelAr: "🇸🇦 السعودية", labelEn: "🇸🇦 Saudi" },
     { code: "AE", labelAr: "🇦🇪 الإمارات", labelEn: "🇦🇪 UAE" },
     { code: "KW", labelAr: "🇰🇼 الكويت", labelEn: "🇰🇼 Kuwait" },
     { code: "QA", labelAr: "🇶🇦 قطر", labelEn: "🇶🇦 Qatar" },
@@ -72,7 +77,7 @@ export default function LocationSelectorModal() {
   const filteredDestinations = useMemo(() => {
     if (selectedCountryFilter === "ALL") return popularDestinations;
     if (selectedCountryFilter === "GLOBAL") {
-      return popularDestinations.filter((d) => !["SA", "EG", "AE", "KW", "QA"].includes(d.countryCode));
+      return popularDestinations.filter((d) => !["MA", "SA", "EG", "AE", "KW", "QA"].includes(d.countryCode));
     }
     return popularDestinations.filter((d) => d.countryCode === selectedCountryFilter);
   }, [selectedCountryFilter, popularDestinations]);
@@ -217,198 +222,275 @@ export default function LocationSelectorModal() {
             </span>
           </div>
 
-          {/* Action 1: GPS Real Detection Button & IP Geolocation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Live GPS Detection Button with Auto Fallback */}
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800 text-xs font-bold">
             <button
               type="button"
-              onClick={() => detectGps(true)}
-              disabled={isLocating}
-              className="p-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-between shadow-lg shadow-orange-500/20 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group text-start"
+              onClick={() => setActiveSelectionMode("cascading")}
+              className={`flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeSelectionMode === "cascading"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              }`}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
-                  <LocateFixed size={20} className={isLocating && locatingType === "gps" ? "animate-spin" : ""} />
-                </div>
-                <div>
-                  <span className="block font-black">
-                    {isLocating && locatingType === "gps"
-                      ? isAr ? "جاري التقاط إشارة GPS..." : "Acquiring GPS Signal..."
-                      : isAr ? "تحديد موقعي الدقيق عبر GPS" : "Detect My Live GPS Location"}
-                  </span>
-                  <span className="text-[11px] text-white/80 block">
-                    {isAr ? "دقة عالية (تحويل تلقائي لـ IP عند الحظر)" : "High accuracy (auto IP fallback if blocked)"}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={18} className={isAr ? "rotate-180" : ""} />
+              <Building2 size={15} />
+              <span>{isAr ? "أزرار منسدلة (الدولة والمنطقة)" : "Cascading Regions"}</span>
             </button>
 
-            {/* IP Geolocation Button */}
             <button
               type="button"
-              onClick={() => detectIp()}
-              disabled={isLocating}
-              className="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs sm:text-sm flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 text-start group"
+              onClick={() => setActiveSelectionMode("map")}
+              className={`flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeSelectionMode === "map"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              }`}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
-                  <Wifi size={18} className={isLocating && locatingType === "ip" ? "animate-pulse" : ""} />
-                </div>
-                <div>
-                  <span className="block font-bold text-white">
-                    {isLocating && locatingType === "ip"
-                      ? isAr ? "جاري فحص الشبكة..." : "Detecting via IP..."
-                      : isAr ? "كشف الموقع عبر شبكة الإنترنت" : "Detect via IP Network"}
-                  </span>
-                  <span className="text-[11px] text-slate-400 block">
-                    {isAr ? "بدون طلب إذن وصول (تقديري)" : "Zero-permission estimate"}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={18} className={isAr ? "rotate-180 text-slate-400" : "text-slate-400"} />
+              <MapPin size={15} />
+              <span>{isAr ? "الخريطة والتقاط الموقع (Map)" : "Interactive Map & Pin"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveSelectionMode("quick")}
+              className={`flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeSelectionMode === "quick"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              }`}
+            >
+              <Globe2 size={15} />
+              <span>{isAr ? "بحث ووجهات سريعة" : "Quick Destinations"}</span>
             </button>
           </div>
 
-          {/* Permission Blocked Guide & Fallback Banner */}
-          {permissionState === "denied" && (
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-start gap-2.5">
-                <ShieldCheck size={18} className="text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold block text-sm">
-                    {isAr ? "تم رفض إذن GPS — تم تطبيق التحديد التقديري عبر الإنترنت (IP)" : "GPS Permission Blocked — Operating on IP Fallback"}
-                  </span>
-                  <p className="text-[11px] text-amber-200/90 mt-0.5">
-                    {isAr
-                      ? "إذا أردت دقة GPS عالية، انقر على رمز القفل 🔒 بجانب الرابط في شريط عنوان المتصفح ⬅️ فعّل 'الموقع الجغرافي' ثم انقر إعادة المحاولة."
-                      : "To enable precise GPS, click the lock icon 🔒 in your browser address bar ➡️ Turn on 'Location' and retry."}
-                  </p>
-                </div>
+          {/* MODE 1: Cascading Dropdowns */}
+          {activeSelectionMode === "cascading" && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <CascadingRegionDropdowns />
+
+              {/* Quick GPS button underneath */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => detectGps(true)}
+                  disabled={isLocating}
+                  className="w-full p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-bold flex items-center justify-between transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <LocateFixed size={16} className={isLocating ? "animate-spin text-orange-400" : "text-orange-400"} />
+                    <span>{isAr ? "أو حدد موقعك الحالي مباشرة عبر مستشعر GPS" : "Or detect your live location via GPS sensor"}</span>
+                  </div>
+                  <ChevronRight size={16} className={isAr ? "rotate-180 text-slate-400" : "text-slate-400"} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => detectGps(true)}
-                className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 font-bold text-xs shrink-0 transition-colors cursor-pointer"
-              >
-                {isAr ? "إعادة محاولة GPS" : "Retry GPS"}
-              </button>
             </div>
           )}
 
-          {/* Search Box */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-300 block">
-              {isAr ? "أو ابحث عن مدينتك / محافظتك:" : "Or search for your city/province:"}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isAr ? "اكتب اسم المدينة (مثل: الرياض، القاهرة، دبي، الإسكندرية...)" : "Type city name (e.g. Riyadh, Cairo, Dubai, London...)"}
-                className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 pl-10 pr-10"
-              />
-              <Search size={16} className="absolute left-3 top-3 text-slate-400" />
-              {searchQuery && (
+          {/* MODE 2: Interactive Map & Live Geocoding */}
+          {activeSelectionMode === "map" && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <InteractiveMapPicker />
+            </div>
+          )}
+
+          {/* MODE 3: Quick Popular Destinations & Search */}
+          {activeSelectionMode === "quick" && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              {/* Action: GPS Real Detection Button & IP Geolocation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Live GPS Detection Button with Auto Fallback */}
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                  onClick={() => detectGps(true)}
+                  disabled={isLocating}
+                  className="p-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-between shadow-lg shadow-orange-500/20 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group text-start"
                 >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Live Search Suggestions Dropdown */}
-            {searchResults.length > 0 && (
-              <div className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 space-y-1 shadow-lg max-h-48 overflow-y-auto">
-                {searchResults.map(([key, item]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      selectCityByName(item.cityAr);
-                      setSearchQuery("");
-                    }}
-                    className="w-full px-3 py-2 rounded-lg text-start text-xs flex items-center justify-between hover:bg-slate-700 text-slate-200 hover:text-white transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <MapPin size={14} className="text-orange-400" />
-                      <span className="font-bold">{isAr ? item.cityAr : item.cityEn}</span>
-                      <span className="text-slate-400 text-[11px]">({isAr ? item.countryAr : item.countryEn})</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">
-                      {item.currency}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Quick Select Popular Destinations */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300">
-                {isAr ? "الوجهات الأكثر طلباً في الشرق الأوسط والعالم:" : "Popular Middle Eastern & Global Destinations:"}
-              </span>
-            </div>
-
-            {/* Country Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
-              {countryFilters.map((tab) => (
-                <button
-                  key={tab.code}
-                  type="button"
-                  onClick={() => setSelectedCountryFilter(tab.code)}
-                  className={`px-3 py-1 rounded-lg font-bold shrink-0 transition-colors cursor-pointer ${
-                    selectedCountryFilter === tab.code
-                      ? "bg-orange-500 text-white shadow-sm"
-                      : "bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700"
-                  }`}
-                >
-                  {isAr ? tab.labelAr : tab.labelEn}
-                </button>
-              ))}
-            </div>
-
-            {/* Destination Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {filteredDestinations.map((dest) => {
-                const isSelected =
-                  location.cityAr === dest.cityAr ||
-                  location.cityEn.toLowerCase() === dest.cityEn.toLowerCase();
-
-                return (
-                  <button
-                    key={dest.key}
-                    type="button"
-                    onClick={() => selectPopularDestination(dest)}
-                    className={`p-3 rounded-xl border text-start transition-all cursor-pointer flex flex-col justify-between ${
-                      isSelected
-                        ? "bg-orange-500/15 border-orange-500/60 text-white shadow-sm ring-1 ring-orange-500/40"
-                        : "bg-slate-800/60 border-slate-700/80 hover:border-slate-600 text-slate-300 hover:text-white"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-base">{dest.flagEmoji}</span>
-                      {isSelected && <Check size={14} className="text-orange-400 font-bold" />}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                      <LocateFixed size={20} className={isLocating && locatingType === "gps" ? "animate-spin" : ""} />
                     </div>
                     <div>
-                      <span className="font-bold text-xs block text-white">
-                        {isAr ? dest.cityAr : dest.cityEn}
+                      <span className="block font-black">
+                        {isLocating && locatingType === "gps"
+                          ? isAr ? "جاري التقاط إشارة GPS..." : "Acquiring GPS Signal..."
+                          : isAr ? "تحديد موقعي الدقيق عبر GPS" : "Detect My Live GPS Location"}
                       </span>
-                      <span className="text-[10px] text-slate-400 block truncate">
-                        {isAr ? dest.countryAr : dest.countryEn}
+                      <span className="text-[11px] text-white/80 block">
+                        {isAr ? "دقة عالية (تحويل تلقائي لـ IP عند الحظر)" : "High accuracy (auto IP fallback if blocked)"}
                       </span>
                     </div>
+                  </div>
+                  <ChevronRight size={18} className={isAr ? "rotate-180" : ""} />
+                </button>
+
+                {/* IP Geolocation Button */}
+                <button
+                  type="button"
+                  onClick={() => detectIp()}
+                  disabled={isLocating}
+                  className="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs sm:text-sm flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 text-start group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+                      <Wifi size={18} className={isLocating && locatingType === "ip" ? "animate-pulse" : ""} />
+                    </div>
+                    <div>
+                      <span className="block font-bold text-white">
+                        {isLocating && locatingType === "ip"
+                          ? isAr ? "جاري فحص الشبكة..." : "Detecting via IP..."
+                          : isAr ? "كشف الموقع عبر شبكة الإنترنت" : "Detect via IP Network"}
+                      </span>
+                      <span className="text-[11px] text-slate-400 block">
+                        {isAr ? "بدون طلب إذن وصول (تقديري)" : "Zero-permission estimate"}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className={isAr ? "rotate-180 text-slate-400" : "text-slate-400"} />
+                </button>
+              </div>
+
+              {/* Permission Blocked Guide & Fallback Banner */}
+              {permissionState === "denied" && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <ShieldCheck size={18} className="text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold block text-sm">
+                        {isAr ? "تم رفض إذن GPS — تم تطبيق التحديد التقديري عبر الإنترنت (IP)" : "GPS Permission Blocked — Operating on IP Fallback"}
+                      </span>
+                      <p className="text-[11px] text-amber-200/90 mt-0.5">
+                        {isAr
+                          ? "إذا أردت دقة GPS عالية، انقر على رمز القفل 🔒 بجانب الرابط في شريط عنوان المتصفح ⬅️ فعّل 'الموقع الجغرافي' ثم انقر إعادة المحاولة."
+                          : "To enable precise GPS, click the lock icon 🔒 in your browser address bar ➡️ Turn on 'Location' and retry."}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => detectGps(true)}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 font-bold text-xs shrink-0 transition-colors cursor-pointer"
+                  >
+                    {isAr ? "إعادة محاولة GPS" : "Retry GPS"}
                   </button>
-                );
-              })}
+                </div>
+              )}
+
+              {/* Search Box */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-300 block">
+                  {isAr ? "أو ابحث عن مدينتك / محافظتك:" : "Or search for your city/province:"}
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={isAr ? "اكتب اسم المدينة (مثل: الدار البيضاء، الرياض، القاهرة، دبي...)" : "Type city name (e.g. Casablanca, Riyadh, Cairo, Dubai...)"}
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 pl-10 pr-10"
+                  />
+                  <Search size={16} className="absolute left-3 top-3 text-slate-400" />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Live Search Suggestions Dropdown */}
+                {searchResults.length > 0 && (
+                  <div className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 space-y-1 shadow-lg max-h-48 overflow-y-auto">
+                    {searchResults.map(([key, item]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => {
+                          selectCityByName(item.cityAr);
+                          setSearchQuery("");
+                        }}
+                        className="w-full px-3 py-2 rounded-lg text-start text-xs flex items-center justify-between hover:bg-slate-700 text-slate-200 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="text-orange-400" />
+                          <span className="font-bold">{isAr ? item.cityAr : item.cityEn}</span>
+                          <span className="text-slate-400 text-[11px]">({isAr ? item.countryAr : item.countryEn})</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">
+                          {item.currency}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Select Popular Destinations */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-300">
+                    {isAr ? "الوجهات الأكثر طلباً في الشرق الأوسط والمغرب العربي:" : "Popular Regional & Global Destinations:"}
+                  </span>
+                </div>
+
+                {/* Country Tabs */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+                  {countryFilters.map((tab) => (
+                    <button
+                      key={tab.code}
+                      type="button"
+                      onClick={() => setSelectedCountryFilter(tab.code)}
+                      className={`px-3 py-1 rounded-lg font-bold shrink-0 transition-colors cursor-pointer ${
+                        selectedCountryFilter === tab.code
+                          ? "bg-orange-500 text-white shadow-sm"
+                          : "bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700"
+                      }`}
+                    >
+                      {isAr ? tab.labelAr : tab.labelEn}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Destination Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {filteredDestinations.map((dest) => {
+                    const isSelected =
+                      location.cityAr === dest.cityAr ||
+                      location.cityEn.toLowerCase() === dest.cityEn.toLowerCase();
+
+                    return (
+                      <button
+                        key={dest.key}
+                        type="button"
+                        onClick={() => selectPopularDestination(dest)}
+                        className={`p-3 rounded-xl border text-start transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? "bg-orange-500/15 border-orange-500/60 text-white shadow-sm ring-1 ring-orange-500/40"
+                            : "bg-slate-800/60 border-slate-700/80 hover:border-slate-600 text-slate-300 hover:text-white"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-base">{dest.flagEmoji}</span>
+                          {isSelected && <Check size={14} className="text-orange-400 font-bold" />}
+                        </div>
+                        <div>
+                          <span className="font-bold text-xs block text-white">
+                            {isAr ? dest.cityAr : dest.cityEn}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block truncate">
+                            {isAr ? dest.countryAr : dest.countryEn}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}

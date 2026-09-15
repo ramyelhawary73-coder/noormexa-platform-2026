@@ -20,12 +20,14 @@ export interface DetectedLocation {
   lng: number;
   cityAr: string;
   cityEn: string;
+  regionAr?: string;
+  regionEn?: string;
   countryAr: string;
   countryEn: string;
   countryCode: string;
   currency: CurrencyCode;
   accuracyMeters?: number;
-  source: "gps" | "ip" | "timezone" | "cached" | "city_lookup" | "static_default";
+  source: "gps" | "ip" | "timezone" | "cached" | "city_lookup" | "static_default" | "map_picker" | "hierarchy_select";
   timestamp: number;
   isHighAccuracy?: boolean;
   street?: string;
@@ -61,6 +63,12 @@ export interface DeliveryDestinationItem {
 }
 
 export const POPULAR_DELIVERY_DESTINATIONS: DeliveryDestinationItem[] = [
+  { key: "casablanca", cityAr: "الدار البيضاء", cityEn: "Casablanca", countryAr: "المملكة المغربية", countryEn: "Morocco", countryCode: "MA", flagEmoji: "🇲🇦", currency: "MAD", coords: { lat: 33.5731, lng: -7.5898 } },
+  { key: "rabat", cityAr: "الرباط", cityEn: "Rabat", countryAr: "المملكة المغربية", countryEn: "Morocco", countryCode: "MA", flagEmoji: "🇲🇦", currency: "MAD", coords: { lat: 34.0209, lng: -6.8416 } },
+  { key: "marrakech", cityAr: "مراكش", cityEn: "Marrakech", countryAr: "المملكة المغربية", countryEn: "Morocco", countryCode: "MA", flagEmoji: "🇲🇦", currency: "MAD", coords: { lat: 31.6295, lng: -7.9811 } },
+  { key: "tangier", cityAr: "طنجة", cityEn: "Tangier", countryAr: "المملكة المغربية", countryEn: "Morocco", countryCode: "MA", flagEmoji: "🇲🇦", currency: "MAD", coords: { lat: 35.7595, lng: -5.8340 } },
+  { key: "agadir", cityAr: "أكادير", cityEn: "Agadir", countryAr: "المملكة المغربية", countryEn: "Morocco", countryCode: "MA", flagEmoji: "🇲🇦", currency: "MAD", coords: { lat: 30.4278, lng: -9.5981 } },
+  { key: "fes", cityAr: "فاس", cityEn: "Fes", countryAr: "المملكة المغربية", countryEn: "Morocco", countryCode: "MA", flagEmoji: "🇲🇦", currency: "MAD", coords: { lat: 34.0331, lng: -5.0003 } },
   { key: "riyadh", cityAr: "الرياض", cityEn: "Riyadh", countryAr: "المملكة العربية السعودية", countryEn: "Saudi Arabia", countryCode: "SA", flagEmoji: "🇸🇦", currency: "SAR", coords: { lat: 24.7136, lng: 46.6753 } },
   { key: "jeddah", cityAr: "جدة", cityEn: "Jeddah", countryAr: "المملكة العربية السعودية", countryEn: "Saudi Arabia", countryCode: "SA", flagEmoji: "🇸🇦", currency: "SAR", coords: { lat: 21.5433, lng: 39.1728 } },
   { key: "dammam", cityAr: "الدمام", cityEn: "Dammam", countryAr: "المملكة العربية السعودية", countryEn: "Saudi Arabia", countryCode: "SA", flagEmoji: "🇸🇦", currency: "SAR", coords: { lat: 26.4207, lng: 50.0888 } },
@@ -162,9 +170,22 @@ export const CITY_COORDINATES_DB: Record<string, { lat: number; lng: number; cit
   baghdad: { lat: 33.3152, lng: 44.3661, cityAr: "بغداد", cityEn: "Baghdad", countryCode: "IQ", countryAr: "العراق", countryEn: "Iraq", currency: "USD" },
   erbil: { lat: 36.1911, lng: 44.0092, cityAr: "أربيل", cityEn: "Erbil", countryCode: "IQ", countryAr: "العراق", countryEn: "Iraq", currency: "USD" },
 
-  // North Africa
-  casablanca: { lat: 33.5731, lng: -7.5898, cityAr: "الدار البيضاء", cityEn: "Casablanca", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "USD" },
-  rabat: { lat: 34.0209, lng: -6.8416, cityAr: "الرباط", cityEn: "Rabat", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "USD" },
+  // Morocco
+  casablanca: { lat: 33.5731, lng: -7.5898, cityAr: "الدار البيضاء", cityEn: "Casablanca", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  rabat: { lat: 34.0209, lng: -6.8416, cityAr: "الرباط", cityEn: "Rabat", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  marrakech: { lat: 31.6295, lng: -7.9811, cityAr: "مراكش", cityEn: "Marrakech", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  tangier: { lat: 35.7595, lng: -5.8340, cityAr: "طنجة", cityEn: "Tangier", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  tanger: { lat: 35.7595, lng: -5.8340, cityAr: "طنجة", cityEn: "Tangier", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  agadir: { lat: 30.4278, lng: -9.5981, cityAr: "أكادير", cityEn: "Agadir", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  fes: { lat: 34.0331, lng: -5.0003, cityAr: "فاس", cityEn: "Fes", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  meknes: { lat: 33.8938, lng: -5.5516, cityAr: "مكناس", cityEn: "Meknes", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  oujda: { lat: 34.6814, lng: -1.9086, cityAr: "وجدة", cityEn: "Oujda", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  kenitra: { lat: 34.2610, lng: -6.5802, cityAr: "القنيطرة", cityEn: "Kenitra", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  tetouan: { lat: 35.5889, lng: -5.3626, cityAr: "تطوان", cityEn: "Tetouan", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  safi: { lat: 32.2994, lng: -9.2372, cityAr: "آسفي", cityEn: "Safi", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  mohammedia: { lat: 33.6866, lng: -7.3828, cityAr: "المحمدية", cityEn: "Mohammedia", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  laayoune: { lat: 27.1253, lng: -13.1625, cityAr: "العيون", cityEn: "Laayoune", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
+  dakhla: { lat: 23.7136, lng: -15.9388, cityAr: "الداخلة", cityEn: "Dakhla", countryCode: "MA", countryAr: "المملكة المغربية", countryEn: "Morocco", currency: "MAD" },
   tunis: { lat: 36.8065, lng: 10.1815, cityAr: "تونس", cityEn: "Tunis", countryCode: "TN", countryAr: "الجمهورية التونسية", countryEn: "Tunisia", currency: "USD" },
   algiers: { lat: 36.7538, lng: 3.0588, cityAr: "الجزائر", cityEn: "Algiers", countryCode: "DZ", countryAr: "الجمهورية الجزائرية", countryEn: "Algeria", currency: "USD" },
 
@@ -181,6 +202,16 @@ export const CITY_COORDINATES_DB: Record<string, { lat: number; lng: number; cit
 
 // 2. Verified Regional Logistics Fulfillment Hubs
 export const VERIFIED_FULFILLMENT_HUBS: FulfillmentHub[] = [
+  {
+    id: "hub-cmn-01",
+    nameAr: "مركز نورميكسا للخدمات اللوجستية - الدار البيضاء (CMN-01)",
+    nameEn: "NOORMEXA Logistics Hub - Casablanca (CMN-01)",
+    cityAr: "الدار البيضاء",
+    cityEn: "Casablanca",
+    countryCode: "MA",
+    code: "CMN-01",
+    coords: { lat: 33.5731, lng: -7.5898 },
+  },
   {
     id: "hub-ruh-01",
     nameAr: "مستودع نورميكسا المركزي - الرياض (RUH-01)",
@@ -407,6 +438,21 @@ export function detectUserRegionFromTimezone(): DetectedLocation {
 
   const tz = timeZone.toLowerCase();
 
+  if (tz.includes("casablanca") || tz.includes("morocco") || tz.includes("africa/casablanca")) {
+    return {
+      lat: 33.5731,
+      lng: -7.5898,
+      cityAr: "الدار البيضاء",
+      cityEn: "Casablanca",
+      countryAr: "المملكة المغربية",
+      countryEn: "Morocco",
+      countryCode: "MA",
+      currency: "MAD",
+      source: "timezone",
+      timestamp: Date.now(),
+    };
+  }
+
   if (tz.includes("cairo") || tz.includes("egypt") || tz.includes("africa/cairo")) {
     return {
       lat: 30.0444,
@@ -584,6 +630,8 @@ export interface ReverseGeocodeResult {
   countryEn: string;
   countryCode: string;
   currency: CurrencyCode;
+  region?: string;
+  governorate?: string;
   street?: string;
   district?: string;
   postalCode?: string;
@@ -627,6 +675,7 @@ export async function reverseGeocodeCoordinates(
       if (data.success) {
         const countryCode = (data.countryCode || closestCityInfo?.countryCode || "SA").toUpperCase();
         const currencyMap: Record<string, CurrencyCode> = {
+          MA: "MAD",
           SA: "SAR",
           EG: "EGP",
           AE: "AED",
@@ -650,6 +699,8 @@ export async function reverseGeocodeCoordinates(
           countryEn: data.country || closestCityInfo?.countryEn || "Saudi Arabia",
           countryCode,
           currency: currencyMap[countryCode] || closestCityInfo?.currency || "SAR",
+          region: data.region || data.state || "",
+          governorate: data.region || data.state || "",
           street: data.street || "",
           district: data.district || "",
           postalCode: data.postalCode || "",
@@ -760,6 +811,8 @@ export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promis
           countryEn: rev.countryEn,
           countryCode: rev.countryCode,
           currency: rev.currency,
+          regionAr: rev.region || rev.governorate,
+          regionEn: rev.region || rev.governorate,
           accuracyMeters,
           source: "gps",
           timestamp: Date.now(),

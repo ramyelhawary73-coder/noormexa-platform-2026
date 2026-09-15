@@ -5,6 +5,8 @@ interface GeocodeResult {
   country?: string;
   countryCode?: string;
   city?: string;
+  state?: string;
+  region?: string;
   district?: string;
   street?: string;
   postalCode?: string;
@@ -51,6 +53,7 @@ export async function GET(req: NextRequest) {
           if (data.status === "OK" && data.results && data.results.length > 0) {
             const first = data.results[0];
             let city = "";
+            let state = "";
             let country = "";
             let countryCode = "";
             let district = "";
@@ -63,6 +66,8 @@ export async function GET(req: NextRequest) {
               if (types.includes("country")) {
                 country = comp.long_name;
                 countryCode = comp.short_name;
+              } else if (types.includes("administrative_area_level_1")) {
+                state = comp.long_name;
               } else if (types.includes("locality")) {
                 city = comp.long_name;
               } else if (!city && (types.includes("administrative_area_level_2") || types.includes("administrative_area_level_1"))) {
@@ -79,13 +84,15 @@ export async function GET(req: NextRequest) {
             }
 
             const cleanStreet = streetNumber ? `${street} ${streetNumber}`.trim() : street;
-            const formattedAddress = first.formatted_address || [cleanStreet, district, city, country].filter(Boolean).join("، ");
+            const formattedAddress = first.formatted_address || [cleanStreet, district, city, state, country].filter(Boolean).join("، ");
 
             const result: GeocodeResult = {
               success: true,
               country: country || (locale === "ar" ? "المملكة العربية السعودية" : "Saudi Arabia"),
               countryCode: countryCode || "SA",
               city: city || (locale === "ar" ? "الرياض" : "Riyadh"),
+              state: state || "",
+              region: state || "",
               district,
               street: cleanStreet,
               postalCode,
@@ -125,12 +132,13 @@ export async function GET(req: NextRequest) {
 
         const country = addr.country || (locale === "ar" ? "المملكة العربية السعودية" : "Saudi Arabia");
         const countryCode = (addr.country_code || "sa").toUpperCase();
-        const city = addr.city || addr.town || addr.municipality || addr.state || (locale === "ar" ? "الرياض" : "Riyadh");
+        const state = addr.state || addr.region || addr.province || addr.county || "";
+        const city = addr.city || addr.town || addr.municipality || state || (locale === "ar" ? "الرياض" : "Riyadh");
         const district = addr.suburb || addr.neighbourhood || addr.city_district || addr.quarter || "";
         const street = addr.road || addr.street || addr.pedestrian || "";
         const postalCode = addr.postcode || "";
 
-        const parts = [street, district, city].filter(Boolean);
+        const parts = [street, district, city, state].filter(Boolean);
         const formattedAddress = parts.length > 0 ? parts.join("، ") : (data.display_name || city);
 
         const result: GeocodeResult = {
@@ -138,6 +146,8 @@ export async function GET(req: NextRequest) {
           country,
           countryCode,
           city,
+          state,
+          region: state,
           district,
           street,
           postalCode,

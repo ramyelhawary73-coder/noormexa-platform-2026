@@ -1,4 +1,4 @@
-export type CurrencyCode = "USD" | "SAR" | "AED" | "EGP" | "EUR" | "KWD" | "QAR";
+export type CurrencyCode = "USD" | "SAR" | "AED" | "EGP" | "EUR" | "KWD" | "QAR" | "MAD";
 
 export type CurrencyInfo = {
   code: CurrencyCode;
@@ -34,6 +34,7 @@ export type Store = {
   rating?: number;
   total_sales?: number;
   country?: string;
+  currency?: CurrencyCode; // Store default currency
   contact_email?: string;
   contact_phone?: string;
   cr_number?: string; // Commercial Registration
@@ -110,6 +111,7 @@ export type Product = {
   description_en?: string;
   price: number; // in base EGP
   original_price?: number;
+  currency?: CurrencyCode; // Currency in which seller originally priced the item
   image_url: string | null;
   gallery_images?: string[];
   stock: number;
