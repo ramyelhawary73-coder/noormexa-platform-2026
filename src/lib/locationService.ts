@@ -22,6 +22,9 @@ export interface DetectedLocation {
   cityEn: string;
   regionAr?: string;
   regionEn?: string;
+  state?: string;
+  stateAr?: string;
+  stateEn?: string;
   countryAr: string;
   countryEn: string;
   countryCode: string;
@@ -631,6 +634,7 @@ export interface ReverseGeocodeResult {
   countryCode: string;
   currency: CurrencyCode;
   region?: string;
+  state?: string;
   governorate?: string;
   street?: string;
   district?: string;
@@ -700,6 +704,7 @@ export async function reverseGeocodeCoordinates(
           countryCode,
           currency: currencyMap[countryCode] || closestCityInfo?.currency || "SAR",
           region: data.region || data.state || "",
+          state: data.state || data.region || "",
           governorate: data.region || data.state || "",
           street: data.street || "",
           district: data.district || "",
@@ -813,6 +818,9 @@ export async function requestUserGpsLocation(locale: "ar" | "en" = "ar"): Promis
           currency: rev.currency,
           regionAr: rev.region || rev.governorate,
           regionEn: rev.region || rev.governorate,
+          state: rev.state || rev.region || rev.governorate,
+          stateAr: rev.state || rev.region || rev.governorate,
+          stateEn: rev.state || rev.region || rev.governorate,
           accuracyMeters,
           source: "gps",
           timestamp: Date.now(),

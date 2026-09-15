@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore, useMemo } from "react";
+import { useEffect, useState, useSyncExternalStore, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -32,6 +32,7 @@ import {
   getCountryByName,
   getCountryByCode,
   findNearestDivisionAndCity,
+  findNearestCountryDivisionAndCity,
   matchMoroccanDivisionAndCity,
   MOROCCAN_POSTAL_CODES,
 } from "@/data/regionsData";
@@ -167,6 +168,7 @@ export default function CheckoutPage() {
   const [addressSearchQuery, setAddressSearchQuery] = useState("");
   const [selectedRegionId, setSelectedRegionId] = useState<string>("");
   const [selectedCityOption, setSelectedCityOption] = useState<string>("");
+  const [gpsCoordinates, setGpsCoordinates] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null);
   const [gpsFeedback, setGpsFeedback] = useState<{
     type: "success" | "error" | "warning";
     message: string;
@@ -184,6 +186,8 @@ export default function CheckoutPage() {
             email: parsed.email || "",
             phone: parsed.phone || "",
             country: parsed.country || "المملكة العربية السعودية",
+            state: parsed.state || parsed.region || "منطقة الرياض",
+            region: parsed.region || parsed.state || "منطقة الرياض",
             city: parsed.city || "الرياض",
             address: parsed.address || "",
             postalCode: parsed.postalCode || "",
@@ -197,6 +201,8 @@ export default function CheckoutPage() {
       email: "",
       phone: "",
       country: "المملكة العربية السعودية",
+      state: "منطقة الرياض",
+      region: "منطقة الرياض",
       city: "الرياض",
       address: "",
       postalCode: "",
@@ -295,11 +301,17 @@ export default function CheckoutPage() {
               : (matchedCity?.nameEn || globalLocation.cityEn || "Casablanca");
             setSelectedCityOption(cityName);
 
+            const divName = language === "ar"
+              ? (matchedDiv?.nameAr || "جهة الدار البيضاء - سطات")
+              : (matchedDiv?.nameEn || "Casablanca-Settat");
+
             const postal = globalLocation.postalCode || (matchedCity?.id ? MOROCCAN_POSTAL_CODES[matchedCity.id] : "") || "20000";
 
             return {
               ...prev,
               country: "المملكة المغربية",
+              state: divName,
+              region: divName,
               city: cityName,
               postalCode: postal,
             };
@@ -315,9 +327,19 @@ export default function CheckoutPage() {
 
       setAddress((prev) => {
         if (!prev.city || prev.city === "الرياض") {
+          const cName = globalLocation.countryAr || prev.country;
+          const countryData = getCountryByName(cName) || getCountryByCode(globalLocation.countryCode);
+          let divName = globalLocation.state || globalLocation.regionAr || "";
+          if (countryData && countryData.divisions && countryData.divisions.length > 0) {
+            const firstDiv = countryData.divisions[0];
+            setSelectedRegionId(firstDiv.id);
+            divName = language === "ar" ? firstDiv.nameAr : firstDiv.nameEn;
+          }
           return {
             ...prev,
-            country: globalLocation.countryAr || prev.country,
+            country: cName,
+            state: divName || prev.state,
+            region: divName || prev.region,
             city: globalLocation.cityAr || prev.city,
           };
         }
@@ -330,10 +352,10 @@ export default function CheckoutPage() {
     };
   }, [globalLocation, language, setCurrency]);
 
-  // Non-blocking high-speed GPS Geolocation auto-fill via Google Maps & Server Geocoding
-  const handleGpsAutoFill = async () => {
+  // Non-blocking high-speed GPS Geolocation auto-fill & Reverse Geocoding for Country, State, and City
+  const handleGpsAutoFill = useCallback(async (silent: boolean = false) => {
     setIsLocatingGps(true);
-    setGpsFeedback(null);
+    if (!silent) setGpsFeedback(null);
 
     try {
       const result = await requestUserGpsLocation(language);
@@ -341,9 +363,33 @@ export default function CheckoutPage() {
 
       if (result.success && result.location) {
         const loc = result.location;
-        const accuracyText = loc.accuracyMeters ? `(±${Math.round(loc.accuracyMeters)}متر)` : "";
+        const accuracyText = loc.accuracyMeters ? `(±${Math.round(loc.accuracyMeters)}م)` : "";
 
-        // Determine if location is in Morocco
+        // Record coordinates for UI display
+        setGpsCoordinates({
+          lat: loc.lat,
+          lng: loc.lng,
+          accuracy: loc.accuracyMeters,
+        });
+
+        // 1. Resolve Country
+        let matchedCountry =
+          getCountryByCode(loc.countryCode) ||
+          getCountryByName(loc.countryAr) ||
+          getCountryByName(loc.countryEn) ||
+          COUNTRIES_DATA.find((c) =>
+            c.code.toUpperCase() === loc.countryCode?.toUpperCase() ||
+            c.nameAr === loc.countryAr ||
+            c.nameEn.toLowerCase() === loc.countryEn?.toLowerCase() ||
+            loc.countryAr?.includes(c.nameAr) ||
+            c.nameAr.includes(loc.countryAr || "")
+          );
+
+        const spatialMatch = loc.lat && loc.lng ? findNearestCountryDivisionAndCity(loc.lat, loc.lng) : null;
+        if (!matchedCountry && spatialMatch?.country) {
+          matchedCountry = spatialMatch.country;
+        }
+
         const isMoroccoLocation =
           loc.countryCode === "MA" ||
           loc.countryAr?.includes("المغرب") ||
@@ -353,11 +399,18 @@ export default function CheckoutPage() {
           matchMoroccanDivisionAndCity(loc.cityEn) !== null;
 
         if (isMoroccoLocation) {
-          // 1. Resolve nearest administrative division (الجهة) and city (المدينة) in Morocco
-          let resolvedDivision = null;
-          let resolvedCity = null;
+          matchedCountry = getCountryByCode("MA") || COUNTRIES_DATA[0];
+        } else if (!matchedCountry) {
+          matchedCountry = COUNTRIES_DATA[0];
+        }
 
-          // Try nearest by GPS coordinates first
+        const resolvedCountryName = language === "ar" ? matchedCountry.nameAr : matchedCountry.nameEn;
+
+        // 2. Resolve State / Administrative Division
+        let resolvedDivision = null;
+        let resolvedCity = null;
+
+        if (matchedCountry.code === "MA") {
           if (loc.lat && loc.lng) {
             const nearest = findNearestDivisionAndCity("MA", loc.lat, loc.lng);
             if (nearest) {
@@ -366,12 +419,13 @@ export default function CheckoutPage() {
             }
           }
 
-          // If not resolved by coordinates or if text match provides exact district/city
           if (!resolvedDivision || !resolvedCity) {
             const textMatch =
               matchMoroccanDivisionAndCity(loc.cityAr) ||
               matchMoroccanDivisionAndCity(loc.cityEn) ||
+              matchMoroccanDivisionAndCity(loc.state) ||
               matchMoroccanDivisionAndCity(loc.regionAr) ||
+              matchMoroccanDivisionAndCity(loc.regionEn) ||
               matchMoroccanDivisionAndCity(loc.formattedAddress);
             if (textMatch) {
               resolvedDivision = textMatch.division;
@@ -379,127 +433,153 @@ export default function CheckoutPage() {
             }
           }
 
-          // Fallback to Casablanca-Settat if still not matched
           if (!resolvedDivision) {
             const moroccoData = getCountryByCode("MA");
             resolvedDivision = moroccoData?.divisions[0] || null;
             resolvedCity = resolvedDivision?.cities[0] || null;
           }
-
-          const resolvedCityName = language === "ar"
-            ? (resolvedCity?.nameAr || loc.cityAr || "الدار البيضاء")
-            : (resolvedCity?.nameEn || loc.cityEn || "Casablanca");
-
-          const resolvedDivisionName = language === "ar"
-            ? (resolvedDivision?.nameAr || "جهة الدار البيضاء - سطات")
-            : (resolvedDivision?.nameEn || "Casablanca-Settat");
-
-          const resolvedPostalCode =
-            loc.postalCode ||
-            (resolvedCity?.id ? MOROCCAN_POSTAL_CODES[resolvedCity.id] : "") ||
-            "20000";
-
-          // Construct detailed address in Morocco
-          let resolvedAddress = loc.formattedAddress || "";
-          if (!resolvedAddress) {
-            const parts = [
-              loc.street,
-              loc.district,
-              resolvedCityName,
-              resolvedDivisionName,
-              "المملكة المغربية",
-            ].filter(Boolean);
-            resolvedAddress = parts.length > 0 ? parts.join("، ") : `${resolvedCityName}، ${resolvedDivisionName}، المملكة المغربية`;
-          }
-
-          // Automatically set cascading dropdown state
-          if (resolvedDivision) {
-            setSelectedRegionId(resolvedDivision.id);
-          }
-          setSelectedCityOption(resolvedCityName);
-
-          // Update address state
-          setAddress((prev) => ({
-            ...prev,
-            country: "المملكة المغربية",
-            city: resolvedCityName,
-            address: resolvedAddress,
-            postalCode: resolvedPostalCode,
-          }));
-
-          // Automatically activate Moroccan Dirham (MAD)
-          try {
-            setCurrency("MAD");
-          } catch {}
-
-          setGpsFeedback({
-            type: "success",
-            message:
-              language === "ar"
-                ? `🇲🇦 تم تحديد موقعك في المغرب وتعبئة البيانات بنجاح: ${resolvedDivisionName} - ${resolvedCityName} ${accuracyText} | تم تعبئة العنوان واعتماد الدرهم المغربي (MAD) تلقائياً`
-                : `🇲🇦 Morocco GPS detected: ${resolvedDivisionName} - ${resolvedCityName} ${accuracyText} | Address auto-filled & currency set to MAD`,
-          });
         } else {
-          // General non-Morocco GPS auto-fill
-          let resolvedAddress = loc.formattedAddress || "";
-          if (!resolvedAddress) {
-            const parts = [loc.street, loc.district, loc.cityAr].filter(Boolean);
-            resolvedAddress = parts.length > 0 ? parts.join("، ") : `${loc.cityAr}، ${loc.countryAr}`;
-          }
+          // Other countries
+          if (matchedCountry.divisions && matchedCountry.divisions.length > 0) {
+            if (spatialMatch && spatialMatch.country.code === matchedCountry.code) {
+              resolvedDivision = spatialMatch.division;
+              resolvedCity = spatialMatch.city;
+            } else if (loc.lat && loc.lng) {
+              const nearest = findNearestDivisionAndCity(matchedCountry.code, loc.lat, loc.lng);
+              if (nearest) {
+                resolvedDivision = nearest.division;
+                resolvedCity = nearest.city;
+              }
+            }
 
-          const targetCountry = getCountryByName(loc.countryAr || loc.countryEn) || getCountryByCode(loc.countryCode);
-          if (targetCountry && targetCountry.divisions && targetCountry.divisions.length > 0) {
-            const nearestDiv = loc.lat && loc.lng ? findNearestDivisionAndCity(targetCountry.code, loc.lat, loc.lng) : null;
-            const chosenDiv = nearestDiv?.division || targetCountry.divisions[0];
-            const chosenCity = nearestDiv?.city || chosenDiv.cities[0];
-            setSelectedRegionId(chosenDiv.id);
-            const cName = language === "ar" ? chosenCity?.nameAr : chosenCity?.nameEn;
-            if (cName) {
-              setSelectedCityOption(cName);
+            if (!resolvedDivision && (loc.state || loc.regionAr || loc.regionEn)) {
+              const stateQuery = (loc.state || loc.regionAr || loc.regionEn || "").toLowerCase();
+              resolvedDivision = matchedCountry.divisions.find(
+                (d) =>
+                  d.nameAr.includes(stateQuery) ||
+                  stateQuery.includes(d.nameAr) ||
+                  d.nameEn.toLowerCase().includes(stateQuery) ||
+                  stateQuery.includes(d.nameEn.toLowerCase())
+              ) || null;
             }
           }
+        }
 
-          setAddress((prev) => ({
-            ...prev,
-            country: loc.countryAr || prev.country,
-            city: loc.cityAr || prev.city,
-            address: resolvedAddress,
-            postalCode: loc.postalCode || prev.postalCode,
-          }));
+        if (!resolvedDivision && matchedCountry.divisions && matchedCountry.divisions.length > 0) {
+          resolvedDivision = matchedCountry.divisions[0];
+        }
 
-          if (loc.currency && loc.currency !== currentCurrency) {
-            try { setCurrency(loc.currency); } catch {}
+        // 3. Resolve City
+        if (resolvedDivision && (!resolvedCity || !resolvedCity.nameAr)) {
+          const cityQuery = (loc.cityAr || loc.cityEn || "").toLowerCase();
+          if (cityQuery && resolvedDivision.cities && resolvedDivision.cities.length > 0) {
+            resolvedCity = resolvedDivision.cities.find(
+              (c) =>
+                c.nameAr.includes(cityQuery) ||
+                cityQuery.includes(c.nameAr) ||
+                c.nameEn.toLowerCase().includes(cityQuery) ||
+                cityQuery.includes(c.nameEn.toLowerCase())
+            ) || resolvedDivision.cities[0];
+          } else if (resolvedDivision.cities && resolvedDivision.cities.length > 0) {
+            resolvedCity = resolvedDivision.cities[0];
           }
+        }
 
+        const resolvedDivisionName = resolvedDivision
+          ? (language === "ar" ? resolvedDivision.nameAr : resolvedDivision.nameEn)
+          : (loc.state || loc.regionAr || loc.regionEn || "");
+
+        const resolvedCityName = resolvedCity
+          ? (language === "ar" ? resolvedCity.nameAr : resolvedCity.nameEn)
+          : (loc.cityAr || loc.cityEn || (language === "ar" ? "الدار البيضاء" : "Casablanca"));
+
+        const resolvedPostalCode =
+          loc.postalCode ||
+          (resolvedCity?.id && MOROCCAN_POSTAL_CODES[resolvedCity.id]) ||
+          (matchedCountry.code === "MA" ? "20000" : (matchedCountry.code === "SA" ? "12214" : "")) ||
+          "";
+
+        // Construct detailed street address
+        let resolvedAddress = loc.formattedAddress || "";
+        if (!resolvedAddress) {
+          const parts = [loc.street, loc.district, resolvedCityName, resolvedDivisionName, resolvedCountryName].filter(Boolean);
+          resolvedAddress = parts.length > 0 ? parts.join("، ") : `${resolvedCityName}، ${resolvedDivisionName}، ${resolvedCountryName}`;
+        }
+
+        // Automatically set cascading dropdown state
+        if (resolvedDivision) {
+          setSelectedRegionId(resolvedDivision.id);
+        }
+        setSelectedCityOption(resolvedCityName);
+
+        // Update shipping address state with Country, State, City, and Street
+        setAddress((prev) => ({
+          ...prev,
+          country: resolvedCountryName,
+          state: resolvedDivisionName,
+          region: resolvedDivisionName,
+          city: resolvedCityName,
+          address: resolvedAddress,
+          postalCode: resolvedPostalCode || prev.postalCode,
+        }));
+
+        // Activate matching country currency
+        if (matchedCountry.currency && matchedCountry.currency !== currentCurrency) {
+          try {
+            setCurrency(matchedCountry.currency);
+          } catch {}
+        }
+
+        setGpsFeedback({
+          type: "success",
+          message:
+            language === "ar"
+              ? `📍 تم التحديد العكسي للموقع (Reverse Geocoding) بنجاح: [${resolvedCountryName}] › [${resolvedDivisionName}] › [${resolvedCityName}] ${accuracyText}`
+              : `📍 Reverse Geocoded: [${resolvedCountryName}] › [${resolvedDivisionName}] › [${resolvedCityName}] ${accuracyText}`,
+        });
+      } else {
+        if (!silent) {
           setGpsFeedback({
-            type: "success",
+            type: result.isPermissionDenied ? "warning" : "error",
             message:
-              language === "ar"
-                ? `تم التقاط وتعبئة العنوان بدقة من الخريطة: ${resolvedAddress} ${accuracyText} (تم اعتماد العملة: ${loc.currency || "MAD"})`
-                : `Location resolved from map: ${resolvedAddress} ${accuracyText} (Currency: ${loc.currency || "MAD"})`,
+              (language === "ar" ? result.errorMessageAr : result.errorMessageEn) ||
+              (language === "ar"
+                ? "تعذر استقبال إشارة GPS بدقة، يرجى كتابة العنوان أو البحث عنه بالخريطة."
+                : "Could not acquire GPS signal. You can type or search on map."),
           });
         }
-      } else {
-        setGpsFeedback({
-          type: result.isPermissionDenied ? "warning" : "error",
-          message:
-            (language === "ar" ? result.errorMessageAr : result.errorMessageEn) ||
-            (language === "ar"
-              ? "تعذر استقبال إشارة GPS، يرجى كتابة العنوان أو البحث عنه بالخريطة."
-              : "Could not acquire GPS signal. You can type or search on map."),
-        });
       }
     } catch {
       setIsLocatingGps(false);
-      setGpsFeedback({
-        type: "error",
-        message:
-          language === "ar"
-            ? "حدث خطأ غير متوقع أثناء تحديد الموقع."
-            : "Unexpected error during geolocation.",
-      });
+      if (!silent) {
+        setGpsFeedback({
+          type: "error",
+          message:
+            language === "ar"
+              ? "حدث خطأ غير متوقع أثناء تحديد الموقع."
+              : "Unexpected error during geolocation.",
+        });
+      }
     }
-  };
+  }, [language, currentCurrency, setCurrency]);
+
+  // One-time silent check if browser geolocation permission is already granted
+  useEffect(() => {
+    let active = true;
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: "geolocation" as PermissionName }).then((status) => {
+        if (active && status.state === "granted") {
+          const saved = window.localStorage.getItem("noormexa_saved_shipping_address");
+          if (!saved) {
+            handleGpsAutoFill(true);
+          }
+        }
+      }).catch(() => {});
+    }
+    return () => {
+      active = false;
+    };
+  }, [handleGpsAutoFill]);
 
   // Google Maps / Geocoding Search by text/district/street
   const handleAddressSearch = async (e?: React.FormEvent) => {
@@ -648,7 +728,8 @@ export default function CheckoutPage() {
           (c) =>
             c.nameAr === value ||
             c.nameEn.toLowerCase() === value.toLowerCase() ||
-            value.includes(c.nameAr)
+            value.includes(c.nameAr) ||
+            c.code === value
         );
 
       if (match) {
@@ -660,11 +741,16 @@ export default function CheckoutPage() {
         if (match.divisions && match.divisions.length > 0) {
           const firstDiv = match.divisions[0];
           setSelectedRegionId(firstDiv.id);
+          const divName = language === "ar" ? firstDiv.nameAr : firstDiv.nameEn;
           if (firstDiv.cities && firstDiv.cities.length > 0) {
             const cityName = language === "ar" ? firstDiv.cities[0].nameAr : firstDiv.cities[0].nameEn;
-            setAddress((prev) => ({ ...prev, city: cityName }));
+            setAddress((prev) => ({ ...prev, state: divName, region: divName, city: cityName }));
             setSelectedCityOption(cityName);
+          } else {
+            setAddress((prev) => ({ ...prev, state: divName, region: divName }));
           }
+        } else {
+          setAddress((prev) => ({ ...prev, state: "", region: "" }));
         }
       } else if (value.includes("المغرب") || value.toLowerCase().includes("morocco")) {
         try { setCurrency("MAD"); } catch {}
@@ -689,16 +775,25 @@ export default function CheckoutPage() {
       return;
     }
 
+    const fallbackState = currentDivision
+      ? (language === "ar" ? currentDivision.nameAr : currentDivision.nameEn)
+      : "";
+    const finalAddress: ShippingAddress = {
+      ...address,
+      state: address.state || fallbackState,
+      region: address.region || address.state || fallbackState,
+    };
+
     // Save shipping address for user future sessions
     try {
       if (typeof window !== "undefined") {
-        window.localStorage.setItem("noormexa_saved_shipping_address", JSON.stringify(address));
+        window.localStorage.setItem("noormexa_saved_shipping_address", JSON.stringify(finalAddress));
       }
     } catch {}
 
     setIsProcessing(true);
     setTimeout(() => {
-      const res = createOrder(address, selectedGateway, shippingSpeed);
+      const res = createOrder(finalAddress, selectedGateway, shippingSpeed);
       setIsProcessing(false);
       if (res.order) {
         setCompletedOrder(res.order);
@@ -930,7 +1025,7 @@ export default function CheckoutPage() {
                   {/* GPS Auto-Fill Action Button */}
                   <button
                     type="button"
-                    onClick={handleGpsAutoFill}
+                    onClick={() => handleGpsAutoFill(false)}
                     disabled={isLocatingGps}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold text-xs transition-all cursor-pointer disabled:opacity-50"
                     title={language === "ar" ? "تحديد الموقع وتعبئة العنوان تلقائياً عبر GPS" : "Detect and auto-fill address via GPS"}
@@ -1017,6 +1112,8 @@ export default function CheckoutPage() {
                         setAddress((prev) => ({
                           ...prev,
                           country: "المملكة المغربية",
+                          state: resolvedDivisionName,
+                          region: resolvedDivisionName,
                           city: resolvedCityName,
                           address: resolvedStreet,
                           postalCode: loc.postalCode || (resolvedCity?.id ? MOROCCAN_POSTAL_CODES[resolvedCity.id] : "") || prev.postalCode,
@@ -1034,11 +1131,27 @@ export default function CheckoutPage() {
                         return;
                       }
 
-                      const resolvedStreet = loc.formattedAddress || `${loc.street ? loc.street + "، " : ""}${loc.district ? loc.district + "، " : ""}${loc.cityAr}`;
+                      const spatial = loc.lat && loc.lng ? findNearestCountryDivisionAndCity(loc.lat, loc.lng) : null;
+                      const targetCountry = getCountryByName(loc.countryAr || loc.countryEn) || getCountryByCode(loc.countryCode) || spatial?.country || COUNTRIES_DATA[0];
+                      const targetDivision = spatial?.division || (targetCountry.divisions ? targetCountry.divisions[0] : null);
+                      const targetCity = spatial?.city || (targetDivision?.cities ? targetDivision.cities[0] : null);
+
+                      const cName = language === "ar" ? targetCountry.nameAr : targetCountry.nameEn;
+                      const dName = targetDivision ? (language === "ar" ? targetDivision.nameAr : targetDivision.nameEn) : (loc.regionAr || loc.state || "");
+                      const cityName = targetCity ? (language === "ar" ? targetCity.nameAr : targetCity.nameEn) : (loc.cityAr || loc.cityEn || "");
+
+                      if (targetDivision) {
+                        setSelectedRegionId(targetDivision.id);
+                      }
+                      setSelectedCityOption(cityName);
+
+                      const resolvedStreet = loc.formattedAddress || `${loc.street ? loc.street + "، " : ""}${loc.district ? loc.district + "، " : ""}${cityName}`;
                       setAddress((prev) => ({
                         ...prev,
-                        country: loc.countryAr || prev.country,
-                        city: loc.cityAr || prev.city,
+                        country: cName,
+                        state: dName,
+                        region: dName,
+                        city: cityName,
                         address: resolvedStreet,
                         postalCode: loc.postalCode || prev.postalCode,
                       }));
@@ -1051,8 +1164,8 @@ export default function CheckoutPage() {
                       setGpsFeedback({
                         type: "success",
                         message: language === "ar"
-                          ? `تم تثبيت الموقع بالخريطة بنجاح: ${loc.cityAr} (${loc.countryAr}) - تم تحديث العملة فورياً إلى ${loc.currency || "MAD"}`
-                          : `Pinned on map: ${loc.cityEn} (${loc.countryEn}) - Currency updated to ${loc.currency || "MAD"}`,
+                          ? `تم تثبيت الموقع بالخريطة بنجاح: ${cityName} (${dName ? dName + " - " : ""}${cName})`
+                          : `Pinned on map: ${cityName} (${dName ? dName + " - " : ""}${cName})`,
                       });
                     }}
                   />
@@ -1135,6 +1248,69 @@ export default function CheckoutPage() {
                 </div>
               )}
 
+              {/* Dedicated Browser GPS Reverse Geocoding Card */}
+              <div className="p-4 rounded-2xl bg-surface-soft/90 border border-gold/40 shadow-sm space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-gold/15 text-gold shrink-0">
+                      <LocateFixed size={20} className={isLocatingGps ? "animate-spin text-gold" : "text-gold"} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5 flex-wrap">
+                        <span>{language === "ar" ? "التقاط وتعبئة الموقع الجغرافي (GPS Reverse Geocoding)" : "GPS Reverse Geocoding Auto-Fill"}</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                          {language === "ar" ? "الدولة • الولاية/المحافظة • المدينة" : "Country • State • City"}
+                        </span>
+                      </h3>
+                      <p className="text-[11px] text-muted">
+                        {language === "ar"
+                          ? "التقاط إحداثيات GPS تلقائياً من المتصفح وتعبئة حقول الدولة، الولاية/المحافظة، والمدينة وعنوان التوصيل بدقة"
+                          : "Detect browser GPS coordinates to auto-populate Country, State, City, and Street address with high precision"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleGpsAutoFill(false)}
+                    disabled={isLocatingGps}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gold hover:bg-gold-light text-black font-bold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50 shrink-0"
+                  >
+                    <LocateFixed size={15} className={isLocatingGps ? "animate-spin" : ""} />
+                    <span>
+                      {isLocatingGps
+                        ? (language === "ar" ? "جاري التقاط GPS وفك التشفير..." : "Resolving GPS...")
+                        : (language === "ar" ? "📍 تعبئة العنوان تلقائياً بالـ GPS" : "📍 Auto-Fill via GPS")}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Active Coordinates & Resolved Hierarchy Display */}
+                {gpsCoordinates && (
+                  <div className="pt-2 border-t border-line/60 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                    <div className="flex items-center gap-2 font-mono">
+                      <span className="text-muted">{language === "ar" ? "الإحداثيات الملتقطة:" : "Detected Coordinates:"}</span>
+                      <span className="bg-surface px-2 py-0.5 rounded-lg border border-line font-bold text-foreground">
+                        {gpsCoordinates.lat.toFixed(5)}, {gpsCoordinates.lng.toFixed(5)}
+                      </span>
+                      {gpsCoordinates.accuracy && (
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                          (±{Math.round(gpsCoordinates.accuracy)}م)
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 font-bold text-[11px] text-amber-700 dark:text-gold">
+                      <span>{address.country}</span>
+                      <span>›</span>
+                      <span>{address.state || currentDivision?.nameAr || currentDivision?.nameEn}</span>
+                      <span>›</span>
+                      <span>{address.city}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="space-y-1">
                   <label className="font-bold text-foreground">{text.fullName} *</label>
@@ -1186,29 +1362,28 @@ export default function CheckoutPage() {
                     onChange={(e) => handleInputChange("country", e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs"
                   >
-                    <option value="المملكة المغربية">🇲🇦 المملكة المغربية (Morocco - MAD د.م)</option>
-                    <option value="المملكة العربية السعودية">🇸🇦 المملكة العربية السعودية (KSA - SAR ر.س)</option>
-                    <option value="الإمارات العربية المتحدة">🇦🇪 الإمارات العربية المتحدة (UAE - AED د.إ)</option>
-                    <option value="جمهورية مصر العربية">🇪🇬 جمهورية مصر العربية (Egypt - EGP ج.م)</option>
-                    <option value="دولة الكويت">🇰🇼 دولة الكويت (Kuwait - KWD د.ك)</option>
-                    <option value="دولة قطر">🇶🇦 دولة قطر (Qatar - QAR ر.ق)</option>
-                    <option value="مملكة البحرين">🇧🇭 مملكة البحرين (Bahrain - BHD)</option>
-                    <option value="سلطنة عمان">🇴🇲 سلطنة عمان (Oman - OMR)</option>
+                    {COUNTRIES_DATA.map((c) => (
+                      <option key={c.code} value={language === "ar" ? c.nameAr : c.nameEn}>
+                        {c.flag} {language === "ar" ? c.nameAr : c.nameEn} ({c.code} - {c.currency})
+                      </option>
+                    ))}
                     <option value="الولايات المتحدة / أوروبا">🌐 الولايات المتحدة / أوروبا / دولي (Global - USD $)</option>
                   </select>
                 </div>
 
-                {/* Cascading Administrative Division / Region */}
+                {/* Cascading Administrative Division / State / Region */}
                 {availableDivisions.length > 0 ? (
                   <div className="space-y-1">
                     <label className="font-bold text-foreground flex items-center justify-between">
-                      <span>
-                        {language === "ar"
-                          ? currentCountryData?.divisionLabelAr || "الجهة / المحافظة / المنطقة"
-                          : currentCountryData?.divisionLabelEn || "Administrative Region"} *
+                      <span className="flex items-center gap-1.5">
+                        <span>
+                          {language === "ar"
+                            ? `الولاية / ${currentCountryData?.divisionLabelAr || "المحافظة / الجهة"} (State)`
+                            : `State / ${currentCountryData?.divisionLabelEn || "Province / Region"}`} *
+                        </span>
                       </span>
-                      <span className="text-[10px] text-muted">
-                        {availableDivisions.length} {language === "ar" ? "مناطق مسجلة" : "regions"}
+                      <span className="text-[10px] text-muted font-mono">
+                        {availableDivisions.length} {language === "ar" ? "مسجلة" : "divisions"}
                       </span>
                     </label>
                     <select
@@ -1217,9 +1392,17 @@ export default function CheckoutPage() {
                         const divId = e.target.value;
                         setSelectedRegionId(divId);
                         const chosenDiv = availableDivisions.find((d) => d.id === divId);
-                        if (chosenDiv && chosenDiv.cities.length > 0) {
-                          const cityName = language === "ar" ? chosenDiv.cities[0].nameAr : chosenDiv.cities[0].nameEn;
-                          setAddress((prev) => ({ ...prev, city: cityName }));
+                        const divName = chosenDiv ? (language === "ar" ? chosenDiv.nameAr : chosenDiv.nameEn) : "";
+                        const cityName = chosenDiv && chosenDiv.cities.length > 0
+                          ? (language === "ar" ? chosenDiv.cities[0].nameAr : chosenDiv.cities[0].nameEn)
+                          : "";
+                        setAddress((prev) => ({
+                          ...prev,
+                          state: divName,
+                          region: divName,
+                          ...(cityName ? { city: cityName } : {}),
+                        }));
+                        if (cityName) {
                           setSelectedCityOption(cityName);
                         }
                       }}
@@ -1235,11 +1418,17 @@ export default function CheckoutPage() {
                 ) : (
                   <div className="space-y-1">
                     <label className="font-bold text-foreground">
-                      {language === "ar" ? "المنطقة / المقاطعة (اختياري)" : "State / Province (optional)"}
+                      {language === "ar" ? "الولاية / المحافظة (State / Province) *" : "State / Province *"}
                     </label>
                     <input
                       type="text"
-                      placeholder={language === "ar" ? "اكتب اسم المنطقة أو الولاية..." : "State/Region"}
+                      required
+                      value={address.state || ""}
+                      placeholder={language === "ar" ? "اكتب اسم الولاية أو المقاطعة..." : "State/Region"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setAddress((prev) => ({ ...prev, state: val, region: val }));
+                      }}
                       className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold text-xs"
                     />
                   </div>

@@ -194,6 +194,8 @@ export type ShippingAddress = {
   email: string;
   phone: string;
   country: string;
+  state?: string;
+  region?: string;
   city: string;
   address: string;
   postalCode?: string;
