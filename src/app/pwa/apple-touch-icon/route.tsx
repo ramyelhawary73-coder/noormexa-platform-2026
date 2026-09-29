@@ -1,7 +1,1 @@
-import { createNoormexaIconResponse } from "@/lib/noormexaIconResponse";
-
-export const dynamic = "force-static";
-
-export function GET() {
-  return createNoormexaIconResponse(180, "apple");
-}
+import { createNoormexaIconResponse } from "@/lib/noormexaIconResponse";\n\nexport function GET(request: Request) {\n  return createNoormexaIconResponse(180, "apple", request.url);\n}\n
