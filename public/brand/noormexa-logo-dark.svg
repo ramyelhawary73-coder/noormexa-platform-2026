@@ -1,43 +1,200 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870 160" fill="none" role="img" aria-label="NOORMEXA">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 180" width="100%" height="100%" fill="none">
   <defs>
-    <linearGradient id="blue" x1="22" y1="28" x2="142" y2="145" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#68D7FF"/><stop offset=".28" stop-color="#258CFF"/><stop offset=".68" stop-color="#0B58C7"/><stop offset="1" stop-color="#072B69"/>
+    <!-- 3D Globe Realistic Sphere Gradient (Dark Mode) -->
+    <radialGradient id="dk_globe_sphere" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.95" />
+      <stop offset="35%" stop-color="#1D4ED8" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#0F172A" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="1" />
+    </radialGradient>
+
+    <!-- Globe Outer Rim Glow (Dark Mode) -->
+    <radialGradient id="dk_globe_rim" cx="50%" cy="50%" r="50%">
+      <stop offset="85%" stop-color="#38BDF8" stop-opacity="0" />
+      <stop offset="96%" stop-color="#38BDF8" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#67E8F9" stop-opacity="0.9" />
+    </radialGradient>
+
+    <!-- Top-Left Sunlight Highlight (Dark Mode) -->
+    <radialGradient id="dk_sun_highlight" cx="32%" cy="28%" r="42%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.45" />
+      <stop offset="45%" stop-color="#93C5FD" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- N - Left Pillar Gradient -->
+    <linearGradient id="dk_n_left_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9" />
+      <stop offset="25%" stop-color="#38BDF8" />
+      <stop offset="70%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0369A1" />
     </linearGradient>
-    <linearGradient id="blueEdge" x1="20" y1="80" x2="150" y2="80" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#031A39"/><stop offset=".55" stop-color="#0C4C9D"/><stop offset="1" stop-color="#03172F"/>
+
+    <!-- N - Diagonal Ribbon Gradient -->
+    <linearGradient id="dk_n_diagonal_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="20%" stop-color="#FDE047" />
+      <stop offset="55%" stop-color="#F59E0B" />
+      <stop offset="85%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#B45309" />
     </linearGradient>
-    <linearGradient id="gold" x1="34" y1="25" x2="139" y2="142" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFF2B8"/><stop offset=".18" stop-color="#F4CE72"/><stop offset=".5" stop-color="#D89F35"/><stop offset=".78" stop-color="#B77318"/><stop offset="1" stop-color="#754208"/>
+
+    <!-- N - Right Pillar Gradient -->
+    <linearGradient id="dk_n_right_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD" />
+      <stop offset="30%" stop-color="#3B82F6" />
+      <stop offset="70%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1E3A8A" />
     </linearGradient>
-    <linearGradient id="goldWord" x1="555" y1="39" x2="848" y2="121" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFF0B3"/><stop offset=".32" stop-color="#E0A93F"/><stop offset=".72" stop-color="#C08022"/><stop offset="1" stop-color="#8B520E"/>
+
+    <!-- 3D Orbit Ring Gradient -->
+    <linearGradient id="dk_orbit_ring_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.95" />
+      <stop offset="30%" stop-color="#F59E0B" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#38BDF8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0.3" />
     </linearGradient>
+
+    <!-- Typography Gradient -->
+    <linearGradient id="dk_brand_text_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="dk_node_glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="dk_ribbon_shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="-2.5" dy="4" stdDeviation="3.5" flood-color="#020617" flood-opacity="0.85" />
+    </filter>
+
+    <filter id="dk_globe_shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
   </defs>
 
-  <!-- Master mark -->
-  <path d="M24 132V58C24 44 31 35 44 29L58 23V94C58 108 54 118 47 130L42 138C36 147 24 142 24 132Z" fill="url(#blue)"/>
-  <path d="M24 132V58C24 47 29 39 39 33V127L34 137C30 143 24 139 24 132Z" fill="url(#blueEdge)" opacity=".58"/>
-  <path d="M102 71C102 58 108 46 117 37L128 26C139 15 148 22 148 37V126C148 143 138 150 123 150H102V71Z" fill="url(#blue)"/>
-  <path d="M132 23C141 18 148 24 148 37V126C148 139 141 147 132 149V23Z" fill="url(#blueEdge)" opacity=".52"/>
-  <path d="M38 32C49 24 62 27 73 39L135 104C146 116 146 130 137 139C127 149 113 147 102 135L39 68C28 57 28 41 38 32Z" fill="url(#gold)"/>
-  <path d="M35 62L103 134C114 146 127 149 137 139C133 147 124 151 116 148C111 146 106 142 102 137L39 70C36 67 34 64 33 60L35 62Z" fill="#6F4209" opacity=".55"/>
-  <path d="M43 34C52 29 61 32 69 41L130 105" stroke="#FFF8DA" stroke-width="2.6" stroke-linecap="round" opacity=".78"/>
-  <circle cx="141" cy="31" r="4" fill="#FFF1B3"/>
-  <path d="M141 22V40M132 31H150" stroke="#FFE9A3" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- ================= EMBLEM ================= -->
+  <g id="noormexa-3d-globe-emblem-dark" transform="translate(0, 0)">
+    <g filter="url(#dk_globe_shadow)">
+      <circle cx="90" cy="90" r="66" fill="url(#dk_globe_sphere)" />
+      <circle cx="90" cy="90" r="66" fill="url(#dk_globe_rim)" />
+      <circle cx="90" cy="90" r="66" fill="url(#dk_sun_highlight)" />
+    </g>
 
-  <!-- NOOR: custom vector wordmark -->
-  <g fill="#F8FAFC" transform="translate(182 39)">
-    <path d="M0 82V0H17L51 52V0H68V82H51L17 30V82Z"/>
-    <path fill-rule="evenodd" d="M82 41C82 14 96 0 122 0C148 0 162 14 162 41C162 68 148 82 122 82C96 82 82 68 82 41ZM100 41C100 59 107 68 122 68C137 68 144 59 144 41C144 23 137 14 122 14C107 14 100 23 100 41Z"/>
-    <path fill-rule="evenodd" d="M176 41C176 14 190 0 216 0C242 0 256 14 256 41C256 68 242 82 216 82C190 82 176 68 176 41ZM194 41C194 59 201 68 216 68C231 68 238 59 238 41C238 23 231 14 216 14C201 14 194 23 194 41Z"/>
-    <path fill-rule="evenodd" d="M270 82V0H305C327 0 340 11 340 30C340 43 334 52 323 57L344 82H322L304 61H288V82ZM288 14V47H304C317 47 323 41 323 30C323 19 317 14 304 14Z"/>
+    <!-- Gridlines & Continents -->
+    <ellipse cx="90" cy="90" rx="66" ry="17" stroke="#60A5FA" stroke-width="1.2" stroke-opacity="0.45" fill="none" />
+    <ellipse cx="90" cy="62" rx="58" ry="13" stroke="#93C5FD" stroke-width="1" stroke-dasharray="4 3" stroke-opacity="0.35" fill="none" />
+    <ellipse cx="90" cy="118" rx="58" ry="13" stroke="#FBBF24" stroke-width="1" stroke-dasharray="4 3" stroke-opacity="0.35" fill="none" />
+    <ellipse cx="90" cy="90" rx="22" ry="66" stroke="#38BDF8" stroke-width="1.2" stroke-opacity="0.4" fill="none" />
+    <path d="M 90,24 C 54,24 46,90 46,90 C 46,90 54,156 90,156" stroke="#67E8F9" stroke-width="1" stroke-dasharray="5 3" stroke-opacity="0.3" fill="none" />
+    <path d="M 90,24 C 126,24 134,90 134,90 C 134,90 126,156 90,156" stroke="#60A5FA" stroke-width="1" stroke-dasharray="5 3" stroke-opacity="0.3" fill="none" />
+
+    <path d="M 68,54 Q 76,46 88,48 Q 98,42 110,48 Q 116,56 108,66 Q 96,68 84,62 Z" fill="#38BDF8" fill-opacity="0.2" />
+    <path d="M 72,96 Q 84,94 92,102 Q 90,118 78,124 Q 70,116 72,96 Z" fill="#F59E0B" fill-opacity="0.18" />
+
+    <!-- Core 'N' -->
+    <path
+      d="M 44,38 
+         C 53,38 58,43 58,52 
+         L 58,128 
+         C 58,137 53,142 44,142 
+         C 39,142 35,136 35,128 
+         L 35,52 
+         C 35,44 39,38 44,38 Z"
+      fill="url(#dk_n_left_grad)"
+    />
+    <path d="M 39,48 L 39,132" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.9" fill="none" />
+
+    <path
+      d="M 136,38 
+         C 141,38 145,44 145,52 
+         L 145,128 
+         C 145,136 141,142 136,142 
+         C 127,142 122,137 122,128 
+         L 122,52 
+         C 122,43 127,38 136,38 Z"
+      fill="url(#dk_n_right_grad)"
+    />
+    <path d="M 141,48 L 141,132" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.9" fill="none" />
+
+    <path
+      d="M 37,40 
+         C 47,35 57,39 64,48 
+         L 142,132 
+         C 147,138 143,145 135,145 
+         C 125,145 117,140 109,130 
+         L 36,52 
+         C 32,46 32,42 37,40 Z"
+      fill="url(#dk_n_diagonal_grad)"
+      filter="url(#dk_ribbon_shadow)"
+    />
+    <path d="M 42,43 L 137,139" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-opacity="0.95" fill="none" />
+    <path d="M 50,54 L 126,133" stroke="#FEF08A" stroke-width="1.2" stroke-dasharray="8 5" stroke-opacity="0.95" fill="none" />
+
+    <!-- 3D Orbit Belt -->
+    <path
+      d="M 16,108 
+         C 24,72 74,60 118,74 
+         C 148,84 166,102 164,110 
+         C 162,118 136,134 94,130 
+         C 52,126 18,116 16,108 Z"
+      stroke="url(#dk_orbit_ring_grad)"
+      stroke-width="2.6"
+      fill="none"
+    />
+    <path
+      d="M 28,136 
+         C 32,114 74,68 122,50 
+         C 150,40 164,48 164,56 
+         C 164,66 136,100 90,126 
+         C 58,144 30,144 28,136 Z"
+      stroke="#38BDF8"
+      stroke-width="1.8"
+      stroke-dasharray="7 4"
+      stroke-opacity="0.85"
+      fill="none"
+    />
+
+    <!-- Nodes -->
+    <circle cx="44" cy="44" r="5" fill="#38BDF8" filter="url(#dk_node_glow)" />
+    <circle cx="44" cy="44" r="2.5" fill="#FFFFFF" />
+    <circle cx="136" cy="136" r="5" fill="#F59E0B" filter="url(#dk_node_glow)" />
+    <circle cx="136" cy="136" r="2.5" fill="#FFFFFF" />
+    <circle cx="140" cy="84" r="4" fill="#FBBF24" filter="url(#dk_node_glow)" />
+    <circle cx="140" cy="84" r="2" fill="#FFFFFF" />
+    <circle cx="26" cy="108" r="3.5" fill="#67E8F9" />
+    <circle cx="26" cy="108" r="1.6" fill="#FFFFFF" />
+    <circle cx="122" cy="50" r="3.5" fill="#FDE047" />
+    <circle cx="122" cy="50" r="1.6" fill="#FFFFFF" />
+    <circle cx="90" cy="90" r="3.8" fill="#FFFFFF" filter="url(#dk_node_glow)" />
   </g>
 
-  <!-- MEXA: same custom geometry, executive gold -->
-  <g fill="url(#goldWord)" transform="translate(545 39)">
-    <path d="M0 82V0H19L42 45L65 0H84V82H67V29L48 67H36L17 29V82Z"/>
-    <path d="M99 82V0H157V14H116V33H151V47H116V68H159V82Z"/>
-    <path d="M168 82L196 40L170 0H191L207 26L223 0H244L218 40L246 82H225L207 54L189 82Z"/>
-    <path fill-rule="evenodd" d="M250 82L281 0H301L332 82H313L307 64H275L269 82ZM280 50H302L291 18Z"/>
+  <!-- ================= TYPOGRAPHY & ARABIC SLOGAN ================= -->
+  <g id="noormexa-wordmark-dark" transform="translate(180, 0)">
+    <text
+      x="0"
+      y="92"
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', Roboto, sans-serif"
+      font-size="58"
+      font-weight="900"
+      letter-spacing="2.5px"
+      fill="url(#dk_brand_text_grad)"
+    >
+      NOORMEXA
+    </text>
+    <text
+      x="2"
+      y="130"
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Segoe UI', Tahoma, sans-serif"
+      font-size="18"
+      font-weight="700"
+      fill="#FBBF24"
+    >
+      سوق التجارة والتسوق العالمي الذكي
+    </text>
   </g>
 </svg>
