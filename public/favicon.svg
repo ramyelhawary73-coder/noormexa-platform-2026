@@ -1,21 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <defs>
-    <linearGradient id="fb" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5CC8FF"/>
-      <stop offset="38%" stop-color="#1677FF"/>
-      <stop offset="100%" stop-color="#082D73"/>
-    </linearGradient>
-    <linearGradient id="fg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FFF1B8"/>
-      <stop offset="28%" stop-color="#F3CC69"/>
-      <stop offset="58%" stop-color="#DFA83E"/>
-      <stop offset="100%" stop-color="#80500F"/>
-    </linearGradient>
-  </defs>
-  <rect width="200" height="200" rx="42" fill="#07111F"/>
-  <circle cx="100" cy="100" r="76" fill="#0B1C31" stroke="#17395C" stroke-width="2"/>
-  <path d="M42 149V58C42 47 49 39 60 35L76 29V118L58 149C54 156 42 155 42 149Z" fill="url(#fb)"/>
-  <path d="M128 73L145 47C151 38 160 42 160 53V142C160 153 153 160 143 160H128V73Z" fill="url(#fb)"/>
-  <path d="M53 38C62 33 73 36 82 46L153 119C162 128 162 139 154 147C146 155 135 154 127 146L52 69C44 61 45 44 53 38Z" fill="url(#fg)"/>
-  <path d="M58 40C65 37 72 39 79 47L148 118" stroke="#FFF8DB" stroke-width="3" stroke-linecap="round" opacity=".72"/>
+  <rect x="0" y="0" width="200" height="200" rx="48" fill="#07111F"/>
+  <circle cx="100" cy="100" r="75" fill="#0B1C31" stroke="#17395C" stroke-width="2"/>
+  <rect x="50" y="55" width="22" height="92" rx="11" fill="#2F80ED"/>
+  <rect x="128" y="55" width="22" height="92" rx="11" fill="#F8FAFC"/>
+  <path d="M61 68 L139 135" stroke="#F5B941" stroke-width="22" stroke-linecap="round"/>
+  <path d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z" fill="#F5B941"/>
 </svg>
