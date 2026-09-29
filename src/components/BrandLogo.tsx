@@ -16,9 +16,9 @@ export interface BrandLogoProps {
 }
 
 const BRAND_ASSETS = {
-  light: "/brand/noormexa-logo-light.webp",
-  dark: "/brand/noormexa-logo-dark.webp",
-  symbol: "/brand/noormexa-symbol.webp",
+  light: "/brand/noormexa-logo-light.webp?v=master-artwork-2",
+  dark: "/brand/noormexa-logo-dark.webp?v=master-artwork-2",
+  symbol: "/brand/noormexa-symbol.webp?v=master-artwork-2",
 } as const;
 
 const symbolSizes = {
