@@ -1,1 +1,36 @@
-import React from "react";\nimport { ImageResponse } from "next/og";\n\nexport type NoormexaIconVariant = "any" | "maskable" | "apple";\n\nexport function createNoormexaIconResponse(\n  size: number,\n  _variant: NoormexaIconVariant,\n  requestUrl: string\n) {\n  const assetUrl = new URL("/brand/noormexa-app-icon-192.jpg?v=master-artwork-1", requestUrl).toString();\n\n  return new ImageResponse(\n    React.createElement("div", {\n      style: {\n        width: "100%",\n        height: "100%",\n        display: "flex",\n        alignItems: "center",\n        justifyContent: "center",\n        background: "#061326",\n      },\n    }, React.createElement("img", {\n      src: assetUrl,\n      width: size,\n      height: size,\n      alt: "NOORMEXA",\n      style: { width: "100%", height: "100%", objectFit: "cover" },\n    })),\n    {\n      width: size,\n      height: size,\n      headers: { "Cache-Control": "public, max-age=31536000, immutable" },\n    }\n  );\n}\n
+import React from "react";
+import { ImageResponse } from "next/og";
+
+export type NoormexaIconVariant = "any" | "maskable" | "apple";
+
+export function createNoormexaIconResponse(
+  size: number,
+  _variant: NoormexaIconVariant,
+  requestUrl: string
+) {
+  const assetUrl = new URL("/brand/noormexa-app-icon-192.jpg?v=master-artwork-1", requestUrl).toString();
+
+  return new ImageResponse(
+    React.createElement("div", {
+      style: {
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#061326",
+      },
+    }, React.createElement("img", {
+      src: assetUrl,
+      width: size,
+      height: size,
+      alt: "NOORMEXA",
+      style: { width: "100%", height: "100%", objectFit: "cover" },
+    })),
+    {
+      width: size,
+      height: size,
+      headers: { "Cache-Control": "public, max-age=31536000, immutable" },
+    }
+  );
+}
