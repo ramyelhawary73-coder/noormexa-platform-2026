@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 170" fill="none" role="img" aria-labelledby="title desc">
+<title id="title">NOORMEXA</title><desc id="desc">NOORMEXA premium global commerce identity</desc>
+<defs>
+  <linearGradient id="blueFace" x1="36" y1="25" x2="140" y2="146" gradientUnits="userSpaceOnUse"><stop stop-color="#70DBFF"/><stop offset=".28" stop-color="#248EFF"/><stop offset=".68" stop-color="#0A58C9"/><stop offset="1" stop-color="#062C6A"/></linearGradient>
+  <linearGradient id="blueSide" x1="24" y1="82" x2="151" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#041A38"/><stop offset=".58" stop-color="#0D4C98"/><stop offset="1" stop-color="#03162F"/></linearGradient>
+  <linearGradient id="goldFace" x1="42" y1="24" x2="141" y2="145" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF6CB"/><stop offset=".17" stop-color="#F6D477"/><stop offset=".48" stop-color="#E0A63D"/><stop offset=".76" stop-color="#B8751B"/><stop offset="1" stop-color="#754106"/></linearGradient>
+  <linearGradient id="goldEdge" x1="46" y1="62" x2="138" y2="143" gradientUnits="userSpaceOnUse"><stop stop-color="#8A530D"/><stop offset=".55" stop-color="#B8781D"/><stop offset="1" stop-color="#4B2903"/></linearGradient>
+  <linearGradient id="goldWord" x1="505" y1="40" x2="792" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF0B2"/><stop offset=".25" stop-color="#E9B753"/><stop offset=".65" stop-color="#C98725"/><stop offset="1" stop-color="#975A10"/></linearGradient>
+</defs>
+
+<g>
+  <path d="M25 134V59C25 45 32 36 45 30L62 23V98C62 111 58 121 50 132L43 141C37 149 25 144 25 134Z" fill="url(#blueFace)"/>
+  <path d="M25 134V59C25 49 30 41 39 35V126C39 134 36 140 31 143C27 143 25 140 25 134Z" fill="url(#blueSide)" opacity=".65"/>
+  <path d="M109 73C109 58 114 48 123 38L135 25C145 14 154 21 154 36V128C154 144 145 151 130 151H109V73Z" fill="url(#blueFace)"/>
+  <path d="M138 23C147 18 154 23 154 36V128C154 140 148 148 138 150V23Z" fill="url(#blueSide)" opacity=".58"/>
+  <path d="M39 33C49 25 62 26 73 36L143 106C154 117 155 131 146 141C136 151 121 150 110 139L40 70C29 59 29 42 39 33Z" fill="url(#goldFace)"/>
+  <path d="M37 61L111 137C121 148 136 151 146 141C141 151 130 154 120 150C116 148 112 145 108 141L40 72C36 68 34 64 34 59L37 61Z" fill="url(#goldEdge)" opacity=".75"/>
+  <path d="M44 35C52 30 61 31 69 39L137 107" stroke="#FFF9E0" stroke-width="2.8" stroke-linecap="round" opacity=".82"/>
+  <path d="M31 129V62C31 52 35 45 43 40" stroke="#B4ECFF" stroke-width="2.1" stroke-linecap="round" opacity=".62"/>
+  <path d="M148 38V124" stroke="#86D9FF" stroke-width="1.8" stroke-linecap="round" opacity=".5"/>
+  <circle cx="146" cy="28" r="4.2" fill="#FFF1B1"/>
+  <path d="M146 18V38M136 28H156" stroke="#FFE79A" stroke-width="1.6" stroke-linecap="round"/>
+</g>
+
+<g fill="#0B1F33">
+<path d="M96 0H456V621C456 683 455 806 450 951C527 811 598 689 641 620L1029 0H1402V1490H1042V844C1042 777 1044 656 1047 538C989 645 926 757 891 813L468 1490H96Z" transform="translate(195 112) scale(.0495 -.0495)"/>
+<path d="M765 -24C1167 -24 1477 259 1477 744C1477 1230 1167 1514 765 1514C361 1514 52 1230 52 744C52 261 361 -24 765 -24ZM765 290C551 290 414 456 414 744C414 1033 551 1200 765 1200C978 1200 1115 1033 1115 744C1115 456 978 290 765 290Z" transform="translate(270.93 112) scale(.0495 -.0495)"/>
+<path d="M765 -24C1167 -24 1477 259 1477 744C1477 1230 1167 1514 765 1514C361 1514 52 1230 52 744C52 261 361 -24 765 -24ZM765 290C551 290 414 456 414 744C414 1033 551 1200 765 1200C978 1200 1115 1033 1115 744C1115 456 978 290 765 290Z" transform="translate(348.4 112) scale(.0495 -.0495)"/>
+<path d="M96 0H456V495H688L931 0H1311L1025 568C1181 649 1272 795 1272 986C1272 1295 1055 1490 710 1490H96ZM456 778V1195H685C830 1195 920 1113 920 986C920 860 830 778 686 778Z" transform="translate(425.87 112) scale(.0495 -.0495)"/>
+</g>
+
+<g fill="url(#goldWord)">
+<path d="M96 0H449V645C449 743 442 922 438 1093C487 919 537 741 568 645L786 0H1077L1291 645C1323 745 1374 932 1424 1113C1420 936 1412 747 1412 645V0H1765V1490H1232L1042 905C1014 810 969 646 932 505C895 646 849 810 820 905L628 1490H96Z" transform="translate(501.33 112) scale(.0495 -.0495)"/>
+<path d="M96 0H1206V306H456V600H1149V897H456V1184H1206V1490H96Z" transform="translate(595.13 112) scale(.0495 -.0495)"/>
+<path d="M6 0H412L606 287C651 353 693 418 735 484C777 418 819 353 861 287L1048 0H1465L939 772L1414 1490H1018L873 1265C827 1194 783 1122 739 1051C697 1122 654 1194 609 1265L466 1490H59L542 762Z" transform="translate(659.58 112) scale(.0495 -.0495)"/>
+<path d="M5 0H396L487 287H1016L1104 0H1506L991 1490H517ZM577 568L604 655C656 821 704 984 755 1167C805 984 853 821 902 655L929 568Z" transform="translate(734.08 112) scale(.0495 -.0495)"/>
+</g>
+</svg>
