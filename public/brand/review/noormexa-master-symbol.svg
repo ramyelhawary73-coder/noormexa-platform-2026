@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170" fill="none" role="img" aria-label="NOORMEXA">
+<defs>
+<linearGradient id="blueFace" x1="36" y1="25" x2="140" y2="146" gradientUnits="userSpaceOnUse"><stop stop-color="#70DBFF"/><stop offset=".28" stop-color="#248EFF"/><stop offset=".68" stop-color="#0A58C9"/><stop offset="1" stop-color="#062C6A"/></linearGradient>
+<linearGradient id="blueSide" x1="24" y1="82" x2="151" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#041A38"/><stop offset=".58" stop-color="#0D4C98"/><stop offset="1" stop-color="#03162F"/></linearGradient>
+<linearGradient id="goldFace" x1="42" y1="24" x2="141" y2="145" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF6CB"/><stop offset=".17" stop-color="#F6D477"/><stop offset=".48" stop-color="#E0A63D"/><stop offset=".76" stop-color="#B8751B"/><stop offset="1" stop-color="#754106"/></linearGradient>
+<linearGradient id="goldEdge" x1="46" y1="62" x2="138" y2="143" gradientUnits="userSpaceOnUse"><stop stop-color="#8A530D"/><stop offset=".55" stop-color="#B8781D"/><stop offset="1" stop-color="#4B2903"/></linearGradient>
+</defs>
+<path d="M25 134V59C25 45 32 36 45 30L62 23V98C62 111 58 121 50 132L43 141C37 149 25 144 25 134Z" fill="url(#blueFace)"/>
+<path d="M25 134V59C25 49 30 41 39 35V126C39 134 36 140 31 143C27 143 25 140 25 134Z" fill="url(#blueSide)" opacity=".65"/>
+<path d="M109 73C109 58 114 48 123 38L135 25C145 14 154 21 154 36V128C154 144 145 151 130 151H109V73Z" fill="url(#blueFace)"/>
+<path d="M138 23C147 18 154 23 154 36V128C154 140 148 148 138 150V23Z" fill="url(#blueSide)" opacity=".58"/>
+<path d="M39 33C49 25 62 26 73 36L143 106C154 117 155 131 146 141C136 151 121 150 110 139L40 70C29 59 29 42 39 33Z" fill="url(#goldFace)"/>
+<path d="M37 61L111 137C121 148 136 151 146 141C141 151 130 154 120 150C116 148 112 145 108 141L40 72C36 68 34 64 34 59L37 61Z" fill="url(#goldEdge)" opacity=".75"/>
+<path d="M44 35C52 30 61 31 69 39L137 107" stroke="#FFF9E0" stroke-width="2.8" stroke-linecap="round" opacity=".82"/>
+<path d="M31 129V62C31 52 35 45 43 40" stroke="#B4ECFF" stroke-width="2.1" stroke-linecap="round" opacity=".62"/>
+<path d="M148 38V124" stroke="#86D9FF" stroke-width="1.8" stroke-linecap="round" opacity=".5"/>
+<circle cx="146" cy="28" r="4.2" fill="#FFF1B1"/>
+<path d="M146 18V38M136 28H156" stroke="#FFE79A" stroke-width="1.6" stroke-linecap="round"/>
+</svg>
