@@ -1,46 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" role="img" aria-label="NOORMEXA">
-  <defs>
-    <linearGradient id="blue" x1="22" y1="28" x2="142" y2="145" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#68D7FF"/>
-      <stop offset=".28" stop-color="#258CFF"/>
-      <stop offset=".68" stop-color="#0B58C7"/>
-      <stop offset="1" stop-color="#072B69"/>
-    </linearGradient>
-    <linearGradient id="blueEdge" x1="20" y1="80" x2="150" y2="80" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#031A39"/>
-      <stop offset=".55" stop-color="#0C4C9D"/>
-      <stop offset="1" stop-color="#03172F"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="34" y1="25" x2="139" y2="142" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFF2B8"/>
-      <stop offset=".18" stop-color="#F4CE72"/>
-      <stop offset=".5" stop-color="#D89F35"/>
-      <stop offset=".78" stop-color="#B77318"/>
-      <stop offset="1" stop-color="#754208"/>
-    </linearGradient>
-    <linearGradient id="goldEdge" x1="39" y1="65" x2="136" y2="145" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#85500D"/>
-      <stop offset=".55" stop-color="#B8751B"/>
-      <stop offset="1" stop-color="#4D2A04"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Deep architectural uprights -->
-  <path d="M24 132V58C24 44 31 35 44 29L58 23V94C58 108 54 118 47 130L42 138C36 147 24 142 24 132Z" fill="url(#blue)"/>
-  <path d="M24 132V58C24 47 29 39 39 33V127L34 137C30 143 24 139 24 132Z" fill="url(#blueEdge)" opacity=".58"/>
-  <path d="M102 71C102 58 108 46 117 37L128 26C139 15 148 22 148 37V126C148 143 138 150 123 150H102V71Z" fill="url(#blue)"/>
-  <path d="M132 23C141 18 148 24 148 37V126C148 139 141 147 132 149V23Z" fill="url(#blueEdge)" opacity=".52"/>
-
-  <!-- Signature gold ribbon -->
-  <path d="M38 32C49 24 62 27 73 39L135 104C146 116 146 130 137 139C127 149 113 147 102 135L39 68C28 57 28 41 38 32Z" fill="url(#gold)"/>
-  <path d="M35 62L103 134C114 146 127 149 137 139C133 147 124 151 116 148C111 146 106 142 102 137L39 70C36 67 34 64 33 60L35 62Z" fill="url(#goldEdge)" opacity=".72"/>
-
-  <!-- Controlled highlights -->
-  <path d="M43 34C52 29 61 32 69 41L130 105" stroke="#FFF8DA" stroke-width="2.6" stroke-linecap="round" opacity=".78"/>
-  <path d="M30 126V61C30 51 34 45 42 40" stroke="#A9E8FF" stroke-width="2.1" stroke-linecap="round" opacity=".62"/>
-  <path d="M141 38V122" stroke="#83D7FF" stroke-width="1.9" stroke-linecap="round" opacity=".5"/>
-
-  <!-- Light signature -->
-  <circle cx="141" cy="31" r="4" fill="#FFF1B3"/>
-  <path d="M141 22V40M132 31H150" stroke="#FFE9A3" stroke-width="1.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect x="0" y="0" width="200" height="200" rx="48" fill="#07111F"/>
+  <circle cx="100" cy="100" r="75" fill="#0B1C31" stroke="#17395C" stroke-width="2"/>
+  <rect x="50" y="55" width="22" height="92" rx="11" fill="#2F80ED"/>
+  <rect x="128" y="55" width="22" height="92" rx="11" fill="#F8FAFC"/>
+  <path d="M61 68 L139 135" stroke="#F5B941" stroke-width="22" stroke-linecap="round"/>
+  <path d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z" fill="#F5B941"/>
 </svg>
