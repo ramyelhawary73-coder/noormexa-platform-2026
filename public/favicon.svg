@@ -1,8 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <rect x="0" y="0" width="200" height="200" rx="48" fill="#07111F"/>
-  <circle cx="100" cy="100" r="75" fill="#0B1C31" stroke="#17395C" stroke-width="2"/>
-  <rect x="50" y="55" width="22" height="92" rx="11" fill="#2F80ED"/>
-  <rect x="128" y="55" width="22" height="92" rx="11" fill="#F8FAFC"/>
-  <path d="M61 68 L139 135" stroke="#F5B941" stroke-width="22" stroke-linecap="round"/>
-  <path d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z" fill="#F5B941"/>
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#67D4FF"/>
+      <stop offset="24%" stop-color="#1F8CFF"/>
+      <stop offset="58%" stop-color="#095DDA"/>
+      <stop offset="100%" stop-color="#05275F"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF3BD"/>
+      <stop offset="18%" stop-color="#F8D77F"/>
+      <stop offset="46%" stop-color="#E5AD46"/>
+      <stop offset="73%" stop-color="#B87520"/>
+      <stop offset="100%" stop-color="#70400A"/>
+    </linearGradient>
+    <linearGradient id="ge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6E3D08"/>
+      <stop offset="50%" stop-color="#B8731B"/>
+      <stop offset="100%" stop-color="#4D2A05"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="42" fill="#061326"/>
+  <rect x="1.5" y="1.5" width="197" height="197" rx="40.5" stroke="#164A88" stroke-width="3"/>
+  <g transform="translate(8 8) scale(.92)">
+    <path d="M47 151V66C47 54 53 46 64 42L78 37V112C78 125 74 136 66 147L60 155C55 160 47 157 47 151Z" fill="url(#b)"/>
+    <path d="M126 77C126 67 130 58 137 51L149 39C157 31 166 36 166 48V140C166 153 158 160 146 160H126V77Z" fill="url(#b)"/>
+    <path d="M55 42C65 34 79 36 90 48L154 115C165 126 165 140 155 150C145 160 130 158 120 147L53 78C42 67 44 51 55 42Z" fill="url(#g)"/>
+    <path d="M52 72L121 145C131 156 145 158 155 150C151 157 143 161 135 159C130 158 125 154 120 149L53 80C50 77 48 74 47 70L52 72Z" fill="url(#ge)" opacity=".78"/>
+    <path d="M59 43C67 38 77 40 86 50L150 116" stroke="#FFF7D7" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+    <circle cx="159" cy="41" r="5" fill="#FFF4C1"/>
+    <path d="M159 31V51M149 41H169" stroke="#FFF4C1" stroke-width="1.7" stroke-linecap="round"/>
+  </g>
 </svg>
