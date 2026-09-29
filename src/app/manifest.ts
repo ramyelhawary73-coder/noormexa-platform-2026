@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "NOORMEXA — Global Smart Commerce",
+    name: "NOORMEXA",
     short_name: "NOORMEXA",
     description: "NOORMEXA — منصة عالمية ذكية للتجارة والتسوق",
     id: "/",
