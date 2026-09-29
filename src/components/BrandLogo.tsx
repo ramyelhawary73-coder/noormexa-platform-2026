@@ -15,12 +15,11 @@ export interface BrandLogoProps {
 }
 
 /**
- * NOORMEXA World-Class Master Emblem (Vector SVG)
+ * NOORMEXA interface mark.
  *
- * Core Brand Metaphor:
- * 1. NOOR (نور - Light / Brilliance): The 4-point radiant diamond starburst & golden dawn light beam.
- * 2. MEXA (مكسا - Maximum Exchange / Nexus): The dynamic 3D isometric 'N' monogram & aerodynamic commerce horizon arc.
- * 3. The Horizon Smile of Commerce: Aerodynamic golden trajectory symbolizing global speed, trust, and complete fulfillment.
+ * The website version is intentionally transparent so it sits naturally on
+ * light and dark surfaces. Installed-app icons use the separate PWA renderer,
+ * which keeps the full Midnight Navy app-icon background.
  */
 export function NoormexaEmblemSvg({
   size,
@@ -33,11 +32,10 @@ export function NoormexaEmblemSvg({
   className?: string;
   monochrome?: boolean;
 }) {
-  const shell = monochrome ? "currentColor" : "#07111F";
-  const border = monochrome ? "currentColor" : "#17395C";
-  const left = monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : "#2F80ED";
-  const right = monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : "#F8FAFC";
-  const beam = monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : "#F5B941";
+  const neutral = isDark ? "#F8FAFC" : "#0F172A";
+  const left = monochrome ? neutral : "#2F80ED";
+  const right = monochrome ? neutral : neutral;
+  const beam = monochrome ? neutral : "#F5B941";
 
   return (
     <svg
@@ -51,17 +49,15 @@ export function NoormexaEmblemSvg({
       role="img"
       aria-label="NOORMEXA"
     >
-      <rect x="12" y="12" width="176" height="176" rx="48" fill={shell} />
-      {!monochrome && (
-        <circle cx="100" cy="100" r="75" fill="#0B1C31" stroke={border} strokeWidth="2" />
-      )}
-      <rect x="50" y="55" width="22" height="92" rx="11" fill={left} />
-      <rect x="128" y="55" width="22" height="92" rx="11" fill={right} />
-      <path d="M61 68 L139 135" stroke={beam} strokeWidth="22" strokeLinecap="round" />
-      <path
-        d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z"
-        fill={beam}
-      />
+      <g transform="translate(-20 -20) scale(1.2)">
+        <rect x="50" y="55" width="22" height="92" rx="11" fill={left} />
+        <rect x="128" y="55" width="22" height="92" rx="11" fill={right} />
+        <path d="M61 68 L139 135" stroke={beam} strokeWidth="22" strokeLinecap="round" />
+        <path
+          d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z"
+          fill={beam}
+        />
+      </g>
     </svg>
   );
 }
