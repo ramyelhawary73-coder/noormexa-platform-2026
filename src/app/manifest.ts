@@ -17,25 +17,25 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["shopping", "business", "productivity"],
     icons: [
       {
-        src: "/pwa/icon-192?v=master-artwork-2",
+        src: "/pwa/icon-192?v=vector-master-1",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/pwa/icon-512?v=master-artwork-2",
+        src: "/pwa/icon-512?v=vector-master-1",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/pwa/icon-maskable-192?v=master-artwork-2",
+        src: "/pwa/icon-maskable-192?v=vector-master-1",
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/pwa/icon-maskable-512?v=master-artwork-2",
+        src: "/pwa/icon-maskable-512?v=vector-master-1",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
