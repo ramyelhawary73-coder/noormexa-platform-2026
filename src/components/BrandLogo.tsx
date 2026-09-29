@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId } from "react";
+import React from "react";
 import { useTheme } from "@/context/ThemeContext";
 
 export interface BrandLogoProps {
@@ -15,11 +15,11 @@ export interface BrandLogoProps {
 }
 
 /**
- * NOORMEXA Signature Executive 3D master mark.
+ * NOORMEXA interface mark.
  *
- * The identity keeps the selected concept's premium metallic character while
- * remaining readable at small sizes: deep/electric blue structure, a warm gold
- * ribbon, restrained edge highlights and no decorative globe inside the core mark.
+ * The website version is intentionally transparent so it sits naturally on
+ * light and dark surfaces. Installed-app icons use the separate PWA renderer,
+ * which keeps the full Midnight Navy app-icon background.
  */
 export function NoormexaEmblemSvg({
   size,
@@ -32,8 +32,10 @@ export function NoormexaEmblemSvg({
   className?: string;
   monochrome?: boolean;
 }) {
-  const uid = useId().replace(/:/g, "_");
-  const mono = isDark ? "#F8FAFC" : "#0F172A";
+  const neutral = isDark ? "#F8FAFC" : "#0F172A";
+  const left = monochrome ? neutral : "#2F80ED";
+  const right = monochrome ? neutral : neutral;
+  const beam = monochrome ? neutral : "#F5B941";
 
   return (
     <svg
@@ -47,103 +49,14 @@ export function NoormexaEmblemSvg({
       role="img"
       aria-label="NOORMEXA"
     >
-      {!monochrome && (
-        <defs>
-          <linearGradient id={`nx_blue_front_${uid}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#5CC8FF" />
-            <stop offset="34%" stopColor="#1677FF" />
-            <stop offset="72%" stopColor="#0B4FD6" />
-            <stop offset="100%" stopColor="#082D73" />
-          </linearGradient>
-          <linearGradient id={`nx_blue_side_${uid}`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#041B3B" />
-            <stop offset="100%" stopColor="#0A3B8C" />
-          </linearGradient>
-          <linearGradient id={`nx_gold_front_${uid}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FFF1B8" />
-            <stop offset="22%" stopColor="#F6CF6E" />
-            <stop offset="52%" stopColor="#DFA83E" />
-            <stop offset="78%" stopColor="#B9781B" />
-            <stop offset="100%" stopColor="#80500F" />
-          </linearGradient>
-          <linearGradient id={`nx_gold_edge_${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8E5B14" />
-            <stop offset="100%" stopColor="#5C3708" />
-          </linearGradient>
-          <linearGradient id={`nx_gold_glint_${uid}`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.05" />
-            <stop offset="48%" stopColor="#FFFFFF" stopOpacity="0.75" />
-            <stop offset="55%" stopColor="#FFF2BE" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.08" />
-          </linearGradient>
-          <filter id={`nx_shadow_${uid}`} x="-30%" y="-30%" width="160%" height="170%">
-            <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#020617" floodOpacity={isDark ? "0.55" : "0.24"} />
-          </filter>
-        </defs>
-      )}
-
-      <g filter={!monochrome ? `url(#nx_shadow_${uid})` : undefined}>
-        {/* Left blue pillar: luminous front + dark side facet */}
+      <g transform="translate(-20 -20) scale(1.2)">
+        <rect x="50" y="55" width="22" height="92" rx="11" fill={left} />
+        <rect x="128" y="55" width="22" height="92" rx="11" fill={right} />
+        <path d="M61 68 L139 135" stroke={beam} strokeWidth="22" strokeLinecap="round" />
         <path
-          d="M42 149V58C42 47 49 39 60 35L76 29V118L58 149C54 156 42 155 42 149Z"
-          fill={monochrome ? mono : `url(#nx_blue_front_${uid})`}
+          d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z"
+          fill={beam}
         />
-        {!monochrome && (
-          <path
-            d="M42 149V58C42 48 48 41 58 36L60 35V139L52 153C47 155 42 153 42 149Z"
-            fill={`url(#nx_blue_side_${uid})`}
-            opacity="0.72"
-          />
-        )}
-
-        {/* Right blue pillar, taller and more architectural */}
-        <path
-          d="M128 73L145 47C151 38 160 42 160 53V142C160 153 153 160 143 160H128V73Z"
-          fill={monochrome ? mono : `url(#nx_blue_front_${uid})`}
-        />
-        {!monochrome && (
-          <path
-            d="M147 48C153 40 160 43 160 53V142C160 151 154 158 146 160V50L147 48Z"
-            fill={`url(#nx_blue_side_${uid})`}
-            opacity="0.64"
-          />
-        )}
-
-        {/* Signature gold ribbon crossing the N */}
-        <path
-          d="M53 38C62 33 73 36 82 46L153 119C162 128 162 139 154 147C146 155 135 154 127 146L52 69C44 61 45 44 53 38Z"
-          fill={monochrome ? mono : `url(#nx_gold_front_${uid})`}
-        />
-        {!monochrome && (
-          <>
-            <path
-              d="M127 146L52 69C47 64 45 57 46 51L132 139C140 147 150 149 157 143C156 145 155 146 154 147C146 155 135 154 127 146Z"
-              fill={`url(#nx_gold_edge_${uid})`}
-              opacity="0.72"
-            />
-            <path
-              d="M58 40C65 37 72 39 79 47L148 118"
-              stroke={`url(#nx_gold_glint_${uid})`}
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              opacity="0.85"
-            />
-            <path
-              d="M48 143V61C48 54 52 48 58 45"
-              stroke="#A9E3FF"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              opacity="0.62"
-            />
-            <path
-              d="M154 54V135"
-              stroke="#74C7FF"
-              strokeWidth="2"
-              strokeLinecap="round"
-              opacity="0.48"
-            />
-          </>
-        )}
       </g>
     </svg>
   );
@@ -267,7 +180,7 @@ export default function BrandLogo({
               NOOR
             </span>
             <span
-              className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-[#F5D67C] via-[#DFA83E] to-[#B9781B] bg-clip-text text-transparent`}
+              className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
                 letterSpacing: "3px",
@@ -281,7 +194,7 @@ export default function BrandLogo({
             <span
               dir="rtl"
               className={`font-bold ${subtitleSizes[size]} mt-2 transition-colors duration-200 ${
-                isDark ? "text-[#E9C66F]" : "text-[#9A681D]"
+                isDark ? "text-amber-400/90" : "text-amber-700/95"
               }`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
@@ -317,7 +230,7 @@ export default function BrandLogo({
             NOOR
           </span>
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-[#F5D67C] via-[#DFA83E] to-[#B9781B] bg-clip-text text-transparent`}
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
             style={{
               fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
@@ -357,7 +270,7 @@ export default function BrandLogo({
             NOOR
           </span>
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-[#F5D67C] via-[#DFA83E] to-[#B9781B] bg-clip-text text-transparent`}
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
             style={{
               fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
@@ -373,7 +286,7 @@ export default function BrandLogo({
             <span
               dir="rtl"
               className={`font-bold ${subtitleSizes[size]} transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${
-                isDark ? "text-[#E9C66F]" : "text-[#9A681D]"
+                isDark ? "text-amber-400/90" : "text-amber-700/95"
               }`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
