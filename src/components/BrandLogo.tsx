@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId } from "react";
+import React from "react";
 import { useTheme } from "@/context/ThemeContext";
 
 export interface BrandLogoProps {
@@ -33,7 +33,11 @@ export function NoormexaEmblemSvg({
   className?: string;
   monochrome?: boolean;
 }) {
-  const uid = useId().replace(/:/g, "_");
+  const shell = monochrome ? "currentColor" : "#07111F";
+  const border = monochrome ? "currentColor" : "#17395C";
+  const left = monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : "#2F80ED";
+  const right = monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : "#F8FAFC";
+  const beam = monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : "#F5B941";
 
   return (
     <svg
@@ -43,148 +47,21 @@ export function NoormexaEmblemSvg({
       height={size}
       fill="none"
       shapeRendering="geometricPrecision"
-      textRendering="geometricPrecision"
       className={`shrink-0 select-none ${className}`}
-      aria-label="NOORMEXA Master Brand Monogram"
+      role="img"
+      aria-label="NOORMEXA"
     >
-      <defs>
-        {!monochrome ? (
-          <>
-            {/* 1. Left Sapphire Tech Pillar */}
-            <linearGradient id={`nx_left_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#38BDF8" />
-              <stop offset="35%" stopColor="#0EA5E9" />
-              <stop offset="70%" stopColor="#0284C7" />
-              <stop offset="100%" stopColor="#034574" />
-            </linearGradient>
-
-            {/* 2. Left Edge Bevel Light */}
-            <linearGradient id={`nx_left_edge_${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
-            </linearGradient>
-
-            {/* 3. Central 24K Imperial Gold Noor Ribbon */}
-            <linearGradient id={`nx_gold_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFFBEB" />
-              <stop offset="18%" stopColor="#FEF08A" />
-              <stop offset="45%" stopColor="#F59E0B" />
-              <stop offset="80%" stopColor="#D97706" />
-              <stop offset="100%" stopColor="#9A3412" />
-            </linearGradient>
-
-            {/* 4. Gold Ribbon Lateral 3D Facet (Shaded Depth) */}
-            <linearGradient id={`nx_gold_edge_${uid}`} x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#78350F" />
-              <stop offset="50%" stopColor="#B45309" />
-              <stop offset="100%" stopColor="#F59E0B" />
-            </linearGradient>
-
-            {/* 5. Right Cobalt Ascending Pillar */}
-            <linearGradient id={`nx_right_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#60A5FA" />
-              <stop offset="35%" stopColor="#2563EB" />
-              <stop offset="75%" stopColor="#1D4ED8" />
-              <stop offset="100%" stopColor="#0F172A" />
-            </linearGradient>
-
-            {/* 6. Right Edge Bevel */}
-            <linearGradient id={`nx_right_edge_${uid}`} x1="100%" y1="0%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="#93C5FD" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#1D4ED8" stopOpacity="0" />
-            </linearGradient>
-
-            {/* 7. Drop Shadow for 3D Layer Overlap */}
-            <filter id={`nx_fold_shadow_${uid}`} x="-20%" y="-20%" width="150%" height="150%">
-              <feDropShadow dx="-3" dy="4" stdDeviation="4" floodColor="#020617" floodOpacity={isDark ? "0.85" : "0.5"} />
-            </filter>
-
-            {/* 8. Global Emblem Grounding Shadow */}
-            <filter id={`nx_master_shadow_${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="6" stdDeviation="7" floodColor={isDark ? "#000000" : "#0F172A"} floodOpacity={isDark ? "0.6" : "0.2"} />
-            </filter>
-          </>
-        ) : null}
-      </defs>
-
-      {/* ======================================================== */}
-      {/* THE MASTER 3D GEOMETRIC NOORMEXA "N" MONOGRAM            */}
-      {/* ======================================================== */}
-      <g filter={!monochrome ? `url(#nx_master_shadow_${uid})` : undefined}>
-        
-        {/* [1. LEFT PILLAR] */}
-        <g id={`left_col_${uid}`}>
-          <path
-            d="M 38,42 
-               C 38,32 46,26 56,26 
-               L 62,26 
-               C 70,26 76,32 76,42 
-               L 76,158 
-               C 76,168 70,174 62,174 
-               L 56,174 
-               C 46,174 38,168 38,158 
-               Z"
-            fill={monochrome ? (isDark ? "#64748B" : "#334155") : `url(#nx_left_${uid})`}
-          />
-          {!monochrome && (
-            <path
-              d="M 38,42 C 38,32 46,26 56,26 L 59,26 L 59,174 L 56,174 C 46,174 38,168 38,158 Z"
-              fill={`url(#nx_left_edge_${uid})`}
-            />
-          )}
-        </g>
-
-        {/* [2. RIGHT PILLAR] */}
-        <g id={`right_col_${uid}`}>
-          <path
-            d="M 124,42 
-               C 124,32 130,26 140,26 
-               L 146,26 
-               C 156,26 162,32 162,42 
-               L 162,158 
-               C 162,168 156,174 146,174 
-               L 140,174 
-               C 130,174 124,168 124,158 
-               Z"
-            fill={monochrome ? (isDark ? "#475569" : "#1E293B") : `url(#nx_right_${uid})`}
-          />
-          {!monochrome && (
-            <path
-              d="M 162,42 C 162,32 156,26 146,26 L 143,26 L 143,174 L 146,174 C 156,174 162,168 162,158 Z"
-              fill={`url(#nx_right_edge_${uid})`}
-            />
-          )}
-        </g>
-
-        {/* [3. CENTRAL GOLDEN NOOR RIBBON - OVERLAPPING 3D FOLD] */}
-        <g id={`diagonal_fold_${uid}`} filter={!monochrome ? `url(#nx_fold_shadow_${uid})` : undefined}>
-          {/* Depth Facet */}
-          {!monochrome && (
-            <path
-              d="M 40,48 
-                 L 144,158 
-                 C 152,166 146,174 136,174 
-                 L 122,174 
-                 L 40,88 
-                 Z"
-              fill={`url(#nx_gold_edge_${uid})`}
-            />
-          )}
-
-          {/* Golden Upper Face */}
-          <path
-            d="M 40,36 
-               C 48,26 60,30 70,42 
-               L 160,146 
-               C 166,154 162,166 150,166 
-               C 140,166 130,160 120,148 
-               L 40,50 
-               C 34,44 34,40 40,36 Z"
-            fill={monochrome ? (isDark ? "#F8FAFC" : "#0F172A") : `url(#nx_gold_${uid})`}
-          />
-        </g>
-
-      </g>
+      <rect x="12" y="12" width="176" height="176" rx="48" fill={shell} />
+      {!monochrome && (
+        <circle cx="100" cy="100" r="75" fill="#0B1C31" stroke={border} strokeWidth="2" />
+      )}
+      <rect x="50" y="55" width="22" height="92" rx="11" fill={left} />
+      <rect x="128" y="55" width="22" height="92" rx="11" fill={right} />
+      <path d="M61 68 L139 135" stroke={beam} strokeWidth="22" strokeLinecap="round" />
+      <path
+        d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z"
+        fill={beam}
+      />
     </svg>
   );
 }
