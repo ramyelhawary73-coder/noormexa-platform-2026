@@ -1,1 +1,5 @@
-import { createNoormexaIconResponse } from "@/lib/noormexaIconResponse";\n\nexport function GET(request: Request) {\n  return createNoormexaIconResponse(192, "maskable", request.url);\n}\n
+import { createNoormexaIconResponse } from "@/lib/noormexaIconResponse";
+
+export function GET(request: Request) {
+  return createNoormexaIconResponse(192, "maskable", request.url);
+}
