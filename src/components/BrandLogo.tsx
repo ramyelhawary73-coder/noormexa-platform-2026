@@ -15,15 +15,11 @@ export interface BrandLogoProps {
 }
 
 /**
- * NOORMEXA Signature Executive master mark.
+ * NOORMEXA interface mark.
  *
- * A restrained, timeless N built from three elements:
- * - Executive Blue: technology and global reach.
- * - Warm Gold ribbon: value, movement and the "Noor" light path.
- * - Adaptive neutral pillar: authority and long-term clarity in light/dark UI.
- *
- * The website mark stays transparent. Installed-app icons use the same geometry
- * on a dedicated Midnight Navy launcher surface.
+ * The website version is intentionally transparent so it sits naturally on
+ * light and dark surfaces. Installed-app icons use the separate PWA renderer,
+ * which keeps the full Midnight Navy app-icon background.
  */
 export function NoormexaEmblemSvg({
   size,
@@ -36,9 +32,10 @@ export function NoormexaEmblemSvg({
   className?: string;
   monochrome?: boolean;
 }) {
-  const neutral = isDark ? "#F7F9FC" : "#0B1F33";
-  const executiveBlue = monochrome ? neutral : "#2563EB";
-  const executiveGold = monochrome ? neutral : "#D5A447";
+  const neutral = isDark ? "#F8FAFC" : "#0F172A";
+  const left = monochrome ? neutral : "#2F80ED";
+  const right = monochrome ? neutral : neutral;
+  const beam = monochrome ? neutral : "#F5B941";
 
   return (
     <svg
@@ -52,18 +49,13 @@ export function NoormexaEmblemSvg({
       role="img"
       aria-label="NOORMEXA"
     >
-      <g transform="translate(7 4) scale(0.93)">
+      <g transform="translate(-20 -20) scale(1.2)">
+        <rect x="50" y="55" width="22" height="92" rx="11" fill={left} />
+        <rect x="128" y="55" width="22" height="92" rx="11" fill={right} />
+        <path d="M61 68 L139 135" stroke={beam} strokeWidth="22" strokeLinecap="round" />
         <path
-          d="M42 151V61C42 49 49 40 60 35L76 28V119L58 149C54 156 42 154 42 151Z"
-          fill={executiveBlue}
-        />
-        <path
-          d="M124 81L144 50C149 43 159 46 159 56V143C159 154 152 161 142 161H124V81Z"
-          fill={neutral}
-        />
-        <path
-          d="M57 38C65 34 72 35 79 42L151 119C159 128 160 138 153 146C146 154 135 154 127 146L53 68C45 60 47 44 57 38Z"
-          fill={executiveGold}
+          d="M151 31 L155 43 L167 49 L155 55 L151 67 L147 55 L135 49 L147 43 Z"
+          fill={beam}
         />
       </g>
     </svg>
@@ -188,7 +180,7 @@ export default function BrandLogo({
               NOOR
             </span>
             <span
-              className={`font-black ${textSizes[size]} transition-all duration-200 text-[#D5A447]`}
+              className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
                 letterSpacing: "3px",
@@ -202,7 +194,7 @@ export default function BrandLogo({
             <span
               dir="rtl"
               className={`font-bold ${subtitleSizes[size]} mt-2 transition-colors duration-200 ${
-                isDark ? "text-[#E7C477]" : "text-[#A66F1F]"
+                isDark ? "text-amber-400/90" : "text-amber-700/95"
               }`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
@@ -238,7 +230,7 @@ export default function BrandLogo({
             NOOR
           </span>
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 text-[#D5A447]`}
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
             style={{
               fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
@@ -278,7 +270,7 @@ export default function BrandLogo({
             NOOR
           </span>
           <span
-            className={`font-black ${textSizes[size]} transition-all duration-200 text-[#D5A447]`}
+            className={`font-black ${textSizes[size]} transition-all duration-200 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent`}
             style={{
               fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Inter', sans-serif",
               letterSpacing: "2.5px",
@@ -294,7 +286,7 @@ export default function BrandLogo({
             <span
               dir="rtl"
               className={`font-bold ${subtitleSizes[size]} transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis ${
-                isDark ? "text-[#E7C477]" : "text-[#A66F1F]"
+                isDark ? "text-amber-400/90" : "text-amber-700/95"
               }`}
               style={{
                 fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
