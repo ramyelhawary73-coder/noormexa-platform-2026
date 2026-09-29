@@ -5,32 +5,49 @@ export type NoormexaIconVariant = "any" | "maskable" | "apple";
 
 export function createNoormexaIconResponse(
   size: number,
-  _variant: NoormexaIconVariant,
+  variant: NoormexaIconVariant,
   requestUrl: string
 ) {
-  const assetUrl = new URL("/brand/noormexa-app-icon-512.webp?v=master-artwork-2", requestUrl).toString();
+  const markUrl = new URL(
+    "/brand/noormexa-mark.svg?v=vector-master-1",
+    requestUrl
+  ).toString();
+
+  const markScale =
+    variant === "maskable" ? 0.64 : variant === "apple" ? 0.70 : 0.74;
 
   return new ImageResponse(
-    React.createElement("div", {
-      style: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#061326",
+    React.createElement(
+      "div",
+      {
+        style: {
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#07111F",
+          borderRadius: Math.round(size * 0.22),
+        },
       },
-    }, React.createElement("img", {
-      src: assetUrl,
-      width: size,
-      height: size,
-      alt: "NOORMEXA",
-      style: { width: "100%", height: "100%", objectFit: "cover" },
-    })),
+      React.createElement("img", {
+        src: markUrl,
+        width: Math.round(size * markScale),
+        height: Math.round(size * markScale),
+        alt: "NOORMEXA",
+        style: {
+          width: Math.round(markScale * 100) + "%",
+          height: Math.round(markScale * 100) + "%",
+          objectFit: "contain",
+        },
+      })
+    ),
     {
       width: size,
       height: size,
-      headers: { "Cache-Control": "public, max-age=31536000, immutable" },
+      headers: {
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
     }
   );
 }
