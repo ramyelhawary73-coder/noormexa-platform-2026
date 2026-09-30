@@ -16,11 +16,12 @@ export interface BrandLogoProps {
 }
 
 const BRAND_ASSETS = {
-  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-4",
-  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-4",
+  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-5",
+  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-5",
   // Known-good existing website symbol. Keep it unscaled so constrained cards
   // cannot clip it. PWA/app artwork remains separate and unchanged.
-  symbol: "/brand/noormexa-symbol.webp?v=signature-ray-4",
+  symbolLight: "/brand/noormexa-symbol-light-crop.webp?v=signature-ray-5",
+  symbolDark: "/brand/noormexa-symbol-dark-crop.webp?v=signature-ray-5",
 } as const;
 
 const symbolSizes = {
@@ -134,19 +135,19 @@ export function NoormexaEmblemSvg({
 }) {
   return (
     <span
-      className={"inline-flex items-center justify-center shrink-0 overflow-hidden " + className}
+      className={"inline-flex items-center justify-center shrink-0 overflow-visible " + className}
       style={{ width: size, height: size }}
       aria-label="NOORMEXA"
       role="img"
     >
       <img
-        src={BRAND_ASSETS.symbol}
+        src={isDark ? BRAND_ASSETS.symbolDark : BRAND_ASSETS.symbolLight}
         width={size}
         height={size}
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="block h-full w-full select-none object-contain shrink-0"
+        className="block max-h-full max-w-full select-none object-contain shrink-0"
         style={{
           filter: monochrome
             ? isDark
