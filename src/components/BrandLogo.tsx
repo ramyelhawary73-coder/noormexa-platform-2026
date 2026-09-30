@@ -15,16 +15,16 @@ export interface BrandLogoProps {
   forceLight?: boolean;
 }
 
-const MARK_SRC = "/brand/noormexa-mark-v1.svg?v=identity-v1";
+const MARK_SRC = "/brand/noormexa-mark-v2.svg?v=identity-v2";
 
 const SIZE_MAP = {
-  xs: { mark: 26, word: 18, tagline: 7, gap: 6 },
-  sm: { mark: 32, word: 21, tagline: 7.5, gap: 7 },
-  md: { mark: 38, word: 24, tagline: 8, gap: 8 },
-  lg: { mark: 46, word: 28, tagline: 9, gap: 9 },
-  xl: { mark: 58, word: 34, tagline: 10, gap: 11 },
-  "2xl": { mark: 72, word: 42, tagline: 12, gap: 13 },
-  responsive: { mark: 44, word: 27, tagline: 8.5, gap: 9 },
+  xs: { mark: 26, word: 20, tagline: 7, gap: 6 },
+  sm: { mark: 32, word: 23, tagline: 7.5, gap: 7 },
+  md: { mark: 38, word: 27, tagline: 8, gap: 8 },
+  lg: { mark: 46, word: 31, tagline: 9, gap: 9 },
+  xl: { mark: 58, word: 37, tagline: 10, gap: 11 },
+  "2xl": { mark: 72, word: 46, tagline: 12, gap: 13 },
+  responsive: { mark: 44, word: 30, tagline: 8.5, gap: 9 },
 } as const;
 
 function GoldWord({
@@ -44,7 +44,7 @@ function GoldWord({
     <span
       style={{
         backgroundImage:
-          "linear-gradient(180deg,#FFF0AE 0%,#E9B84A 28%,#C9861A 68%,#9C5B0C 100%)",
+          "linear-gradient(180deg,#F4D675 0%,#DFAE3E 52%,#C78A21 100%)",
         WebkitBackgroundClip: "text",
         backgroundClip: "text",
         color: "transparent",
@@ -128,7 +128,7 @@ export default function BrandLogo({
   const wordmark = (
     <span
       dir="ltr"
-      className="inline-flex items-baseline whitespace-nowrap font-black leading-none tracking-[-0.055em]"
+      className="inline-flex items-baseline whitespace-nowrap font-black leading-none tracking-[-0.035em]"
       style={{
         fontSize: s.word,
         fontFamily: "Inter, Arial, Helvetica, sans-serif",
