@@ -1,6 +1,6 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- approved brand artwork must render pixel-faithfully */
+/* eslint-disable @next/next/no-img-element -- approved master artwork must render pixel-faithfully */
 import React from "react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -16,6 +16,8 @@ export interface BrandLogoProps {
 }
 
 const BRAND_ASSETS = {
+  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-1",
+  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-1",
   symbol: "/brand/noormexa-symbol.webp?v=master-artwork-4",
 } as const;
 
@@ -29,32 +31,19 @@ const symbolSizes = {
   responsive: 44,
 } as const;
 
-const wordmarkSizes = {
-  xs: "text-[16px]",
-  sm: "text-[19px]",
-  md: "text-[23px]",
-  lg: "text-[28px]",
-  xl: "text-[34px]",
-  "2xl": "text-[42px]",
-  responsive: "text-[24px]",
-} as const;
-
-const taglineSizes = {
-  xs: "text-[7px]",
-  sm: "text-[8px]",
-  md: "text-[9px]",
-  lg: "text-[10px]",
-  xl: "text-[11px]",
-  "2xl": "text-[12px]",
-  responsive: "text-[9px]",
+const headerWidths = {
+  xs: 118,
+  sm: 146,
+  md: 176,
+  lg: 214,
+  xl: 262,
+  "2xl": 322,
+  responsive: 230,
 } as const;
 
 /**
- * Approved NOORMEXA master symbol.
- *
- * The source artwork contains a little transparent breathing room by design.
- * We enlarge only the rendered mark inside its layout box so small UI usages
- * stay optically strong without re-editing or clipping the source pixels.
+ * Symbol-only usage inside the website stays container-free.
+ * The installed-app artwork is handled separately by the PWA icon pipeline.
  */
 export function NoormexaEmblemSvg({
   size = 44,
@@ -98,43 +87,6 @@ export function NoormexaEmblemSvg({
   );
 }
 
-function Wordmark({
-  size,
-  isDark,
-  monochrome,
-}: {
-  size: keyof typeof wordmarkSizes;
-  isDark: boolean;
-  monochrome: boolean;
-}) {
-  const neutral = isDark ? "text-white" : "text-[#0B1F33]";
-  const mono = monochrome ? neutral : "";
-
-  return (
-    <span
-      dir="ltr"
-      className={
-        "inline-flex items-baseline font-black leading-none whitespace-nowrap tracking-[0.085em] " +
-        wordmarkSizes[size]
-      }
-      style={{
-        fontFamily: "'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-      }}
-      aria-label="NOORMEXA"
-    >
-      <span className={mono || neutral}>NOOR</span>
-      <span
-        className={
-          mono ||
-          "bg-gradient-to-b from-[#FFF0B6] via-[#E0AA42] to-[#A76414] bg-clip-text text-transparent"
-        }
-      >
-        MEXA
-      </span>
-    </span>
-  );
-}
-
 export default function BrandLogo({
   size = "responsive",
   className = "",
@@ -150,6 +102,8 @@ export default function BrandLogo({
   const resolvedSize = size in symbolSizes ? size : "responsive";
   const symbolSize = symbolSizes[resolvedSize];
 
+  // Preserve the existing clean symbol-only website usage. App/PWA icon uses
+  // the separately approved exact app artwork.
   if (variant === "icon" || variant === "symbol" || variant === "pure-svg") {
     return (
       <span
@@ -166,53 +120,33 @@ export default function BrandLogo({
     );
   }
 
-  const stacked = variant === "stacked";
-  const compact = variant === "compact";
-  const wordmarkOnly = variant === "wordmark";
-  const badge = variant === "badge";
+  // The approved artwork already contains the exact NOORMEXA wordmark,
+  // signature light ray, and Arabic brand line from the chosen master board.
+  void showTagline;
+  void tagline;
 
-  const taglineClass =
-    "mt-1 hidden sm:block w-full text-center font-bold whitespace-nowrap leading-none " +
-    taglineSizes[resolvedSize] +
-    " " +
-    (isDark ? "text-[#E7C77C]" : "text-[#95621B]");
-
-  const lockup = (
-    <span
-      dir="ltr"
-      className={
-        "inline-flex " +
-        (stacked ? "flex-col gap-1.5 " : "flex-row gap-2.5 ") +
-        "items-center justify-center select-none shrink-0 overflow-visible"
-      }
-    >
-      {!wordmarkOnly && (
-        <NoormexaEmblemSvg
-          size={compact ? Math.round(symbolSize * 0.9) : symbolSize}
-          isDark={isDark}
-          monochrome={monochrome}
-        />
-      )}
-
-      <span className="inline-flex flex-col items-center justify-center min-w-0">
-        <Wordmark size={resolvedSize} isDark={isDark} monochrome={monochrome} />
-        {!compact && !wordmarkOnly && showTagline && tagline && (
-          <span
-            dir="rtl"
-            className={taglineClass}
-            style={{
-              fontFamily:
-                "system-ui, -apple-system, BlinkMacSystemFont, 'Cairo', 'Tajawal', sans-serif",
-            }}
-          >
-            {tagline}
-          </span>
-        )}
-      </span>
-    </span>
+  const width = headerWidths[resolvedSize];
+  const src = isDark ? BRAND_ASSETS.headerDark : BRAND_ASSETS.headerLight;
+  const image = (
+    <img
+      src={src}
+      width={width}
+      height={Math.round(width * 110 / 430)}
+      alt="NOORMEXA"
+      draggable={false}
+      className="block h-auto max-w-full select-none object-contain"
+      style={{
+        width,
+        filter: monochrome
+          ? isDark
+            ? "grayscale(1) brightness(2.15)"
+            : "grayscale(1) brightness(.30)"
+          : undefined,
+      }}
+    />
   );
 
-  if (badge) {
+  if (variant === "badge") {
     return (
       <span
         className={
@@ -220,10 +154,17 @@ export default function BrandLogo({
           className
         }
       >
-        {lockup}
+        {image}
       </span>
     );
   }
 
-  return <span className={"inline-flex items-center justify-center " + className}>{lockup}</span>;
+  return (
+    <span
+      dir="ltr"
+      className={"inline-flex items-center justify-center shrink-0 " + className}
+    >
+      {image}
+    </span>
+  );
 }
