@@ -40,10 +40,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/brand/noormexa-app-icon-exact.svg?v=signature-ray-2", type: "image/svg+xml" },
-      { url: "/pwa/icon-192?v=signature-ray-2", sizes: "192x192", type: "image/png" },
+      { url: "/brand/noormexa-mark-v1.svg?v=identity-v1", type: "image/svg+xml" },
+      { url: "/pwa/icon-192?v=identity-v1", sizes: "192x192", type: "image/png" },
     ],
-    apple: [{ url: "/pwa/apple-touch-icon?v=signature-ray-2", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/pwa/apple-touch-icon?v=identity-v1", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -64,9 +64,9 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" data-theme="light" suppressHydrationWarning>
       <head>
         {/* Unified NOORMEXA brand assets for browser + installed app */}
-        <link rel="icon" type="image/svg+xml" href="/brand/noormexa-app-icon-exact.svg?v=signature-ray-2" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/pwa/icon-192?v=signature-ray-2" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon?v=signature-ray-2" />
+        <link rel="icon" type="image/svg+xml" href="/brand/noormexa-mark-v1.svg?v=identity-v1" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/pwa/icon-192?v=identity-v1" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon?v=identity-v1" />
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="color-scheme" content="light dark" />
 
