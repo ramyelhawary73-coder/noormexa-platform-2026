@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="NOORMEXA">
-  <path d="M30 138V58C30 45 37 36 49 30L62 24V108C62 121 58 132 50 141L45 145C39 150 30 146 30 138Z" fill="currentColor"/>
-  <path d="M118 69C118 57 123 48 132 39L145 27C155 18 163 24 163 39V131C163 144 154 149 140 149H118V69Z" fill="currentColor"/>
-  <path d="M43 36C52 28 64 28 74 36C92 51 107 71 126 90L146 109C155 118 156 129 149 136C142 143 132 143 123 135C104 118 89 98 71 80L46 66C36 57 35 44 43 36Z" fill="currentColor"/>
+  <rect x="28" y="28" width="36" height="124" rx="18" fill="currentColor"/>
+  <rect x="116" y="28" width="36" height="124" rx="18" fill="currentColor"/>
+  <path d="M48 49 C65 49 78 64 93 82 C109 101 124 120 143 136" stroke="currentColor" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
