@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-label="NOORMEXA">
+  <defs>
+    <linearGradient id="blueLeft" x1="20" y1="18" x2="46" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#55B8FF"/>
+      <stop offset=".32" stop-color="#1686EE"/>
+      <stop offset=".72" stop-color="#0A57B9"/>
+      <stop offset="1" stop-color="#06346F"/>
+    </linearGradient>
+    <linearGradient id="blueRight" x1="84" y1="18" x2="111" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FB6FF"/>
+      <stop offset=".34" stop-color="#167EE4"/>
+      <stop offset=".72" stop-color="#0B52AD"/>
+      <stop offset="1" stop-color="#062E65"/>
+    </linearGradient>
+    <linearGradient id="goldRibbon" x1="25" y1="24" x2="105" y2="111" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF0B0"/>
+      <stop offset=".18" stop-color="#F7D06B"/>
+      <stop offset=".48" stop-color="#E8AB35"/>
+      <stop offset=".76" stop-color="#C67A16"/>
+      <stop offset="1" stop-color="#87480A"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="25" y1="24" x2="105" y2="111" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF7D6"/>
+      <stop offset=".55" stop-color="#F3C65E"/>
+      <stop offset="1" stop-color="#A85C0D"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3.5" flood-color="#03152F" flood-opacity=".26"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <rect x="18" y="16" width="24" height="96" rx="12" fill="url(#blueLeft)"/>
+    <rect x="86" y="16" width="24" height="96" rx="12" fill="url(#blueRight)"/>
+
+    <path d="M31 24C38 21 45 24 51 31L103 94C109 101 108 108 101 112C94 116 86 112 80 105L28 43C22 36 24 28 31 24Z" fill="url(#goldRibbon)"/>
+    <path d="M31 25C38 23 44 26 49 32L101 95" stroke="url(#goldEdge)" stroke-width="2.4" stroke-linecap="round" opacity=".95"/>
+
+    <path d="M24 27V101" stroke="#A9DCFF" stroke-width="1.6" stroke-linecap="round" opacity=".72"/>
+    <path d="M92 27V101" stroke="#9FD7FF" stroke-width="1.5" stroke-linecap="round" opacity=".58"/>
+    <path d="M35 29L98 105" stroke="#FFF8D9" stroke-width="1.6" stroke-linecap="round" opacity=".72"/>
+  </g>
+</svg>
