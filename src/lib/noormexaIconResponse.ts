@@ -8,7 +8,7 @@ export function createNoormexaIconResponse(
   variant: NoormexaIconVariant,
   requestUrl: string
 ) {
-  const assetUrl = new URL("/brand/noormexa-mark-v1.svg?v=identity-v1", requestUrl).toString();
+  const assetUrl = new URL("/brand/noormexa-mark-v2.svg?v=identity-v2", requestUrl).toString();
   const markSize = variant === "maskable" ? "72%" : variant === "apple" ? "76%" : "78%";
 
   return new ImageResponse(
