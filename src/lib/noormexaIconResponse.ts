@@ -5,28 +5,35 @@ export type NoormexaIconVariant = "any" | "maskable" | "apple";
 
 export function createNoormexaIconResponse(
   size: number,
-  _variant: NoormexaIconVariant,
+  variant: NoormexaIconVariant,
   requestUrl: string
 ) {
-  const assetUrl = new URL("/brand/noormexa-app-icon-exact.svg?v=signature-ray-2", requestUrl).toString();
+  const assetUrl = new URL("/brand/noormexa-mark-v1.svg?v=identity-v1", requestUrl).toString();
+  const markSize = variant === "maskable" ? "72%" : variant === "apple" ? "76%" : "78%";
 
   return new ImageResponse(
-    React.createElement("div", {
-      style: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#061326",
+    React.createElement(
+      "div",
+      {
+        style: {
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#07111F",
+        },
       },
-    }, React.createElement("img", {
-      src: assetUrl,
-      width: size,
-      height: size,
-      alt: "NOORMEXA",
-      style: { width: "100%", height: "100%", objectFit: "cover" },
-    })),
+      React.createElement("img", {
+        src: assetUrl,
+        alt: "NOORMEXA",
+        style: {
+          width: markSize,
+          height: markSize,
+          objectFit: "contain",
+        },
+      })
+    ),
     {
       width: size,
       height: size,
