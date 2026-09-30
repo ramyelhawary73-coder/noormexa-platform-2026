@@ -16,11 +16,8 @@ export interface BrandLogoProps {
 }
 
 const BRAND_ASSETS = {
-  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-6",
-  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-6",
-  // Known-good existing website symbol. Keep it unscaled so constrained cards
-  // cannot clip it. PWA/app artwork remains separate and unchanged.
-  symbol: "/brand/noormexa-symbol.webp?v=signature-ray-6",
+  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-7",
+  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-7",
 } as const;
 
 const symbolSizes = {
@@ -117,9 +114,10 @@ function SignatureRay({ isDark }: { isDark: boolean }) {
 }
 
 /**
- * Small website symbol usage. This intentionally uses a known-good asset and
- * never applies transform/scale, preventing clipping or broken-image fallbacks
- * inside constrained store cards.
+ * Symbol-only website usage.
+ * The previous standalone symbol asset was physically cropped. Instead of
+ * maintaining another duplicate artwork file, reuse the already-approved
+ * header master as a sprite and expose only its complete N region.
  */
 export function NoormexaEmblemSvg({
   size = 44,
@@ -132,22 +130,28 @@ export function NoormexaEmblemSvg({
   className?: string;
   monochrome?: boolean;
 }) {
+  const src = isDark ? BRAND_ASSETS.headerDark : BRAND_ASSETS.headerLight;
+  const symbolWidth = Math.round(size * 130 / 110);
+  const masterWidth = Math.round(size * 430 / 110);
+
   return (
     <span
-      className={"inline-flex items-center justify-center shrink-0 overflow-visible " + className}
-      style={{ width: Math.round(size * 160 / 108), height: size }}
+      className={"relative inline-flex items-center justify-center shrink-0 overflow-hidden " + className}
+      style={{ width: symbolWidth, height: size }}
       aria-label="NOORMEXA"
       role="img"
     >
       <img
-        src={BRAND_ASSETS.symbol}
-        width={Math.round(size * 160 / 108)}
+        src={src}
+        width={masterWidth}
         height={size}
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="block h-full w-full select-none object-contain shrink-0"
+        className="pointer-events-none absolute left-0 top-0 block h-full max-w-none select-none"
         style={{
+          width: masterWidth,
+          height: size,
           filter: monochrome
             ? isDark
               ? "grayscale(1) brightness(2.25)"
