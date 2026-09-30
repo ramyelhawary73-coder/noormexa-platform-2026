@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 835 170" fill="none" role="img" aria-label="NOORMEXA"><defs>
+  <linearGradient id="blue" x1="32" y1="26" x2="150" y2="154" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#41B8FF"/>
+    <stop offset=".42" stop-color="#116FD7"/>
+    <stop offset="1" stop-color="#062B67"/>
+  </linearGradient>
+  <linearGradient id="goldEdge" x1="45" y1="48" x2="148" y2="140" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#9A5D10"/>
+    <stop offset=".55" stop-color="#8A4A08"/>
+    <stop offset="1" stop-color="#5E3103"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="46" y1="44" x2="146" y2="138" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFE7A0"/>
+    <stop offset=".28" stop-color="#F2C45F"/>
+    <stop offset=".62" stop-color="#D4932B"/>
+    <stop offset="1" stop-color="#A96512"/>
+  </linearGradient>
+  <linearGradient id="goldWord" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#D79B2C"/><stop offset=".28" stop-color="#C47F1D"/><stop offset=".66" stop-color="#A96512"/><stop offset="1" stop-color="#7D470B"/>
+  </linearGradient>
+</defs><g>
+  <rect x="28" y="28" width="36" height="124" rx="18" fill="url(#blue)"/>
+  <rect x="116" y="28" width="36" height="124" rx="18" fill="url(#blue)"/>
+  <path d="M48 49 C65 49 78 64 93 82 C109 101 124 120 143 136" stroke="url(#goldEdge)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 49 C65 49 78 64 93 82 C109 101 124 120 143 136" stroke="url(#gold)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M49 44 C65 45 79 61 94 79 C109 96 123 115 140 130" stroke="#FFF7D6" stroke-width="2.5" stroke-linecap="round" opacity=".72"/>
+</g><g transform="translate(205 50)">
+  <g fill="#0B1F33">
+    <path d="M0 70V0H15L49 46V0H64V70H49L15 24V70Z"/>
+    <path fill-rule="evenodd" d="M77 35C77 12 90 0 112 0C134 0 147 12 147 35C147 58 134 70 112 70C90 70 77 58 77 35ZM93 35C93 49 100 56 112 56C124 56 131 49 131 35C131 21 124 14 112 14C100 14 93 21 93 35Z"/>
+    <path fill-rule="evenodd" d="M160 35C160 12 173 0 195 0C217 0 230 12 230 35C230 58 217 70 195 70C173 70 160 58 160 35ZM176 35C176 49 183 56 195 56C207 56 214 49 214 35C214 21 207 14 195 14C183 14 176 21 176 35Z"/>
+    <path fill-rule="evenodd" d="M243 70V0H277C297 0 309 10 309 27C309 39 303 48 292 52L313 70H292L274 55H259V70ZM259 14V42H276C287 42 293 37 293 28C293 18 287 14 276 14Z"/>
+  </g>
+  <g fill="url(#goldWord)" transform="translate(332 0)">
+    <path d="M0 70V0H17L37 37L57 0H74V70H59V25L43 56H31L15 25V70Z"/>
+    <path d="M88 70V0H144V14H104V27H138V41H104V56H146V70Z"/>
+    <path d="M154 70L178 35L156 0H175L188 22L202 0H221L198 35L223 70H204L188 47L173 70Z"/>
+    <path fill-rule="evenodd" d="M229 70L255 0H274L301 70H284L278 54H251L246 70ZM256 41H273L264.5 17Z"/>
+  </g>
+</g></svg>

@@ -16,7 +16,7 @@ import LocationSelectorModal from "@/components/location/LocationSelectorModal";
 export const metadata: Metadata = {
   title: "NOORMEXA",
   description: "NOORMEXA — سوق تجارة إلكترونية عالمي ومنصة تسوق ذكية للمتسوقين والبائعين والمتاجر والمعلنين.",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   applicationName: "NOORMEXA",
   appleWebApp: {
     capable: true,
@@ -40,13 +40,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico?v=2026", sizes: "any" },
-      { url: "/favicon.svg?v=2026", type: "image/svg+xml" },
-      { url: "/favicon-32.png?v=2026", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.png?v=2026", sizes: "96x96", type: "image/png" },
+      { url: "/brand/noormexa-mark-v2.svg?v=identity-v2", type: "image/svg+xml" },
+      { url: "/pwa/icon-192?v=identity-v2", sizes: "192x192", type: "image/png" },
     ],
-    shortcut: "/favicon.ico?v=2026",
-    apple: "/apple-touch-icon.png?v=2026",
+    apple: [{ url: "/pwa/apple-touch-icon?v=identity-v2", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -55,7 +52,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
-  themeColor: "#0d1117",
+  themeColor: "#07111F",
 };
 
 export default function RootLayout({
@@ -66,12 +63,11 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" data-theme="light" suppressHydrationWarning>
       <head>
-        {/* Adaptive Vector & Multi-Resolution Favicons */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="alternate icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <link rel="alternate icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
+        {/* Unified NOORMEXA brand assets for browser + installed app */}
+        <link rel="icon" type="image/svg+xml" href="/brand/noormexa-mark-v2.svg?v=identity-v2" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/pwa/icon-192?v=identity-v2" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon?v=identity-v2" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="color-scheme" content="light dark" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -90,11 +86,6 @@ export default function RootLayout({
                 window.__pwa_prompt = e;
                 window.dispatchEvent(new CustomEvent('noormexa-pwa-ready'));
               });
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(function() {});
-                });
-              }
             `,
           }}
         />

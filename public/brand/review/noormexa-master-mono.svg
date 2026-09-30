@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="NOORMEXA">
+  <rect x="28" y="28" width="36" height="124" rx="18" fill="currentColor"/>
+  <rect x="116" y="28" width="36" height="124" rx="18" fill="currentColor"/>
+  <path d="M48 49 C65 49 78 64 93 82 C109 101 124 120 143 136" stroke="currentColor" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

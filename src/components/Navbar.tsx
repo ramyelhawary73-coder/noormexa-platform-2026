@@ -330,7 +330,7 @@ export default function Navbar() {
               aria-label="NOORMEXA home"
               onClick={() => setOpen(false)}
             >
-              <BrandLogo size="responsive" showTagline={true} tagline={isAr ? "سوق التجارة والتسوق العالمي الذكي" : "Global Smart Commerce Marketplace"} />
+              <BrandLogo size="responsive" showTagline={false} />
             </Link>
 
             {/* Delivery Destination & Geolocation Trigger (Desktop) */}

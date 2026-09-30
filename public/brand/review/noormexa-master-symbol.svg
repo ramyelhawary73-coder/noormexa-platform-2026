@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="NOORMEXA"><defs>
+  <linearGradient id="blue" x1="32" y1="26" x2="150" y2="154" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#41B8FF"/>
+    <stop offset=".42" stop-color="#116FD7"/>
+    <stop offset="1" stop-color="#062B67"/>
+  </linearGradient>
+  <linearGradient id="goldEdge" x1="45" y1="48" x2="148" y2="140" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#9A5D10"/>
+    <stop offset=".55" stop-color="#8A4A08"/>
+    <stop offset="1" stop-color="#5E3103"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="46" y1="44" x2="146" y2="138" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFE7A0"/>
+    <stop offset=".28" stop-color="#F2C45F"/>
+    <stop offset=".62" stop-color="#D4932B"/>
+    <stop offset="1" stop-color="#A96512"/>
+  </linearGradient>
+  <linearGradient id="goldWord" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#D79B2C"/><stop offset=".28" stop-color="#C47F1D"/><stop offset=".66" stop-color="#A96512"/><stop offset="1" stop-color="#7D470B"/>
+  </linearGradient>
+</defs><g>
+  <rect x="28" y="28" width="36" height="124" rx="18" fill="url(#blue)"/>
+  <rect x="116" y="28" width="36" height="124" rx="18" fill="url(#blue)"/>
+  <path d="M48 49 C65 49 78 64 93 82 C109 101 124 120 143 136" stroke="url(#goldEdge)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 49 C65 49 78 64 93 82 C109 101 124 120 143 136" stroke="url(#gold)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M49 44 C65 45 79 61 94 79 C109 96 123 115 140 130" stroke="#FFF7D6" stroke-width="2.5" stroke-linecap="round" opacity=".72"/>
+</g></svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="NOORMEXA">
+<defs>
+  <linearGradient id="blueFace" x1="20" y1="24" x2="165" y2="154" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#7CE1FF"/><stop offset=".24" stop-color="#2B96FF"/><stop offset=".62" stop-color="#0A5BD0"/><stop offset="1" stop-color="#062B67"/>
+  </linearGradient>
+  <linearGradient id="blueSide" x1="20" y1="84" x2="165" y2="84" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#03162D"/><stop offset=".64" stop-color="#0A468B"/><stop offset="1" stop-color="#021226"/>
+  </linearGradient>
+  <linearGradient id="goldFace" x1="38" y1="30" x2="154" y2="144" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFF8D8"/><stop offset=".17" stop-color="#F7D77E"/><stop offset=".46" stop-color="#E1A73F"/><stop offset=".75" stop-color="#B8751A"/><stop offset="1" stop-color="#6E3E05"/>
+  </linearGradient>
+  <linearGradient id="goldEdge" x1="39" y1="61" x2="150" y2="144" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#8A520C"/><stop offset=".5" stop-color="#B9761B"/><stop offset="1" stop-color="#462603"/>
+  </linearGradient>
+  <filter id="softShadow" x="-30%" y="-30%" width="170%" height="180%">
+    <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#020617" flood-opacity=".16"/>
+  </filter>
+</defs>
+<g filter="url(#softShadow)">
+  <path d="M30 138V58C30 45 37 36 49 30L62 24V108C62 121 58 132 50 141L45 145C39 150 30 146 30 138Z" fill="url(#blueFace)"/>
+  <path d="M30 138V58C30 50 35 43 43 38V129C43 135 39 141 35 144C32 143 30 141 30 138Z" fill="url(#blueSide)" opacity=".62"/>
+
+  <path d="M118 69C118 57 123 48 132 39L145 27C155 18 163 24 163 39V131C163 144 154 149 140 149H118V69Z" fill="url(#blueFace)"/>
+  <path d="M147 25C156 20 163 25 163 39V131C163 141 156 147 147 149V25Z" fill="url(#blueSide)" opacity=".56"/>
+
+  <path d="M43 36C52 28 64 28 74 36C92 51 107 71 126 90L146 109C155 118 156 129 149 136C142 143 132 143 123 135C104 118 89 98 71 80L46 66C36 57 35 44 43 36Z" fill="url(#goldFace)"/>
+  <path d="M41 61C56 76 76 95 98 115L124 136C132 142 142 143 149 136C145 143 137 147 129 145C124 144 120 141 115 137L46 70C42 67 40 64 39 60Z" fill="url(#goldEdge)" opacity=".70"/>
+
+  <path d="M49 38C57 33 65 34 73 41C90 55 106 74 124 91L142 108" stroke="#FFFBE8" stroke-width="2.6" stroke-linecap="round" opacity=".82"/>
+  <path d="M36 133V62C36 52 40 45 48 40" stroke="#BDEFFF" stroke-width="2" stroke-linecap="round" opacity=".60"/>
+  <path d="M156 40V127" stroke="#8BDBFF" stroke-width="1.8" stroke-linecap="round" opacity=".48"/>
+</g>
+<g aria-hidden="true">
+  <circle cx="154" cy="29" r="4" fill="#FFF0AD"/>
+  <path d="M154 19V39M144 29H164" stroke="#FFE99B" stroke-width="1.6" stroke-linecap="round"/>
+</g></svg>
