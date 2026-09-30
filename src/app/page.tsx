@@ -911,16 +911,9 @@ export default function HomePage() {
             <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line hover:border-slate-300 dark:hover:border-slate-700 shadow-md relative overflow-hidden transition-all group">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                 <div className="flex items-start sm:items-center gap-5">
-                  {/* Official NOORMEXA transparent flagship store mark */}
+                  {/* Canonical NOORMEXA flagship store mark */}
                   <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
-                    <Image
-                      src="/brand/noormexa-store-mark.svg?v=store-mark-1"
-                      alt="NOORMEXA"
-                      width={52}
-                      height={52}
-                      className="w-[52px] h-[52px] object-contain"
-                      unoptimized
-                    />
+                    <NoormexaEmblemSvg size={52} isDark={isDark} />
                   </div>
 
                   <div className="space-y-1.5">
