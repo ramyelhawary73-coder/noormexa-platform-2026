@@ -16,9 +16,11 @@ export interface BrandLogoProps {
 }
 
 const BRAND_ASSETS = {
-  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-3",
-  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-3",
-  symbol: "/brand/noormexa-symbol-clean.webp?v=signature-ray-3",
+  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-4",
+  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-4",
+  // Known-good existing website symbol. Keep it unscaled so constrained cards
+  // cannot clip it. PWA/app artwork remains separate and unchanged.
+  symbol: "/brand/noormexa-symbol.webp?v=signature-ray-4",
 } as const;
 
 const symbolSizes = {
@@ -57,79 +59,67 @@ function SignatureRay({ isDark }: { isDark: boolean }) {
       <defs>
         <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#FFFDF0" stopOpacity="1" />
-          <stop offset="18%" stopColor="#FFF0A8" stopOpacity=".92" />
-          <stop offset="48%" stopColor="#F4B52F" stopOpacity=".38" />
+          <stop offset="18%" stopColor="#FFF0A8" stopOpacity=".88" />
+          <stop offset="48%" stopColor="#F4B52F" stopOpacity=".32" />
           <stop offset="100%" stopColor="#F4B52F" stopOpacity="0" />
         </radialGradient>
         <linearGradient id={beamId} x1="0" y1="1" x2="1" y2="0">
           <stop offset="0%" stopColor="#F2A919" stopOpacity="0" />
-          <stop offset="42%" stopColor="#F8C84E" stopOpacity=".32" />
-          <stop offset="82%" stopColor="#FFF2B5" stopOpacity=".76" />
-          <stop offset="100%" stopColor="#FFFFFF" stopOpacity=".94" />
+          <stop offset="42%" stopColor="#F8C84E" stopOpacity=".28" />
+          <stop offset="82%" stopColor="#FFF2B5" stopOpacity=".70" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity=".90" />
         </linearGradient>
         <filter id={blurId} x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="5.5" />
+          <feGaussianBlur stdDeviation="4.5" />
         </filter>
       </defs>
 
-      {/* Ambient halo at the top-right edge of the N */}
       <circle
-        cx="111"
-        cy="15"
-        r="24"
+        cx="99"
+        cy="20"
+        r="19"
         fill={"url(#" + glowId + ")"}
-        opacity={isDark ? ".78" : ".58"}
+        opacity={isDark ? ".70" : ".48"}
         filter={"url(#" + blurId + ")"}
       />
       <circle
-        cx="111"
-        cy="15"
-        r="10"
+        cx="99"
+        cy="20"
+        r="8"
         fill={"url(#" + glowId + ")"}
-        opacity={isDark ? ".96" : ".82"}
+        opacity={isDark ? ".92" : ".74"}
       />
-
-      {/* Long premium diagonal light beam - the NOOR signature */}
       <path
-        d="M111 15 L190 -38"
+        d="M99 20 L158 -20"
         stroke={"url(#" + beamId + ")"}
-        strokeWidth="10"
+        strokeWidth="8"
         strokeLinecap="round"
-        opacity={isDark ? ".30" : ".20"}
+        opacity={isDark ? ".26" : ".17"}
         filter={"url(#" + blurId + ")"}
       />
       <path
-        d="M111 15 L184 -34"
+        d="M99 20 L154 -18"
         stroke={"url(#" + beamId + ")"}
-        strokeWidth="2.2"
+        strokeWidth="1.8"
         strokeLinecap="round"
-        opacity={isDark ? ".92" : ".72"}
+        opacity={isDark ? ".82" : ".60"}
       />
-
-      {/* Restrained starburst so the ray reads as light, not a decorative sparkle */}
       <path
-        d="M79 15 H151 M111 -14 V44"
+        d="M77 20 H124 M99 -3 V42"
         stroke="#FFF1B1"
-        strokeWidth="1.15"
+        strokeWidth=".95"
         strokeLinecap="round"
-        opacity={isDark ? ".70" : ".50"}
+        opacity={isDark ? ".58" : ".40"}
       />
-      <path
-        d="M91 35 L131 -5 M92 -5 L130 33"
-        stroke="#F8C64E"
-        strokeWidth=".8"
-        strokeLinecap="round"
-        opacity={isDark ? ".42" : ".30"}
-      />
-      <circle cx="111" cy="15" r="2.8" fill="#FFFFFF" opacity=".98" />
+      <circle cx="99" cy="20" r="2.4" fill="#FFFFFF" opacity=".96" />
     </svg>
   );
 }
 
 /**
- * Exact transparent NOORMEXA symbol.
- * No CSS scale is applied: this prevents clipping inside store cards and other
- * constrained UI containers.
+ * Small website symbol usage. This intentionally uses a known-good asset and
+ * never applies transform/scale, preventing clipping or broken-image fallbacks
+ * inside constrained store cards.
  */
 export function NoormexaEmblemSvg({
   size = 44,
@@ -144,7 +134,7 @@ export function NoormexaEmblemSvg({
 }) {
   return (
     <span
-      className={"inline-flex items-center justify-center shrink-0 overflow-visible " + className}
+      className={"inline-flex items-center justify-center shrink-0 overflow-hidden " + className}
       style={{ width: size, height: size }}
       aria-label="NOORMEXA"
       role="img"
@@ -156,11 +146,8 @@ export function NoormexaEmblemSvg({
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="block select-none object-contain shrink-0"
+        className="block h-full w-full select-none object-contain shrink-0"
         style={{
-          width: size,
-          height: "auto",
-          maxHeight: size,
           filter: monochrome
             ? isDark
               ? "grayscale(1) brightness(2.25)"
@@ -168,6 +155,75 @@ export function NoormexaEmblemSvg({
             : undefined,
         }}
       />
+    </span>
+  );
+}
+
+function BalancedHeaderArtwork({
+  src,
+  width,
+  isDark,
+  monochrome,
+}: {
+  src: string;
+  width: number;
+  isDark: boolean;
+  monochrome: boolean;
+}) {
+  const height = Math.round(width * 110 / 430);
+  const artworkFilter = monochrome
+    ? isDark
+      ? "grayscale(1) brightness(2.15)"
+      : "grayscale(1) brightness(.30)"
+    : undefined;
+
+  return (
+    <span
+      className="relative inline-flex shrink-0 items-center justify-center overflow-visible"
+      style={{ width, height }}
+    >
+      {/* Base master keeps the approved NOORMEXA wordmark and Arabic line. */}
+      <img
+        src={src}
+        width={width}
+        height={height}
+        alt="NOORMEXA"
+        draggable={false}
+        className="block h-full w-full select-none object-contain"
+        style={{ filter: artworkFilter }}
+      />
+
+      {!monochrome && (
+        <>
+          {/* Hide only the original oversized N. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 top-0 h-full"
+            style={{
+              width: "32%",
+              background: isDark ? "#07101d" : "#fafcfe",
+            }}
+          />
+
+          {/* Re-use the exact same artwork as a sprite, but reduce only the N. */}
+          <img
+            src={src}
+            width={width}
+            height={height}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            className="pointer-events-none absolute left-0 top-0 h-full w-full select-none object-contain"
+            style={{
+              clipPath: "inset(0 68% 0 0)",
+              transform: "translateX(4%) scale(.80)",
+              transformOrigin: "left center",
+            }}
+          />
+
+          <SignatureRay isDark={isDark} />
+        </>
+      )}
     </span>
   );
 }
@@ -210,28 +266,12 @@ export default function BrandLogo({
   const src = isDark ? BRAND_ASSETS.headerDark : BRAND_ASSETS.headerLight;
 
   const image = (
-    <span
-      className="relative inline-flex shrink-0 items-center justify-center overflow-visible"
-      style={{ width }}
-    >
-      <img
-        src={src}
-        width={width}
-        height={Math.round(width * 110 / 430)}
-        alt="NOORMEXA"
-        draggable={false}
-        className="block h-auto w-full select-none object-contain"
-        style={{
-          width,
-          filter: monochrome
-            ? isDark
-              ? "grayscale(1) brightness(2.15)"
-              : "grayscale(1) brightness(.30)"
-            : undefined,
-        }}
-      />
-      {!monochrome && <SignatureRay isDark={isDark} />}
-    </span>
+    <BalancedHeaderArtwork
+      src={src}
+      width={width}
+      isDark={isDark}
+      monochrome={monochrome}
+    />
   );
 
   if (variant === "badge") {
