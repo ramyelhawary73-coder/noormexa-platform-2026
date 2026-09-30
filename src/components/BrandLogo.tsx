@@ -16,9 +16,9 @@ export interface BrandLogoProps {
 }
 
 const BRAND_ASSETS = {
-  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-2",
-  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-2",
-  symbol: "/brand/noormexa-symbol-exact.svg?v=signature-ray-2",
+  headerLight: "/brand/noormexa-header-light-exact.svg?v=signature-ray-3",
+  headerDark: "/brand/noormexa-header-dark-exact.svg?v=signature-ray-3",
+  symbol: "/brand/noormexa-symbol-clean.webp?v=signature-ray-3",
 } as const;
 
 const symbolSizes = {
@@ -159,7 +159,8 @@ export function NoormexaEmblemSvg({
         className="block select-none object-contain shrink-0"
         style={{
           width: size,
-          height: size,
+          height: "auto",
+          maxHeight: size,
           filter: monochrome
             ? isDark
               ? "grayscale(1) brightness(2.25)"
