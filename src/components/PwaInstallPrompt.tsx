@@ -249,7 +249,7 @@ export default function PwaInstallPrompt() {
             <div className="flex items-start gap-3 relative z-10">
               {/* App Icon */}
               <div className="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
-                <Image src="/brand/noormexa-app-icon-exact.svg?v=signature-ray-1" alt="NOORMEXA" width={38} height={38} className="rounded-xl" unoptimized />
+                <Image src="/brand/noormexa-app-icon-exact.svg?v=signature-ray-2" alt="NOORMEXA" width={38} height={38} className="rounded-xl" unoptimized />
                 <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950" />
               </div>
 
@@ -327,7 +327,7 @@ export default function PwaInstallPrompt() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4 relative z-10">
               <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12 flex items-center justify-center">
-                  <Image src="/brand/noormexa-app-icon-exact.svg?v=signature-ray-1" alt="NOORMEXA" width={46} height={46} className="rounded-xl" unoptimized />
+                  <Image src="/brand/noormexa-app-icon-exact.svg?v=signature-ray-2" alt="NOORMEXA" width={46} height={46} className="rounded-xl" unoptimized />
                   <span className="absolute -top-1 -end-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-slate-950 animate-pulse" />
                 </div>
                 <div>
