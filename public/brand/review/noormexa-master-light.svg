@@ -19,21 +19,21 @@
   </filter>
 </defs>
 <g filter="url(#softShadow)">
-  <path d="M28 136V58C28 46 35 37 47 31L59 26V108C59 120 55 130 48 138L43 143C37 148 28 144 28 136Z" fill="url(#blueFace)"/>
-  <path d="M28 136V58C28 50 33 43 41 38V128C41 134 37 140 33 143C30 142 28 140 28 136Z" fill="url(#blueSide)" opacity=".64"/>
+  <path d="M29 138V57C29 45 36 36 48 30L60 25V109C60 121 56 131 49 139L44 144C38 150 29 146 29 138Z" fill="url(#blueFace)"/>
+  <path d="M29 138V57C29 49 34 42 42 37V129C42 135 38 141 34 144C31 143 29 141 29 138Z" fill="url(#blueSide)" opacity=".64"/>
 
-  <path d="M117 74C117 61 123 51 132 42L142 32C151 23 159 28 159 41V128C159 141 150 146 136 146H117V74Z" fill="url(#blueFace)"/>
-  <path d="M144 29C153 24 159 29 159 41V128C159 138 153 144 144 146V29Z" fill="url(#blueSide)" opacity=".56"/>
+  <path d="M114 73C114 59 120 48 130 38L142 27C152 18 161 24 161 39V130C161 144 152 149 137 149H114V73Z" fill="url(#blueFace)"/>
+  <path d="M145 25C154 20 161 25 161 39V130C161 141 154 147 145 149V25Z" fill="url(#blueSide)" opacity=".56"/>
 
-  <path d="M44 35C53 28 64 29 73 38L143 108C153 118 154 130 146 138C138 146 126 145 117 136L45 66C36 57 35 43 44 35Z" fill="url(#goldFace)"/>
-  <path d="M41 61L118 134C127 142 138 143 146 136C142 143 133 146 125 144C121 142 117 140 113 136L45 70C41 66 39 63 39 59L41 61Z" fill="url(#goldEdge)" opacity=".76"/>
+  <path d="M43 34C52 26 65 27 76 37C93 53 110 72 128 91L146 109C157 120 158 133 149 142C140 151 126 150 115 139L45 70C34 59 33 43 43 34Z" fill="url(#goldFace)"/>
+  <path d="M40 61C58 79 78 99 98 119L116 137C127 148 140 149 149 142C145 150 135 153 126 150C121 148 117 145 112 141L45 74C41 70 39 66 38 61Z" fill="url(#goldEdge)" opacity=".76"/>
 
-  <path d="M49 37C57 32 65 33 72 40L138 107" stroke="#FFFBE7" stroke-width="2.7" stroke-linecap="round" opacity=".84"/>
-  <path d="M34 132V62C34 53 38 46 46 41" stroke="#BDEFFF" stroke-width="2.1" stroke-linecap="round" opacity=".62"/>
-  <path d="M153 42V125" stroke="#8BDBFF" stroke-width="1.9" stroke-linecap="round" opacity=".5"/>
+  <path d="M49 36C57 31 66 33 74 40C91 56 109 75 126 92L141 107" stroke="#FFFBE7" stroke-width="2.7" stroke-linecap="round" opacity=".84"/>
+  <path d="M35 133V61C35 52 39 45 47 40" stroke="#BDEFFF" stroke-width="2.1" stroke-linecap="round" opacity=".62"/>
+  <path d="M154 40V127" stroke="#8BDBFF" stroke-width="1.9" stroke-linecap="round" opacity=".5"/>
 
-  <circle cx="152" cy="31" r="4.2" fill="#FFF0AD"/>
-  <path d="M152 21V41M142 31H162" stroke="#FFE99B" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="154" cy="29" r="4.1" fill="#FFF0AD"/>
+  <path d="M154 19V39M144 29H164" stroke="#FFE99B" stroke-width="1.6" stroke-linecap="round"/>
 </g>
 <g transform="translate(205 50)">
   <g fill="#0B1F33">
