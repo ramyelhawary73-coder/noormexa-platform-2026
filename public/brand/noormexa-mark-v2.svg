@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 120" fill="none">
+  <defs>
+    <linearGradient id="blueL" x1="18" y1="12" x2="50" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3FAEFF"/>
+      <stop offset=".32" stop-color="#167FDF"/>
+      <stop offset=".72" stop-color="#0B57B2"/>
+      <stop offset="1" stop-color="#07376F"/>
+    </linearGradient>
+    <linearGradient id="blueR" x1="92" y1="12" x2="124" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#47B4FF"/>
+      <stop offset=".32" stop-color="#177FDE"/>
+      <stop offset=".72" stop-color="#0B55AD"/>
+      <stop offset="1" stop-color="#07346A"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="28" y1="18" x2="118" y2="106" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F7DA7A"/>
+      <stop offset=".35" stop-color="#E6B64A"/>
+      <stop offset=".72" stop-color="#C98C24"/>
+      <stop offset="1" stop-color="#A76612"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="30" y1="20" x2="116" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF0B1"/>
+      <stop offset=".55" stop-color="#EEC969"/>
+      <stop offset="1" stop-color="#B87419"/>
+    </linearGradient>
+  </defs>
+
+  <!-- wider, lower-profile uprights -->
+  <path d="M18 98V25C18 17 24 12 33 12H38C47 12 52 18 52 27V74L35 94C30 100 25 104 18 106Z" fill="url(#blueL)"/>
+  <path d="M89 94L106 74V27C106 18 111 12 120 12H125C134 12 140 17 140 25V98C140 107 134 112 125 112H120C113 112 108 109 103 103Z" fill="url(#blueR)"/>
+
+  <!-- single premium ribbon -->
+  <path d="M31 19C38 15 47 18 54 25L121 91C128 98 127 106 119 111C111 116 102 112 95 105L28 40C21 33 23 24 31 19Z" fill="url(#gold)"/>
+  <path d="M32 20C39 18 46 20 52 26L118 92" stroke="url(#goldEdge)" stroke-width="2.1" stroke-linecap="round" opacity=".9"/>
+
+  <!-- restrained material highlights -->
+  <path d="M24 24V96" stroke="#B8E3FF" stroke-width="1.35" stroke-linecap="round" opacity=".62"/>
+  <path d="M112 24V96" stroke="#B8E3FF" stroke-width="1.2" stroke-linecap="round" opacity=".48"/>
+  <path d="M36 24L115 102" stroke="#FFF3BF" stroke-width="1.15" stroke-linecap="round" opacity=".52"/>
+
+  <!-- NOOR signature: small, geometric, no bloom -->
+  <g stroke-linecap="round">
+    <path d="M124 5V21M116 13H132" stroke="#F5D77A" stroke-width="1.45"/>
+    <path d="M119 8L129 18M119 18L129 8" stroke="#DDAA36" stroke-width=".8"/>
+  </g>
+  <circle cx="124" cy="13" r="2" fill="#FFF6CE"/>
+</svg>
