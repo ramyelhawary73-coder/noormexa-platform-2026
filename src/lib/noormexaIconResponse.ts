@@ -8,7 +8,7 @@ export function createNoormexaIconResponse(
   _variant: NoormexaIconVariant,
   requestUrl: string
 ) {
-  const assetUrl = new URL("/brand/noormexa-app-icon-512.webp?v=master-artwork-2", requestUrl).toString();
+  const assetUrl = new URL("/brand/noormexa-app-icon-exact.svg?v=signature-ray-1", requestUrl).toString();
 
   return new ImageResponse(
     React.createElement("div", {
