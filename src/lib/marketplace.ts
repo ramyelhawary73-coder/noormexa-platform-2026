@@ -170,10 +170,10 @@ export type AdminProfile = {
 };
 
 export async function getAllAdmins(): Promise<AdminProfile[]> {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, email, full_name, is_admin, is_super_admin")
-    .eq("is_admin", true);
+  // Platform-admin management is intentionally exposed through a narrowly
+  // scoped RPC. Direct platform-wide profile reads are not an authorization
+  // boundary and must not be used for account administration.
+  const { data, error } = await supabase.rpc("get_manageable_platform_admins");
   if (error || !data) return [];
   return data as AdminProfile[];
 }
@@ -182,28 +182,30 @@ export async function grantAdminByEmail(
   email: string
 ): Promise<{ success: boolean; error: string | null }> {
   const normalized = email.trim().toLowerCase();
-  const { data: found, error: findError } = await supabase
-    .from("profiles")
-    .select("id, email")
-    .ilike("email", normalized)
-    .maybeSingle();
+  if (!normalized) {
+    return { success: false, error: "اكتب بريدًا إلكترونيًا صالحًا." };
+  }
 
-  if (findError || !found) {
+  const { data, error } = await supabase.rpc("grant_platform_admin_by_email", {
+    p_email: normalized,
+  });
+
+  if (error) {
+    return { success: false, error: "تعذر منح الصلاحية، حاول تاني." };
+  }
+
+  if (!data) {
     return { success: false, error: "الإيميل ده مش مسجّل حساب على الموقع لسه. لازم يعمل حساب الأول." };
   }
 
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ is_admin: true })
-    .eq("id", found.id);
-
-  if (updateError) return { success: false, error: "تعذر منح الصلاحية، حاول تاني." };
   return { success: true, error: null };
 }
 
 export async function revokeAdmin(userId: string): Promise<boolean> {
-  const { error } = await supabase.from("profiles").update({ is_admin: false }).eq("id", userId);
-  return !error;
+  const { data, error } = await supabase.rpc("revoke_platform_admin", {
+    p_user_id: userId,
+  });
+  return !error && Boolean(data);
 }
 
 export type PlatformStats = {
