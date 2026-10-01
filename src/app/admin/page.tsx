@@ -338,6 +338,13 @@ export default function SuperAdminPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
+            <Link
+              href="/admin/team"
+              className="px-3 sm:px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-orange-500/50 text-xs sm:text-sm font-black text-foreground flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs touch-manipulation active:scale-95 shrink-0"
+            >
+              <ShieldCheck size={15} className="text-orange-500" />
+              <span className="truncate">{isAr ? "فريق المتجر الرسمي" : "Official Store Team"}</span>
+            </Link>
             <button
               type="button"
               onClick={() => setShowOfficialModal(true)}
