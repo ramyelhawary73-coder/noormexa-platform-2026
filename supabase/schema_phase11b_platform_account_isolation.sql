@@ -119,7 +119,46 @@ comment on function public.is_super_admin(uuid) is
   'Compatibility predicate for current RLS. Answers only for the authenticated caller UUID; arbitrary-user probing returns false.';
 
 -- ---------------------------------------------------------------------------
--- 3) Keep target-account protections working after self-only public helpers
+-- 3) Protect the Platform Super Admin flags from app-originated mutation
+-- ---------------------------------------------------------------------------
+
+create or replace function public.protect_admin_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $
+begin
+  -- Trusted SQL Editor / service-role recovery path.
+  if auth.uid() is null then
+    return new;
+  end if;
+
+  -- The Platform Super Admin identity is not transferable through the app.
+  -- This blocks self-demotion, promotion of another account to Super Admin,
+  -- and any generic UI/API flow that tries to alter the protected flag.
+  if new.is_super_admin is distinct from old.is_super_admin then
+    raise exception 'Platform Super Admin flag is protected from app-originated changes';
+  end if;
+
+  -- A protected Super Admin row cannot have its Platform Admin flag altered
+  -- through normal application requests either.
+  if old.is_super_admin = true
+     and new.is_admin is distinct from old.is_admin then
+    raise exception 'Protected Platform Super Admin account cannot be modified by this flow';
+  end if;
+
+  if new.is_admin is distinct from old.is_admin
+     and not private.is_platform_super_admin(auth.uid()) then
+    raise exception 'Only Platform Super Admin can change Platform Admin access';
+  end if;
+
+  return new;
+end;
+$;
+
+-- ---------------------------------------------------------------------------
+-- 4) Keep target-account protections working after self-only public helpers
 -- ---------------------------------------------------------------------------
 
 create or replace function public.protect_super_admin_store_membership()
@@ -201,7 +240,7 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
--- 4) Profiles: remove lower Platform Admin broad visibility / mutation
+-- 5) Profiles: remove lower Platform Admin broad visibility / mutation
 -- ---------------------------------------------------------------------------
 -- Every signed-in user keeps profiles_select_own / profiles_update_own.
 -- The Super Admin may still inspect/manage non-super profiles for platform
@@ -240,7 +279,7 @@ create policy "profiles_super_admin_update_manageable"
 revoke truncate, references, trigger on table public.profiles from anon, authenticated;
 
 -- ---------------------------------------------------------------------------
--- 5) store_members direct read: hide the protected Super Admin row
+-- 6) store_members direct read: hide the protected Super Admin row
 -- ---------------------------------------------------------------------------
 -- Super Admin may inspect all memberships. Platform Admin may inspect
 -- non-super memberships but never the protected developer membership.
@@ -265,8 +304,23 @@ create policy "store_members_select_authorized"
 
 revoke truncate, references, trigger on table public.store_members from authenticated;
 
+-- Remove table-wide SELECT so authenticated callers cannot request audit-only
+-- columns such as created_by (which may identify an internal Platform account).
+-- Re-grant only the columns needed for the caller's own membership checks.
+revoke select on table public.store_members from authenticated;
+grant select (
+  id,
+  store_id,
+  user_id,
+  email,
+  role,
+  status,
+  created_at,
+  updated_at
+) on table public.store_members to authenticated;
+
 -- ---------------------------------------------------------------------------
--- 6) Sanitize the existing Official Store Team RPC without breaking its API
+-- 7) Sanitize the existing Official Store Team RPC without breaking its API
 -- ---------------------------------------------------------------------------
 -- Keep the same return shape for the current UI. When the caller is a normal
 -- Platform Admin, the protected Super Admin row is omitted entirely.
@@ -334,7 +388,7 @@ revoke all on function public.get_official_store_team() from authenticated;
 grant execute on function public.get_official_store_team() to authenticated;
 
 -- ---------------------------------------------------------------------------
--- 7) Tenant-safe team listing
+-- 8) Tenant-safe team listing
 -- ---------------------------------------------------------------------------
 -- No auth user UUID, created_by UUID, admin flags, metadata, or Platform
 -- accounts are returned. Only owner/manager in the SAME store may list that
@@ -403,7 +457,7 @@ comment on function public.get_store_team(text) is
   'Tenant-scoped team listing for owner/manager. Never returns Platform accounts, auth user IDs, created_by IDs, admin flags, or metadata.';
 
 -- ---------------------------------------------------------------------------
--- 8) Safe Platform Admin management RPCs
+-- 9) Safe Platform Admin management RPCs
 -- ---------------------------------------------------------------------------
 -- Only Platform Super Admin may list/grant/revoke Platform Admin accounts.
 -- The protected Super Admin account is never included in the list and cannot
