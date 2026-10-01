@@ -32,8 +32,14 @@ revoke all on schema private from public;
 revoke all on schema private from anon;
 revoke all on schema private from authenticated;
 
+-- RLS policies execute as the requesting database role. Authenticated users
+-- therefore need USAGE on this non-exposed schema plus EXECUTE only on the
+-- exact predicates used by RLS. The schema itself is not an exposed PostgREST
+-- API surface and anon remains denied.
+grant usage on schema private to authenticated;
+
 comment on schema private is
-  'NOORMEXA internal authorization helpers. Not an exposed application API.';
+  'NOORMEXA internal authorization helpers for RLS/server-side policy checks; not an exposed application API.';
 
 -- ---------------------------------------------------------------------------
 -- 2) Platform-plane helpers
@@ -59,6 +65,7 @@ $$;
 revoke all on function private.is_platform_super_admin(uuid) from public;
 revoke all on function private.is_platform_super_admin(uuid) from anon;
 revoke all on function private.is_platform_super_admin(uuid) from authenticated;
+grant execute on function private.is_platform_super_admin(uuid) to authenticated;
 
 comment on function private.is_platform_super_admin(uuid) is
   'Internal check for the single Platform Super Admin plane.';
@@ -83,6 +90,7 @@ $$;
 revoke all on function private.is_platform_admin(uuid) from public;
 revoke all on function private.is_platform_admin(uuid) from anon;
 revoke all on function private.is_platform_admin(uuid) from authenticated;
+grant execute on function private.is_platform_admin(uuid) to authenticated;
 
 comment on function private.is_platform_admin(uuid) is
   'Internal Platform Admin-or-higher check. Not a tenant role.';
@@ -107,6 +115,7 @@ $$;
 revoke all on function private.is_platform_account(uuid) from public;
 revoke all on function private.is_platform_account(uuid) from anon;
 revoke all on function private.is_platform_account(uuid) from authenticated;
+grant execute on function private.is_platform_account(uuid) to authenticated;
 
 comment on function private.is_platform_account(uuid) is
   'Internal predicate used to exclude Platform accounts from tenant-facing user surfaces.';
@@ -136,6 +145,7 @@ $$;
 revoke all on function private.active_store_role(uuid, text) from public;
 revoke all on function private.active_store_role(uuid, text) from anon;
 revoke all on function private.active_store_role(uuid, text) from authenticated;
+grant execute on function private.active_store_role(uuid, text) to authenticated;
 
 comment on function private.active_store_role(uuid, text) is
   'Returns the active tenant role for one user in one store, or null.';
@@ -167,6 +177,7 @@ $$;
 revoke all on function private.has_active_store_role(uuid, text, text[]) from public;
 revoke all on function private.has_active_store_role(uuid, text, text[]) from anon;
 revoke all on function private.has_active_store_role(uuid, text, text[]) from authenticated;
+grant execute on function private.has_active_store_role(uuid, text, text[]) to authenticated;
 
 comment on function private.has_active_store_role(uuid, text, text[]) is
   'Internal tenant-role predicate for later RLS policies.';
