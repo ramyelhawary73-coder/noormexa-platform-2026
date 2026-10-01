@@ -156,7 +156,6 @@ export default function OfficialStoreTeamPage() {
                 <option value="manager">مدير</option>
                 <option value="editor">محرر</option>
                 <option value="support">دعم</option>
-                <option value="owner">مالك متجر</option>
               </select>
 
               <button
