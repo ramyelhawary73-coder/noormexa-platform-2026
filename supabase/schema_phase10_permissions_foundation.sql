@@ -92,7 +92,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $
+as $profile_email$
 declare
   v_auth_email text;
 begin
@@ -113,7 +113,7 @@ begin
 
   return new;
 end;
-$;
+$profile_email$;
 
 drop trigger if exists protect_profile_email_identity_trigger on public.profiles;
 create trigger protect_profile_email_identity_trigger
@@ -125,7 +125,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $
+as $link_member$
 declare
   v_auth_email text;
 begin
@@ -146,7 +146,7 @@ begin
 
   return new;
 end;
-$;
+$link_member$;
 
 drop trigger if exists link_pending_store_members_trigger on public.profiles;
 create trigger link_pending_store_members_trigger
