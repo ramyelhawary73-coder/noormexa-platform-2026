@@ -2,19 +2,20 @@ import type { User } from "@supabase/supabase-js";
 
 export type UserRole = "admin" | "seller" | "customer" | "guest";
 
-export const ADMIN_EMAILS = [
-  "ramyelhawary73@gmail.com",
-  "admin@noormexa.com",
-  "owner@noormexa.com",
-  "support@noormexa.com",
-];
+export function isPlatformAdminProfile(profile: Record<string, unknown> | null): boolean {
+  return Boolean(profile?.is_admin) || Boolean(profile?.is_super_admin);
+}
+
+export function isPlatformSuperAdminProfile(profile: Record<string, unknown> | null): boolean {
+  return Boolean(profile?.is_super_admin);
+}
 
 /**
- * Returns the exact determined user role based on email, profile, and auth metadata:
- * - "admin": Platform Owner / Super Admin
- * - "seller": Vendor / Store Owner / Brand Creator
- * - "customer": Registered Buyer / Shopper
- * - "guest": Unauthenticated visitor
+ * Privileged authorization is derived only from the trusted public.profiles row.
+ * Email addresses and user_metadata must never grant platform-admin access.
+ *
+ * Non-privileged seller role selection may still use account_type metadata as a
+ * signup fallback until the profile is created.
  */
 export function getUserRole(
   user: { email?: string | null; user_metadata?: Record<string, unknown> } | User | null,
@@ -22,15 +23,7 @@ export function getUserRole(
 ): UserRole {
   if (!user) return "guest";
 
-  const email = (user.email || "").toLowerCase().trim();
-  const isAdminEmail = ADMIN_EMAILS.includes(email) || email.endsWith("@noormexa.com");
-  const isExplicitAdmin =
-    Boolean(profile?.is_admin) ||
-    profile?.account_type === "admin" ||
-    profile?.account_type === "owner" ||
-    Boolean(user.user_metadata?.is_admin);
-
-  if (isAdminEmail || isExplicitAdmin) {
+  if (isPlatformAdminProfile(profile)) {
     return "admin";
   }
 
