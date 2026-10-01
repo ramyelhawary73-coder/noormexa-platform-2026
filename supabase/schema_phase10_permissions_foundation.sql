@@ -84,26 +84,69 @@ create policy "store_members_select_authorized"
   );
 
 -- ---------------------------------------------------------------------------
--- 4) Automatically activate pending memberships once that email has a profile
+-- 4) Bind profile email to the authenticated identity and safely activate
+-- pending memberships only when profiles.email matches auth.users.email.
 -- ---------------------------------------------------------------------------
+create or replace function public.protect_profile_email_identity()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $
+declare
+  v_auth_email text;
+begin
+  -- Direct trusted SQL/service operations retain a recovery path.
+  if auth.uid() is null then
+    return new;
+  end if;
+
+  select email into v_auth_email
+    from auth.users
+   where id = new.id;
+
+  if v_auth_email is null
+     or new.email is null
+     or lower(new.email) <> lower(v_auth_email) then
+    raise exception 'Profile email must match the authenticated identity';
+  end if;
+
+  return new;
+end;
+$;
+
+drop trigger if exists protect_profile_email_identity_trigger on public.profiles;
+create trigger protect_profile_email_identity_trigger
+  before insert or update of email on public.profiles
+  for each row execute function public.protect_profile_email_identity();
+
 create or replace function public.link_pending_store_members()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $
+declare
+  v_auth_email text;
 begin
-  if new.email is not null then
+  select email into v_auth_email
+    from auth.users
+   where id = new.id;
+
+  if v_auth_email is not null
+     and new.email is not null
+     and lower(new.email) = lower(v_auth_email) then
     update public.store_members
        set user_id = new.id,
            status = case when status = 'disabled' then status else 'active' end,
            updated_at = now()
-     where lower(email) = lower(new.email)
+     where lower(email) = lower(v_auth_email)
        and (user_id is null or user_id = new.id);
   end if;
+
   return new;
 end;
-$$;
+$;
 
 drop trigger if exists link_pending_store_members_trigger on public.profiles;
 create trigger link_pending_store_members_trigger
