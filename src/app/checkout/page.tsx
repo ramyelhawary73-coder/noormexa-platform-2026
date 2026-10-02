@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore, useMemo, useCallback } from "react";
+import { useEffect, useState, useSyncExternalStore, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -27,6 +27,7 @@ import { useMarketplace } from "@/context/MarketplaceContext";
 import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
 import { requestUserGpsLocation } from "@/lib/locationService";
+import { supabase } from "@/lib/supabaseClient";
 import {
   COUNTRIES_DATA,
   getCountryByName,
@@ -148,7 +149,8 @@ export default function CheckoutPage() {
     setCurrency,
     currency: currentCurrency,
     settings,
-    createOrder,
+    appliedPromo,
+    clearCart,
   } = useMarketplace();
 
   const { location: globalLocation } = useLocation();
@@ -156,9 +158,16 @@ export default function CheckoutPage() {
 
   // Form State
   const [shippingSpeed, setShippingSpeed] = useState<"standard" | "priority">("standard");
-  const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayKey>("applePayMada");
+  const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayKey>("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [completedOrderCount, setCompletedOrderCount] = useState(0);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [paymentAvailability, setPaymentAvailability] = useState({
+    paymob: false,
+    stripe: false,
+  });
+  const checkoutReferenceRef = useRef<string | null>(null);
 
   // Address search & GPS states
   const [isLocatingGps, setIsLocatingGps] = useState(false);
@@ -685,7 +694,46 @@ export default function CheckoutPage() {
     }
   };
 
-  const availableGateways = Object.values(settings.gateways).filter((g) => g.enabled);
+  const availableGateways = Object.values(settings.gateways).filter((gateway) => {
+    if (!gateway.enabled) return false;
+    if (gateway.key === "cod") return true;
+    if (gateway.key === "stripe") return paymentAvailability.stripe;
+    if (gateway.key === "applePayMada") return paymentAvailability.paymob;
+    // Tabby/Tamara and PayPal have no server settlement integration yet.
+    return false;
+  });
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/api/payment/create")
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return (await response.json()) as { paymob?: boolean; stripe?: boolean };
+      })
+      .then((value) => {
+        if (!active || !value) return;
+        setPaymentAvailability({
+          paymob: Boolean(value.paymob),
+          stripe: Boolean(value.stripe),
+        });
+      })
+      .catch(() => {
+        if (active) {
+          setPaymentAvailability({ paymob: false, stripe: false });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!availableGateways.some((gateway) => gateway.key === selectedGateway)) {
+      setSelectedGateway("cod");
+    }
+  }, [availableGateways, selectedGateway]);
 
   // Resolve country data and divisions for cascading region/city picker
   const currentCountryData = useMemo(() => {
@@ -768,10 +816,16 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCompleteOrder = (e: React.FormEvent) => {
+  const handleCompleteOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (cartItems.length === 0 && !completedOrder) {
       router.push("/cart");
+      return;
+    }
+
+    if (!user) {
+      router.push("/auth?next=/checkout");
       return;
     }
 
@@ -784,21 +838,116 @@ export default function CheckoutPage() {
       region: address.region || address.state || fallbackState,
     };
 
-    // Save shipping address for user future sessions
     try {
       if (typeof window !== "undefined") {
-        window.localStorage.setItem("noormexa_saved_shipping_address", JSON.stringify(finalAddress));
+        window.localStorage.setItem(
+          "noormexa_saved_shipping_address",
+          JSON.stringify(finalAddress)
+        );
       }
     } catch {}
 
+    setCheckoutError(null);
     setIsProcessing(true);
-    setTimeout(() => {
-      const res = createOrder(finalAddress, selectedGateway, shippingSpeed);
-      setIsProcessing(false);
-      if (res.order) {
-        setCompletedOrder(res.order);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        router.push("/auth?next=/checkout");
+        return;
       }
-    }, 1200);
+
+      if (!checkoutReferenceRef.current) {
+        checkoutReferenceRef.current = crypto.randomUUID();
+      }
+
+      const checkoutResponse = await fetch("/api/checkout/create", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          items: cartItems.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            selectedVariantsLabel: item.selectedVariantsLabel,
+          })),
+          shipping: finalAddress,
+          shippingSpeed,
+          paymentMethod: selectedGateway,
+          promoCode: appliedPromo?.code ?? null,
+          checkoutReference: checkoutReferenceRef.current,
+        }),
+      });
+
+      const checkoutPayload = (await checkoutResponse.json()) as {
+        error?: string;
+        orders?: Order[];
+      };
+
+      if (!checkoutResponse.ok || !checkoutPayload.orders?.length) {
+        setCheckoutError(
+          checkoutPayload.error ||
+            (language === "ar"
+              ? "تعذر إنشاء الطلب الآمن."
+              : "Secure order creation failed.")
+        );
+        return;
+      }
+
+      const orders = checkoutPayload.orders;
+
+      if (selectedGateway === "cod") {
+        setCompletedOrder(orders[0]);
+        setCompletedOrderCount(orders.length);
+        clearCart();
+        checkoutReferenceRef.current = null;
+        return;
+      }
+
+      const provider = selectedGateway === "stripe" ? "stripe" : "paymob";
+      const paymentResponse = await fetch("/api/payment/create", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          orderIds: orders.map((order) => order.id),
+          provider,
+        }),
+      });
+
+      const paymentPayload = (await paymentResponse.json()) as {
+        error?: string;
+        url?: string;
+      };
+
+      if (!paymentResponse.ok || !paymentPayload.url) {
+        setCheckoutError(
+          paymentPayload.error ||
+            (language === "ar"
+              ? "تم إنشاء الطلب، لكن تعذر بدء بوابة الدفع. يمكنك إعادة المحاولة بأمان."
+              : "The order was created, but payment could not start. You can safely retry.")
+        );
+        return;
+      }
+
+      clearCart();
+      window.location.assign(paymentPayload.url);
+    } catch {
+      setCheckoutError(
+        language === "ar"
+          ? "حدث خطأ أثناء إنشاء الطلب. لم يتم اعتماد أي مبلغ من المتصفح."
+          : "Checkout failed. No browser-supplied amount was trusted."
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handlePrint = () => {
@@ -819,6 +968,13 @@ export default function CheckoutPage() {
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">{text.successTitle}</h1>
             <p className="text-xs sm:text-sm text-muted max-w-md mx-auto">{text.successSubtitle}</p>
+            {completedOrderCount > 1 && (
+              <p className="text-xs font-bold text-gold">
+                {language === "ar"
+                  ? `تم تقسيم السلة إلى ${completedOrderCount} طلبات حسب المتاجر. تعرض هذه الفاتورة الطلب الأول ويمكن متابعة باقي الطلبات من صفحة طلباتي.`
+                  : `Your cart was split into ${completedOrderCount} store orders. This invoice shows the first order; the rest are available in My Orders.`}
+              </p>
+            )}
 
             <div className="p-4 rounded-2xl bg-surface-soft border border-line grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-start">
               <div>
@@ -978,7 +1134,18 @@ export default function CheckoutPage() {
             {text.title}
           </h1>
           <p className="text-xs sm:text-sm text-muted mt-1">{text.subtitle}</p>
+          <p className="mt-2 text-[11px] font-bold text-amber-700 dark:text-gold">
+            {language === "ar"
+              ? "الأسعار والمخزون والعمولة والضريبة والمبلغ النهائي يعاد حسابها على السيرفر من بيانات المنتجات الفعلية قبل إنشاء الطلب."
+              : "Prices, stock, commission, tax and final totals are recalculated server-side from the live catalog before an order is created."}
+          </p>
         </div>
+
+        {checkoutError && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-bold text-red-700 dark:text-red-300">
+            {checkoutError}
+          </div>
+        )}
 
         <form onSubmit={handleCompleteOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Form Details (7 cols) */}
