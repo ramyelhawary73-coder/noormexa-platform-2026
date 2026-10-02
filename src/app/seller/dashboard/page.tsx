@@ -138,6 +138,21 @@ export default function SellerDashboardPage() {
     );
   }, [stores, selectedStoreId]);
 
+  const canManageCatalog =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager" ||
+    currentStore.membership_role === "editor";
+  const canManageOrders =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager" ||
+    currentStore.membership_role === "support";
+  const canManageMarketing = canManageCatalog;
+  const canManageFinancials =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager";
+  const canManageSettings = canManageFinancials;
+  const canManageTeam = canManageFinancials;
+
   useEffect(() => {
     if (authLoading) return;
 
@@ -527,11 +542,10 @@ export default function SellerDashboardPage() {
 
   // Filter orders for active store
   const storeOrders = useMemo(() => {
-    return orders.filter((o) => {
-      const matchesStore = o.store_id === currentStore.id || o.store_id === "multi-store";
-      if (!matchesStore) return false;
+    return orders.filter((order) => {
+      if (order.store_id !== currentStore.id) return false;
       if (orderStatusFilter === "all") return true;
-      return o.status === orderStatusFilter;
+      return order.status === orderStatusFilter;
     });
   }, [orders, currentStore.id, orderStatusFilter]);
 
@@ -868,31 +882,37 @@ export default function SellerDashboardPage() {
               <span className="truncate">{isAr ? "معاينة المتجر" : "View Store"}</span>
             </Link>
 
-            <Link
-              href="/seller/team"
-              className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Users size={15} className="text-gold" />
-              <span className="truncate">{isAr ? "فريق المتجر" : "Store Team"}</span>
-            </Link>
+            {canManageTeam && (
+              <Link
+                href="/seller/team"
+                className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+              >
+                <Users size={15} className="text-gold" />
+                <span className="truncate">{isAr ? "فريق المتجر" : "Store Team"}</span>
+              </Link>
+            )}
 
-            <button
-              type="button"
-              onClick={() => setShowAddMarketingModal(true)}
-              className="px-3 sm:px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Megaphone size={15} className="text-amber-500" />
-              <span className="truncate">{isAr ? "نشر عرض" : "Campaign"}</span>
-            </button>
+            {canManageMarketing && (
+              <button
+                type="button"
+                onClick={() => setShowAddMarketingModal(true)}
+                className="px-3 sm:px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+              >
+                <Megaphone size={15} className="text-amber-500" />
+                <span className="truncate">{isAr ? "نشر عرض" : "Campaign"}</span>
+              </button>
+            )}
 
-            <button
-              type="button"
-              onClick={() => setShowAddModal(true)}
-              className="px-3 sm:px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Plus size={16} />
-              <span className="truncate">{isAr ? "إضافة منتج" : "Add Product"}</span>
-            </button>
+            {canManageCatalog && (
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="px-3 sm:px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+              >
+                <Plus size={16} />
+                <span className="truncate">{isAr ? "إضافة منتج" : "Add Product"}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -908,14 +928,14 @@ export default function SellerDashboardPage() {
         <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
           <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-7 select-none touch-manipulation">
             {[
-              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null },
-              { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}` },
-              { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}` },
-              { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}` },
-              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}` },
-              { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}` },
-              { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null },
-            ].map((tab) => {
+              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null, allowed: true },
+              { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}`, allowed: true },
+              { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}`, allowed: canManageOrders },
+              { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}`, allowed: canManageOrders },
+              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}`, allowed: true },
+              { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}`, allowed: canManageFinancials },
+              { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null, allowed: canManageSettings },
+            ].filter((tab) => tab.allowed).map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
               return (
@@ -1437,8 +1457,8 @@ export default function SellerDashboardPage() {
         {activeTab === "shipments" && (
           <StoreLogisticsHub
             store={currentStore}
-            shipments={shipments}
-            orders={orders}
+            shipments={storeShipments}
+            orders={storeOrders}
             carriers={carriers}
             onUpdateShipmentStatus={(shpId, newStatus) => {
               updateShipmentStatus(shpId, newStatus);
