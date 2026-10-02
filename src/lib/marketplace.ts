@@ -458,138 +458,68 @@ export type Order = {
   shipping_notes?: string | null;
 };
 
-export type CheckoutCartItem = {
-  productId: string;
-  storeId: string;
-  price: number;
-  quantity: number;
-};
+function mapLegacyOrderRow(row: Record<string, unknown>): Order {
+  const itemSnapshot: unknown[] = Array.isArray(row.items) ? row.items : [];
 
-export type ShippingInfo = {
-  fullName: string;
-  phone: string;
-  address: string;
-  city: string;
-  notes?: string;
-};
+  return {
+    id: String(row.id ?? ""),
+    buyer_id: String(row.buyer_id ?? ""),
+    store_id: String(row.store_id ?? ""),
+    total_amount: Number(row.total_amount ?? 0),
+    commission_amount: Number(row.commission_amount ?? 0),
+    status: (row.status ?? "pending") as OrderStatus,
+    created_at: String(row.created_at ?? new Date(0).toISOString()),
+    store_name:
+      typeof row.store_name === "string" ? row.store_name : undefined,
+    items: itemSnapshot.map((item, index) => {
+      const value =
+        item && typeof item === "object" && !Array.isArray(item)
+          ? (item as Record<string, unknown>)
+          : {};
 
-/**
- * ينشئ طلب منفصل لكل متجر موجود فى السلة (لأن كل طلب مرتبط بمتجر واحد)،
- * وبيحسب عمولة المنصة تلقائيًا حسب نسبة عمولة كل متجر.
- */
-export async function checkoutCart(
-  buyerId: string,
-  cartItems: CheckoutCartItem[],
-  shipping: ShippingInfo
-): Promise<{ orderIds: string[]; error: string | null }> {
-  const storeIds = Array.from(new Set(cartItems.map((i) => i.storeId)));
-  const { data: stores } = await supabase.from("stores").select("id, commission_rate").in("id", storeIds);
-  const commissionByStore = new Map((stores ?? []).map((s) => [s.id, Number(s.commission_rate ?? 0)]));
-
-  const orderIds: string[] = [];
-
-  for (const storeId of storeIds) {
-    const storeItems = cartItems.filter((i) => i.storeId === storeId);
-    const totalAmount = storeItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const commissionRate = commissionByStore.get(storeId) ?? 0;
-    const commissionAmount = Math.round(totalAmount * (commissionRate / 100) * 100) / 100;
-
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        buyer_id: buyerId,
-        store_id: storeId,
-        total_amount: totalAmount,
-        commission_amount: commissionAmount,
-        status: "pending",
-        shipping_name: shipping.fullName,
-        shipping_phone: shipping.phone,
-        shipping_address: shipping.address,
-        shipping_city: shipping.city,
-        shipping_notes: shipping.notes || null,
-      })
-      .select()
-      .single();
-
-    if (orderError || !order) {
-      return { orderIds, error: orderError?.message ?? "تعذر إنشاء الطلب" };
-    }
-
-    const itemRows = storeItems.map((i) => ({
-      order_id: order.id,
-      product_id: i.productId,
-      quantity: i.quantity,
-      unit_price: i.price,
-    }));
-
-    const { error: itemsError } = await supabase.from("order_items").insert(itemRows);
-    if (itemsError) {
-      return { orderIds, error: itemsError.message };
-    }
-
-    // ننقّص المخزون المتاح لكل منتج اتباع عن طريق دالة آمنة على مستوى
-    // قاعدة البيانات (بدل تعديل مباشر مش مسموح للمشتري أصلًا بـ RLS).
-    for (const item of storeItems) {
-      await supabase.rpc("decrement_product_stock", {
-        p_product_id: item.productId,
-        p_quantity: item.quantity,
-      });
-    }
-
-    orderIds.push(order.id as string);
-  }
-
-  return { orderIds, error: null };
+      return {
+        id: String(
+          value.id ?? `${String(row.id ?? "order")}-item-${index}`
+        ),
+        order_id: String(row.id ?? ""),
+        product_id: String(value.product_id ?? ""),
+        quantity: Number(value.quantity ?? 1),
+        unit_price: Number(value.unit_price ?? 0),
+        product_name:
+          typeof value.product_name === "string"
+            ? value.product_name
+            : undefined,
+      };
+    }),
+  };
 }
 
 export async function getMyOrders(buyerId: string): Promise<Order[]> {
-  const { data: orders, error } = await supabase
+  // Compatibility reader only. RLS is the authorization boundary; buyerId
+  // can narrow the caller's own rows but cannot expand visibility.
+  const { data, error } = await supabase
     .from("orders")
-    .select("*, stores(name)")
+    .select("*")
     .eq("buyer_id", buyerId)
     .order("created_at", { ascending: false });
-  if (error || !orders) return [];
 
-  const orderIds = orders.map((o) => o.id);
-  const { data: items } = await supabase
-    .from("order_items")
-    .select("*, products(name)")
-    .in("order_id", orderIds.length ? orderIds : ["00000000-0000-0000-0000-000000000000"]);
-
-  type StoreRow = { name: string } | null;
-  type ProductRow = { name: string } | null;
-
-  return (orders as (Order & { stores: StoreRow })[]).map((o) => ({
-    ...o,
-    store_name: o.stores?.name,
-    items: ((items ?? []) as (OrderItemRow & { products: ProductRow })[])
-      .filter((it) => it.order_id === o.id)
-      .map((it) => ({ ...it, product_name: it.products?.name })),
-  }));
+  if (error || !data) return [];
+  return data.map((row) =>
+    mapLegacyOrderRow(row as Record<string, unknown>)
+  );
 }
 
 export async function getStoreOrders(storeId: string): Promise<Order[]> {
-  const { data: orders, error } = await supabase
+  const { data, error } = await supabase
     .from("orders")
     .select("*")
     .eq("store_id", storeId)
     .order("created_at", { ascending: false });
-  if (error || !orders) return [];
 
-  const orderIds = orders.map((o) => o.id);
-  const { data: items } = await supabase
-    .from("order_items")
-    .select("*, products(name)")
-    .in("order_id", orderIds.length ? orderIds : ["00000000-0000-0000-0000-000000000000"]);
-
-  type ProductRow = { name: string } | null;
-
-  return (orders as Order[]).map((o) => ({
-    ...o,
-    items: ((items ?? []) as (OrderItemRow & { products: ProductRow })[])
-      .filter((it) => it.order_id === o.id)
-      .map((it) => ({ ...it, product_name: it.products?.name })),
-  }));
+  if (error || !data) return [];
+  return data.map((row) =>
+    mapLegacyOrderRow(row as Record<string, unknown>)
+  );
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
