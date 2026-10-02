@@ -1637,8 +1637,10 @@ export default function SellerDashboardPage() {
                         <select
                           value={ord.status}
                           onChange={(e) => {
-                            updateOrderStatus(ord.id, e.target.value as Order["status"]);
-                            showToast(isAr ? `تم تحديث حالة الشحنة إلى ${e.target.value}` : `Shipment updated to ${e.target.value}`);
+                            void handleOrderStatusChange(
+                              ord.id,
+                              e.target.value as Order["status"]
+                            );
                           }}
                           className="w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none cursor-pointer"
                         >
@@ -1675,8 +1677,7 @@ export default function SellerDashboardPage() {
             orders={storeOrders}
             carriers={carriers}
             onUpdateShipmentStatus={(shpId, newStatus) => {
-              updateShipmentStatus(shpId, newStatus);
-              showToast(isAr ? "تم تحديث حالة الشحنة بنجاح" : "Shipment status updated");
+              void handleShipmentStatusChange(shpId, newStatus);
             }}
             isAr={isAr}
           />
@@ -1848,8 +1849,7 @@ export default function SellerDashboardPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              updateMarketingPost(post.id, { is_pinned: !post.is_pinned });
-                              showToast(post.is_pinned ? isAr ? "تم إلغاء التثبيت" : "Unpinned" : isAr ? "تم التثبيت في المقدمة" : "Pinned");
+                              void handleToggleMarketingPin(post);
                             }}
                             className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground text-[11px]"
                             title={post.is_pinned ? isAr ? "إلغاء التثبيت" : "Unpin" : isAr ? "تثبيت" : "Pin"}
