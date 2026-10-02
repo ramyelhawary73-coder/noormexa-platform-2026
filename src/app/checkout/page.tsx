@@ -43,6 +43,7 @@ import ProductImage from "@/components/ProductImage";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
+const CHECKOUT_SESSION_KEY = "noormexa_secure_checkout_session";
 
 const copy = {
   ar: {
@@ -168,6 +169,76 @@ export default function CheckoutPage() {
     stripe: false,
   });
   const checkoutReferenceRef = useRef<string | null>(null);
+
+  const cartFingerprint = useMemo(
+    () =>
+      JSON.stringify(
+        cartItems
+          .map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            selectedVariantsLabel: item.selectedVariantsLabel ?? "",
+          }))
+          .sort((a, b) =>
+            `${a.productId}:${a.selectedVariantsLabel}`.localeCompare(
+              `${b.productId}:${b.selectedVariantsLabel}`
+            )
+          )
+      ),
+    [cartItems]
+  );
+
+  const getOrCreateCheckoutReference = useCallback(() => {
+    if (checkoutReferenceRef.current) {
+      return checkoutReferenceRef.current;
+    }
+
+    if (typeof window !== "undefined") {
+      try {
+        const saved = window.sessionStorage.getItem(CHECKOUT_SESSION_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved) as {
+            reference?: string;
+            fingerprint?: string;
+          };
+
+          if (
+            parsed.reference &&
+            parsed.fingerprint === cartFingerprint
+          ) {
+            checkoutReferenceRef.current = parsed.reference;
+            return parsed.reference;
+          }
+        }
+      } catch {}
+    }
+
+    const reference = crypto.randomUUID();
+    checkoutReferenceRef.current = reference;
+
+    if (typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem(
+          CHECKOUT_SESSION_KEY,
+          JSON.stringify({
+            reference,
+            fingerprint: cartFingerprint,
+          })
+        );
+      } catch {}
+    }
+
+    return reference;
+  }, [cartFingerprint]);
+
+  const clearCheckoutReference = useCallback(() => {
+    checkoutReferenceRef.current = null;
+    if (typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(CHECKOUT_SESSION_KEY);
+      } catch {}
+    }
+  }, []);
 
   // Address search & GPS states
   const [isLocatingGps, setIsLocatingGps] = useState(false);
@@ -860,9 +931,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (!checkoutReferenceRef.current) {
-        checkoutReferenceRef.current = crypto.randomUUID();
-      }
+      const checkoutReference = getOrCreateCheckoutReference();
 
       const checkoutResponse = await fetch("/api/checkout/create", {
         method: "POST",
@@ -880,7 +949,7 @@ export default function CheckoutPage() {
           shippingSpeed,
           paymentMethod: selectedGateway,
           promoCode: appliedPromo?.code ?? null,
-          checkoutReference: checkoutReferenceRef.current,
+          checkoutReference,
         }),
       });
 
@@ -905,7 +974,7 @@ export default function CheckoutPage() {
         setCompletedOrder(orders[0]);
         setCompletedOrderCount(orders.length);
         clearCart();
-        checkoutReferenceRef.current = null;
+        clearCheckoutReference();
         return;
       }
 
@@ -937,7 +1006,9 @@ export default function CheckoutPage() {
         return;
       }
 
-      clearCart();
+      // Keep the cart + checkout reference until the provider confirms payment.
+      // If the provider flow is cancelled, retrying reuses the same DB orders
+      // and does not decrement stock a second time.
       window.location.assign(paymentPayload.url);
     } catch {
       setCheckoutError(
