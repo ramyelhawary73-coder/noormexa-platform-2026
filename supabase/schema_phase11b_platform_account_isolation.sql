@@ -127,7 +127,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = pg_catalog, public
-as $
+as $$
 begin
   -- Trusted SQL Editor / service-role recovery path.
   if auth.uid() is null then
@@ -155,7 +155,7 @@ begin
 
   return new;
 end;
-$;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- 4) Keep target-account protections working after self-only public helpers
