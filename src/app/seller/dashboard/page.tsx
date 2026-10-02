@@ -545,18 +545,23 @@ export default function SellerDashboardPage() {
     });
   }, [marketingPosts, currentStore.id, marketingStatusFilter]);
 
-  // Shipments for active store
+  // Shipments are scoped to the selected authorized store only. The old
+  // "|| true" fallback leaked every locally cached shipment into every store.
   const storeShipments = useMemo(() => {
-    return shipments.filter((s) => s.storeId === currentStore.id || s.storeName === currentStore.name || true);
+    return shipments.filter(
+      (shipment) =>
+        shipment.storeId === currentStore.id ||
+        shipment.storeName === currentStore.name
+    );
   }, [shipments, currentStore.id, currentStore.name]);
 
-  // Financial Calculations
+  // Financial calculations use actual scoped order data only. Demo fallback
+  // revenue is not a seller-workspace source of truth.
   const totalStoreGross = useMemo(() => {
-    const fromOrders = storeOrders.reduce((acc, o) => acc + o.total_amount, 0);
-    return fromOrders > 0 ? fromOrders : currentStore.is_official ? 84900 : 34800;
-  }, [storeOrders, currentStore.is_official]);
+    return storeOrders.reduce((acc, order) => acc + order.total_amount, 0);
+  }, [storeOrders]);
 
-  const commissionRate = currentStore.is_official ? 0 : currentStore.commission_rate || 8;
+  const commissionRate = currentStore.commission_rate || 8;
   const totalCommissionDeducted = Math.round((totalStoreGross * commissionRate) / 100);
   const netEarnings = totalStoreGross - totalCommissionDeducted;
 
@@ -579,14 +584,6 @@ export default function SellerDashboardPage() {
   };
 
   // Handlers
-  const handleCreateOfficialStore = (e: React.FormEvent) => {
-    e.preventDefault();
-    const created = createOfficialStore(newOfficialName, newOfficialDesc);
-    setShowOfficialStoreModal(false);
-    setSelectedStoreId(created.id);
-    showToast(isAr ? "تم إنشاء وتدشين المتجر الرسمي للمنصة بنجاح!" : "Official platform flagship store created successfully!");
-  };
-
   const handleCreateProduct = (e: React.FormEvent) => {
     e.preventDefault();
     const cat = categories.find((c) => c.id === newProdCat);
@@ -675,25 +672,134 @@ export default function SellerDashboardPage() {
     }
   };
 
-  const handleSaveStoreProfile = (e: React.FormEvent) => {
+  const handleSaveStoreProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateStoreProfile(currentStore.id, {
-      name: profileName,
-      description: profileDesc,
-      country: profileCountry,
-      region: profileRegion,
-      city: profileCity,
-      currency: profileCurrency,
-      base_currency: profileCurrency,
-      contact_email: profileEmail,
-      contact_phone: profilePhone,
-      iban: profileIban,
-      bank_name: profileBank,
-      logo_url: profileLogoUrl || currentStore.logo_url,
-      banner_url: profileBannerUrl || currentStore.banner_url,
-    });
-    showToast(isAr ? "تم حفظ إعدادات وهوية المتجر والموقع بنجاح!" : "Store profile and location updated successfully!");
+    if (!currentStore.id) return;
+
+    if (
+      currentStore.membership_role !== "owner" &&
+      currentStore.membership_role !== "manager"
+    ) {
+      showToast(
+        isAr
+          ? "هذه العملية متاحة لمالك المتجر أو المدير فقط."
+          : "Only the store owner or manager can update store settings."
+      );
+      return;
+    }
+
+    const { store: updatedStore, error } = await persistStoreProfile(
+      currentStore.id,
+      {
+        name: profileName.trim(),
+        description: profileDesc.trim() || null,
+        country: profileCountry || null,
+        contact_email: profileEmail.trim() || null,
+        contact_phone: profilePhone.trim() || null,
+        iban: profileIban.trim() || null,
+        bank_name: profileBank.trim() || null,
+        logo_url: profileLogoUrl || currentStore.logo_url,
+        banner_url: profileBannerUrl || currentStore.banner_url,
+      }
+    );
+
+    if (!updatedStore) {
+      showToast(
+        error ||
+          (isAr
+            ? "تعذر حفظ إعدادات المتجر في قاعدة البيانات."
+            : "Store settings could not be saved to the database.")
+      );
+      return;
+    }
+
+    setStores((previous) =>
+      previous.map((store) =>
+        store.id === currentStore.id
+          ? {
+              ...store,
+              ...updatedStore,
+              membership_role: store.membership_role,
+            }
+          : store
+      )
+    );
+
+    showToast(
+      isAr
+        ? "تم حفظ إعدادات المتجر في قاعدة البيانات بنجاح."
+        : "Store settings were saved to the database."
+    );
   };
+
+  if (authLoading || storesLoading) {
+    return (
+      <main className="noormexa-main py-10 pb-28">
+        <div className="noormexa-container text-center text-sm text-muted">
+          {isAr ? "جاري التحقق من عضويات المتاجر..." : "Checking authorized store memberships..."}
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="noormexa-main py-10 pb-28">
+        <div className="noormexa-container max-w-2xl rounded-3xl border border-line bg-surface p-6 text-center">
+          <ShieldCheck className="mx-auto mb-3 text-amber-500" size={30} />
+          <h1 className="text-xl font-black text-foreground">
+            {isAr ? "تسجيل الدخول مطلوب" : "Sign in required"}
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            {isAr
+              ? "لوحة البائع لا تعتمد على بيانات LocalStorage. سجل الدخول لقراءة عضويات متاجرك الفعلية من قاعدة البيانات."
+              : "Seller Central does not trust LocalStorage for access. Sign in to load your real store memberships from the database."}
+          </p>
+          <Link
+            href="/auth?next=/seller/dashboard"
+            className="mt-5 inline-flex rounded-2xl bg-gold px-5 py-2.5 text-sm font-black text-navy"
+          >
+            {isAr ? "تسجيل الدخول" : "Sign in"}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (!currentStore.id) {
+    return (
+      <main className="noormexa-main py-10 pb-28">
+        <div className="noormexa-container max-w-2xl rounded-3xl border border-line bg-surface p-6 text-center">
+          <Users className="mx-auto mb-3 text-muted" size={30} />
+          <h1 className="text-xl font-black text-foreground">
+            {isAr ? "لا يوجد متجر مصرح لك بإدارته" : "No authorized seller store"}
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            {isAr
+              ? "لا يتم عرض أي متجر من LocalStorage أو من بيانات تجريبية. أنشئ متجرًا حقيقيًا أو اطلب دعوة من مالك متجر."
+              : "No LocalStorage or demo store is used as an access fallback. Create a real store or ask a store owner to invite you."}
+          </p>
+          {storesError && (
+            <div className="mt-3 text-xs font-bold text-red-600">{storesError}</div>
+          )}
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/seller/register"
+              className="rounded-2xl bg-gold px-5 py-2.5 text-sm font-black text-navy"
+            >
+              {isAr ? "إنشاء متجر" : "Create store"}
+            </Link>
+            <Link
+              href="/seller/team"
+              className="rounded-2xl border border-line px-5 py-2.5 text-sm font-bold text-foreground"
+            >
+              {isAr ? "فريق المتجر" : "Store team"}
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="noormexa-main py-5 sm:py-8 md:py-12 pb-36 sm:pb-28">
@@ -754,15 +860,6 @@ export default function SellerDashboardPage() {
 
           {/* Header Action Buttons - Responsive 2-Col on Mobile / Flex on Desktop */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto">
-            <button
-              type="button"
-              onClick={() => setShowOfficialStoreModal(true)}
-              className="px-3 sm:px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Crown size={15} />
-              <span className="truncate">{isAr ? "متجر رسمي" : "Flagship Store"}</span>
-            </button>
-
             <Link
               href={`/store/${currentStore.slug}`}
               className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
@@ -1897,76 +1994,6 @@ export default function SellerDashboardPage() {
           </form>
         )}
       </div>
-
-      {/* Modal 1: Create Official Platform Flagship Store */}
-      {showOfficialStoreModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-surface rounded-3xl border border-line shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-line pb-3">
-              <div className="flex items-center gap-2 font-black text-foreground text-base">
-                <Crown size={18} className="text-gold" />
-                <span>{isAr ? "تدشين متجر رسمي جديد للمنصة" : "Create Official Flagship Store"}</span>
-              </div>
-              <button type="button" onClick={() => setShowOfficialStoreModal(false)} className="text-muted hover:text-foreground">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateOfficialStore} className="space-y-4 text-xs">
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-gold space-y-1">
-                <div className="font-bold text-xs flex items-center gap-1.5">
-                  <ShieldCheck size={14} />
-                  <span>{isAr ? "ميزات المتجر الرسمي لمالك المنصة:" : "Platform Owner Flagship Perks:"}</span>
-                </div>
-                <p className="text-[11px] text-muted">
-                  {isAr
-                    ? "يتم توثيقه فورياً بشارة التاج الملكي الذهبي، وتكون عمولة المنصة عليه 0% مع إمكانية عرض وبيع منتجات المنصة المباشرة."
-                    : "Auto-verified with the Golden Crown badge, 0% platform commission, and priority marketplace ranking."}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-foreground">{isAr ? "اسم المتجر الرسمي *" : "Official Store Name *"}</label>
-                <input
-                  type="text"
-                  required
-                  value={newOfficialName}
-                  onChange={(e) => setNewOfficialName(e.target.value)}
-                  placeholder="متجر نورميكسا المباشر (NOORMEXA Direct)"
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-sm"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-foreground">{isAr ? "نبذة عن المتجر والضمان *" : "Description *"}</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={newOfficialDesc}
-                  onChange={(e) => setNewOfficialDesc(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button
-                  type="button"
-                  onClick={() => setShowOfficialStoreModal(false)}
-                  className="px-5 py-2.5 rounded-xl border border-line text-muted hover:text-foreground font-bold text-xs"
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
-                >
-                  {isAr ? "تدشين المتجر الرسمي الآن" : "Launch Store"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Modal 2: Create Marketing Post */}
       {showAddMarketingModal && (
