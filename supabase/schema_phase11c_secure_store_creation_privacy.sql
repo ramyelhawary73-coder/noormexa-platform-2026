@@ -124,6 +124,10 @@ begin
     raise exception 'Authentication required';
   end if;
 
+  if private.is_platform_account(v_uid) then
+    raise exception 'Platform accounts cannot create customer tenant stores';
+  end if;
+
   if p_name is null or length(trim(p_name)) < 2 then
     raise exception 'Store name is required';
   end if;
