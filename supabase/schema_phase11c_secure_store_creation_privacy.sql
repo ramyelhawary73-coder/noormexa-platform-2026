@@ -290,12 +290,57 @@ create policy "stores_authorized_select"
   for select
   to authenticated
   using (
-    owner_id = auth.uid()::text
-    or private.is_platform_admin(auth.uid())
-    or private.has_active_store_role(
-      auth.uid(),
-      id,
-      array['owner','manager','editor','support']::text[]
+    private.is_platform_super_admin(auth.uid())
+    or (
+      coalesce(is_official, false) = false
+      and (
+        owner_id = auth.uid()::text
+        or private.is_platform_admin(auth.uid())
+        or private.has_active_store_role(
+          auth.uid(),
+          id,
+          array['owner','manager','editor','support']::text[]
+        )
+      )
+    )
+  );
+
+-- The official-store row currently carries the protected Super Admin owner_id.
+-- Lower Platform Admin / tenant roles must never receive that full internal row.
+drop policy if exists "stores_authorized_update" on public.stores;
+
+create policy "stores_authorized_update"
+  on public.stores
+  for update
+  to authenticated
+  using (
+    private.is_platform_super_admin(auth.uid())
+    or (
+      coalesce(is_official, false) = false
+      and (
+        private.is_platform_admin(auth.uid())
+        or owner_id = auth.uid()::text
+        or private.has_active_store_role(
+          auth.uid(),
+          id,
+          array['owner','manager']::text[]
+        )
+      )
+    )
+  )
+  with check (
+    private.is_platform_super_admin(auth.uid())
+    or (
+      coalesce(is_official, false) = false
+      and (
+        private.is_platform_admin(auth.uid())
+        or owner_id = auth.uid()::text
+        or private.has_active_store_role(
+          auth.uid(),
+          id,
+          array['owner','manager']::text[]
+        )
+      )
     )
   );
 
