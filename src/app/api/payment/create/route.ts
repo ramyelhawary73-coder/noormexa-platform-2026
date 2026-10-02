@@ -214,6 +214,8 @@ async function tagOrders(
     .eq("checkout_reference", checkoutReference)
     .eq("status", "pending")
     .eq("payment_status", "pending")
+    .is("payment_provider", null)
+    .is("payment_reference", null)
     .select("id");
 
   return !error && (data?.length ?? 0) === orderIds.length;
