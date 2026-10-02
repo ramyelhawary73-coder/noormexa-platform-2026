@@ -661,40 +661,41 @@ export default function SellerDashboardPage() {
   };
 
   // Handlers
-  const handleCreateProduct = (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cat = categories.find((c) => c.id === newProdCat);
+    if (!canManageCatalog || !currentStore.id) return;
+
     const enteredPrice = Number(newProdPrice);
-    const enteredOrigPrice = newProdOriginalPrice ? Number(newProdOriginalPrice) : undefined;
-
-    // Convert to platform base EGP currency for standardized marketplace calculation
     const priceInEgp = convertFromCurrencyToEGP(enteredPrice, newProdCurrency);
-    const origPriceInEgp = enteredOrigPrice ? convertFromCurrencyToEGP(enteredOrigPrice, newProdCurrency) : undefined;
 
-    addProduct({
-      name: newProdName,
-      name_en: newProdNameEn || newProdName,
-      description: newProdDesc,
-      price: priceInEgp,
-      original_price: origPriceInEgp,
-      currency: newProdCurrency,
-      category_id: newProdCat,
-      category_slug: cat?.slug,
-      stock: Number(newProdStock),
-      image_url: newProdImageUrl,
+    const { product, error } = await persistProduct({
       store_id: currentStore.id,
-      store_name: currentStore.name,
-      free_shipping: newProdFreeShip,
-      is_featured: newProdFeatured,
-      rating: 5.0,
-      reviews_count: 1,
-      status: "active",
+      category_id: newProdCat || null,
+      name: newProdName.trim(),
+      description: newProdDesc.trim(),
+      price: priceInEgp,
+      image_url: newProdImageUrl || null,
+      stock: Number(newProdStock),
     });
 
-    setShowAddModal(false);
-    showToast(isAr ? "تم نشر المنتج الجديد في المتجر بنجاح وفق العملة المحددة!" : "Product published to store successfully with selected currency!");
+    if (!product) {
+      showToast(
+        error ||
+          (isAr
+            ? "تعذر حفظ المنتج في قاعدة البيانات."
+            : "Product could not be saved to the database.")
+      );
+      return;
+    }
 
-    // Reset Form
+    setProducts((previous) => [product, ...previous]);
+    setShowAddModal(false);
+    showToast(
+      isAr
+        ? "تم حفظ المنتج في قاعدة البيانات بنجاح."
+        : "Product saved to the database."
+    );
+
     setNewProdName("");
     setNewProdNameEn("");
     setNewProdPrice("");
@@ -702,14 +703,16 @@ export default function SellerDashboardPage() {
     setNewProdDesc("");
   };
 
-  const handleCreateMarketingPost = (e: React.FormEvent) => {
+  const handleCreateMarketingPost = async (e: React.FormEvent) => {
     e.preventDefault();
-    addMarketingPost({
+    if (!canManageMarketing || !currentStore.id) return;
+
+    const { post, error } = await createSellerMarketingPost({
       store_id: currentStore.id,
       store_name: currentStore.name,
       store_logo: currentStore.logo_url || undefined,
-      title: postTitle,
-      content: postContent,
+      title: postTitle.trim(),
+      content: postContent.trim(),
       image_url: postImageUrl || undefined,
       promo_code: postPromoCode ? postPromoCode.toUpperCase().trim() : undefined,
       discount_percent: postDiscount ? Number(postDiscount) : undefined,
@@ -718,10 +721,24 @@ export default function SellerDashboardPage() {
       status: "published",
     });
 
-    setShowAddMarketingModal(false);
-    showToast(isAr ? "تم نشر المنشور التسويقي والعرض الترويجي بنجاح!" : "Marketing campaign post published successfully!");
+    if (!post) {
+      showToast(
+        error ||
+          (isAr
+            ? "تعذر حفظ المنشور في قاعدة البيانات."
+            : "Marketing post could not be saved to the database.")
+      );
+      return;
+    }
 
-    // Reset form
+    setMarketingPosts((previous) => [post, ...previous]);
+    setShowAddMarketingModal(false);
+    showToast(
+      isAr
+        ? "تم حفظ المنشور التسويقي في قاعدة البيانات."
+        : "Marketing post saved to the database."
+    );
+
     setPostTitle("");
     setPostContent("");
     setPostPromoCode("");
