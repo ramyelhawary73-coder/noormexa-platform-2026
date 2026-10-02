@@ -133,7 +133,7 @@ function OrdersTrackingContent() {
 
       const mapped = (data ?? []).map((row) => {
         const rawItems = Array.isArray(row.items) ? row.items : [];
-        const rawShipping =
+        const rawShipping: Partial<ShippingAddress> =
           row.shipping_info && typeof row.shipping_info === "object"
             ? (row.shipping_info as Partial<ShippingAddress>)
             : {};
