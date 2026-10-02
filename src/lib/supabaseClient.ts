@@ -37,38 +37,34 @@ export const storeCloudServices = {
    */
   async provisionStoreWorkspace(store: Store) {
     if (!isSupabaseConfigured) return { success: true, localOnly: true };
+
+    // The tenant provisioning path must never create a second official store.
+    // Official-store lifecycle remains a separate Platform-only operation.
+    if (store.is_official) {
+      return { success: false, error: new Error('Official store provisioning is not allowed through the tenant flow.') };
+    }
+
     try {
-      // 1. تسجيل أو تحديث بيانات المتجر في جدول المتاجر
-      const { data, error } = await supabase
-        .from('stores')
-        .upsert(
-          {
-            id: store.id,
-            owner_id: store.owner_id,
-            name: store.name,
-            slug: store.slug,
-            description: store.description,
-            country: store.country,
-            plan: store.plan,
-            status: store.status,
-            is_verified: store.is_verified,
-            commission_rate: store.commission_rate,
-            logo_url: store.logo_url,
-            banner_url: store.banner_url,
-            bank_name: store.bank_name,
-            iban: store.iban,
-            cr_number: store.cr_number,
-            tax_number: store.tax_number,
-            contact_email: store.contact_email,
-            contact_phone: store.contact_phone,
-            created_at: store.created_at || new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'id' }
-        );
+      // Security boundary: owner_id and all privileged fields are derived or
+      // fixed inside create_store_secure(). Client values for plan/status/
+      // verification/official/commission are deliberately not sent.
+      const { data, error } = await supabase.rpc('create_store_secure', {
+        p_name: store.name,
+        p_slug: store.slug,
+        p_description: store.description,
+        p_country: store.country ?? null,
+        p_cr_number: store.cr_number ?? null,
+        p_tax_number: store.tax_number ?? null,
+        p_bank_name: store.bank_name ?? null,
+        p_iban: store.iban ?? null,
+        p_contact_email: store.contact_email ?? null,
+        p_contact_phone: store.contact_phone ?? null,
+        p_logo_url: store.logo_url ?? null,
+        p_banner_url: store.banner_url ?? null,
+      });
 
       if (error) {
-        console.warn('Supabase store provisioning warning:', error.message);
+        console.warn('Supabase secure store provisioning warning:', error.message);
       }
       return { success: !error, data };
     } catch (err) {
