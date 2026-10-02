@@ -1575,24 +1575,6 @@ interface MarketplaceContextType {
   addProduct: (product: Omit<Product, "id" | "created_at">) => Product;
   updateProductItem: (id: string, updates: Partial<Product>) => void;
   deleteProductItem: (id: string) => void;
-  registerStore: (storeData: {
-    name: string;
-    slug: string;
-    description: string;
-    country: string;
-    region?: string;
-    city?: string;
-    currency?: CurrencyCode;
-    plan?: string;
-    cr_number?: string;
-    tax_number?: string;
-    bank_name?: string;
-    iban?: string;
-    contact_email?: string;
-    contact_phone?: string;
-    logo_url?: string;
-    banner_url?: string;
-  }) => { store: Store; autoApproved: boolean };
   updateStoreProfile: (storeId: string, updates: Partial<Store>) => void;
   updateStoreStatusItem: (storeId: string, status: Store["status"]) => void;
   deleteStoreItem: (storeId: string) => void;
@@ -1972,70 +1954,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const deleteProductItem = useCallback((id: string) => {
     setProductsState((prev) => prev.filter((p) => p.id !== id));
   }, []);
-
-  const registerStore = useCallback(
-    (storeData: {
-      name: string;
-      slug: string;
-      description: string;
-      country: string;
-      region?: string;
-      city?: string;
-      currency?: CurrencyCode;
-      plan?: string;
-      cr_number?: string;
-      tax_number?: string;
-      bank_name?: string;
-      iban?: string;
-      contact_email?: string;
-      contact_phone?: string;
-      logo_url?: string;
-      banner_url?: string;
-    }) => {
-      const cleanSlug = (storeData.slug || storeData.name)
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      const autoApproved = settings.autoApproveStores ?? true;
-      const newStore: Store = {
-        id: `store-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        owner_id: `owner-${Date.now()}`,
-        name: storeData.name,
-        slug: cleanSlug || `store-${Date.now()}`,
-        description: storeData.description,
-        country: storeData.country,
-        region: storeData.region,
-        city: storeData.city,
-        currency: storeData.currency,
-        base_currency: storeData.currency,
-        plan: storeData.plan || "professional",
-        commission_rate: settings.defaultCommissionRate || 8,
-        status: autoApproved ? "approved" : "pending",
-        is_verified: autoApproved,
-        rating: 5.0,
-        total_sales: 0,
-        cr_number: storeData.cr_number,
-        tax_number: storeData.tax_number,
-        bank_name: storeData.bank_name,
-        iban: storeData.iban,
-        contact_email: storeData.contact_email,
-        contact_phone: storeData.contact_phone,
-        logo_url:
-          storeData.logo_url ||
-          "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=200&auto=format&fit=crop&q=80",
-        banner_url:
-          storeData.banner_url ||
-          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80",
-        created_at: new Date().toISOString(),
-      };
-      setStoresState((prev) => [newStore, ...prev]);
-      // Provision isolated cloud space in Supabase
-      storeCloudServices.provisionStoreWorkspace(newStore).catch(() => {});
-      return { store: newStore, autoApproved };
-    },
-    [settings]
-  );
 
   const updateStoreProfile = useCallback((storeId: string, updates: Partial<Store>) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, ...updates } : s)));
@@ -2720,7 +2638,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         addProduct,
         updateProductItem,
         deleteProductItem,
-        registerStore,
         updateStoreProfile,
         updateStoreStatusItem,
         deleteStoreItem,
