@@ -62,6 +62,10 @@ create policy "products_public_active_select"
   to anon, authenticated
   using (
     status = 'active'
+    and exists (
+      select 1
+      from public.get_public_store_by_id(store_id)
+    )
   );
 
 create policy "products_tenant_select"
@@ -164,6 +168,10 @@ create policy "orders_buyer_insert_own"
   with check (
     buyer_id = auth.uid()::text
     and store_id is not null
+    and exists (
+      select 1
+      from public.get_public_store_by_id(store_id)
+    )
   );
 
 create policy "orders_tenant_select"
@@ -254,11 +262,22 @@ create policy "shipments_tenant_insert"
   for insert
   to authenticated
   with check (
-    private.is_platform_admin(auth.uid())
-    or private.has_active_store_role(
-      auth.uid(),
-      store_id,
-      array['owner','manager','support']::text[]
+    (
+      private.is_platform_admin(auth.uid())
+      or private.has_active_store_role(
+        auth.uid(),
+        store_id,
+        array['owner','manager','support']::text[]
+      )
+    )
+    and (
+      order_id is null
+      or exists (
+        select 1
+        from public.orders o
+        where o.id = shipments.order_id
+          and o.store_id = shipments.store_id
+      )
     )
   );
 
@@ -275,11 +294,22 @@ create policy "shipments_tenant_update"
     )
   )
   with check (
-    private.is_platform_admin(auth.uid())
-    or private.has_active_store_role(
-      auth.uid(),
-      store_id,
-      array['owner','manager','support']::text[]
+    (
+      private.is_platform_admin(auth.uid())
+      or private.has_active_store_role(
+        auth.uid(),
+        store_id,
+        array['owner','manager','support']::text[]
+      )
+    )
+    and (
+      order_id is null
+      or exists (
+        select 1
+        from public.orders o
+        where o.id = shipments.order_id
+          and o.store_id = shipments.store_id
+      )
     )
   );
 
@@ -311,6 +341,10 @@ create policy "marketing_posts_public_published_select"
   to anon, authenticated
   using (
     status = 'published'
+    and exists (
+      select 1
+      from public.get_public_store_by_id(store_id)
+    )
   );
 
 create policy "marketing_posts_tenant_select"
@@ -376,5 +410,65 @@ create policy "marketing_posts_tenant_delete"
 revoke all on table public.marketing_posts from anon, authenticated;
 grant select on table public.marketing_posts to anon;
 grant select, insert, update, delete on table public.marketing_posts to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- 5) Immutable tenant binding fields
+-- ---------------------------------------------------------------------------
+-- RLS checks the caller's authorization against the NEW row as well, but a
+-- user who legitimately manages two stores must still not be able to move
+-- business records from one tenant to another by changing store_id.
+-- Trusted SQL/service-role recovery remains possible when auth.uid() is null.
+
+create or replace function public.protect_tenant_binding_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $
+begin
+  if auth.uid() is null then
+    return new;
+  end if;
+
+  if tg_table_name = 'orders' then
+    if new.store_id is distinct from old.store_id
+       or new.buyer_id is distinct from old.buyer_id then
+      raise exception 'Order tenant/buyer binding cannot be changed from the application';
+    end if;
+    return new;
+  end if;
+
+  if new.store_id is distinct from old.store_id then
+    raise exception 'Tenant binding cannot be changed from the application';
+  end if;
+
+  return new;
+end;
+$;
+
+drop trigger if exists protect_products_tenant_binding on public.products;
+create trigger protect_products_tenant_binding
+  before update on public.products
+  for each row execute function public.protect_tenant_binding_fields();
+
+drop trigger if exists protect_orders_tenant_binding on public.orders;
+create trigger protect_orders_tenant_binding
+  before update on public.orders
+  for each row execute function public.protect_tenant_binding_fields();
+
+drop trigger if exists protect_shipments_tenant_binding on public.shipments;
+create trigger protect_shipments_tenant_binding
+  before update on public.shipments
+  for each row execute function public.protect_tenant_binding_fields();
+
+drop trigger if exists protect_marketing_posts_tenant_binding on public.marketing_posts;
+create trigger protect_marketing_posts_tenant_binding
+  before update on public.marketing_posts
+  for each row execute function public.protect_tenant_binding_fields();
+
+revoke all on function public.protect_tenant_binding_fields() from public;
+revoke all on function public.protect_tenant_binding_fields() from anon;
+revoke all on function public.protect_tenant_binding_fields() from authenticated;
 
 commit;
