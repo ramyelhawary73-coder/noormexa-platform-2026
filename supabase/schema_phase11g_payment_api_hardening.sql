@@ -59,9 +59,20 @@ returns trigger
 language plpgsql
 security definer
 set search_path = pg_catalog, public
-as $$
+as $
 begin
   if auth.uid() is null then
+    return new;
+  end if;
+
+  if tg_op = 'INSERT' then
+    -- A browser/client may create a pending order, but it can never self-assert
+    -- payment settlement or a later operational state.
+    new.status := 'pending';
+    new.payment_status := 'pending';
+    new.payment_provider := null;
+    new.payment_reference := null;
+    new.paid_at := null;
     return new;
   end if;
 
@@ -83,13 +94,13 @@ begin
 
   return new;
 end;
-$$;
+$;
 
 drop trigger if exists protect_order_financial_fields_trigger
   on public.orders;
 
 create trigger protect_order_financial_fields_trigger
-  before update on public.orders
+  before insert or update on public.orders
   for each row execute function public.protect_order_financial_fields();
 
 revoke all on function public.protect_order_financial_fields() from public;
