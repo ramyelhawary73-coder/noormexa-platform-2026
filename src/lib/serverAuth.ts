@@ -10,7 +10,7 @@ type ServerAuthResult =
   | { user: User; error: null }
   | { user: null; error: "server_not_configured" | "missing_token" | "invalid_token" };
 
-function getBearerToken(request: NextRequest): string | null {
+export function getBearerToken(request: NextRequest): string | null {
   const authorization = request.headers.get("authorization")?.trim() ?? "";
   if (!authorization.toLowerCase().startsWith("bearer ")) {
     return null;
