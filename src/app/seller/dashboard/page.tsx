@@ -252,6 +252,30 @@ export default function SellerDashboardPage() {
     "analytics" | "products" | "orders" | "shipments" | "marketing" | "payouts" | "settings"
   >("analytics");
 
+  useEffect(() => {
+    if (!currentStore.id) return;
+
+    if (!canManageFinancials && activeTab === "analytics") {
+      setActiveTab(currentStore.membership_role === "support" ? "orders" : "products");
+      return;
+    }
+
+    if (!canManageOrders && (activeTab === "orders" || activeTab === "shipments")) {
+      setActiveTab("products");
+      return;
+    }
+
+    if (!canManageFinancials && (activeTab === "payouts" || activeTab === "settings")) {
+      setActiveTab("products");
+    }
+  }, [
+    activeTab,
+    canManageFinancials,
+    canManageOrders,
+    currentStore.id,
+    currentStore.membership_role,
+  ]);
+
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
@@ -928,7 +952,7 @@ export default function SellerDashboardPage() {
         <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
           <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-7 select-none touch-manipulation">
             {[
-              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null, allowed: true },
+              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null, allowed: canManageFinancials },
               { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}`, allowed: true },
               { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}`, allowed: canManageOrders },
               { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}`, allowed: canManageOrders },
