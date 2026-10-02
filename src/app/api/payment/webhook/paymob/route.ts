@@ -31,12 +31,20 @@ const HMAC_FIELDS = [
 ];
 
 function getNested(obj: Record<string, unknown>, path: string): unknown {
-  return path.split(".").reduce<unknown>((acc, key) => {
+  const value = path.split(".").reduce<unknown>((acc, key) => {
     if (acc && typeof acc === "object") {
       return (acc as Record<string, unknown>)[key];
     }
     return undefined;
   }, obj);
+
+  // Paymob's transaction callback represents order as an object in POST
+  // payloads, while HMAC calculation uses the Paymob order id value.
+  if (path === "order" && value && typeof value === "object") {
+    return (value as Record<string, unknown>).id;
+  }
+
+  return value;
 }
 
 function timingSafeHexEqual(expected: string, received: string): boolean {
