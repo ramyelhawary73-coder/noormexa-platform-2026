@@ -747,6 +747,132 @@ export default function SellerDashboardPage() {
     setPostIsPinned(false);
   };
 
+  const handleDeleteProduct = async (productId: string) => {
+    if (!canManageCatalog) return;
+
+    const ok = await persistDeleteProduct(productId);
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر حذف المنتج من قاعدة البيانات."
+          : "Product could not be deleted from the database."
+      );
+      return;
+    }
+
+    setProducts((previous) => previous.filter((product) => product.id !== productId));
+    showToast(isAr ? "تم حذف المنتج بنجاح." : "Product deleted.");
+  };
+
+  const handleOrderStatusChange = async (
+    orderId: string,
+    status: Order["status"]
+  ) => {
+    if (!canManageOrders) return;
+
+    const ok = await persistOrderStatus(orderId, status);
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر تحديث حالة الطلب في قاعدة البيانات."
+          : "Order status could not be updated in the database."
+      );
+      return;
+    }
+
+    setOrders((previous) =>
+      previous.map((order) =>
+        order.id === orderId ? { ...order, status } : order
+      )
+    );
+    showToast(
+      isAr ? `تم تحديث حالة الطلب إلى ${status}` : `Order updated to ${status}`
+    );
+  };
+
+  const handleToggleMarketingPin = async (
+    post: import("@/types/marketplace").MarketingPost
+  ) => {
+    if (!canManageMarketing) return;
+
+    const nextPinned = !post.is_pinned;
+    const ok = await updateSellerMarketingPost(post.id, {
+      is_pinned: nextPinned,
+    });
+
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر تحديث المنشور في قاعدة البيانات."
+          : "Marketing post could not be updated."
+      );
+      return;
+    }
+
+    setMarketingPosts((previous) =>
+      previous.map((item) =>
+        item.id === post.id ? { ...item, is_pinned: nextPinned } : item
+      )
+    );
+    showToast(
+      nextPinned
+        ? isAr
+          ? "تم تثبيت المنشور."
+          : "Post pinned."
+        : isAr
+          ? "تم إلغاء التثبيت."
+          : "Post unpinned."
+    );
+  };
+
+  const handleDeleteMarketingPost = async (postId: string) => {
+    if (!canManageMarketing) return;
+
+    const ok = await deleteSellerMarketingPost(postId);
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر حذف المنشور من قاعدة البيانات."
+          : "Marketing post could not be deleted."
+      );
+      return;
+    }
+
+    setMarketingPosts((previous) =>
+      previous.filter((post) => post.id !== postId)
+    );
+    showToast(isAr ? "تم حذف المنشور بنجاح." : "Post deleted.");
+  };
+
+  const handleShipmentStatusChange = async (
+    shipmentId: string,
+    status: Shipment["status"]
+  ) => {
+    if (!canManageOrders || !currentStore.id) return;
+
+    const ok = await updateSellerShipmentStatus(
+      shipmentId,
+      currentStore.id,
+      status
+    );
+
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر تحديث حالة الشحنة في قاعدة البيانات."
+          : "Shipment status could not be updated."
+      );
+      return;
+    }
+
+    setShipments((previous) =>
+      previous.map((shipment) =>
+        shipment.id === shipmentId ? { ...shipment, status } : shipment
+      )
+    );
+    showToast(isAr ? "تم تحديث حالة الشحنة." : "Shipment updated.");
+  };
+
   const handleRequestPayout = (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = Number(payoutAmount);
