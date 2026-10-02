@@ -1,6 +1,11 @@
 import { supabase } from "./supabaseClient";
 import type { Category, Store, Product } from "@/types/marketplace";
 
+export type PublicStore = Pick<
+  Store,
+  "id" | "name" | "slug" | "description" | "logo_url" | "banner_url" | "country" | "is_verified" | "is_official"
+>;
+
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
@@ -29,16 +34,26 @@ export async function getProductsByCategorySlug(slug: string): Promise<Product[]
   return data as Product[];
 }
 
-export async function getStoreBySlug(slug: string): Promise<Store | null> {
-  const { data, error } = await supabase.from("stores").select("*").eq("slug", slug).single();
-  if (error || !data) return null;
-  return data as Store;
+export async function getStoreBySlug(slug: string): Promise<PublicStore | null> {
+  const { data, error } = await supabase.rpc("get_public_store_by_slug", {
+    p_slug: slug,
+  });
+  if (error || !data?.length) return null;
+  return data[0] as PublicStore;
 }
 
-export async function getStoreById(id: string): Promise<Store | null> {
-  const { data, error } = await supabase.from("stores").select("*").eq("id", id).single();
-  if (error || !data) return null;
-  return data as Store;
+export async function getStoreById(id: string): Promise<PublicStore | null> {
+  const { data, error } = await supabase.rpc("get_public_store_by_id", {
+    p_store_id: id,
+  });
+  if (error || !data?.length) return null;
+  return data[0] as PublicStore;
+}
+
+export async function listPublicStores(): Promise<PublicStore[]> {
+  const { data, error } = await supabase.rpc("list_public_stores");
+  if (error || !data) return [];
+  return data as PublicStore[];
 }
 
 export async function getProductsByStore(storeId: string): Promise<Product[]> {
@@ -74,42 +89,20 @@ function slugify(name: string): string {
 }
 
 export async function createStore(
-  ownerId: string,
   name: string,
   description: string
 ): Promise<{ store: Store | null; error: string | null }> {
-  const baseSlug = slugify(name);
+  const { data, error } = await supabase.rpc("create_store_secure", {
+    p_name: name,
+    p_slug: slugify(name),
+    p_description: description,
+  });
 
-  // نحاول لحد 5 مرات بمعرف مختلف كل مرة، عشان نضمن عدم تعارض
-  // اسم المتجر (slug) لو حد تاني مستخدم نفس الاسم قبل كده.
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const suffix = Math.random().toString(36).slice(2, 6);
-    const slug = attempt === 0 ? baseSlug : `${baseSlug}-${suffix}`;
-
-    const { data, error } = await supabase
-      .from("stores")
-      .insert({
-        owner_id: ownerId,
-        name,
-        slug,
-        description,
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (!error && data) {
-      return { store: data as Store, error: null };
-    }
-
-    // لو الخطأ مش تعارض فى الاسم (زي مشكلة صلاحيات مثلاً)، نوقف فورًا
-    // ونرجع رسالة الخطأ الحقيقية بدل ما نكرر المحاولة من غير فايدة.
-    if (error && error.code !== "23505") {
-      return { store: null, error: error.message };
-    }
+  if (error || !data) {
+    return { store: null, error: error?.message ?? "تعذر إنشاء المتجر." };
   }
 
-  return { store: null, error: "تعذر إنشاء المتجر، اسم المتجر مستخدم بكثرة. جرّب اسم مختلف." };
+  return { store: data as Store, error: null };
 }
 
 // ============================================================
