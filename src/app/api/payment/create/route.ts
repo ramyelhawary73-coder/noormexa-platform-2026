@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
   const { data: orders, error: ordersError } = await supabaseAdmin
     .from("orders")
     .select(
-      "id, buyer_id, total_amount, status, payment_status, payment_provider, payment_reference"
+      "id, buyer_id, total_amount, status, payment_method, payment_status, payment_provider, payment_reference, checkout_reference"
     )
     .in("id", orderIds)
     .eq("buyer_id", auth.user.id);
@@ -106,18 +106,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "تعذر العثور على الطلب" }, { status: 404 });
   }
 
+  const expectedPaymentMethod =
+    provider === "stripe" ? "stripe" : "applePayMada";
+  const checkoutReferences = new Set(
+    orders
+      .map((order) => order.checkout_reference)
+      .filter((value): value is string => typeof value === "string" && value.length > 0)
+  );
+
   const notPayable = orders.some(
     (order) =>
       order.status !== "pending" ||
-      (order.payment_status ?? "pending") !== "pending"
+      (order.payment_status ?? "pending") !== "pending" ||
+      order.payment_method !== expectedPaymentMethod
   );
 
-  if (notPayable) {
+  if (notPayable || checkoutReferences.size !== 1) {
     return NextResponse.json(
-      { error: "أحد الطلبات تم دفعه أو معالجته بالفعل" },
+      { error: "الطلبات لا تنتمي إلى عملية دفع واحدة صالحة." },
       { status: 409 }
     );
   }
+
+  const checkoutReference = Array.from(checkoutReferences)[0];
 
   const totalAmount = orders.reduce(
     (sum, order) => sum + Number(order.total_amount ?? 0),
@@ -134,7 +145,8 @@ export async function POST(req: NextRequest) {
     orderIds,
     auth.user.id,
     provider,
-    reference
+    reference,
+    checkoutReference
   );
 
   if (!tagged) {
@@ -187,7 +199,8 @@ async function tagOrders(
   orderIds: string[],
   buyerId: string,
   provider: PaymentProvider,
-  reference: string
+  reference: string,
+  checkoutReference: string
 ): Promise<boolean> {
   const { data, error } = await supabaseAdmin
     .from("orders")
@@ -198,6 +211,7 @@ async function tagOrders(
     })
     .in("id", orderIds)
     .eq("buyer_id", buyerId)
+    .eq("checkout_reference", checkoutReference)
     .eq("status", "pending")
     .eq("payment_status", "pending")
     .select("id");
