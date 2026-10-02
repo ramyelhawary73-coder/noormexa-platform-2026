@@ -1080,14 +1080,16 @@ export default function SellerDashboardPage() {
                 <p className="text-xs text-muted">{isAr ? "إضافة وتعديل الأسعار والكميات والمواصفات للمتجر" : "Add, edit, or adjust stock levels for your products"}</p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowAddModal(true)}
-                className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
-              >
-                <Plus size={16} />
-                <span>{isAr ? "إضافة منتج جديد" : "Add New Product"}</span>
-              </button>
+              {canManageCatalog && (
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Plus size={16} />
+                  <span>{isAr ? "إضافة منتج جديد" : "Add New Product"}</span>
+                </button>
+              )}
             </div>
 
             {/* Filters Bar */}
@@ -1124,14 +1126,16 @@ export default function SellerDashboardPage() {
               <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
                 <Boxes size={32} className="text-muted mx-auto" />
                 <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد منتجات مسجلة في هذا المتجر حالياً" : "No products found"}</div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5 touch-manipulation active:scale-95"
-                >
-                  <Plus size={14} />
-                  <span>{isAr ? "أضف أول منتج الآن" : "Add first product"}</span>
-                </button>
+                {canManageCatalog && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(true)}
+                    className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5 touch-manipulation active:scale-95"
+                  >
+                    <Plus size={14} />
+                    <span>{isAr ? "أضف أول منتج الآن" : "Add first product"}</span>
+                  </button>
+                )}
               </div>
             ) : (
               <>
@@ -1195,19 +1199,21 @@ export default function SellerDashboardPage() {
                           >
                             <Eye size={15} />
                           </Link>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                deleteProductItem(p.id);
-                                showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
-                              }
-                            }}
-                            className="p-2 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
-                            title={isAr ? "حذف المنتج" : "Delete"}
-                          >
-                            <Trash2 size={15} />
-                          </button>
+                          {canManageCatalog && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                  deleteProductItem(p.id);
+                                  showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                                }
+                              }}
+                              className="p-2 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
+                              title={isAr ? "حذف المنتج" : "Delete"}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1291,19 +1297,21 @@ export default function SellerDashboardPage() {
                               >
                                 <Eye size={14} />
                               </Link>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                    deleteProductItem(p.id);
-                                    showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
-                                  }
-                                }}
-                                className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
-                                title={isAr ? "حذف المنتج" : "Delete"}
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                              {canManageCatalog && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                      deleteProductItem(p.id);
+                                      showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                                    }
+                                  }}
+                                  className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
+                                  title={isAr ? "حذف المنتج" : "Delete"}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -1484,14 +1492,16 @@ export default function SellerDashboardPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowAddMarketingModal(true)}
-                className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
-              >
-                <Plus size={16} />
-                <span>{isAr ? "إنشاء منشور تسويقي جديد" : "Create Marketing Post"}</span>
-              </button>
+              {canManageMarketing && (
+                <button
+                  type="button"
+                  onClick={() => setShowAddMarketingModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Plus size={16} />
+                  <span>{isAr ? "إنشاء منشور تسويقي جديد" : "Create Marketing Post"}</span>
+                </button>
+              )}
             </div>
 
             {/* Marketing Stats Summary */}
@@ -1547,14 +1557,16 @@ export default function SellerDashboardPage() {
                 <Megaphone size={32} className="text-muted mx-auto" />
                 <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد منشورات تسويقية لهذا المتجر بعد" : "No marketing posts published yet"}</div>
                 <p className="text-[11px] text-muted">{isAr ? "ابدأ بإطلاق أول حملة ترويجية لمنتجاتك الآن" : "Launch your first promotional campaign to boost store traffic"}</p>
-                <button
-                  type="button"
-                  onClick={() => setShowAddMarketingModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
-                >
-                  <Plus size={14} />
-                  <span>{isAr ? "إنشاء منشور ترويجي" : "Create promo post"}</span>
-                </button>
+                {canManageMarketing && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddMarketingModal(true)}
+                    className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
+                  >
+                    <Plus size={14} />
+                    <span>{isAr ? "إنشاء منشور ترويجي" : "Create promo post"}</span>
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1625,32 +1637,34 @@ export default function SellerDashboardPage() {
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            updateMarketingPost(post.id, { is_pinned: !post.is_pinned });
-                            showToast(post.is_pinned ? isAr ? "تم إلغاء التثبيت" : "Unpinned" : isAr ? "تم التثبيت في المقدمة" : "Pinned");
-                          }}
-                          className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground text-[11px]"
-                          title={post.is_pinned ? isAr ? "إلغاء التثبيت" : "Unpin" : isAr ? "تثبيت" : "Pin"}
-                        >
-                          ★
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنشور التسويقي؟" : "Delete marketing post?")) {
-                              deleteMarketingPost(post.id);
-                              showToast(isAr ? "تم حذف المنشور بنجاح" : "Post deleted");
-                            }
-                          }}
-                          className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
-                          title={isAr ? "حذف" : "Delete"}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                      {canManageMarketing && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateMarketingPost(post.id, { is_pinned: !post.is_pinned });
+                              showToast(post.is_pinned ? isAr ? "تم إلغاء التثبيت" : "Unpinned" : isAr ? "تم التثبيت في المقدمة" : "Pinned");
+                            }}
+                            className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground text-[11px]"
+                            title={post.is_pinned ? isAr ? "إلغاء التثبيت" : "Unpin" : isAr ? "تثبيت" : "Pin"}
+                          >
+                            ★
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنشور التسويقي؟" : "Delete marketing post?")) {
+                                deleteMarketingPost(post.id);
+                                showToast(isAr ? "تم حذف المنشور بنجاح" : "Post deleted");
+                              }
+                            }}
+                            className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
+                            title={isAr ? "حذف" : "Delete"}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
