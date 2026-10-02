@@ -27,6 +27,7 @@ import {
   Trash2,
   TrendingUp,
   Truck,
+  Users,
   Wallet,
   X,
 } from "lucide-react";
@@ -661,6 +662,14 @@ export default function SellerDashboardPage() {
             >
               <Eye size={15} className="text-gold" />
               <span className="truncate">{isAr ? "معاينة المتجر" : "View Store"}</span>
+            </Link>
+
+            <Link
+              href="/seller/team"
+              className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+            >
+              <Users size={15} className="text-gold" />
+              <span className="truncate">{isAr ? "فريق المتجر" : "Store Team"}</span>
             </Link>
 
             <button
