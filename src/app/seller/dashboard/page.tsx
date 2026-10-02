@@ -38,7 +38,6 @@ import {
   deleteProduct as persistDeleteProduct,
   getMyStorePrivateSettings,
   getMyTenantStores,
-  updateOrderStatus as persistOrderStatus,
   updateStoreProfile as persistStoreProfile,
   type TenantStore,
 } from "@/lib/marketplace";
@@ -47,6 +46,7 @@ import {
   deleteSellerMarketingPost,
   loadSellerWorkspaceData,
   updateSellerMarketingPost,
+  updateSellerOrderStatus,
   updateSellerShipmentStatus,
 } from "@/lib/sellerWorkspace";
 import type { Order, Shipment, CurrencyCode } from "@/types/marketplace";
@@ -770,7 +770,11 @@ export default function SellerDashboardPage() {
   ) => {
     if (!canManageOrders) return;
 
-    const ok = await persistOrderStatus(orderId, status);
+    const ok = await updateSellerOrderStatus(
+      orderId,
+      currentStore.id,
+      status
+    );
     if (!ok) {
       showToast(
         isAr
