@@ -8,11 +8,10 @@
 -- explicit approval and pre-deployment verification.
 --
 -- Scope intentionally limited to:
---   products, orders, shipments, marketing_posts
+--   products, orders, shipments, marketing_posts, legacy order_items containment
 --
 -- Out of scope in this migration:
---   order_items (legacy schema mismatch discovered during audit),
---   reviews, payments, storage, Auth, Secrets, OAuth.
+--   reviews, storage, Auth, Secrets, OAuth.
 --
 -- Fixed RBAC used here:
 --   owner   -> tenant operational administration
@@ -33,6 +32,7 @@ alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.shipments enable row level security;
 alter table public.marketing_posts enable row level security;
+alter table public.order_items enable row level security;
 
 -- ---------------------------------------------------------------------------
 -- 1) PRODUCTS
@@ -136,8 +136,10 @@ grant select, insert, update, delete on table public.products to authenticated;
 -- 2) ORDERS
 -- ---------------------------------------------------------------------------
 -- Customer:
---   * may create an order only with buyer_id = auth.uid().
 --   * may read only their own orders.
+--   * may NOT insert orders directly. Order creation is exclusively through
+--     create_checkout_orders_secure(), which recalculates price, buyer,
+--     commission, stock, status and totals inside PostgreSQL.
 --   * may not directly change status/payment/commission fields.
 -- Tenant:
 --   * owner/manager/support may read and update orders for their own store.
@@ -159,19 +161,6 @@ create policy "orders_buyer_select_own"
   to authenticated
   using (
     buyer_id = auth.uid()::text
-  );
-
-create policy "orders_buyer_insert_own"
-  on public.orders
-  for insert
-  to authenticated
-  with check (
-    buyer_id = auth.uid()::text
-    and store_id is not null
-    and exists (
-      select 1
-      from public.get_public_store_by_id(store_id)
-    )
   );
 
 create policy "orders_tenant_select"
@@ -209,7 +198,7 @@ create policy "orders_tenant_update"
   );
 
 revoke all on table public.orders from anon, authenticated;
-grant select, insert, update on table public.orders to authenticated;
+grant select, update on table public.orders to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 3) SHIPMENTS
@@ -411,9 +400,18 @@ revoke all on table public.marketing_posts from anon, authenticated;
 grant select on table public.marketing_posts to anon;
 grant select, insert, update, delete on table public.marketing_posts to authenticated;
 
+-- ---------------------------------------------------------------------------
+-- 5) Legacy order_items containment
+-- ---------------------------------------------------------------------------
+-- orders.items JSONB is the canonical item snapshot for Phase 11 checkout.
+-- Existing legacy order_items rows are preserved, but the mismatched table is
+-- removed from all browser/API roles until a later normalized line-item design.
+
+drop policy if exists "order_items_admin_all" on public.order_items;
+revoke all on table public.order_items from anon, authenticated;
 
 -- ---------------------------------------------------------------------------
--- 5) Immutable tenant binding fields
+-- 6) Immutable tenant binding fields
 -- ---------------------------------------------------------------------------
 -- RLS checks the caller's authorization against the NEW row as well, but a
 -- user who legitimately manages two stores must still not be able to move
@@ -425,7 +423,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = pg_catalog, public
-as $
+as $$
 begin
   if auth.uid() is null then
     return new;
@@ -445,7 +443,7 @@ begin
 
   return new;
 end;
-$;
+$$;
 
 drop trigger if exists protect_products_tenant_binding on public.products;
 create trigger protect_products_tenant_binding
