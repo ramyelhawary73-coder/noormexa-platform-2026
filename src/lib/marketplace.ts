@@ -671,9 +671,29 @@ export async function submitReview(payload: {
 
 export async function updateStoreProfile(
   storeId: string,
-  updates: { name?: string; description?: string | null; logo_url?: string | null; banner_url?: string | null }
+  updates: {
+    name?: string;
+    description?: string | null;
+    country?: string | null;
+    logo_url?: string | null;
+    banner_url?: string | null;
+    contact_email?: string | null;
+    contact_phone?: string | null;
+    cr_number?: string | null;
+    tax_number?: string | null;
+    bank_name?: string | null;
+    iban?: string | null;
+  }
 ): Promise<{ store: Store | null; error: string | null }> {
-  const { data, error } = await supabase.from("stores").update(updates).eq("id", storeId).select().single();
+  // The store id is still re-authorized by stores RLS. No privileged fields
+  // (owner/status/verification/official/commission/plan) are accepted here.
+  const { data, error } = await supabase
+    .from("stores")
+    .update(updates)
+    .eq("id", storeId)
+    .select()
+    .single();
+
   if (error || !data) return { store: null, error: error?.message ?? "تعذر تحديث بيانات المتجر" };
   return { store: data as Store, error: null };
 }
