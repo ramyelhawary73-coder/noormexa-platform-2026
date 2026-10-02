@@ -2,7 +2,16 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, RefreshCw, ShieldCheck, Trash2, UserPlus, Users } from "lucide-react";
+import {
+  ArrowRight,
+  KeyRound,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+  UserCog,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { isPlatformSuperAdminProfile } from "@/lib/authHelpers";
 import { supabase } from "@/lib/supabaseClient";
@@ -19,6 +28,14 @@ type TeamMember = {
   created_at: string;
 };
 
+type PlatformAdmin = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  is_admin: boolean;
+  is_super_admin: boolean;
+};
+
 const roleLabels: Record<TeamRole, string> = {
   owner: "مالك المتجر",
   manager: "مدير",
@@ -29,19 +46,50 @@ const roleLabels: Record<TeamRole, string> = {
 export default function OfficialStoreTeamPage() {
   const { profile } = useAuth();
   const isSuperAdmin = isPlatformSuperAdminProfile(profile);
+
+  const [platformAdmins, setPlatformAdmins] = useState<PlatformAdmin[]>([]);
+  const [platformEmail, setPlatformEmail] = useState("");
+  const [platformLoading, setPlatformLoading] = useState(true);
+  const [platformSaving, setPlatformSaving] = useState(false);
+
   const [members, setMembers] = useState<TeamMember[]>([]);
-  const [email, setEmail] = useState("");
+  const [teamEmail, setTeamEmail] = useState("");
   const [role, setRole] = useState<TeamRole>("manager");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [teamLoading, setTeamLoading] = useState(true);
+  const [teamSaving, setTeamSaving] = useState(false);
+
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadTeam = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const loadPlatformAdmins = useCallback(async () => {
+    if (!isSuperAdmin) {
+      setPlatformAdmins([]);
+      setPlatformLoading(false);
+      return;
+    }
 
-    const { data, error: rpcError } = await supabase.rpc("get_official_store_team");
+    setPlatformLoading(true);
+
+    const { data, error: rpcError } = await supabase.rpc(
+      "get_manageable_platform_admins"
+    );
+
+    if (rpcError) {
+      setError(rpcError.message);
+      setPlatformAdmins([]);
+    } else {
+      setPlatformAdmins((data ?? []) as PlatformAdmin[]);
+    }
+
+    setPlatformLoading(false);
+  }, [isSuperAdmin]);
+
+  const loadTeam = useCallback(async () => {
+    setTeamLoading(true);
+
+    const { data, error: rpcError } = await supabase.rpc(
+      "get_official_store_team"
+    );
 
     if (rpcError) {
       setError(rpcError.message);
@@ -50,75 +98,154 @@ export default function OfficialStoreTeamPage() {
       setMembers((data ?? []) as TeamMember[]);
     }
 
-    setLoading(false);
+    setTeamLoading(false);
   }, []);
 
   useEffect(() => {
+    setError(null);
+    void loadPlatformAdmins();
     void loadTeam();
-  }, [loadTeam]);
+  }, [loadPlatformAdmins, loadTeam]);
 
-  const handleAdd = async (event: FormEvent) => {
+  const handleGrantPlatformAdmin = async (event: FormEvent) => {
     event.preventDefault();
-    if (!isSuperAdmin || !email.trim()) return;
+    if (!isSuperAdmin || !platformEmail.trim()) return;
 
-    setSaving(true);
+    setPlatformSaving(true);
     setError(null);
     setNotice(null);
 
-    const { error: rpcError } = await supabase.rpc("add_official_store_member_by_email", {
-      p_email: email.trim(),
-      p_role: role,
-    });
+    const { data, error: rpcError } = await supabase.rpc(
+      "grant_platform_admin_by_email",
+      { p_email: platformEmail.trim() }
+    );
+
+    if (rpcError) {
+      setError(rpcError.message);
+    } else if (data !== true) {
+      setError(
+        "الحساب غير موجود في Profiles بعد. لازم صاحب البريد يسجل دخول إلى NOORMEXA مرة واحدة أولاً، وبعدها أعد منحه Platform Admin من هنا."
+      );
+    } else {
+      setNotice(
+        "تم منح صلاحية Platform Admin. الحساب أصبح مؤهلاً للدخول إلى /admin بعد تحديث الصفحة أو تسجيل الدخول من جديد."
+      );
+      setPlatformEmail("");
+      await loadPlatformAdmins();
+    }
+
+    setPlatformSaving(false);
+  };
+
+  const handleRevokePlatformAdmin = async (admin: PlatformAdmin) => {
+    if (!isSuperAdmin) return;
+    if (
+      !window.confirm(
+        `إلغاء صلاحية Platform Admin عن ${admin.email}؟ لن يتم حذف الحساب نفسه.`
+      )
+    ) {
+      return;
+    }
+
+    setPlatformSaving(true);
+    setError(null);
+    setNotice(null);
+
+    const { data, error: rpcError } = await supabase.rpc(
+      "revoke_platform_admin",
+      { p_user_id: admin.id }
+    );
+
+    if (rpcError) {
+      setError(rpcError.message);
+    } else if (data !== true) {
+      setError("لم يتم العثور على صلاحية Platform Admin قابلة للإلغاء.");
+    } else {
+      setNotice(
+        "تم إلغاء صلاحية Platform Admin. عضوية المتجر الرسمية — إن وجدت — لم تتغير."
+      );
+      await loadPlatformAdmins();
+    }
+
+    setPlatformSaving(false);
+  };
+
+  const handleAddTeamMember = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!isSuperAdmin || !teamEmail.trim()) return;
+
+    setTeamSaving(true);
+    setError(null);
+    setNotice(null);
+
+    const { error: rpcError } = await supabase.rpc(
+      "add_official_store_member_by_email",
+      {
+        p_email: teamEmail.trim(),
+        p_role: role,
+      }
+    );
 
     if (rpcError) {
       setError(rpcError.message);
     } else {
       setNotice(
-        "تم حفظ العضو. إذا كان البريد مسجلاً في NOORMEXA ستصبح الصلاحية Active فوراً، وإلا ستظل Pending حتى يسجل الحساب."
+        "تم حفظ عضوية المتجر الرسمي. هذه العضوية تدير المتجر فقط ولا تمنح دخول /admin. لو الشخص مطلوب كمدير للمنصة استخدم قسم Platform Admins بالأعلى."
       );
-      setEmail("");
+      setTeamEmail("");
       await loadTeam();
     }
 
-    setSaving(false);
+    setTeamSaving(false);
   };
 
-  const handleRemove = async (memberEmail: string) => {
+  const handleRemoveTeamMember = async (memberEmail: string) => {
     if (!isSuperAdmin) return;
-    if (!window.confirm(`إزالة صلاحية إدارة المتجر عن ${memberEmail}؟`)) return;
+    if (
+      !window.confirm(
+        `إزالة ${memberEmail} من فريق المتجر الرسمي؟ صلاحية Platform Admin — إن وجدت — لن تتغير.`
+      )
+    ) {
+      return;
+    }
 
-    setSaving(true);
+    setTeamSaving(true);
     setError(null);
     setNotice(null);
 
-    const { error: rpcError } = await supabase.rpc("remove_official_store_member_by_email", {
-      p_email: memberEmail,
-    });
+    const { error: rpcError } = await supabase.rpc(
+      "remove_official_store_member_by_email",
+      { p_email: memberEmail }
+    );
 
     if (rpcError) {
       setError(rpcError.message);
     } else {
-      setNotice("تمت إزالة العضو من فريق المتجر الرسمي.");
+      setNotice(
+        "تمت إزالة العضو من فريق المتجر الرسمي. صلاحية Platform Admin لم تتغير."
+      );
       await loadTeam();
     }
 
-    setSaving(false);
+    setTeamSaving(false);
   };
 
   return (
     <main className="noormexa-main py-6 sm:py-10 pb-28">
       <div className="noormexa-container max-w-5xl space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-black text-orange-700 dark:text-orange-300">
               <ShieldCheck size={14} />
-              Official Store Permissions
+              NOORMEXA Access Control
             </div>
-            <h1 className="mt-3 text-2xl sm:text-3xl font-black text-foreground">
-              إدارة فريق متجر NOORMEXA الرسمي
+            <h1 className="mt-3 text-2xl font-black text-foreground sm:text-3xl">
+              إدارة صلاحيات المنصة والمتجر الرسمي
             </h1>
             <p className="mt-2 text-sm text-muted">
-              أعضاء المتجر هنا منفصلون عن صلاحية مالك المنصة. الـPlatform Super Admin فقط يقدر يضيف أو يزيل أعضاء الفريق.
+              صلاحية Platform Admin منفصلة عن عضوية فريق المتجر الرسمي. الدخول
+              إلى مركز الإدارة يعتمد على Platform Admin، وليس على دور Manager
+              داخل المتجر.
             </p>
           </div>
 
@@ -131,49 +258,20 @@ export default function OfficialStoreTeamPage() {
           </Link>
         </div>
 
-        {isSuperAdmin && (
-          <form onSubmit={handleAdd} className="rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <UserPlus size={18} className="text-orange-500" />
-              <h2 className="font-black text-foreground">إضافة أو تحديث عضو بالإيميل</h2>
+        <div className="rounded-2xl border border-sky-500/30 bg-sky-500/10 p-4 text-sm text-foreground">
+          <div className="flex gap-3">
+            <KeyRound className="mt-0.5 shrink-0 text-sky-600" size={18} />
+            <div>
+              <div className="font-black">لو عايز الشخص يدخل لوحة /admin</div>
+              <div className="mt-1 text-xs leading-6 text-muted">
+                استخدم قسم <strong>Platform Admins</strong>. الحساب يجب أن يكون
+                قد سجل دخول إلى NOORMEXA مرة واحدة على الأقل حتى يكون له Profile.
+                إضافة الشخص كـManager في المتجر الرسمي وحدها لا تمنحه صلاحية
+                إدارة المنصة.
+              </div>
             </div>
-
-            <div className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="manager@example.com"
-                className="h-11 rounded-2xl border border-line bg-surface-soft px-4 text-sm text-foreground outline-none focus:border-orange-500"
-              />
-
-              <select
-                value={role}
-                onChange={(event) => setRole(event.target.value as TeamRole)}
-                className="h-11 rounded-2xl border border-line bg-surface-soft px-4 text-sm font-bold text-foreground outline-none focus:border-orange-500"
-              >
-                <option value="manager">مدير</option>
-                <option value="editor">محرر</option>
-                <option value="support">دعم</option>
-              </select>
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="h-11 rounded-2xl bg-orange-500 px-5 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {saving ? "جاري الحفظ..." : "حفظ الصلاحية"}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {!isSuperAdmin && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground">
-            أنت Platform Admin ويمكنك مشاهدة فريق المتجر، لكن إضافة أو إزالة المديرين محجوزة للـPlatform Super Admin.
           </div>
-        )}
+        </div>
 
         {notice && (
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-700 dark:text-emerald-300">
@@ -187,79 +285,260 @@ export default function OfficialStoreTeamPage() {
           </div>
         )}
 
-        <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Users size={18} className="text-orange-500" />
-              <h2 className="font-black text-foreground">الفريق الحالي</h2>
-              <span className="rounded-full bg-surface-soft px-2 py-0.5 text-xs font-black text-muted">
-                {members.length}
-              </span>
+        <section className="rounded-3xl border border-orange-500/30 bg-surface p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <UserCog className="mt-0.5 text-orange-500" size={20} />
+              <div>
+                <h2 className="font-black text-foreground">
+                  Platform Admins — مديري المنصة
+                </h2>
+                <p className="mt-1 text-xs text-muted">
+                  هذه هي الصلاحية التي تسمح بالدخول إلى /admin. الـPlatform
+                  Super Admin محمي وغير ظاهر في قائمة الإزالة.
+                </p>
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => void loadTeam()}
-              disabled={loading}
-              className="inline-flex items-center gap-2 rounded-xl border border-line px-3 py-2 text-xs font-bold text-foreground hover:border-orange-500/50 disabled:opacity-60"
-            >
-              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-              تحديث
-            </button>
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => void loadPlatformAdmins()}
+                disabled={platformLoading}
+                className="inline-flex items-center gap-2 self-start rounded-xl border border-line px-3 py-2 text-xs font-bold text-foreground hover:border-orange-500/50 disabled:opacity-60"
+              >
+                <RefreshCw
+                  size={14}
+                  className={platformLoading ? "animate-spin" : ""}
+                />
+                تحديث
+              </button>
+            )}
           </div>
 
-          {loading ? (
-            <div className="py-10 text-center text-sm text-muted">جاري تحميل الفريق...</div>
-          ) : members.length === 0 ? (
-            <div className="py-10 text-center text-sm text-muted">لا يوجد أعضاء مسجلون للمتجر الرسمي.</div>
-          ) : (
-            <div className="space-y-3">
-              {members.map((member) => {
-                const protectedMember = member.role === "owner" && Boolean(member.user_id);
-                return (
-                  <div
-                    key={`${member.store_id}-${member.email}`}
-                    className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-soft p-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <div className="font-black text-foreground truncate">
-                        {member.full_name || member.email}
-                      </div>
-                      <div className="mt-1 text-xs text-muted truncate">{member.email}</div>
-                    </div>
+          {isSuperAdmin ? (
+            <>
+              <form
+                onSubmit={handleGrantPlatformAdmin}
+                className="grid gap-3 border-b border-line pb-5 md:grid-cols-[1fr_auto]"
+              >
+                <input
+                  type="email"
+                  required
+                  value={platformEmail}
+                  onChange={(event) => setPlatformEmail(event.target.value)}
+                  placeholder="admin@example.com"
+                  className="h-11 rounded-2xl border border-line bg-surface-soft px-4 text-sm text-foreground outline-none focus:border-orange-500"
+                />
+                <button
+                  type="submit"
+                  disabled={platformSaving}
+                  className="h-11 rounded-2xl bg-orange-500 px-5 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {platformSaving
+                    ? "جاري المنح..."
+                    : "منح صلاحية Platform Admin"}
+                </button>
+              </form>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-bold text-foreground">
-                        {roleLabels[member.role]}
-                      </span>
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-black ${
-                          member.status === "active"
-                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                            : "bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                        }`}
-                      >
-                        {member.status === "active" ? "Active" : "Pending"}
-                      </span>
-
-                      {isSuperAdmin && !protectedMember && (
-                        <button
-                          type="button"
-                          onClick={() => void handleRemove(member.email)}
-                          disabled={saving}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-1.5 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
-                        >
-                          <Trash2 size={13} />
-                          إزالة
-                        </button>
-                      )}
-                    </div>
+              <div className="mt-5">
+                {platformLoading ? (
+                  <div className="py-8 text-center text-sm text-muted">
+                    جاري تحميل مديري المنصة...
                   </div>
-                );
-              })}
+                ) : platformAdmins.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-muted">
+                    لا يوجد Platform Admin قابل للإدارة حاليًا.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {platformAdmins.map((admin) => (
+                      <div
+                        key={admin.id}
+                        className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-soft p-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="min-w-0">
+                          <div className="truncate font-black text-foreground">
+                            {admin.full_name || admin.email}
+                          </div>
+                          <div className="mt-1 truncate text-xs text-muted">
+                            {admin.email}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-black text-orange-700 dark:text-orange-300">
+                            Platform Admin
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleRevokePlatformAdmin(admin)
+                            }
+                            disabled={platformSaving}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-1.5 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
+                          >
+                            <Trash2 size={13} />
+                            إلغاء صلاحية المنصة
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground">
+              أنت Platform Admin ويمكنك دخول مركز الإدارة، لكن منح أو إلغاء
+              Platform Admin آخر محجوز للـPlatform Super Admin.
             </div>
           )}
         </section>
+
+        <section className="rounded-3xl border border-line bg-surface p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex items-start gap-3">
+            <Users className="mt-0.5 text-amber-500" size={20} />
+            <div>
+              <h2 className="font-black text-foreground">
+                Official Store Team — فريق المتجر الرسمي
+              </h2>
+              <p className="mt-1 text-xs text-muted">
+                Manager / Editor / Support هنا أدوار تشغيل المتجر فقط. لا تمنح
+                الدخول إلى /admin.
+              </p>
+            </div>
+          </div>
+
+          {isSuperAdmin && (
+            <form
+              onSubmit={handleAddTeamMember}
+              className="grid gap-3 border-b border-line pb-5 md:grid-cols-[1fr_220px_auto]"
+            >
+              <input
+                type="email"
+                required
+                value={teamEmail}
+                onChange={(event) => setTeamEmail(event.target.value)}
+                placeholder="team@example.com"
+                className="h-11 rounded-2xl border border-line bg-surface-soft px-4 text-sm text-foreground outline-none focus:border-amber-500"
+              />
+
+              <select
+                value={role}
+                onChange={(event) =>
+                  setRole(event.target.value as TeamRole)
+                }
+                className="h-11 rounded-2xl border border-line bg-surface-soft px-4 text-sm font-bold text-foreground outline-none focus:border-amber-500"
+              >
+                <option value="manager">مدير متجر</option>
+                <option value="editor">محرر منتجات ومحتوى</option>
+                <option value="support">دعم وخدمة عملاء</option>
+              </select>
+
+              <button
+                type="submit"
+                disabled={teamSaving}
+                className="h-11 rounded-2xl bg-amber-500 px-5 text-sm font-black text-navy transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {teamSaving ? "جاري الحفظ..." : "حفظ عضوية المتجر"}
+              </button>
+            </form>
+          )}
+
+          <div className="mt-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-foreground">الفريق الحالي</h3>
+                <span className="rounded-full bg-surface-soft px-2 py-0.5 text-xs font-black text-muted">
+                  {members.length}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void loadTeam()}
+                disabled={teamLoading}
+                className="inline-flex items-center gap-2 rounded-xl border border-line px-3 py-2 text-xs font-bold text-foreground hover:border-amber-500/50 disabled:opacity-60"
+              >
+                <RefreshCw
+                  size={14}
+                  className={teamLoading ? "animate-spin" : ""}
+                />
+                تحديث
+              </button>
+            </div>
+
+            {teamLoading ? (
+              <div className="py-10 text-center text-sm text-muted">
+                جاري تحميل فريق المتجر...
+              </div>
+            ) : members.length === 0 ? (
+              <div className="py-10 text-center text-sm text-muted">
+                لا يوجد أعضاء مسجلون للمتجر الرسمي.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {members.map((member) => {
+                  const protectedMember =
+                    member.role === "owner" && Boolean(member.user_id);
+
+                  return (
+                    <div
+                      key={`${member.store_id}-${member.email}`}
+                      className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-soft p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate font-black text-foreground">
+                          {member.full_name || member.email}
+                        </div>
+                        <div className="mt-1 truncate text-xs text-muted">
+                          {member.email}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-bold text-foreground">
+                          {roleLabels[member.role]}
+                        </span>
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-black ${
+                            member.status === "active"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                              : "bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                          }`}
+                        >
+                          {member.status === "active" ? "Active" : "Pending"}
+                        </span>
+
+                        {isSuperAdmin && !protectedMember && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleRemoveTeamMember(member.email)
+                            }
+                            disabled={teamSaving}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-1.5 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
+                          >
+                            <Trash2 size={13} />
+                            إزالة من المتجر
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <div className="rounded-2xl border border-line bg-surface-soft p-4 text-xs leading-6 text-muted">
+          <UserPlus className="mb-2 text-muted" size={17} />
+          لو الشخص مطلوب كمدير كامل للمنصة والمتجر معًا: امنحه Platform Admin
+          من القسم الأول، ثم أضفه كـManager للمتجر الرسمي من القسم الثاني. فصل
+          الصلاحيتين مقصود حتى لا تتحول عضوية متجر عادية إلى صلاحية إدارة منصة.
+        </div>
       </div>
     </main>
   );
