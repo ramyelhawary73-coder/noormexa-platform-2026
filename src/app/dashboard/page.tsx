@@ -414,7 +414,7 @@ export default function DashboardPage() {
     if (!user || !storeName.trim() || saving) return;
     setSaving(true);
     setStoreError("");
-    const { store: newStore, error } = await createStore(user.id, storeName.trim(), storeDesc.trim());
+    const { store: newStore, error } = await createStore(storeName.trim(), storeDesc.trim());
     if (newStore) {
       setStore(newStore);
       setSaving(false);

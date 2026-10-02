@@ -343,7 +343,7 @@ export default function SuperAdminPage() {
               className="px-3 sm:px-4 py-2.5 rounded-2xl bg-surface border border-line hover:border-orange-500/50 text-xs sm:text-sm font-black text-foreground flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs touch-manipulation active:scale-95 shrink-0"
             >
               <ShieldCheck size={15} className="text-orange-500" />
-              <span className="truncate">{isAr ? "فريق المتجر الرسمي" : "Official Store Team"}</span>
+              <span className="truncate">{isAr ? "الصلاحيات والإدارة" : "Access & Admins"}</span>
             </Link>
             <button
               type="button"

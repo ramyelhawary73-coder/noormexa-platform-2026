@@ -1,6 +1,41 @@
 import { supabase } from "./supabaseClient";
 import type { Category, Store, Product } from "@/types/marketplace";
 
+export type PublicStore = Pick<
+  Store,
+  "id" | "name" | "slug" | "description" | "logo_url" | "banner_url" | "country" | "is_verified" | "is_official"
+>;
+
+export type StoreMembershipRole = "owner" | "manager" | "editor" | "support";
+
+export type TenantStore = Store & {
+  membership_role: StoreMembershipRole;
+};
+
+export type StorePrivateSettings = {
+  contact_email: string | null;
+  contact_phone: string | null;
+  cr_number: string | null;
+  tax_number: string | null;
+  bank_name: string | null;
+  iban: string | null;
+};
+
+export type CreateStoreInput = {
+  name: string;
+  slug?: string;
+  description?: string;
+  country?: string;
+  cr_number?: string;
+  tax_number?: string;
+  bank_name?: string;
+  iban?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  logo_url?: string;
+  banner_url?: string;
+};
+
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
@@ -29,16 +64,26 @@ export async function getProductsByCategorySlug(slug: string): Promise<Product[]
   return data as Product[];
 }
 
-export async function getStoreBySlug(slug: string): Promise<Store | null> {
-  const { data, error } = await supabase.from("stores").select("*").eq("slug", slug).single();
-  if (error || !data) return null;
-  return data as Store;
+export async function getStoreBySlug(slug: string): Promise<PublicStore | null> {
+  const { data, error } = await supabase.rpc("get_public_store_by_slug", {
+    p_slug: slug,
+  });
+  if (error || !data?.length) return null;
+  return data[0] as PublicStore;
 }
 
-export async function getStoreById(id: string): Promise<Store | null> {
-  const { data, error } = await supabase.from("stores").select("*").eq("id", id).single();
-  if (error || !data) return null;
-  return data as Store;
+export async function getStoreById(id: string): Promise<PublicStore | null> {
+  const { data, error } = await supabase.rpc("get_public_store_by_id", {
+    p_store_id: id,
+  });
+  if (error || !data?.length) return null;
+  return data[0] as PublicStore;
+}
+
+export async function listPublicStores(): Promise<PublicStore[]> {
+  const { data, error } = await supabase.rpc("list_public_stores");
+  if (error || !data) return [];
+  return data as PublicStore[];
 }
 
 export async function getProductsByStore(storeId: string): Promise<Product[]> {
@@ -57,10 +102,29 @@ export async function getProductById(id: string): Promise<Product | null> {
   return data as Product;
 }
 
-export async function getMyStore(userId: string): Promise<Store | null> {
-  const { data, error } = await supabase.from("stores").select("*").eq("owner_id", userId).maybeSingle();
-  if (error || !data) return null;
-  return data as Store;
+export async function getMyTenantStores(): Promise<TenantStore[]> {
+  // This RPC derives the caller from auth.uid() and only returns stores for
+  // active customer-tenant memberships. selectedStoreId is never trusted.
+  const { data, error } = await supabase.rpc("get_my_tenant_stores");
+  if (error || !data) return [];
+  return data as TenantStore[];
+}
+
+export async function getMyStorePrivateSettings(
+  storeId: string
+): Promise<StorePrivateSettings | null> {
+  const { data, error } = await supabase.rpc("get_my_store_private_settings", {
+    p_store_id: storeId,
+  });
+  if (error || !data?.length) return null;
+  return data[0] as StorePrivateSettings;
+}
+
+export async function getMyStore(_legacyUserId?: string): Promise<Store | null> {
+  // Backward-compatible wrapper. The old caller-supplied userId is ignored;
+  // database membership + auth.uid() are the authority.
+  const stores = await getMyTenantStores();
+  return stores[0] ?? null;
 }
 
 function slugify(name: string): string {
@@ -74,42 +138,34 @@ function slugify(name: string): string {
 }
 
 export async function createStore(
-  ownerId: string,
-  name: string,
-  description: string
+  inputOrName: CreateStoreInput | string,
+  legacyDescription = ""
 ): Promise<{ store: Store | null; error: string | null }> {
-  const baseSlug = slugify(name);
+  const input: CreateStoreInput =
+    typeof inputOrName === "string"
+      ? { name: inputOrName, description: legacyDescription }
+      : inputOrName;
 
-  // نحاول لحد 5 مرات بمعرف مختلف كل مرة، عشان نضمن عدم تعارض
-  // اسم المتجر (slug) لو حد تاني مستخدم نفس الاسم قبل كده.
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const suffix = Math.random().toString(36).slice(2, 6);
-    const slug = attempt === 0 ? baseSlug : `${baseSlug}-${suffix}`;
+  const { data, error } = await supabase.rpc("create_store_secure", {
+    p_name: input.name,
+    p_slug: input.slug?.trim() || slugify(input.name),
+    p_description: input.description ?? null,
+    p_country: input.country ?? null,
+    p_cr_number: input.cr_number ?? null,
+    p_tax_number: input.tax_number ?? null,
+    p_bank_name: input.bank_name ?? null,
+    p_iban: input.iban ?? null,
+    p_contact_email: input.contact_email ?? null,
+    p_contact_phone: input.contact_phone ?? null,
+    p_logo_url: input.logo_url ?? null,
+    p_banner_url: input.banner_url ?? null,
+  });
 
-    const { data, error } = await supabase
-      .from("stores")
-      .insert({
-        owner_id: ownerId,
-        name,
-        slug,
-        description,
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (!error && data) {
-      return { store: data as Store, error: null };
-    }
-
-    // لو الخطأ مش تعارض فى الاسم (زي مشكلة صلاحيات مثلاً)، نوقف فورًا
-    // ونرجع رسالة الخطأ الحقيقية بدل ما نكرر المحاولة من غير فايدة.
-    if (error && error.code !== "23505") {
-      return { store: null, error: error.message };
-    }
+  if (error || !data) {
+    return { store: null, error: error?.message ?? "تعذر إنشاء المتجر." };
   }
 
-  return { store: null, error: "تعذر إنشاء المتجر، اسم المتجر مستخدم بكثرة. جرّب اسم مختلف." };
+  return { store: data as Store, error: null };
 }
 
 // ============================================================
@@ -170,10 +226,10 @@ export type AdminProfile = {
 };
 
 export async function getAllAdmins(): Promise<AdminProfile[]> {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, email, full_name, is_admin, is_super_admin")
-    .eq("is_admin", true);
+  // Platform-admin management is intentionally exposed through a narrowly
+  // scoped RPC. Direct platform-wide profile reads are not an authorization
+  // boundary and must not be used for account administration.
+  const { data, error } = await supabase.rpc("get_manageable_platform_admins");
   if (error || !data) return [];
   return data as AdminProfile[];
 }
@@ -182,28 +238,30 @@ export async function grantAdminByEmail(
   email: string
 ): Promise<{ success: boolean; error: string | null }> {
   const normalized = email.trim().toLowerCase();
-  const { data: found, error: findError } = await supabase
-    .from("profiles")
-    .select("id, email")
-    .ilike("email", normalized)
-    .maybeSingle();
+  if (!normalized) {
+    return { success: false, error: "اكتب بريدًا إلكترونيًا صالحًا." };
+  }
 
-  if (findError || !found) {
+  const { data, error } = await supabase.rpc("grant_platform_admin_by_email", {
+    p_email: normalized,
+  });
+
+  if (error) {
+    return { success: false, error: "تعذر منح الصلاحية، حاول تاني." };
+  }
+
+  if (!data) {
     return { success: false, error: "الإيميل ده مش مسجّل حساب على الموقع لسه. لازم يعمل حساب الأول." };
   }
 
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ is_admin: true })
-    .eq("id", found.id);
-
-  if (updateError) return { success: false, error: "تعذر منح الصلاحية، حاول تاني." };
   return { success: true, error: null };
 }
 
 export async function revokeAdmin(userId: string): Promise<boolean> {
-  const { error } = await supabase.from("profiles").update({ is_admin: false }).eq("id", userId);
-  return !error;
+  const { data, error } = await supabase.rpc("revoke_platform_admin", {
+    p_user_id: userId,
+  });
+  return !error && Boolean(data);
 }
 
 export type PlatformStats = {
@@ -400,138 +458,68 @@ export type Order = {
   shipping_notes?: string | null;
 };
 
-export type CheckoutCartItem = {
-  productId: string;
-  storeId: string;
-  price: number;
-  quantity: number;
-};
+function mapLegacyOrderRow(row: Record<string, unknown>): Order {
+  const itemSnapshot: unknown[] = Array.isArray(row.items) ? row.items : [];
 
-export type ShippingInfo = {
-  fullName: string;
-  phone: string;
-  address: string;
-  city: string;
-  notes?: string;
-};
+  return {
+    id: String(row.id ?? ""),
+    buyer_id: String(row.buyer_id ?? ""),
+    store_id: String(row.store_id ?? ""),
+    total_amount: Number(row.total_amount ?? 0),
+    commission_amount: Number(row.commission_amount ?? 0),
+    status: (row.status ?? "pending") as OrderStatus,
+    created_at: String(row.created_at ?? new Date(0).toISOString()),
+    store_name:
+      typeof row.store_name === "string" ? row.store_name : undefined,
+    items: itemSnapshot.map((item, index) => {
+      const value =
+        item && typeof item === "object" && !Array.isArray(item)
+          ? (item as Record<string, unknown>)
+          : {};
 
-/**
- * ينشئ طلب منفصل لكل متجر موجود فى السلة (لأن كل طلب مرتبط بمتجر واحد)،
- * وبيحسب عمولة المنصة تلقائيًا حسب نسبة عمولة كل متجر.
- */
-export async function checkoutCart(
-  buyerId: string,
-  cartItems: CheckoutCartItem[],
-  shipping: ShippingInfo
-): Promise<{ orderIds: string[]; error: string | null }> {
-  const storeIds = Array.from(new Set(cartItems.map((i) => i.storeId)));
-  const { data: stores } = await supabase.from("stores").select("id, commission_rate").in("id", storeIds);
-  const commissionByStore = new Map((stores ?? []).map((s) => [s.id, Number(s.commission_rate ?? 0)]));
-
-  const orderIds: string[] = [];
-
-  for (const storeId of storeIds) {
-    const storeItems = cartItems.filter((i) => i.storeId === storeId);
-    const totalAmount = storeItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const commissionRate = commissionByStore.get(storeId) ?? 0;
-    const commissionAmount = Math.round(totalAmount * (commissionRate / 100) * 100) / 100;
-
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        buyer_id: buyerId,
-        store_id: storeId,
-        total_amount: totalAmount,
-        commission_amount: commissionAmount,
-        status: "pending",
-        shipping_name: shipping.fullName,
-        shipping_phone: shipping.phone,
-        shipping_address: shipping.address,
-        shipping_city: shipping.city,
-        shipping_notes: shipping.notes || null,
-      })
-      .select()
-      .single();
-
-    if (orderError || !order) {
-      return { orderIds, error: orderError?.message ?? "تعذر إنشاء الطلب" };
-    }
-
-    const itemRows = storeItems.map((i) => ({
-      order_id: order.id,
-      product_id: i.productId,
-      quantity: i.quantity,
-      unit_price: i.price,
-    }));
-
-    const { error: itemsError } = await supabase.from("order_items").insert(itemRows);
-    if (itemsError) {
-      return { orderIds, error: itemsError.message };
-    }
-
-    // ننقّص المخزون المتاح لكل منتج اتباع عن طريق دالة آمنة على مستوى
-    // قاعدة البيانات (بدل تعديل مباشر مش مسموح للمشتري أصلًا بـ RLS).
-    for (const item of storeItems) {
-      await supabase.rpc("decrement_product_stock", {
-        p_product_id: item.productId,
-        p_quantity: item.quantity,
-      });
-    }
-
-    orderIds.push(order.id as string);
-  }
-
-  return { orderIds, error: null };
+      return {
+        id: String(
+          value.id ?? `${String(row.id ?? "order")}-item-${index}`
+        ),
+        order_id: String(row.id ?? ""),
+        product_id: String(value.product_id ?? ""),
+        quantity: Number(value.quantity ?? 1),
+        unit_price: Number(value.unit_price ?? 0),
+        product_name:
+          typeof value.product_name === "string"
+            ? value.product_name
+            : undefined,
+      };
+    }),
+  };
 }
 
 export async function getMyOrders(buyerId: string): Promise<Order[]> {
-  const { data: orders, error } = await supabase
+  // Compatibility reader only. RLS is the authorization boundary; buyerId
+  // can narrow the caller's own rows but cannot expand visibility.
+  const { data, error } = await supabase
     .from("orders")
-    .select("*, stores(name)")
+    .select("*")
     .eq("buyer_id", buyerId)
     .order("created_at", { ascending: false });
-  if (error || !orders) return [];
 
-  const orderIds = orders.map((o) => o.id);
-  const { data: items } = await supabase
-    .from("order_items")
-    .select("*, products(name)")
-    .in("order_id", orderIds.length ? orderIds : ["00000000-0000-0000-0000-000000000000"]);
-
-  type StoreRow = { name: string } | null;
-  type ProductRow = { name: string } | null;
-
-  return (orders as (Order & { stores: StoreRow })[]).map((o) => ({
-    ...o,
-    store_name: o.stores?.name,
-    items: ((items ?? []) as (OrderItemRow & { products: ProductRow })[])
-      .filter((it) => it.order_id === o.id)
-      .map((it) => ({ ...it, product_name: it.products?.name })),
-  }));
+  if (error || !data) return [];
+  return data.map((row) =>
+    mapLegacyOrderRow(row as Record<string, unknown>)
+  );
 }
 
 export async function getStoreOrders(storeId: string): Promise<Order[]> {
-  const { data: orders, error } = await supabase
+  const { data, error } = await supabase
     .from("orders")
     .select("*")
     .eq("store_id", storeId)
     .order("created_at", { ascending: false });
-  if (error || !orders) return [];
 
-  const orderIds = orders.map((o) => o.id);
-  const { data: items } = await supabase
-    .from("order_items")
-    .select("*, products(name)")
-    .in("order_id", orderIds.length ? orderIds : ["00000000-0000-0000-0000-000000000000"]);
-
-  type ProductRow = { name: string } | null;
-
-  return (orders as Order[]).map((o) => ({
-    ...o,
-    items: ((items ?? []) as (OrderItemRow & { products: ProductRow })[])
-      .filter((it) => it.order_id === o.id)
-      .map((it) => ({ ...it, product_name: it.products?.name })),
-  }));
+  if (error || !data) return [];
+  return data.map((row) =>
+    mapLegacyOrderRow(row as Record<string, unknown>)
+  );
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
@@ -613,9 +601,29 @@ export async function submitReview(payload: {
 
 export async function updateStoreProfile(
   storeId: string,
-  updates: { name?: string; description?: string | null; logo_url?: string | null; banner_url?: string | null }
+  updates: {
+    name?: string;
+    description?: string | null;
+    country?: string | null;
+    logo_url?: string | null;
+    banner_url?: string | null;
+    contact_email?: string | null;
+    contact_phone?: string | null;
+    cr_number?: string | null;
+    tax_number?: string | null;
+    bank_name?: string | null;
+    iban?: string | null;
+  }
 ): Promise<{ store: Store | null; error: string | null }> {
-  const { data, error } = await supabase.from("stores").update(updates).eq("id", storeId).select().single();
+  // The store id is still re-authorized by stores RLS. No privileged fields
+  // (owner/status/verification/official/commission/plan) are accepted here.
+  const { data, error } = await supabase
+    .from("stores")
+    .update(updates)
+    .eq("id", storeId)
+    .select()
+    .single();
+
   if (error || !data) return { store: null, error: error?.message ?? "تعذر تحديث بيانات المتجر" };
   return { store: data as Store, error: null };
 }

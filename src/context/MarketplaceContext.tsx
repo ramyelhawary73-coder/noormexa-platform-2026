@@ -1575,24 +1575,6 @@ interface MarketplaceContextType {
   addProduct: (product: Omit<Product, "id" | "created_at">) => Product;
   updateProductItem: (id: string, updates: Partial<Product>) => void;
   deleteProductItem: (id: string) => void;
-  registerStore: (storeData: {
-    name: string;
-    slug: string;
-    description: string;
-    country: string;
-    region?: string;
-    city?: string;
-    currency?: CurrencyCode;
-    plan?: string;
-    cr_number?: string;
-    tax_number?: string;
-    bank_name?: string;
-    iban?: string;
-    contact_email?: string;
-    contact_phone?: string;
-    logo_url?: string;
-    banner_url?: string;
-  }) => { store: Store; autoApproved: boolean };
   updateStoreProfile: (storeId: string, updates: Partial<Store>) => void;
   updateStoreStatusItem: (storeId: string, status: Store["status"]) => void;
   deleteStoreItem: (storeId: string) => void;
@@ -1648,11 +1630,6 @@ interface MarketplaceContextType {
 
   // Orders
   orders: Order[];
-  createOrder: (
-    shipping: ShippingAddress,
-    paymentMethod: PaymentGatewayKey,
-    shippingSpeed: "standard" | "priority"
-  ) => { order: Order | null; error: string | null };
   updateOrderStatus: (orderId: string, status: Order["status"], trackingNumber?: string) => void;
   getOrderById: (orderId: string) => Order | undefined;
   getOrderByTracking: (trackingNumber: string) => Order | undefined;
@@ -1972,70 +1949,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const deleteProductItem = useCallback((id: string) => {
     setProductsState((prev) => prev.filter((p) => p.id !== id));
   }, []);
-
-  const registerStore = useCallback(
-    (storeData: {
-      name: string;
-      slug: string;
-      description: string;
-      country: string;
-      region?: string;
-      city?: string;
-      currency?: CurrencyCode;
-      plan?: string;
-      cr_number?: string;
-      tax_number?: string;
-      bank_name?: string;
-      iban?: string;
-      contact_email?: string;
-      contact_phone?: string;
-      logo_url?: string;
-      banner_url?: string;
-    }) => {
-      const cleanSlug = (storeData.slug || storeData.name)
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      const autoApproved = settings.autoApproveStores ?? true;
-      const newStore: Store = {
-        id: `store-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        owner_id: `owner-${Date.now()}`,
-        name: storeData.name,
-        slug: cleanSlug || `store-${Date.now()}`,
-        description: storeData.description,
-        country: storeData.country,
-        region: storeData.region,
-        city: storeData.city,
-        currency: storeData.currency,
-        base_currency: storeData.currency,
-        plan: storeData.plan || "professional",
-        commission_rate: settings.defaultCommissionRate || 8,
-        status: autoApproved ? "approved" : "pending",
-        is_verified: autoApproved,
-        rating: 5.0,
-        total_sales: 0,
-        cr_number: storeData.cr_number,
-        tax_number: storeData.tax_number,
-        bank_name: storeData.bank_name,
-        iban: storeData.iban,
-        contact_email: storeData.contact_email,
-        contact_phone: storeData.contact_phone,
-        logo_url:
-          storeData.logo_url ||
-          "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=200&auto=format&fit=crop&q=80",
-        banner_url:
-          storeData.banner_url ||
-          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80",
-        created_at: new Date().toISOString(),
-      };
-      setStoresState((prev) => [newStore, ...prev]);
-      // Provision isolated cloud space in Supabase
-      storeCloudServices.provisionStoreWorkspace(newStore).catch(() => {});
-      return { store: newStore, autoApproved };
-    },
-    [settings]
-  );
 
   const updateStoreProfile = useCallback((storeId: string, updates: Partial<Store>) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, ...updates } : s)));
@@ -2359,98 +2272,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   );
 
   // Orders
-  const createOrder = useCallback(
-    (
-      shipping: ShippingAddress,
-      paymentMethod: PaymentGatewayKey,
-      shippingSpeed: "standard" | "priority"
-    ): { order: Order | null; error: string | null } => {
-      if (cartItems.length === 0) {
-        return { order: null, error: "السلة فارغة، لا يمكن إتمام الطلب." };
-      }
-
-      const orderNumber = `NRX-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-      const trackingNumber = `TRK-GLB-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
-      const now = new Date().toISOString();
-
-      const shippingCost = calculatedShipping(shippingSpeed);
-      const grandTotal = calculatedGrandTotal(shippingSpeed);
-
-      // Estimate commission
-      const commissionAmount = Math.round(cartSubtotal * (settings.defaultCommissionRate / 100));
-
-      const trackingSteps = [
-        {
-          status: "placed" as const,
-          titleAr: "تم استلام الطلب وتأكيده",
-          titleEn: "Order Placed & Confirmed",
-          timestamp: now,
-          completed: true,
-          current: false,
-        },
-        {
-          status: "confirmed" as const,
-          titleAr: "جاري تجهيز وتغليف المنتجات في المتجر",
-          titleEn: "Processing & Packaging at Merchant Hub",
-          timestamp: "قريباً",
-          completed: true,
-          current: true,
-        },
-        {
-          status: "in_transit" as const,
-          titleAr: "في الطريق للشحن الدولي / المحلي",
-          titleEn: "Dispatched & In Transit",
-          timestamp: "متوقع خلال 24-48 ساعة",
-          completed: false,
-        },
-        {
-          status: "delivered" as const,
-          titleAr: "تم التسليم للعميل بنجاح",
-          titleEn: "Delivered to Doorstep",
-          timestamp: "متوقع خلال 3-5 أيام",
-          completed: false,
-        },
-      ];
-
-      const newOrder: Order = {
-        id: `ord-${Date.now()}`,
-        orderNumber,
-        trackingNumber,
-        buyer_id: "buyer-current",
-        store_id: cartItems[0]?.storeId || "multi-store",
-        store_name: cartItems[0]?.storeName || "NOORMEXA Verified Sellers",
-        subtotal: cartSubtotal,
-        discount_amount: calculatedDiscount,
-        shipping_cost: shippingCost,
-        vat_amount: calculatedVat,
-        total_amount: grandTotal,
-        commission_amount: commissionAmount,
-        status: paymentMethod === "cod" ? "pending" : "paid",
-        payment_method: paymentMethod,
-        payment_status: paymentMethod === "cod" ? "pending" : "paid",
-        shipping_speed: shippingSpeed,
-        shipping_info: shipping,
-        carrier: "NOORMEXA Global Express Logistics",
-        items: cartItems.map((item) => ({
-          id: `item-${Math.random().toString(36).slice(2, 7)}`,
-          product_id: item.productId,
-          product_name: item.name,
-          quantity: item.quantity,
-          unit_price: item.price,
-          selected_variants_label: item.selectedVariantsLabel,
-          image_url: item.imageUrl,
-        })),
-        tracking_steps: trackingSteps,
-        created_at: now,
-      };
-
-      setOrdersState((prev) => [newOrder, ...prev]);
-      clearCart();
-      return { order: newOrder, error: null };
-    },
-    [cartItems, cartSubtotal, calculatedDiscount, calculatedShipping, calculatedVat, calculatedGrandTotal, settings, clearCart]
-  );
-
   const updateOrderStatus = useCallback((orderId: string, status: Order["status"], trackingNumber?: string) => {
     setOrdersState((prev) =>
       prev.map((o) => {
@@ -2720,7 +2541,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         addProduct,
         updateProductItem,
         deleteProductItem,
-        registerStore,
         updateStoreProfile,
         updateStoreStatusItem,
         deleteStoreItem,
@@ -2755,7 +2575,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         calculatedGrandTotal,
         freeShippingProgress,
         orders,
-        createOrder,
         updateOrderStatus,
         getOrderById,
         getOrderByTracking,

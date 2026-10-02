@@ -24,7 +24,9 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { useMarketplace } from "@/context/MarketplaceContext";
+import { useAuth } from "@/context/AuthContext";
+import { createStore } from "@/lib/marketplace";
+import type { Store } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 import {
   COUNTRIES_DATA,
@@ -60,9 +62,11 @@ export default function SellerRegisterPage() {
   const language = useNoormexaLanguage();
   const isAr = language === "ar";
 
-  const { registerStore } = useMarketplace();
+  const { user, loading: authLoading } = useAuth();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [createdStore, setCreatedStore] = useState<Store | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Form State
   const [storeName, setStoreName] = useState("");
@@ -269,35 +273,54 @@ export default function SellerRegisterPage() {
     }
   };
 
-  const handleSubmitRegistration = (e: React.FormEvent) => {
+  const handleSubmitRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!acceptedTerms) return;
+    if (!acceptedTerms || submitting) return;
+
+    setSubmitError(null);
+
+    if (!user) {
+      setSubmitError(
+        isAr
+          ? "يجب تسجيل الدخول بحسابك الحقيقي قبل إنشاء المتجر."
+          : "You must sign in with your account before creating a store."
+      );
+      return;
+    }
 
     setSubmitting(true);
 
-    setTimeout(() => {
-      registerStore({
-        name: storeName,
-        slug: slug || `store-${Date.now()}`,
-        description,
-        country,
-        region,
-        city,
-        currency: selectedCountryData.currency,
-        plan: selectedPlan,
-        cr_number: crNumber,
-        tax_number: taxNumber,
-        bank_name: bankName,
-        iban,
-        contact_email: contactEmail,
-        contact_phone: contactPhone,
-        logo_url: logoUrl,
-        banner_url: bannerUrl,
-      });
+    const { store, error } = await createStore({
+      name: storeName.trim(),
+      slug: slug.trim() || undefined,
+      description: description.trim(),
+      country,
+      cr_number: crNumber.trim(),
+      tax_number: taxNumber.trim(),
+      bank_name: bankName.trim(),
+      iban: iban.trim(),
+      contact_email: contactEmail.trim(),
+      contact_phone: contactPhone.trim(),
+      logo_url: logoUrl,
+      banner_url: bannerUrl,
+    });
 
-      setSubmitting(false);
-      setStep(4);
-    }, 800);
+    setSubmitting(false);
+
+    if (!store) {
+      setSubmitError(
+        error ||
+          (isAr
+            ? "تعذر إنشاء المتجر في قاعدة البيانات. لم يتم اعتبار التسجيل ناجحًا."
+            : "The store could not be created in the database. Registration was not marked successful.")
+      );
+      return;
+    }
+
+    // The server is authoritative: success is shown only after the real row and
+    // owner membership have been created by create_store_secure().
+    setCreatedStore(store);
+    setStep(4);
   };
 
   return (
@@ -881,7 +904,7 @@ export default function SellerRegisterPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting || !acceptedTerms}
+                  disabled={submitting || authLoading || !acceptedTerms}
                   className="px-8 py-3 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
                 >
                   {submitting ? (
@@ -894,6 +917,25 @@ export default function SellerRegisterPage() {
                   )}
                 </button>
               </div>
+
+              {submitError && (
+                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-bold text-red-700 dark:text-red-300">
+                  {submitError}
+                  {!user && (
+                    <div className="mt-2">
+                      <Link href="/auth?next=/seller/register" className="underline">
+                        {isAr ? "تسجيل الدخول الآن" : "Sign in now"}
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <p className="text-[11px] text-muted">
+                {isAr
+                  ? `اختيار الخطة (${selectedPlan}) واجهة تجارية فقط في هذه المرحلة؛ الخطة والعمولة الفعلية لا يحددهما المتصفح ويتم ضبطهما من النظام.`
+                  : `The selected plan (${selectedPlan}) is a commercial preference at this stage; the browser cannot set the effective server plan or commission.`}
+              </p>
             </form>
           )}
 
@@ -905,12 +947,12 @@ export default function SellerRegisterPage() {
 
               <div className="space-y-2">
                 <h2 className="text-2xl font-black text-foreground">
-                  {isAr ? "تهانينا! تم تسجيل متجرك بنجاح في نورميكسا" : "Congratulations! Your Store is Registered"}
+                  {isAr ? "تم إنشاء طلب متجرك في نورميكسا" : "Your NOORMEXA store has been created"}
                 </h2>
                 <p className="text-xs sm:text-sm text-muted max-w-md mx-auto">
                   {isAr
-                    ? `متجر (${storeName}) أصبح مسجلاً في المنصة. يمكنك الآن إضافة منتجاتك وبدء استقبال الطلبات ومتابعة الأرباح.`
-                    : `Your store (${storeName}) has been onboarded. You can now list inventory, process buyer orders, and track payouts.`}
+                    ? `تم إنشاء متجر (${createdStore?.name || storeName}) فعليًا في قاعدة البيانات بحالة Pending. ستظهر الواجهة العامة بعد اعتماد المتجر، بينما يمكنك الدخول إلى Seller Central لمتابعة الإعدادات المسموح بها.`
+                    : `Store (${createdStore?.name || storeName}) was created in the database with Pending status. The public storefront becomes available after approval; Seller Central remains available for permitted setup tasks.`}
                 </p>
               </div>
 
@@ -923,13 +965,19 @@ export default function SellerRegisterPage() {
                   <span>{isAr ? "الدخول إلى لوحة تحكم المتجر (Seller Central)" : "Go to Seller Central Dashboard"}</span>
                 </Link>
 
-                <Link
-                  href={`/store/${slug}`}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-line text-foreground hover:bg-surface-soft font-bold text-xs flex items-center justify-center gap-2 transition-all"
-                >
-                  <Globe size={16} />
-                  <span>{isAr ? "معاينة واجهة متجرك العامة" : "Preview Public Storefront"}</span>
-                </Link>
+                {createdStore?.status === "approved" ? (
+                  <Link
+                    href={`/store/${createdStore.slug}`}
+                    className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-line text-foreground hover:bg-surface-soft font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                  >
+                    <Globe size={16} />
+                    <span>{isAr ? "معاينة واجهة متجرك العامة" : "Preview Public Storefront"}</span>
+                  </Link>
+                ) : (
+                  <div className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-gold font-bold text-xs">
+                    {isAr ? "الواجهة العامة تنتظر اعتماد المتجر" : "Public storefront pending approval"}
+                  </div>
+                )}
               </div>
             </div>
           )}

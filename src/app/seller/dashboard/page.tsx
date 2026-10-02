@@ -27,11 +27,29 @@ import {
   Trash2,
   TrendingUp,
   Truck,
+  Users,
   Wallet,
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order, Store, Shipment, CurrencyCode } from "@/types/marketplace";
+import { useAuth } from "@/context/AuthContext";
+import {
+  createProduct as persistProduct,
+  deleteProduct as persistDeleteProduct,
+  getMyStorePrivateSettings,
+  getMyTenantStores,
+  updateStoreProfile as persistStoreProfile,
+  type TenantStore,
+} from "@/lib/marketplace";
+import {
+  createSellerMarketingPost,
+  deleteSellerMarketingPost,
+  loadSellerWorkspaceData,
+  updateSellerMarketingPost,
+  updateSellerOrderStatus,
+  updateSellerShipmentStatus,
+} from "@/lib/sellerWorkspace";
+import type { Order, Shipment, CurrencyCode } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import StoreLogisticsHub from "@/components/shipping/StoreLogisticsHub";
@@ -66,68 +84,240 @@ function useNoormexaLanguage() {
   return useSyncExternalStore<Language>(subscribeToLanguage, getLanguageSnapshot, () => "ar");
 }
 
+const SELLER_STORE_PREFERENCE_KEY = "noormexa_seller_active_store_id";
+
+const EMPTY_TENANT_STORE: TenantStore = {
+  id: "",
+  owner_id: "",
+  name: "",
+  slug: "",
+  description: null,
+  logo_url: null,
+  banner_url: null,
+  commission_rate: 8,
+  plan: "professional",
+  status: "pending",
+  is_verified: false,
+  is_official: false,
+  country: "المملكة العربية السعودية",
+  created_at: "",
+  membership_role: "support",
+};
+
 export default function SellerDashboardPage() {
   const language = useNoormexaLanguage();
   const isAr = language === "ar";
+  const { user, loading: authLoading } = useAuth();
 
   const {
-    stores,
-    products,
-    orders,
     categories,
     payouts,
-    marketingPosts,
-    shipments,
     carriers,
     formatPrice,
     currencies,
     convertPrice,
     convertFromCurrencyToEGP,
-    addProduct,
-    deleteProductItem,
-    updateStoreProfile,
-    updateOrderStatus,
-    updateShipmentStatus,
     requestStorePayout,
-    createOfficialStore,
-    addMarketingPost,
-    updateMarketingPost,
-    deleteMarketingPost,
-    likeMarketingPost,
   } = useMarketplace();
 
-  // Active Selected Store State
-  const [selectedStoreId, setSelectedStoreId] = useState<string>(stores[0]?.id || "store-noormexa-official");
-  const currentStore: Store = useMemo(() => {
+  // Seller store authority comes from active store_members rows in Supabase.
+  // The browser's selectedStoreId is only a preference and is accepted only
+  // when it exists in this server-authorized list.
+  const [stores, setStores] = useState<TenantStore[]>([]);
+  const [storesLoading, setStoresLoading] = useState(true);
+  const [storesError, setStoresError] = useState<string | null>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState("");
+
+  const [products, setProducts] = useState<import("@/types/marketplace").Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [marketingPosts, setMarketingPosts] = useState<import("@/types/marketplace").MarketingPost[]>([]);
+  const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+
+  const currentStore = useMemo<TenantStore>(() => {
     return (
-      stores.find((s) => s.id === selectedStoreId) ||
-      stores[0] || {
-        id: "store-default",
-        name: "متجر نورمكسا الرسمي",
-        slug: "noormexa-official",
-        commission_rate: 0,
-        plan: "platform_owner",
-        status: "approved" as const,
-        is_verified: true,
-        is_official: true,
-        country: "المملكة العربية السعودية / مصر / الإمارات",
-        description: "المتجر الرسمي للعلامة",
-        created_at: new Date().toISOString(),
-        owner_id: "owner-platform-admin",
-        logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-        banner_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&auto=format&fit=crop&q=80",
-      }
+      stores.find((store) => store.id === selectedStoreId) ||
+      stores[0] ||
+      EMPTY_TENANT_STORE
     );
   }, [stores, selectedStoreId]);
+
+  const canManageCatalog =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager" ||
+    currentStore.membership_role === "editor";
+  const canManageOrders =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager" ||
+    currentStore.membership_role === "support";
+  const canManageMarketing = canManageCatalog;
+  const canManageFinancials =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager";
+  const canManageSettings = canManageFinancials;
+  const canManageTeam = canManageFinancials;
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    let active = true;
+
+    const loadAuthorizedStores = async () => {
+      if (!user) {
+        if (active) {
+          setStores([]);
+          setSelectedStoreId("");
+          setStoresLoading(false);
+        }
+        return;
+      }
+
+      setStoresLoading(true);
+      setStoresError(null);
+
+      const authorizedStores = await getMyTenantStores();
+      if (!active) return;
+
+      setStores(authorizedStores);
+
+      const preferred =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem(SELLER_STORE_PREFERENCE_KEY)
+          : null;
+
+      const nextStoreId =
+        preferred && authorizedStores.some((store) => store.id === preferred)
+          ? preferred
+          : authorizedStores[0]?.id || "";
+
+      setSelectedStoreId(nextStoreId);
+      setStoresLoading(false);
+    };
+
+    void loadAuthorizedStores();
+
+    return () => {
+      active = false;
+    };
+  }, [authLoading, user]);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !selectedStoreId ||
+      !stores.some((store) => store.id === selectedStoreId)
+    ) {
+      return;
+    }
+
+    window.localStorage.setItem(SELLER_STORE_PREFERENCE_KEY, selectedStoreId);
+  }, [selectedStoreId, stores]);
+
+  useEffect(() => {
+    if (!currentStore.id) {
+      setProducts([]);
+      setOrders([]);
+      setShipments([]);
+      setMarketingPosts([]);
+      setWorkspaceError(null);
+      return;
+    }
+
+    let active = true;
+
+    const loadWorkspace = async () => {
+      setWorkspaceLoading(true);
+      setWorkspaceError(null);
+
+      const { data, error } = await loadSellerWorkspaceData(currentStore.id);
+      if (!active) return;
+
+      setProducts(data.products);
+      setOrders(data.orders);
+      setShipments(data.shipments);
+      setMarketingPosts(data.marketingPosts);
+      setWorkspaceError(error);
+      setWorkspaceLoading(false);
+    };
+
+    void loadWorkspace();
+
+    return () => {
+      active = false;
+    };
+  }, [currentStore.id]);
+
+  useEffect(() => {
+    if (
+      !currentStore.id ||
+      (currentStore.membership_role !== "owner" &&
+        currentStore.membership_role !== "manager")
+    ) {
+      return;
+    }
+
+    let active = true;
+
+    const loadPrivateSettings = async () => {
+      const privateSettings = await getMyStorePrivateSettings(currentStore.id);
+      if (!active || !privateSettings) return;
+
+      setStores((previous) =>
+        previous.map((store) =>
+          store.id === currentStore.id
+            ? {
+                ...store,
+                contact_email: privateSettings.contact_email ?? undefined,
+                contact_phone: privateSettings.contact_phone ?? undefined,
+                cr_number: privateSettings.cr_number ?? undefined,
+                tax_number: privateSettings.tax_number ?? undefined,
+                bank_name: privateSettings.bank_name ?? undefined,
+                iban: privateSettings.iban ?? undefined,
+              }
+            : store
+        )
+      );
+    };
+
+    void loadPrivateSettings();
+
+    return () => {
+      active = false;
+    };
+  }, [currentStore.id, currentStore.membership_role]);
 
   const [activeTab, setActiveTab] = useState<
     "analytics" | "products" | "orders" | "shipments" | "marketing" | "payouts" | "settings"
   >("analytics");
 
+  useEffect(() => {
+    if (!currentStore.id) return;
+
+    if (!canManageFinancials && activeTab === "analytics") {
+      setActiveTab(currentStore.membership_role === "support" ? "orders" : "products");
+      return;
+    }
+
+    if (!canManageOrders && (activeTab === "orders" || activeTab === "shipments")) {
+      setActiveTab("products");
+      return;
+    }
+
+    if (!canManageFinancials && (activeTab === "payouts" || activeTab === "settings")) {
+      setActiveTab("products");
+    }
+  }, [
+    activeTab,
+    canManageFinancials,
+    canManageOrders,
+    currentStore.id,
+    currentStore.membership_role,
+  ]);
+
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [showOfficialStoreModal, setShowOfficialStoreModal] = useState(false);
   const [showAddMarketingModal, setShowAddMarketingModal] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
   const [selectedShipmentForWaybill, setSelectedShipmentForWaybill] = useState<Shipment | null>(null);
@@ -159,10 +349,6 @@ export default function SellerDashboardPage() {
   const [newProdDesc, setNewProdDesc] = useState("");
   const [newProdFreeShip, setNewProdFreeShip] = useState(true);
   const [newProdFeatured, setNewProdFeatured] = useState(false);
-
-  // Official Store Form State
-  const [newOfficialName, setNewOfficialName] = useState("متجر نورميكسا المباشر (NOORMEXA Direct)");
-  const [newOfficialDesc, setNewOfficialDesc] = useState("المتجر الرسمي المباشر لعلامة المنصة العالمية - شحن مجاني وضمان شامل");
 
   // New Marketing Post Form State
   const [postTitle, setPostTitle] = useState("");
@@ -419,11 +605,10 @@ export default function SellerDashboardPage() {
 
   // Filter orders for active store
   const storeOrders = useMemo(() => {
-    return orders.filter((o) => {
-      const matchesStore = o.store_id === currentStore.id || o.store_id === "multi-store";
-      if (!matchesStore) return false;
+    return orders.filter((order) => {
+      if (order.store_id !== currentStore.id) return false;
       if (orderStatusFilter === "all") return true;
-      return o.status === orderStatusFilter;
+      return order.status === orderStatusFilter;
     });
   }, [orders, currentStore.id, orderStatusFilter]);
 
@@ -437,18 +622,23 @@ export default function SellerDashboardPage() {
     });
   }, [marketingPosts, currentStore.id, marketingStatusFilter]);
 
-  // Shipments for active store
+  // Shipments are scoped to the selected authorized store only. The old
+  // "|| true" fallback leaked every locally cached shipment into every store.
   const storeShipments = useMemo(() => {
-    return shipments.filter((s) => s.storeId === currentStore.id || s.storeName === currentStore.name || true);
+    return shipments.filter(
+      (shipment) =>
+        shipment.storeId === currentStore.id ||
+        shipment.storeName === currentStore.name
+    );
   }, [shipments, currentStore.id, currentStore.name]);
 
-  // Financial Calculations
+  // Financial calculations use actual scoped order data only. Demo fallback
+  // revenue is not a seller-workspace source of truth.
   const totalStoreGross = useMemo(() => {
-    const fromOrders = storeOrders.reduce((acc, o) => acc + o.total_amount, 0);
-    return fromOrders > 0 ? fromOrders : currentStore.is_official ? 84900 : 34800;
-  }, [storeOrders, currentStore.is_official]);
+    return storeOrders.reduce((acc, order) => acc + order.total_amount, 0);
+  }, [storeOrders]);
 
-  const commissionRate = currentStore.is_official ? 0 : currentStore.commission_rate || 8;
+  const commissionRate = currentStore.commission_rate || 8;
   const totalCommissionDeducted = Math.round((totalStoreGross * commissionRate) / 100);
   const netEarnings = totalStoreGross - totalCommissionDeducted;
 
@@ -471,48 +661,41 @@ export default function SellerDashboardPage() {
   };
 
   // Handlers
-  const handleCreateOfficialStore = (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    const created = createOfficialStore(newOfficialName, newOfficialDesc);
-    setShowOfficialStoreModal(false);
-    setSelectedStoreId(created.id);
-    showToast(isAr ? "تم إنشاء وتدشين المتجر الرسمي للمنصة بنجاح!" : "Official platform flagship store created successfully!");
-  };
+    if (!canManageCatalog || !currentStore.id) return;
 
-  const handleCreateProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cat = categories.find((c) => c.id === newProdCat);
     const enteredPrice = Number(newProdPrice);
-    const enteredOrigPrice = newProdOriginalPrice ? Number(newProdOriginalPrice) : undefined;
-
-    // Convert to platform base EGP currency for standardized marketplace calculation
     const priceInEgp = convertFromCurrencyToEGP(enteredPrice, newProdCurrency);
-    const origPriceInEgp = enteredOrigPrice ? convertFromCurrencyToEGP(enteredOrigPrice, newProdCurrency) : undefined;
 
-    addProduct({
-      name: newProdName,
-      name_en: newProdNameEn || newProdName,
-      description: newProdDesc,
-      price: priceInEgp,
-      original_price: origPriceInEgp,
-      currency: newProdCurrency,
-      category_id: newProdCat,
-      category_slug: cat?.slug,
-      stock: Number(newProdStock),
-      image_url: newProdImageUrl,
+    const { product, error } = await persistProduct({
       store_id: currentStore.id,
-      store_name: currentStore.name,
-      free_shipping: newProdFreeShip,
-      is_featured: newProdFeatured,
-      rating: 5.0,
-      reviews_count: 1,
-      status: "active",
+      category_id: newProdCat || null,
+      name: newProdName.trim(),
+      description: newProdDesc.trim(),
+      price: priceInEgp,
+      image_url: newProdImageUrl || null,
+      stock: Number(newProdStock),
     });
 
-    setShowAddModal(false);
-    showToast(isAr ? "تم نشر المنتج الجديد في المتجر بنجاح وفق العملة المحددة!" : "Product published to store successfully with selected currency!");
+    if (!product) {
+      showToast(
+        error ||
+          (isAr
+            ? "تعذر حفظ المنتج في قاعدة البيانات."
+            : "Product could not be saved to the database.")
+      );
+      return;
+    }
 
-    // Reset Form
+    setProducts((previous) => [product, ...previous]);
+    setShowAddModal(false);
+    showToast(
+      isAr
+        ? "تم حفظ المنتج في قاعدة البيانات بنجاح."
+        : "Product saved to the database."
+    );
+
     setNewProdName("");
     setNewProdNameEn("");
     setNewProdPrice("");
@@ -520,14 +703,16 @@ export default function SellerDashboardPage() {
     setNewProdDesc("");
   };
 
-  const handleCreateMarketingPost = (e: React.FormEvent) => {
+  const handleCreateMarketingPost = async (e: React.FormEvent) => {
     e.preventDefault();
-    addMarketingPost({
+    if (!canManageMarketing || !currentStore.id) return;
+
+    const { post, error } = await createSellerMarketingPost({
       store_id: currentStore.id,
       store_name: currentStore.name,
       store_logo: currentStore.logo_url || undefined,
-      title: postTitle,
-      content: postContent,
+      title: postTitle.trim(),
+      content: postContent.trim(),
       image_url: postImageUrl || undefined,
       promo_code: postPromoCode ? postPromoCode.toUpperCase().trim() : undefined,
       discount_percent: postDiscount ? Number(postDiscount) : undefined,
@@ -536,16 +721,160 @@ export default function SellerDashboardPage() {
       status: "published",
     });
 
-    setShowAddMarketingModal(false);
-    showToast(isAr ? "تم نشر المنشور التسويقي والعرض الترويجي بنجاح!" : "Marketing campaign post published successfully!");
+    if (!post) {
+      showToast(
+        error ||
+          (isAr
+            ? "تعذر حفظ المنشور في قاعدة البيانات."
+            : "Marketing post could not be saved to the database.")
+      );
+      return;
+    }
 
-    // Reset form
+    setMarketingPosts((previous) => [post, ...previous]);
+    setShowAddMarketingModal(false);
+    showToast(
+      isAr
+        ? "تم حفظ المنشور التسويقي في قاعدة البيانات."
+        : "Marketing post saved to the database."
+    );
+
     setPostTitle("");
     setPostContent("");
     setPostPromoCode("");
     setPostDiscount("");
     setPostFeaturedProdId("");
     setPostIsPinned(false);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!canManageCatalog) return;
+
+    const ok = await persistDeleteProduct(productId);
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر حذف المنتج من قاعدة البيانات."
+          : "Product could not be deleted from the database."
+      );
+      return;
+    }
+
+    setProducts((previous) => previous.filter((product) => product.id !== productId));
+    showToast(isAr ? "تم حذف المنتج بنجاح." : "Product deleted.");
+  };
+
+  const handleOrderStatusChange = async (
+    orderId: string,
+    status: Order["status"]
+  ) => {
+    if (!canManageOrders) return;
+
+    const ok = await updateSellerOrderStatus(
+      orderId,
+      currentStore.id,
+      status
+    );
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر تحديث حالة الطلب في قاعدة البيانات."
+          : "Order status could not be updated in the database."
+      );
+      return;
+    }
+
+    setOrders((previous) =>
+      previous.map((order) =>
+        order.id === orderId ? { ...order, status } : order
+      )
+    );
+    showToast(
+      isAr ? `تم تحديث حالة الطلب إلى ${status}` : `Order updated to ${status}`
+    );
+  };
+
+  const handleToggleMarketingPin = async (
+    post: import("@/types/marketplace").MarketingPost
+  ) => {
+    if (!canManageMarketing) return;
+
+    const nextPinned = !post.is_pinned;
+    const ok = await updateSellerMarketingPost(post.id, {
+      is_pinned: nextPinned,
+    });
+
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر تحديث المنشور في قاعدة البيانات."
+          : "Marketing post could not be updated."
+      );
+      return;
+    }
+
+    setMarketingPosts((previous) =>
+      previous.map((item) =>
+        item.id === post.id ? { ...item, is_pinned: nextPinned } : item
+      )
+    );
+    showToast(
+      nextPinned
+        ? isAr
+          ? "تم تثبيت المنشور."
+          : "Post pinned."
+        : isAr
+          ? "تم إلغاء التثبيت."
+          : "Post unpinned."
+    );
+  };
+
+  const handleDeleteMarketingPost = async (postId: string) => {
+    if (!canManageMarketing) return;
+
+    const ok = await deleteSellerMarketingPost(postId);
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر حذف المنشور من قاعدة البيانات."
+          : "Marketing post could not be deleted."
+      );
+      return;
+    }
+
+    setMarketingPosts((previous) =>
+      previous.filter((post) => post.id !== postId)
+    );
+    showToast(isAr ? "تم حذف المنشور بنجاح." : "Post deleted.");
+  };
+
+  const handleShipmentStatusChange = async (
+    shipmentId: string,
+    status: Shipment["status"]
+  ) => {
+    if (!canManageOrders || !currentStore.id) return;
+
+    const ok = await updateSellerShipmentStatus(
+      shipmentId,
+      currentStore.id,
+      status
+    );
+
+    if (!ok) {
+      showToast(
+        isAr
+          ? "تعذر تحديث حالة الشحنة في قاعدة البيانات."
+          : "Shipment status could not be updated."
+      );
+      return;
+    }
+
+    setShipments((previous) =>
+      previous.map((shipment) =>
+        shipment.id === shipmentId ? { ...shipment, status } : shipment
+      )
+    );
+    showToast(isAr ? "تم تحديث حالة الشحنة." : "Shipment updated.");
   };
 
   const handleRequestPayout = (e: React.FormEvent) => {
@@ -567,25 +896,134 @@ export default function SellerDashboardPage() {
     }
   };
 
-  const handleSaveStoreProfile = (e: React.FormEvent) => {
+  const handleSaveStoreProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateStoreProfile(currentStore.id, {
-      name: profileName,
-      description: profileDesc,
-      country: profileCountry,
-      region: profileRegion,
-      city: profileCity,
-      currency: profileCurrency,
-      base_currency: profileCurrency,
-      contact_email: profileEmail,
-      contact_phone: profilePhone,
-      iban: profileIban,
-      bank_name: profileBank,
-      logo_url: profileLogoUrl || currentStore.logo_url,
-      banner_url: profileBannerUrl || currentStore.banner_url,
-    });
-    showToast(isAr ? "تم حفظ إعدادات وهوية المتجر والموقع بنجاح!" : "Store profile and location updated successfully!");
+    if (!currentStore.id) return;
+
+    if (
+      currentStore.membership_role !== "owner" &&
+      currentStore.membership_role !== "manager"
+    ) {
+      showToast(
+        isAr
+          ? "هذه العملية متاحة لمالك المتجر أو المدير فقط."
+          : "Only the store owner or manager can update store settings."
+      );
+      return;
+    }
+
+    const { store: updatedStore, error } = await persistStoreProfile(
+      currentStore.id,
+      {
+        name: profileName.trim(),
+        description: profileDesc.trim() || null,
+        country: profileCountry || null,
+        contact_email: profileEmail.trim() || null,
+        contact_phone: profilePhone.trim() || null,
+        iban: profileIban.trim() || null,
+        bank_name: profileBank.trim() || null,
+        logo_url: profileLogoUrl || currentStore.logo_url,
+        banner_url: profileBannerUrl || currentStore.banner_url,
+      }
+    );
+
+    if (!updatedStore) {
+      showToast(
+        error ||
+          (isAr
+            ? "تعذر حفظ إعدادات المتجر في قاعدة البيانات."
+            : "Store settings could not be saved to the database.")
+      );
+      return;
+    }
+
+    setStores((previous) =>
+      previous.map((store) =>
+        store.id === currentStore.id
+          ? {
+              ...store,
+              ...updatedStore,
+              membership_role: store.membership_role,
+            }
+          : store
+      )
+    );
+
+    showToast(
+      isAr
+        ? "تم حفظ إعدادات المتجر في قاعدة البيانات بنجاح."
+        : "Store settings were saved to the database."
+    );
   };
+
+  if (authLoading || storesLoading) {
+    return (
+      <main className="noormexa-main py-10 pb-28">
+        <div className="noormexa-container text-center text-sm text-muted">
+          {isAr ? "جاري التحقق من عضويات المتاجر..." : "Checking authorized store memberships..."}
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="noormexa-main py-10 pb-28">
+        <div className="noormexa-container max-w-2xl rounded-3xl border border-line bg-surface p-6 text-center">
+          <ShieldCheck className="mx-auto mb-3 text-amber-500" size={30} />
+          <h1 className="text-xl font-black text-foreground">
+            {isAr ? "تسجيل الدخول مطلوب" : "Sign in required"}
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            {isAr
+              ? "لوحة البائع لا تعتمد على بيانات LocalStorage. سجل الدخول لقراءة عضويات متاجرك الفعلية من قاعدة البيانات."
+              : "Seller Central does not trust LocalStorage for access. Sign in to load your real store memberships from the database."}
+          </p>
+          <Link
+            href="/auth?next=/seller/dashboard"
+            className="mt-5 inline-flex rounded-2xl bg-gold px-5 py-2.5 text-sm font-black text-navy"
+          >
+            {isAr ? "تسجيل الدخول" : "Sign in"}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (!currentStore.id) {
+    return (
+      <main className="noormexa-main py-10 pb-28">
+        <div className="noormexa-container max-w-2xl rounded-3xl border border-line bg-surface p-6 text-center">
+          <Users className="mx-auto mb-3 text-muted" size={30} />
+          <h1 className="text-xl font-black text-foreground">
+            {isAr ? "لا يوجد متجر مصرح لك بإدارته" : "No authorized seller store"}
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            {isAr
+              ? "لا يتم عرض أي متجر من LocalStorage أو من بيانات تجريبية. أنشئ متجرًا حقيقيًا أو اطلب دعوة من مالك متجر."
+              : "No LocalStorage or demo store is used as an access fallback. Create a real store or ask a store owner to invite you."}
+          </p>
+          {storesError && (
+            <div className="mt-3 text-xs font-bold text-red-600">{storesError}</div>
+          )}
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/seller/register"
+              className="rounded-2xl bg-gold px-5 py-2.5 text-sm font-black text-navy"
+            >
+              {isAr ? "إنشاء متجر" : "Create store"}
+            </Link>
+            <Link
+              href="/seller/team"
+              className="rounded-2xl border border-line px-5 py-2.5 text-sm font-bold text-foreground"
+            >
+              {isAr ? "فريق المتجر" : "Store team"}
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="noormexa-main py-5 sm:py-8 md:py-12 pb-36 sm:pb-28">
@@ -646,15 +1084,6 @@ export default function SellerDashboardPage() {
 
           {/* Header Action Buttons - Responsive 2-Col on Mobile / Flex on Desktop */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto">
-            <button
-              type="button"
-              onClick={() => setShowOfficialStoreModal(true)}
-              className="px-3 sm:px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Crown size={15} />
-              <span className="truncate">{isAr ? "متجر رسمي" : "Flagship Store"}</span>
-            </button>
-
             <Link
               href={`/store/${currentStore.slug}`}
               className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
@@ -663,23 +1092,37 @@ export default function SellerDashboardPage() {
               <span className="truncate">{isAr ? "معاينة المتجر" : "View Store"}</span>
             </Link>
 
-            <button
-              type="button"
-              onClick={() => setShowAddMarketingModal(true)}
-              className="px-3 sm:px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Megaphone size={15} className="text-amber-500" />
-              <span className="truncate">{isAr ? "نشر عرض" : "Campaign"}</span>
-            </button>
+            {canManageTeam && (
+              <Link
+                href="/seller/team"
+                className="px-3 sm:px-4 py-2.5 rounded-xl border border-line hover:border-gold bg-surface text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+              >
+                <Users size={15} className="text-gold" />
+                <span className="truncate">{isAr ? "فريق المتجر" : "Store Team"}</span>
+              </Link>
+            )}
 
-            <button
-              type="button"
-              onClick={() => setShowAddModal(true)}
-              className="px-3 sm:px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
-            >
-              <Plus size={16} />
-              <span className="truncate">{isAr ? "إضافة منتج" : "Add Product"}</span>
-            </button>
+            {canManageMarketing && (
+              <button
+                type="button"
+                onClick={() => setShowAddMarketingModal(true)}
+                className="px-3 sm:px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+              >
+                <Megaphone size={15} className="text-amber-500" />
+                <span className="truncate">{isAr ? "نشر عرض" : "Campaign"}</span>
+              </button>
+            )}
+
+            {canManageCatalog && (
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="px-3 sm:px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
+              >
+                <Plus size={16} />
+                <span className="truncate">{isAr ? "إضافة منتج" : "Add Product"}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -691,18 +1134,32 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
+        {workspaceLoading && (
+          <div className="rounded-2xl border border-line bg-surface-soft p-3 text-xs font-bold text-muted">
+            {isAr ? "جاري مزامنة بيانات المتجر من قاعدة البيانات..." : "Syncing store data from the database..."}
+          </div>
+        )}
+
+        {workspaceError && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-bold text-red-700 dark:text-red-300">
+            {isAr
+              ? `تعذر تحميل بعض بيانات المتجر من قاعدة البيانات: ${workspaceError}`
+              : `Some store data could not be loaded from the database: ${workspaceError}`}
+          </div>
+        )}
+
         {/* Navigation Tabs - Responsive Scrollable Pill Strip on Mobile / 7-Col Grid on Desktop */}
         <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
           <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-7 select-none touch-manipulation">
             {[
-              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null },
-              { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}` },
-              { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}` },
-              { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}` },
-              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}` },
-              { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}` },
-              { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null },
-            ].map((tab) => {
+              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null, allowed: canManageFinancials },
+              { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}`, allowed: true },
+              { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}`, allowed: canManageOrders },
+              { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}`, allowed: canManageOrders },
+              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}`, allowed: true },
+              { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}`, allowed: canManageFinancials },
+              { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null, allowed: canManageSettings },
+            ].filter((tab) => tab.allowed).map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
               return (
@@ -847,14 +1304,16 @@ export default function SellerDashboardPage() {
                 <p className="text-xs text-muted">{isAr ? "إضافة وتعديل الأسعار والكميات والمواصفات للمتجر" : "Add, edit, or adjust stock levels for your products"}</p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowAddModal(true)}
-                className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
-              >
-                <Plus size={16} />
-                <span>{isAr ? "إضافة منتج جديد" : "Add New Product"}</span>
-              </button>
+              {canManageCatalog && (
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Plus size={16} />
+                  <span>{isAr ? "إضافة منتج جديد" : "Add New Product"}</span>
+                </button>
+              )}
             </div>
 
             {/* Filters Bar */}
@@ -891,14 +1350,16 @@ export default function SellerDashboardPage() {
               <div className="text-center py-12 space-y-3 bg-surface-soft rounded-2xl border border-line">
                 <Boxes size={32} className="text-muted mx-auto" />
                 <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد منتجات مسجلة في هذا المتجر حالياً" : "No products found"}</div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5 touch-manipulation active:scale-95"
-                >
-                  <Plus size={14} />
-                  <span>{isAr ? "أضف أول منتج الآن" : "Add first product"}</span>
-                </button>
+                {canManageCatalog && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(true)}
+                    className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5 touch-manipulation active:scale-95"
+                  >
+                    <Plus size={14} />
+                    <span>{isAr ? "أضف أول منتج الآن" : "Add first product"}</span>
+                  </button>
+                )}
               </div>
             ) : (
               <>
@@ -962,19 +1423,20 @@ export default function SellerDashboardPage() {
                           >
                             <Eye size={15} />
                           </Link>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                deleteProductItem(p.id);
-                                showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
-                              }
-                            }}
-                            className="p-2 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
-                            title={isAr ? "حذف المنتج" : "Delete"}
-                          >
-                            <Trash2 size={15} />
-                          </button>
+                          {canManageCatalog && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                  void handleDeleteProduct(p.id);
+                                }
+                              }}
+                              className="p-2 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
+                              title={isAr ? "حذف المنتج" : "Delete"}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1058,19 +1520,20 @@ export default function SellerDashboardPage() {
                               >
                                 <Eye size={14} />
                               </Link>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                    deleteProductItem(p.id);
-                                    showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
-                                  }
-                                }}
-                                className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
-                                title={isAr ? "حذف المنتج" : "Delete"}
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                              {canManageCatalog && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
+                                      void handleDeleteProduct(p.id);
+                                    }
+                                  }}
+                                  className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
+                                  title={isAr ? "حذف المنتج" : "Delete"}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -1190,8 +1653,10 @@ export default function SellerDashboardPage() {
                         <select
                           value={ord.status}
                           onChange={(e) => {
-                            updateOrderStatus(ord.id, e.target.value as Order["status"]);
-                            showToast(isAr ? `تم تحديث حالة الشحنة إلى ${e.target.value}` : `Shipment updated to ${e.target.value}`);
+                            void handleOrderStatusChange(
+                              ord.id,
+                              e.target.value as Order["status"]
+                            );
                           }}
                           className="w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-xl bg-surface border border-line text-xs font-bold text-foreground focus:outline-none cursor-pointer"
                         >
@@ -1224,12 +1689,11 @@ export default function SellerDashboardPage() {
         {activeTab === "shipments" && (
           <StoreLogisticsHub
             store={currentStore}
-            shipments={shipments}
-            orders={orders}
+            shipments={storeShipments}
+            orders={storeOrders}
             carriers={carriers}
             onUpdateShipmentStatus={(shpId, newStatus) => {
-              updateShipmentStatus(shpId, newStatus);
-              showToast(isAr ? "تم تحديث حالة الشحنة بنجاح" : "Shipment status updated");
+              void handleShipmentStatusChange(shpId, newStatus);
             }}
             isAr={isAr}
           />
@@ -1251,14 +1715,16 @@ export default function SellerDashboardPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowAddMarketingModal(true)}
-                className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
-              >
-                <Plus size={16} />
-                <span>{isAr ? "إنشاء منشور تسويقي جديد" : "Create Marketing Post"}</span>
-              </button>
+              {canManageMarketing && (
+                <button
+                  type="button"
+                  onClick={() => setShowAddMarketingModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Plus size={16} />
+                  <span>{isAr ? "إنشاء منشور تسويقي جديد" : "Create Marketing Post"}</span>
+                </button>
+              )}
             </div>
 
             {/* Marketing Stats Summary */}
@@ -1314,14 +1780,16 @@ export default function SellerDashboardPage() {
                 <Megaphone size={32} className="text-muted mx-auto" />
                 <div className="text-xs font-bold text-foreground">{isAr ? "لا توجد منشورات تسويقية لهذا المتجر بعد" : "No marketing posts published yet"}</div>
                 <p className="text-[11px] text-muted">{isAr ? "ابدأ بإطلاق أول حملة ترويجية لمنتجاتك الآن" : "Launch your first promotional campaign to boost store traffic"}</p>
-                <button
-                  type="button"
-                  onClick={() => setShowAddMarketingModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
-                >
-                  <Plus size={14} />
-                  <span>{isAr ? "إنشاء منشور ترويجي" : "Create promo post"}</span>
-                </button>
+                {canManageMarketing && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddMarketingModal(true)}
+                    className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
+                  >
+                    <Plus size={14} />
+                    <span>{isAr ? "إنشاء منشور ترويجي" : "Create promo post"}</span>
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1382,42 +1850,38 @@ export default function SellerDashboardPage() {
                           <Eye size={13} />
                           <span>{post.views_count || 1} {isAr ? "مشاهدة" : "views"}</span>
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => likeMarketingPost(post.id)}
-                          className="flex items-center gap-1 text-rose-500 hover:scale-105 transition-transform"
-                        >
+                        <span className="flex items-center gap-1 text-rose-500">
                           <Heart size={13} className="fill-rose-500 text-rose-500" />
                           <span>{post.likes_count || 0}</span>
-                        </button>
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            updateMarketingPost(post.id, { is_pinned: !post.is_pinned });
-                            showToast(post.is_pinned ? isAr ? "تم إلغاء التثبيت" : "Unpinned" : isAr ? "تم التثبيت في المقدمة" : "Pinned");
-                          }}
-                          className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground text-[11px]"
-                          title={post.is_pinned ? isAr ? "إلغاء التثبيت" : "Unpin" : isAr ? "تثبيت" : "Pin"}
-                        >
-                          ★
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنشور التسويقي؟" : "Delete marketing post?")) {
-                              deleteMarketingPost(post.id);
-                              showToast(isAr ? "تم حذف المنشور بنجاح" : "Post deleted");
-                            }
-                          }}
-                          className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
-                          title={isAr ? "حذف" : "Delete"}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                      {canManageMarketing && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleToggleMarketingPin(post);
+                            }}
+                            className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-foreground text-[11px]"
+                            title={post.is_pinned ? isAr ? "إلغاء التثبيت" : "Unpin" : isAr ? "تثبيت" : "Pin"}
+                          >
+                            ★
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنشور التسويقي؟" : "Delete marketing post?")) {
+                                void handleDeleteMarketingPost(post.id);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
+                            title={isAr ? "حذف" : "Delete"}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1781,76 +2245,6 @@ export default function SellerDashboardPage() {
           </form>
         )}
       </div>
-
-      {/* Modal 1: Create Official Platform Flagship Store */}
-      {showOfficialStoreModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-surface rounded-3xl border border-line shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-line pb-3">
-              <div className="flex items-center gap-2 font-black text-foreground text-base">
-                <Crown size={18} className="text-gold" />
-                <span>{isAr ? "تدشين متجر رسمي جديد للمنصة" : "Create Official Flagship Store"}</span>
-              </div>
-              <button type="button" onClick={() => setShowOfficialStoreModal(false)} className="text-muted hover:text-foreground">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateOfficialStore} className="space-y-4 text-xs">
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-gold space-y-1">
-                <div className="font-bold text-xs flex items-center gap-1.5">
-                  <ShieldCheck size={14} />
-                  <span>{isAr ? "ميزات المتجر الرسمي لمالك المنصة:" : "Platform Owner Flagship Perks:"}</span>
-                </div>
-                <p className="text-[11px] text-muted">
-                  {isAr
-                    ? "يتم توثيقه فورياً بشارة التاج الملكي الذهبي، وتكون عمولة المنصة عليه 0% مع إمكانية عرض وبيع منتجات المنصة المباشرة."
-                    : "Auto-verified with the Golden Crown badge, 0% platform commission, and priority marketplace ranking."}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-foreground">{isAr ? "اسم المتجر الرسمي *" : "Official Store Name *"}</label>
-                <input
-                  type="text"
-                  required
-                  value={newOfficialName}
-                  onChange={(e) => setNewOfficialName(e.target.value)}
-                  placeholder="متجر نورميكسا المباشر (NOORMEXA Direct)"
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-sm"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-foreground">{isAr ? "نبذة عن المتجر والضمان *" : "Description *"}</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={newOfficialDesc}
-                  onChange={(e) => setNewOfficialDesc(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button
-                  type="button"
-                  onClick={() => setShowOfficialStoreModal(false)}
-                  className="px-5 py-2.5 rounded-xl border border-line text-muted hover:text-foreground font-bold text-xs"
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
-                >
-                  {isAr ? "تدشين المتجر الرسمي الآن" : "Launch Store"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Modal 2: Create Marketing Post */}
       {showAddMarketingModal && (

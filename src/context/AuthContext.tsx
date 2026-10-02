@@ -22,6 +22,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = useCallback(async (authUser: User) => {
+    const claimTenantInvitations = async () => {
+      // Best-effort only. The database function derives identity from the
+      // authenticated session and refuses Platform accounts.
+      await supabase.rpc("claim_my_store_invitations");
+    };
+
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -30,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!error && data) {
       setProfile(data as Profile);
+      await claimTenantInvitations();
       return;
     }
 
@@ -62,10 +69,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (created) {
       setProfile(created as Profile);
+      await claimTenantInvitations();
     } else {
       // لو upsert ماردّش صف (لأن الصف كان موجود بالفعل)، نجيبه تاني.
       const { data: existing } = await supabase.from("profiles").select("*").eq("id", authUser.id).maybeSingle();
-      if (existing) setProfile(existing as Profile);
+      if (existing) {
+        setProfile(existing as Profile);
+        await claimTenantInvitations();
+      }
     }
   }, []);
 
