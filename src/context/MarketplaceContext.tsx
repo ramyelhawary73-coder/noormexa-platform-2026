@@ -1630,11 +1630,6 @@ interface MarketplaceContextType {
 
   // Orders
   orders: Order[];
-  createOrder: (
-    shipping: ShippingAddress,
-    paymentMethod: PaymentGatewayKey,
-    shippingSpeed: "standard" | "priority"
-  ) => { order: Order | null; error: string | null };
   updateOrderStatus: (orderId: string, status: Order["status"], trackingNumber?: string) => void;
   getOrderById: (orderId: string) => Order | undefined;
   getOrderByTracking: (trackingNumber: string) => Order | undefined;
@@ -2277,98 +2272,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   );
 
   // Orders
-  const createOrder = useCallback(
-    (
-      shipping: ShippingAddress,
-      paymentMethod: PaymentGatewayKey,
-      shippingSpeed: "standard" | "priority"
-    ): { order: Order | null; error: string | null } => {
-      if (cartItems.length === 0) {
-        return { order: null, error: "السلة فارغة، لا يمكن إتمام الطلب." };
-      }
-
-      const orderNumber = `NRX-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-      const trackingNumber = `TRK-GLB-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
-      const now = new Date().toISOString();
-
-      const shippingCost = calculatedShipping(shippingSpeed);
-      const grandTotal = calculatedGrandTotal(shippingSpeed);
-
-      // Estimate commission
-      const commissionAmount = Math.round(cartSubtotal * (settings.defaultCommissionRate / 100));
-
-      const trackingSteps = [
-        {
-          status: "placed" as const,
-          titleAr: "تم استلام الطلب وتأكيده",
-          titleEn: "Order Placed & Confirmed",
-          timestamp: now,
-          completed: true,
-          current: false,
-        },
-        {
-          status: "confirmed" as const,
-          titleAr: "جاري تجهيز وتغليف المنتجات في المتجر",
-          titleEn: "Processing & Packaging at Merchant Hub",
-          timestamp: "قريباً",
-          completed: true,
-          current: true,
-        },
-        {
-          status: "in_transit" as const,
-          titleAr: "في الطريق للشحن الدولي / المحلي",
-          titleEn: "Dispatched & In Transit",
-          timestamp: "متوقع خلال 24-48 ساعة",
-          completed: false,
-        },
-        {
-          status: "delivered" as const,
-          titleAr: "تم التسليم للعميل بنجاح",
-          titleEn: "Delivered to Doorstep",
-          timestamp: "متوقع خلال 3-5 أيام",
-          completed: false,
-        },
-      ];
-
-      const newOrder: Order = {
-        id: `ord-${Date.now()}`,
-        orderNumber,
-        trackingNumber,
-        buyer_id: "buyer-current",
-        store_id: cartItems[0]?.storeId || "multi-store",
-        store_name: cartItems[0]?.storeName || "NOORMEXA Verified Sellers",
-        subtotal: cartSubtotal,
-        discount_amount: calculatedDiscount,
-        shipping_cost: shippingCost,
-        vat_amount: calculatedVat,
-        total_amount: grandTotal,
-        commission_amount: commissionAmount,
-        status: paymentMethod === "cod" ? "pending" : "paid",
-        payment_method: paymentMethod,
-        payment_status: paymentMethod === "cod" ? "pending" : "paid",
-        shipping_speed: shippingSpeed,
-        shipping_info: shipping,
-        carrier: "NOORMEXA Global Express Logistics",
-        items: cartItems.map((item) => ({
-          id: `item-${Math.random().toString(36).slice(2, 7)}`,
-          product_id: item.productId,
-          product_name: item.name,
-          quantity: item.quantity,
-          unit_price: item.price,
-          selected_variants_label: item.selectedVariantsLabel,
-          image_url: item.imageUrl,
-        })),
-        tracking_steps: trackingSteps,
-        created_at: now,
-      };
-
-      setOrdersState((prev) => [newOrder, ...prev]);
-      clearCart();
-      return { order: newOrder, error: null };
-    },
-    [cartItems, cartSubtotal, calculatedDiscount, calculatedShipping, calculatedVat, calculatedGrandTotal, settings, clearCart]
-  );
-
   const updateOrderStatus = useCallback((orderId: string, status: Order["status"], trackingNumber?: string) => {
     setOrdersState((prev) =>
       prev.map((o) => {
@@ -2672,7 +2575,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         calculatedGrandTotal,
         freeShippingProgress,
         orders,
-        createOrder,
         updateOrderStatus,
         getOrderById,
         getOrderByTracking,
