@@ -6,6 +6,36 @@ export type PublicStore = Pick<
   "id" | "name" | "slug" | "description" | "logo_url" | "banner_url" | "country" | "is_verified" | "is_official"
 >;
 
+export type StoreMembershipRole = "owner" | "manager" | "editor" | "support";
+
+export type TenantStore = Store & {
+  membership_role: StoreMembershipRole;
+};
+
+export type StorePrivateSettings = {
+  contact_email: string | null;
+  contact_phone: string | null;
+  cr_number: string | null;
+  tax_number: string | null;
+  bank_name: string | null;
+  iban: string | null;
+};
+
+export type CreateStoreInput = {
+  name: string;
+  slug?: string;
+  description?: string;
+  country?: string;
+  cr_number?: string;
+  tax_number?: string;
+  bank_name?: string;
+  iban?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  logo_url?: string;
+  banner_url?: string;
+};
+
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
@@ -72,10 +102,29 @@ export async function getProductById(id: string): Promise<Product | null> {
   return data as Product;
 }
 
-export async function getMyStore(userId: string): Promise<Store | null> {
-  const { data, error } = await supabase.from("stores").select("*").eq("owner_id", userId).maybeSingle();
-  if (error || !data) return null;
-  return data as Store;
+export async function getMyTenantStores(): Promise<TenantStore[]> {
+  // This RPC derives the caller from auth.uid() and only returns stores for
+  // active customer-tenant memberships. selectedStoreId is never trusted.
+  const { data, error } = await supabase.rpc("get_my_tenant_stores");
+  if (error || !data) return [];
+  return data as TenantStore[];
+}
+
+export async function getMyStorePrivateSettings(
+  storeId: string
+): Promise<StorePrivateSettings | null> {
+  const { data, error } = await supabase.rpc("get_my_store_private_settings", {
+    p_store_id: storeId,
+  });
+  if (error || !data?.length) return null;
+  return data[0] as StorePrivateSettings;
+}
+
+export async function getMyStore(_legacyUserId?: string): Promise<Store | null> {
+  // Backward-compatible wrapper. The old caller-supplied userId is ignored;
+  // database membership + auth.uid() are the authority.
+  const stores = await getMyTenantStores();
+  return stores[0] ?? null;
 }
 
 function slugify(name: string): string {
@@ -89,13 +138,27 @@ function slugify(name: string): string {
 }
 
 export async function createStore(
-  name: string,
-  description: string
+  inputOrName: CreateStoreInput | string,
+  legacyDescription = ""
 ): Promise<{ store: Store | null; error: string | null }> {
+  const input: CreateStoreInput =
+    typeof inputOrName === "string"
+      ? { name: inputOrName, description: legacyDescription }
+      : inputOrName;
+
   const { data, error } = await supabase.rpc("create_store_secure", {
-    p_name: name,
-    p_slug: slugify(name),
-    p_description: description,
+    p_name: input.name,
+    p_slug: input.slug?.trim() || slugify(input.name),
+    p_description: input.description ?? null,
+    p_country: input.country ?? null,
+    p_cr_number: input.cr_number ?? null,
+    p_tax_number: input.tax_number ?? null,
+    p_bank_name: input.bank_name ?? null,
+    p_iban: input.iban ?? null,
+    p_contact_email: input.contact_email ?? null,
+    p_contact_phone: input.contact_phone ?? null,
+    p_logo_url: input.logo_url ?? null,
+    p_banner_url: input.banner_url ?? null,
   });
 
   if (error || !data) {
