@@ -219,6 +219,19 @@ export async function deleteSellerMarketingPost(postId: string): Promise<boolean
   return !error;
 }
 
+export async function updateSellerOrderStatus(
+  orderId: string,
+  storeId: string,
+  status: Order["status"]
+): Promise<boolean> {
+  const { error } = await supabase
+    .from("orders")
+    .update({ status })
+    .eq("id", orderId)
+    .eq("store_id", storeId);
+  return !error;
+}
+
 export async function updateSellerShipmentStatus(
   shipmentId: string,
   storeId: string,
