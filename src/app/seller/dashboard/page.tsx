@@ -32,7 +32,14 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order, Store, Shipment, CurrencyCode } from "@/types/marketplace";
+import { useAuth } from "@/context/AuthContext";
+import {
+  getMyStorePrivateSettings,
+  getMyTenantStores,
+  updateStoreProfile as persistStoreProfile,
+  type TenantStore,
+} from "@/lib/marketplace";
+import type { Order, Shipment, CurrencyCode } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import StoreLogisticsHub from "@/components/shipping/StoreLogisticsHub";
@@ -67,12 +74,32 @@ function useNoormexaLanguage() {
   return useSyncExternalStore<Language>(subscribeToLanguage, getLanguageSnapshot, () => "ar");
 }
 
+const SELLER_STORE_PREFERENCE_KEY = "noormexa_seller_active_store_id";
+
+const EMPTY_TENANT_STORE: TenantStore = {
+  id: "",
+  owner_id: "",
+  name: "",
+  slug: "",
+  description: null,
+  logo_url: null,
+  banner_url: null,
+  commission_rate: 8,
+  plan: "professional",
+  status: "pending",
+  is_verified: false,
+  is_official: false,
+  country: "المملكة العربية السعودية",
+  created_at: "",
+  membership_role: "support",
+};
+
 export default function SellerDashboardPage() {
   const language = useNoormexaLanguage();
   const isAr = language === "ar";
+  const { user, loading: authLoading } = useAuth();
 
   const {
-    stores,
     products,
     orders,
     categories,
@@ -86,40 +113,125 @@ export default function SellerDashboardPage() {
     convertFromCurrencyToEGP,
     addProduct,
     deleteProductItem,
-    updateStoreProfile,
     updateOrderStatus,
     updateShipmentStatus,
     requestStorePayout,
-    createOfficialStore,
     addMarketingPost,
     updateMarketingPost,
     deleteMarketingPost,
     likeMarketingPost,
   } = useMarketplace();
 
-  // Active Selected Store State
-  const [selectedStoreId, setSelectedStoreId] = useState<string>(stores[0]?.id || "store-noormexa-official");
-  const currentStore: Store = useMemo(() => {
+  // Seller store authority comes from active store_members rows in Supabase.
+  // The browser's selectedStoreId is only a preference and is accepted only
+  // when it exists in this server-authorized list.
+  const [stores, setStores] = useState<TenantStore[]>([]);
+  const [storesLoading, setStoresLoading] = useState(true);
+  const [storesError, setStoresError] = useState<string | null>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState("");
+
+  const currentStore = useMemo<TenantStore>(() => {
     return (
-      stores.find((s) => s.id === selectedStoreId) ||
-      stores[0] || {
-        id: "store-default",
-        name: "متجر نورمكسا الرسمي",
-        slug: "noormexa-official",
-        commission_rate: 0,
-        plan: "platform_owner",
-        status: "approved" as const,
-        is_verified: true,
-        is_official: true,
-        country: "المملكة العربية السعودية / مصر / الإمارات",
-        description: "المتجر الرسمي للعلامة",
-        created_at: new Date().toISOString(),
-        owner_id: "owner-platform-admin",
-        logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-        banner_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&auto=format&fit=crop&q=80",
-      }
+      stores.find((store) => store.id === selectedStoreId) ||
+      stores[0] ||
+      EMPTY_TENANT_STORE
     );
   }, [stores, selectedStoreId]);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    let active = true;
+
+    const loadAuthorizedStores = async () => {
+      if (!user) {
+        if (active) {
+          setStores([]);
+          setSelectedStoreId("");
+          setStoresLoading(false);
+        }
+        return;
+      }
+
+      setStoresLoading(true);
+      setStoresError(null);
+
+      const authorizedStores = await getMyTenantStores();
+      if (!active) return;
+
+      setStores(authorizedStores);
+
+      const preferred =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem(SELLER_STORE_PREFERENCE_KEY)
+          : null;
+
+      const nextStoreId =
+        preferred && authorizedStores.some((store) => store.id === preferred)
+          ? preferred
+          : authorizedStores[0]?.id || "";
+
+      setSelectedStoreId(nextStoreId);
+      setStoresLoading(false);
+    };
+
+    void loadAuthorizedStores();
+
+    return () => {
+      active = false;
+    };
+  }, [authLoading, user]);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !selectedStoreId ||
+      !stores.some((store) => store.id === selectedStoreId)
+    ) {
+      return;
+    }
+
+    window.localStorage.setItem(SELLER_STORE_PREFERENCE_KEY, selectedStoreId);
+  }, [selectedStoreId, stores]);
+
+  useEffect(() => {
+    if (
+      !currentStore.id ||
+      (currentStore.membership_role !== "owner" &&
+        currentStore.membership_role !== "manager")
+    ) {
+      return;
+    }
+
+    let active = true;
+
+    const loadPrivateSettings = async () => {
+      const privateSettings = await getMyStorePrivateSettings(currentStore.id);
+      if (!active || !privateSettings) return;
+
+      setStores((previous) =>
+        previous.map((store) =>
+          store.id === currentStore.id
+            ? {
+                ...store,
+                contact_email: privateSettings.contact_email ?? undefined,
+                contact_phone: privateSettings.contact_phone ?? undefined,
+                cr_number: privateSettings.cr_number ?? undefined,
+                tax_number: privateSettings.tax_number ?? undefined,
+                bank_name: privateSettings.bank_name ?? undefined,
+                iban: privateSettings.iban ?? undefined,
+              }
+            : store
+        )
+      );
+    };
+
+    void loadPrivateSettings();
+
+    return () => {
+      active = false;
+    };
+  }, [currentStore.id, currentStore.membership_role]);
 
   const [activeTab, setActiveTab] = useState<
     "analytics" | "products" | "orders" | "shipments" | "marketing" | "payouts" | "settings"
@@ -128,7 +240,6 @@ export default function SellerDashboardPage() {
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [showOfficialStoreModal, setShowOfficialStoreModal] = useState(false);
   const [showAddMarketingModal, setShowAddMarketingModal] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
   const [selectedShipmentForWaybill, setSelectedShipmentForWaybill] = useState<Shipment | null>(null);
@@ -160,10 +271,6 @@ export default function SellerDashboardPage() {
   const [newProdDesc, setNewProdDesc] = useState("");
   const [newProdFreeShip, setNewProdFreeShip] = useState(true);
   const [newProdFeatured, setNewProdFeatured] = useState(false);
-
-  // Official Store Form State
-  const [newOfficialName, setNewOfficialName] = useState("متجر نورميكسا المباشر (NOORMEXA Direct)");
-  const [newOfficialDesc, setNewOfficialDesc] = useState("المتجر الرسمي المباشر لعلامة المنصة العالمية - شحن مجاني وضمان شامل");
 
   // New Marketing Post Form State
   const [postTitle, setPostTitle] = useState("");
