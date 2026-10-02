@@ -91,13 +91,24 @@ function OrdersTrackingContent() {
   const isAr = language === "ar";
   const text = copy[language];
 
-  const { formatPrice } = useMarketplace();
+  const { formatPrice, clearCart } = useMarketplace();
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState(initialTrackParam);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get("payment") !== "success") return;
+
+    clearCart();
+    if (typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem("noormexa_secure_checkout_session");
+      } catch {}
+    }
+  }, [clearCart, searchParams]);
 
   useEffect(() => {
     if (authLoading) return;
