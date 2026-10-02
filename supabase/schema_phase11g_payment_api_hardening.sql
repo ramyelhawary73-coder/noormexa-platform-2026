@@ -82,6 +82,11 @@ begin
     return new;
   end if;
 
+  if new.status is distinct from old.status
+     and new.status = 'paid' then
+    raise exception 'Paid order status is server-managed';
+  end if;
+
   if new.total_amount is distinct from old.total_amount
      or new.subtotal is distinct from old.subtotal
      or new.discount_amount is distinct from old.discount_amount
