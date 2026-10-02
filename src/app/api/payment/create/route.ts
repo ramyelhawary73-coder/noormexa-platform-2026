@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
   // Service Role bypasses RLS, so authorization is explicit here:
   // every requested order must exist AND belong to the authenticated buyer.
-  const { data: orders, error: ordersError } = await supabaseAdmin
+  const { data: requestedOrders, error: ordersError } = await supabaseAdmin
     .from("orders")
     .select(
       "id, buyer_id, total_amount, status, payment_method, payment_status, payment_provider, payment_reference, checkout_reference"
@@ -100,7 +100,11 @@ export async function POST(req: NextRequest) {
     .in("id", orderIds)
     .eq("buyer_id", auth.user.id);
 
-  if (ordersError || !orders || orders.length !== orderIds.length) {
+  if (
+    ordersError ||
+    !requestedOrders ||
+    requestedOrders.length !== orderIds.length
+  ) {
     // Deliberately do not reveal whether an order exists but belongs to
     // somebody else.
     return NextResponse.json({ error: "تعذر العثور على الطلب" }, { status: 404 });
@@ -109,12 +113,12 @@ export async function POST(req: NextRequest) {
   const expectedPaymentMethod =
     provider === "stripe" ? "stripe" : "applePayMada";
   const checkoutReferences = new Set(
-    orders
+    requestedOrders
       .map((order) => order.checkout_reference)
       .filter((value): value is string => typeof value === "string" && value.length > 0)
   );
 
-  const notPayable = orders.some(
+  const notPayable = requestedOrders.some(
     (order) =>
       order.status !== "pending" ||
       (order.payment_status ?? "pending") !== "pending" ||
@@ -130,7 +134,53 @@ export async function POST(req: NextRequest) {
 
   const checkoutReference = Array.from(checkoutReferences)[0];
 
-  const totalAmount = orders.reduce(
+  // Multi-store checkout is one payment unit. A manipulated request cannot
+  // pay only a cheap subset while leaving sibling orders in the same checkout
+  // outside the provider transaction.
+  const { data: checkoutOrders, error: checkoutOrdersError } =
+    await supabaseAdmin
+      .from("orders")
+      .select(
+        "id, buyer_id, total_amount, status, payment_method, payment_status, payment_provider, payment_reference, checkout_reference"
+      )
+      .eq("buyer_id", auth.user.id)
+      .eq("checkout_reference", checkoutReference);
+
+  if (checkoutOrdersError || !checkoutOrders || checkoutOrders.length === 0) {
+    return NextResponse.json(
+      { error: "تعذر التحقق من عملية الشراء كاملة." },
+      { status: 409 }
+    );
+  }
+
+  const requestedIdSet = new Set(orderIds);
+  const checkoutIdSet = new Set(checkoutOrders.map((order) => order.id));
+
+  if (
+    requestedIdSet.size !== checkoutIdSet.size ||
+    checkoutOrders.some((order) => !requestedIdSet.has(order.id))
+  ) {
+    return NextResponse.json(
+      { error: "يجب دفع جميع طلبات عملية الشراء معًا." },
+      { status: 409 }
+    );
+  }
+
+  const checkoutNotPayable = checkoutOrders.some(
+    (order) =>
+      order.status !== "pending" ||
+      (order.payment_status ?? "pending") !== "pending" ||
+      order.payment_method !== expectedPaymentMethod
+  );
+
+  if (checkoutNotPayable) {
+    return NextResponse.json(
+      { error: "أحد طلبات عملية الشراء غير صالح للدفع." },
+      { status: 409 }
+    );
+  }
+
+  const totalAmount = checkoutOrders.reduce(
     (sum, order) => sum + Number(order.total_amount ?? 0),
     0
   );
