@@ -131,32 +131,39 @@ function OrdersTrackingContent() {
         return;
       }
 
-      const mapped = (data ?? []).map((row) => {
-        const rawItems = Array.isArray(row.items) ? row.items : [];
+      const mapped: Order[] = (data ?? []).map((row): Order => {
+        const value = row as Record<string, unknown>;
+        const rawItems: unknown[] = Array.isArray(value.items)
+          ? value.items
+          : [];
         const rawShipping: Partial<ShippingAddress> =
-          row.shipping_info && typeof row.shipping_info === "object"
-            ? (row.shipping_info as Partial<ShippingAddress>)
+          value.shipping_info &&
+          typeof value.shipping_info === "object" &&
+          !Array.isArray(value.shipping_info)
+            ? (value.shipping_info as Partial<ShippingAddress>)
             : {};
 
         return {
-          id: String(row.id ?? ""),
-          orderNumber: String(row.order_number ?? row.id ?? ""),
-          trackingNumber: String(row.tracking_number ?? ""),
-          buyer_id: String(row.buyer_id ?? ""),
-          store_id: String(row.store_id ?? ""),
+          id: String(value.id ?? ""),
+          orderNumber: String(value.order_number ?? value.id ?? ""),
+          trackingNumber: String(value.tracking_number ?? ""),
+          buyer_id: String(value.buyer_id ?? ""),
+          store_id: String(value.store_id ?? ""),
           store_name:
-            typeof row.store_name === "string" ? row.store_name : undefined,
-          subtotal: Number(row.subtotal ?? 0),
-          discount_amount: Number(row.discount_amount ?? 0),
-          shipping_cost: Number(row.shipping_cost ?? 0),
-          vat_amount: Number(row.vat_amount ?? 0),
-          total_amount: Number(row.total_amount ?? 0),
-          commission_amount: Number(row.commission_amount ?? 0),
-          status: (row.status ?? "pending") as Order["status"],
-          payment_method: (row.payment_method ?? "cod") as Order["payment_method"],
-          payment_status: (row.payment_status ?? "pending") as Order["payment_status"],
+            typeof value.store_name === "string"
+              ? value.store_name
+              : undefined,
+          subtotal: Number(value.subtotal ?? 0),
+          discount_amount: Number(value.discount_amount ?? 0),
+          shipping_cost: Number(value.shipping_cost ?? 0),
+          vat_amount: Number(value.vat_amount ?? 0),
+          total_amount: Number(value.total_amount ?? 0),
+          commission_amount: Number(value.commission_amount ?? 0),
+          status: (value.status ?? "pending") as Order["status"],
+          payment_method: (value.payment_method ?? "cod") as Order["payment_method"],
+          payment_status: (value.payment_status ?? "pending") as Order["payment_status"],
           shipping_speed:
-            row.shipping_speed === "priority" ? "priority" : "standard",
+            value.shipping_speed === "priority" ? "priority" : "standard",
           shipping_info: {
             fullName: rawShipping.fullName ?? "",
             email: rawShipping.email ?? "",
@@ -170,27 +177,37 @@ function OrdersTrackingContent() {
             notes: rawShipping.notes,
           },
           items: rawItems.map((item, index) => {
-            const value = (item ?? {}) as Record<string, unknown>;
+            const itemValue =
+              item && typeof item === "object" && !Array.isArray(item)
+                ? (item as Record<string, unknown>)
+                : {};
+
             return {
-              id: String(value.id ?? `${row.id}-item-${index}`),
-              product_id: String(value.product_id ?? ""),
-              product_name: String(value.product_name ?? ""),
-              quantity: Number(value.quantity ?? 1),
-              unit_price: Number(value.unit_price ?? 0),
+              id: String(
+                itemValue.id ??
+                  `${String(value.id ?? "order")}-item-${index}`
+              ),
+              product_id: String(itemValue.product_id ?? ""),
+              product_name: String(itemValue.product_name ?? ""),
+              quantity: Number(itemValue.quantity ?? 1),
+              unit_price: Number(itemValue.unit_price ?? 0),
               selected_variants_label:
-                typeof value.selected_variants_label === "string"
-                  ? value.selected_variants_label
+                typeof itemValue.selected_variants_label === "string"
+                  ? itemValue.selected_variants_label
                   : undefined,
               image_url:
-                typeof value.image_url === "string" || value.image_url === null
-                  ? (value.image_url as string | null)
+                typeof itemValue.image_url === "string" ||
+                itemValue.image_url === null
+                  ? (itemValue.image_url as string | null)
                   : undefined,
             };
           }),
           tracking_steps: [],
-          created_at: String(row.created_at ?? new Date(0).toISOString()),
+          created_at: String(
+            value.created_at ?? new Date(0).toISOString()
+          ),
           carrier: "NOORMEXA Global Express Logistics",
-        } satisfies Order;
+        };
       });
 
       setOrders(mapped);
