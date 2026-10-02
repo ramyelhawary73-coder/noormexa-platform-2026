@@ -87,6 +87,13 @@ begin
     raise exception 'Paid order status is server-managed';
   end if;
 
+  if new.status is distinct from old.status
+     and old.payment_method in ('stripe', 'applePayMada')
+     and coalesce(old.payment_status, 'pending') <> 'paid'
+     and new.status not in ('pending', 'cancelled') then
+    raise exception 'Online orders cannot progress before payment is confirmed';
+  end if;
+
   if new.total_amount is distinct from old.total_amount
      or new.subtotal is distinct from old.subtotal
      or new.discount_amount is distinct from old.discount_amount
