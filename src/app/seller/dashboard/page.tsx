@@ -34,11 +34,21 @@ import {
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { useAuth } from "@/context/AuthContext";
 import {
+  createProduct as persistProduct,
+  deleteProduct as persistDeleteProduct,
   getMyStorePrivateSettings,
   getMyTenantStores,
+  updateOrderStatus as persistOrderStatus,
   updateStoreProfile as persistStoreProfile,
   type TenantStore,
 } from "@/lib/marketplace";
+import {
+  createSellerMarketingPost,
+  deleteSellerMarketingPost,
+  loadSellerWorkspaceData,
+  updateSellerMarketingPost,
+  updateSellerShipmentStatus,
+} from "@/lib/sellerWorkspace";
 import type { Order, Shipment, CurrencyCode } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
@@ -100,26 +110,14 @@ export default function SellerDashboardPage() {
   const { user, loading: authLoading } = useAuth();
 
   const {
-    products,
-    orders,
     categories,
     payouts,
-    marketingPosts,
-    shipments,
     carriers,
     formatPrice,
     currencies,
     convertPrice,
     convertFromCurrencyToEGP,
-    addProduct,
-    deleteProductItem,
-    updateOrderStatus,
-    updateShipmentStatus,
     requestStorePayout,
-    addMarketingPost,
-    updateMarketingPost,
-    deleteMarketingPost,
-    likeMarketingPost,
   } = useMarketplace();
 
   // Seller store authority comes from active store_members rows in Supabase.
@@ -129,6 +127,13 @@ export default function SellerDashboardPage() {
   const [storesLoading, setStoresLoading] = useState(true);
   const [storesError, setStoresError] = useState<string | null>(null);
   const [selectedStoreId, setSelectedStoreId] = useState("");
+
+  const [products, setProducts] = useState<import("@/types/marketplace").Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [marketingPosts, setMarketingPosts] = useState<import("@/types/marketplace").MarketingPost[]>([]);
+  const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
 
   const currentStore = useMemo<TenantStore>(() => {
     return (
@@ -208,6 +213,40 @@ export default function SellerDashboardPage() {
 
     window.localStorage.setItem(SELLER_STORE_PREFERENCE_KEY, selectedStoreId);
   }, [selectedStoreId, stores]);
+
+  useEffect(() => {
+    if (!currentStore.id) {
+      setProducts([]);
+      setOrders([]);
+      setShipments([]);
+      setMarketingPosts([]);
+      setWorkspaceError(null);
+      return;
+    }
+
+    let active = true;
+
+    const loadWorkspace = async () => {
+      setWorkspaceLoading(true);
+      setWorkspaceError(null);
+
+      const { data, error } = await loadSellerWorkspaceData(currentStore.id);
+      if (!active) return;
+
+      setProducts(data.products);
+      setOrders(data.orders);
+      setShipments(data.shipments);
+      setMarketingPosts(data.marketingPosts);
+      setWorkspaceError(error);
+      setWorkspaceLoading(false);
+    };
+
+    void loadWorkspace();
+
+    return () => {
+      active = false;
+    };
+  }, [currentStore.id]);
 
   useEffect(() => {
     if (
