@@ -1130,6 +1130,20 @@ export default function SellerDashboardPage() {
           </div>
         )}
 
+        {workspaceLoading && (
+          <div className="rounded-2xl border border-line bg-surface-soft p-3 text-xs font-bold text-muted">
+            {isAr ? "جاري مزامنة بيانات المتجر من قاعدة البيانات..." : "Syncing store data from the database..."}
+          </div>
+        )}
+
+        {workspaceError && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-bold text-red-700 dark:text-red-300">
+            {isAr
+              ? `تعذر تحميل بعض بيانات المتجر من قاعدة البيانات: ${workspaceError}`
+              : `Some store data could not be loaded from the database: ${workspaceError}`}
+          </div>
+        )}
+
         {/* Navigation Tabs - Responsive Scrollable Pill Strip on Mobile / 7-Col Grid on Desktop */}
         <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
           <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-7 select-none touch-manipulation">
@@ -1410,8 +1424,7 @@ export default function SellerDashboardPage() {
                               type="button"
                               onClick={() => {
                                 if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                  deleteProductItem(p.id);
-                                  showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                                  void handleDeleteProduct(p.id);
                                 }
                               }}
                               className="p-2 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
@@ -1508,8 +1521,7 @@ export default function SellerDashboardPage() {
                                   type="button"
                                   onClick={() => {
                                     if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنتج؟" : "Delete product?")) {
-                                      deleteProductItem(p.id);
-                                      showToast(isAr ? "تم حذف المنتج بنجاح" : "Product deleted");
+                                      void handleDeleteProduct(p.id);
                                     }
                                   }}
                                   className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500 touch-manipulation active:scale-95"
@@ -1834,14 +1846,10 @@ export default function SellerDashboardPage() {
                           <Eye size={13} />
                           <span>{post.views_count || 1} {isAr ? "مشاهدة" : "views"}</span>
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => likeMarketingPost(post.id)}
-                          className="flex items-center gap-1 text-rose-500 hover:scale-105 transition-transform"
-                        >
+                        <span className="flex items-center gap-1 text-rose-500">
                           <Heart size={13} className="fill-rose-500 text-rose-500" />
                           <span>{post.likes_count || 0}</span>
-                        </button>
+                        </span>
                       </div>
 
                       {canManageMarketing && (
@@ -1860,8 +1868,7 @@ export default function SellerDashboardPage() {
                             type="button"
                             onClick={() => {
                               if (confirm(isAr ? "هل أنت متأكد من رغبتك في حذف هذا المنشور التسويقي؟" : "Delete marketing post?")) {
-                                deleteMarketingPost(post.id);
-                                showToast(isAr ? "تم حذف المنشور بنجاح" : "Post deleted");
+                                void handleDeleteMarketingPost(post.id);
                               }
                             }}
                             className="p-1.5 rounded-lg border border-line hover:border-red-500 text-muted hover:text-red-500"
