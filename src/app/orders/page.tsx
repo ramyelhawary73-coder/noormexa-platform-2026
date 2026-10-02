@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, useMemo, Suspense } from "react";
+import { useEffect, useState, useSyncExternalStore, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -14,7 +14,9 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { Order } from "@/types/marketplace";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
+import type { Order, ShippingAddress } from "@/types/marketplace";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -89,9 +91,118 @@ function OrdersTrackingContent() {
   const isAr = language === "ar";
   const text = copy[language];
 
-  const { orders, formatPrice } = useMarketplace();
+  const { formatPrice } = useMarketplace();
+  const { user, loading: authLoading } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState(initialTrackParam);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    let active = true;
+
+    const loadOrders = async () => {
+      if (!user) {
+        if (active) {
+          setOrders([]);
+          setOrdersLoading(false);
+        }
+        return;
+      }
+
+      setOrdersLoading(true);
+      setOrdersError(null);
+
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("buyer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!active) return;
+
+      if (error) {
+        setOrders([]);
+        setOrdersError(error.message);
+        setOrdersLoading(false);
+        return;
+      }
+
+      const mapped = (data ?? []).map((row) => {
+        const rawItems = Array.isArray(row.items) ? row.items : [];
+        const rawShipping =
+          row.shipping_info && typeof row.shipping_info === "object"
+            ? (row.shipping_info as Partial<ShippingAddress>)
+            : {};
+
+        return {
+          id: String(row.id ?? ""),
+          orderNumber: String(row.order_number ?? row.id ?? ""),
+          trackingNumber: String(row.tracking_number ?? ""),
+          buyer_id: String(row.buyer_id ?? ""),
+          store_id: String(row.store_id ?? ""),
+          store_name:
+            typeof row.store_name === "string" ? row.store_name : undefined,
+          subtotal: Number(row.subtotal ?? 0),
+          discount_amount: Number(row.discount_amount ?? 0),
+          shipping_cost: Number(row.shipping_cost ?? 0),
+          vat_amount: Number(row.vat_amount ?? 0),
+          total_amount: Number(row.total_amount ?? 0),
+          commission_amount: Number(row.commission_amount ?? 0),
+          status: (row.status ?? "pending") as Order["status"],
+          payment_method: (row.payment_method ?? "cod") as Order["payment_method"],
+          payment_status: (row.payment_status ?? "pending") as Order["payment_status"],
+          shipping_speed:
+            row.shipping_speed === "priority" ? "priority" : "standard",
+          shipping_info: {
+            fullName: rawShipping.fullName ?? "",
+            email: rawShipping.email ?? "",
+            phone: rawShipping.phone ?? "",
+            country: rawShipping.country ?? "",
+            state: rawShipping.state,
+            region: rawShipping.region,
+            city: rawShipping.city ?? "",
+            address: rawShipping.address ?? "",
+            postalCode: rawShipping.postalCode,
+            notes: rawShipping.notes,
+          },
+          items: rawItems.map((item, index) => {
+            const value = (item ?? {}) as Record<string, unknown>;
+            return {
+              id: String(value.id ?? `${row.id}-item-${index}`),
+              product_id: String(value.product_id ?? ""),
+              product_name: String(value.product_name ?? ""),
+              quantity: Number(value.quantity ?? 1),
+              unit_price: Number(value.unit_price ?? 0),
+              selected_variants_label:
+                typeof value.selected_variants_label === "string"
+                  ? value.selected_variants_label
+                  : undefined,
+              image_url:
+                typeof value.image_url === "string" || value.image_url === null
+                  ? (value.image_url as string | null)
+                  : undefined,
+            };
+          }),
+          tracking_steps: [],
+          created_at: String(row.created_at ?? new Date(0).toISOString()),
+          carrier: "NOORMEXA Global Express Logistics",
+        } satisfies Order;
+      });
+
+      setOrders(mapped);
+      setOrdersLoading(false);
+    };
+
+    void loadOrders();
+
+    return () => {
+      active = false;
+    };
+  }, [authLoading, user]);
 
   // Filter orders or find specific tracked order
   const matchedOrders = useMemo(() => {
@@ -134,6 +245,35 @@ function OrdersTrackingContent() {
     { id: 5, title: text.statusDelivered, desc: "تم استلام الشحنة والتوقيع" },
   ];
 
+  if (authLoading || ordersLoading) {
+    return (
+      <main className="noormexa-main py-16 text-center">
+        <div className="noormexa-container text-sm text-muted">
+          {isAr ? "جاري تحميل طلباتك الآمنة..." : "Loading your orders..."}
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="noormexa-main py-16 text-center">
+        <div className="noormexa-container max-w-md mx-auto space-y-4">
+          <Package size={48} className="mx-auto text-muted" />
+          <h2 className="text-xl font-bold text-foreground">
+            {isAr ? "تسجيل الدخول مطلوب" : "Sign in required"}
+          </h2>
+          <Link
+            href="/auth?next=/orders"
+            className="inline-block px-6 py-2.5 bg-gold text-navy font-bold rounded-full text-xs"
+          >
+            {isAr ? "تسجيل الدخول" : "Sign in"}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="noormexa-main py-8 md:py-12">
       <div className="noormexa-container space-y-8">
@@ -147,6 +287,11 @@ function OrdersTrackingContent() {
             {text.title}
           </h1>
           <p className="text-xs sm:text-sm text-muted mt-1">{text.subtitle}</p>
+          {ordersError && (
+            <p className="mt-2 text-xs font-bold text-red-600">
+              {ordersError}
+            </p>
+          )}
         </div>
 
         {/* Search / Track Box */}
