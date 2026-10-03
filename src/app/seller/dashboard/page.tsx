@@ -153,12 +153,13 @@ export default function SellerDashboardPage() {
     currentStore.membership_role === "manager" ||
     currentStore.membership_role === "support";
   const canManageMarketing = canManageCatalog;
+  const canViewAnalytics =
+    currentStore.membership_role === "owner" ||
+    currentStore.membership_role === "manager";
   // Official-store staff use this workspace for operations only. Banking,
   // payouts and store settings stay outside the staff surface.
   const canManageFinancials =
-    !currentStore.is_official &&
-    (currentStore.membership_role === "owner" ||
-      currentStore.membership_role === "manager");
+    !currentStore.is_official && canViewAnalytics;
   const canManageSettings = canManageFinancials;
   const canManageTeam = canManageFinancials;
 
@@ -309,26 +310,58 @@ export default function SellerDashboardPage() {
   useEffect(() => {
     if (!currentStore.id) return;
 
-    if (!canManageFinancials && activeTab === "analytics") {
+    if (!canViewAnalytics && activeTab === "analytics") {
       setActiveTab(currentStore.membership_role === "support" ? "orders" : "products");
       return;
     }
 
+    if (!canManageCatalog && activeTab === "products") {
+      setActiveTab(canManageOrders ? "orders" : "marketing");
+      return;
+    }
+
     if (!canManageOrders && (activeTab === "orders" || activeTab === "shipments")) {
-      setActiveTab("products");
+      setActiveTab(canManageCatalog ? "products" : "marketing");
+      return;
+    }
+
+    if (!canManageMarketing && activeTab === "marketing") {
+      setActiveTab(canManageOrders ? "orders" : "products");
       return;
     }
 
     if (!canManageFinancials && (activeTab === "payouts" || activeTab === "settings")) {
-      setActiveTab("products");
+      setActiveTab(canManageCatalog ? "products" : "orders");
     }
   }, [
     activeTab,
+    canManageCatalog,
     canManageFinancials,
+    canManageMarketing,
     canManageOrders,
+    canViewAnalytics,
     currentStore.id,
     currentStore.membership_role,
   ]);
+
+  const workspaceRoleLabel =
+    currentStore.membership_role === "manager"
+      ? isAr
+        ? "مدير المتجر الرسمي"
+        : "Official Store Manager"
+      : currentStore.membership_role === "editor"
+      ? isAr
+        ? "محرر المنتجات والمحتوى"
+        : "Catalog & Content Editor"
+      : currentStore.membership_role === "support"
+      ? isAr
+        ? "دعم الطلبات والشحن"
+        : "Orders & Shipping Support"
+      : currentStore.membership_role === "owner"
+      ? isAr
+        ? "مالك المتجر"
+        : "Store Owner"
+      : currentStore.membership_role;
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -1076,6 +1109,12 @@ export default function SellerDashboardPage() {
                 </span>
               ) : null}
 
+              {currentStore.is_official && workspaceRoleLabel && (
+                <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-300 font-black text-xs border border-orange-500/25">
+                  {workspaceRoleLabel}
+                </span>
+              )}
+
               <span className="px-3 py-1 rounded-full bg-surface-soft text-muted font-bold text-xs border border-line">
                 {isAr ? `عمولة المنصة: ${commissionRate}%` : `Fee: ${commissionRate}%`}
               </span>
@@ -1167,11 +1206,11 @@ export default function SellerDashboardPage() {
         <div className="bg-surface/95 backdrop-blur-md p-1.5 sm:p-2.5 rounded-2xl sm:rounded-3xl border border-line shadow-xs">
           <div className="flex lg:grid overflow-x-auto no-scrollbar pb-1 lg:pb-0 gap-1.5 sm:gap-2 lg:grid-cols-7 select-none touch-manipulation">
             {[
-              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null, allowed: canManageFinancials },
-              { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}`, allowed: true },
+              { id: "analytics", labelAr: "المؤشرات والأرباح", labelEn: "Analytics & Stats", icon: TrendingUp, count: null, allowed: canViewAnalytics },
+              { id: "products", labelAr: "كتالوج المنتجات", labelEn: "Catalog Products", icon: Boxes, count: `${storeProducts.length}`, allowed: canManageCatalog },
               { id: "orders", labelAr: "الطلبات والمبيعات", labelEn: "Orders & Sales", icon: Tag, count: `${storeOrders.length}`, allowed: canManageOrders },
               { id: "shipments", labelAr: "الشحنات والتتبع", labelEn: "Shipments & Logistics", icon: Truck, count: `${storeShipments.length}`, allowed: canManageOrders },
-              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}`, allowed: true },
+              { id: "marketing", labelAr: "المنشورات والعروض", labelEn: "Marketing Posts", icon: Megaphone, count: `${storeMarketingPosts.length}`, allowed: canManageMarketing },
               { id: "payouts", labelAr: "التسويات والسحب", labelEn: "Payouts & Ledger", icon: Wallet, count: `${storePayouts.length}`, allowed: canManageFinancials },
               { id: "settings", labelAr: "إعدادات المتجر", labelEn: "Store Settings", icon: Settings, count: null, allowed: canManageSettings },
             ].filter((tab) => tab.allowed).map((tab) => {
