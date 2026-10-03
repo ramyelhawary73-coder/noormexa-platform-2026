@@ -25,12 +25,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [officialStaffStore, setOfficialStaffStore] = useState<TenantStore | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshOfficialStaffStore = useCallback(async () => {
-    const store = await getMyOfficialStaffStore();
+  const refreshOfficialStaffStore = useCallback(async (accessToken?: string) => {
+    const store = await getMyOfficialStaffStore(accessToken);
     setOfficialStaffStore(store);
   }, []);
 
-  const fetchProfile = useCallback(async (authUser: User) => {
+  const fetchProfile = useCallback(async (authUser: User, accessToken?: string) => {
     const claimTenantInvitations = async () => {
       // Best-effort only. The database function derives identity from the
       // authenticated session and refuses Platform accounts.
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!error && data) {
       setProfile(data as Profile);
       await claimTenantInvitations();
-      await refreshOfficialStaffStore();
+      await refreshOfficialStaffStore(accessToken);
       return;
     }
 
@@ -80,14 +80,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (created) {
       setProfile(created as Profile);
       await claimTenantInvitations();
-      await refreshOfficialStaffStore();
+      await refreshOfficialStaffStore(accessToken);
     } else {
       // لو upsert ماردّش صف (لأن الصف كان موجود بالفعل)، نجيبه تاني.
       const { data: existing } = await supabase.from("profiles").select("*").eq("id", authUser.id).maybeSingle();
       if (existing) {
         setProfile(existing as Profile);
         await claimTenantInvitations();
-        await refreshOfficialStaffStore();
+        await refreshOfficialStaffStore(accessToken);
       }
     }
   }, [refreshOfficialStaffStore]);
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user);
+        await fetchProfile(session.user, session.access_token);
       }
 
       setLoading(false);
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user);
+        await fetchProfile(session.user, session.access_token);
       } else {
         setUser(null);
         setProfile(null);
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { session },
     } = await supabase.auth.getSession();
     if (session) {
-      await fetchProfile(session.user);
+      await fetchProfile(session.user, session.access_token);
     }
   }, [fetchProfile]);
 
