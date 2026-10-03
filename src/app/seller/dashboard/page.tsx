@@ -62,6 +62,7 @@ import {
   findNearestDivisionAndCity,
 } from "@/data/regionsData";
 import { requestUserGpsLocation } from "@/lib/locationService";
+import { getMyOfficialStaffStore } from "@/lib/officialStaff";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -152,9 +153,12 @@ export default function SellerDashboardPage() {
     currentStore.membership_role === "manager" ||
     currentStore.membership_role === "support";
   const canManageMarketing = canManageCatalog;
+  // Official-store staff use this workspace for operations only. Banking,
+  // payouts and store settings stay outside the staff surface.
   const canManageFinancials =
-    currentStore.membership_role === "owner" ||
-    currentStore.membership_role === "manager";
+    !currentStore.is_official &&
+    (currentStore.membership_role === "owner" ||
+      currentStore.membership_role === "manager");
   const canManageSettings = canManageFinancials;
   const canManageTeam = canManageFinancials;
 
@@ -176,8 +180,18 @@ export default function SellerDashboardPage() {
       setStoresLoading(true);
       setStoresError(null);
 
-      const authorizedStores = await getMyTenantStores();
+      const [tenantStores, officialStaffStore] = await Promise.all([
+        getMyTenantStores(),
+        getMyOfficialStaffStore(),
+      ]);
       if (!active) return;
+
+      const authorizedStores = officialStaffStore
+        ? [
+            officialStaffStore,
+            ...tenantStores.filter((store) => store.id !== officialStaffStore.id),
+          ]
+        : tenantStores;
 
       setStores(authorizedStores);
 
@@ -251,6 +265,7 @@ export default function SellerDashboardPage() {
   useEffect(() => {
     if (
       !currentStore.id ||
+      currentStore.is_official ||
       (currentStore.membership_role !== "owner" &&
         currentStore.membership_role !== "manager")
     ) {
