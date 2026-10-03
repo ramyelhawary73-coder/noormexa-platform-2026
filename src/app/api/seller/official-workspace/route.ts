@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   const { data: officialStores, error: storeError } = await supabaseAdmin
     .from("stores")
     .select(
-      "id, name, slug, description, logo_url, banner_url, commission_rate, plan, status, is_verified, is_official, country, city, region, created_at"
+      "id, name, slug, description, logo_url, banner_url, commission_rate, plan, status, is_verified, is_official, country, created_at"
     )
     .in("id", storeIds)
     .eq("is_official", true)
