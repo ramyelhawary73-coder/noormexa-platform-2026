@@ -1,17 +1,24 @@
 import { supabase } from "./supabaseClient";
 import type { TenantStore } from "./marketplace";
 
-export async function getMyOfficialStaffStore(): Promise<TenantStore | null> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+export async function getMyOfficialStaffStore(
+  accessToken?: string
+): Promise<TenantStore | null> {
+  let token = accessToken;
 
-  if (!session) return null;
+  if (!token) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    token = session?.access_token;
+  }
+
+  if (!token) return null;
 
   const response = await fetch("/api/seller/official-workspace", {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${token}`,
     },
     cache: "no-store",
   });
