@@ -33,6 +33,13 @@ function AuthCallbackInner() {
 
     const finishSignIn = async () => {
       const code = searchParams.get("code");
+      const requestedNext = searchParams.get("next");
+      const safeNext =
+        requestedNext &&
+        requestedNext.startsWith("/") &&
+        !requestedNext.startsWith("//")
+          ? requestedNext
+          : null;
 
       // بعض روابط التأكيد بتيجي بصيغة PKCE (فيها ?code=...) وبعضها implicit
       // (الجلسة بتتحدد لوحدها من الرابط). نتعامل مع الاتنين.
@@ -51,6 +58,31 @@ function AuthCallbackInner() {
       if (!session) {
         if (active) setFailed(true);
         return;
+      }
+
+      if (safeNext) {
+        router.replace(safeNext);
+        return;
+      }
+
+      // Official-store staff may sign in through Google instead of the email
+      // invitation link. Detect their active membership before applying the
+      // normal shopper/seller role routing.
+      const staffResponse = await fetch("/api/seller/official-workspace", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        cache: "no-store",
+      });
+
+      if (staffResponse.ok) {
+        const staffPayload = (await staffResponse.json()) as {
+          store?: unknown | null;
+        };
+        if (staffPayload.store) {
+          router.replace("/seller/dashboard");
+          return;
+        }
       }
 
       const { data: profile } = await supabase
