@@ -129,7 +129,7 @@ export default function Navbar() {
   const currencyMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, officialStaffStore, signOut } = useAuth();
   const { currency, setCurrency, currencies, cartCount, wishlist } = useMarketplace();
   const { location, openLocationModal, isLocating } = useLocation();
 
@@ -169,17 +169,47 @@ export default function Navbar() {
   const userRole = getUserRole(user, profile);
   const isAdmin = userRole === "admin";
   const isSeller = userRole === "seller";
+  const officialStaffRole = officialStaffStore?.membership_role ?? null;
+  const isOfficialStaff = Boolean(officialStaffStore && officialStaffRole);
 
   const text = copy[language];
   const profileName = typeof profile?.full_name === "string" ? profile.full_name : "";
   const avatarLetter = profileName ? profileName.charAt(0).toUpperCase() : (user?.email?.charAt(0).toUpperCase() || "U");
   const displayName = profileName || user?.email?.split("@")[0] || (isAr ? "المتسوق" : "Member");
 
+  const officialStaffRoleLabel =
+    officialStaffRole === "manager"
+      ? isAr
+        ? "مدير متجر NOORMEXA الرسمي"
+        : "NOORMEXA Official Store Manager"
+      : officialStaffRole === "editor"
+      ? isAr
+        ? "محرر متجر NOORMEXA الرسمي"
+        : "NOORMEXA Official Store Editor"
+      : officialStaffRole === "support"
+      ? isAr
+        ? "دعم متجر NOORMEXA الرسمي"
+        : "NOORMEXA Official Store Support"
+      : officialStaffRole === "owner"
+      ? isAr
+        ? "مالك متجر NOORMEXA الرسمي"
+        : "NOORMEXA Official Store Owner"
+      : null;
+
   const roleBadgeLabel = isAdmin
-    ? (isAr ? "مالك المنصة" : "Super Admin")
+    ? (isAr ? "إدارة المنصة" : "Platform Admin")
+    : isOfficialStaff && officialStaffRoleLabel
+    ? officialStaffRoleLabel
     : isSeller
     ? (isAr ? "تاجر معتمد" : "Verified Seller")
     : (isAr ? "عضو متسوق" : "Shopper");
+
+  const sellerWorkspaceLabel =
+    isOfficialStaff && !isAdmin
+      ? isAr
+        ? "إدارة متجر NOORMEXA الرسمي"
+        : "Manage NOORMEXA Official Store"
+      : text.sellerHub;
 
   const searchCategories = [
     { id: "all", labelAr: "كل الأقسام", labelEn: "All" },
@@ -627,7 +657,7 @@ export default function Navbar() {
                               <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
                                 isAdmin
                                   ? "bg-amber-500/20 text-amber-600 dark:text-amber-400"
-                                  : isSeller
+                                  : isSeller || isOfficialStaff
                                   ? "bg-orange-500/20 text-orange-600 dark:text-orange-400"
                                   : "bg-blue-500/20 text-blue-600 dark:text-blue-400"
                               }`}>
@@ -661,14 +691,14 @@ export default function Navbar() {
                           <span>{text.myOrders}</span>
                         </Link>
 
-                        {(isSeller || isAdmin) ? (
+                        {(isSeller || isAdmin || isOfficialStaff) ? (
                           <Link
                             href="/seller/dashboard"
                             onClick={() => setUserDropdownOpen(false)}
                             className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
                           >
                             <StoreIcon size={14} className="text-amber-500" />
-                            <span>{text.sellerHub}</span>
+                            <span>{sellerWorkspaceLabel}</span>
                           </Link>
                         ) : (
                           <Link
@@ -907,7 +937,7 @@ export default function Navbar() {
                       className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-black text-xs shadow-xs text-center"
                     >
                       <StoreIcon size={13} />
-                      <span>{text.sellerHub}</span>
+                      <span>{sellerWorkspaceLabel}</span>
                     </Link>
                   ) : (
                     <Link
@@ -920,6 +950,16 @@ export default function Navbar() {
                     </Link>
                   )}
                 </div>
+                {isAdmin && isOfficialStaff && (
+                  <Link
+                    href="/seller/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="mt-2 flex items-center justify-center gap-1.5 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 font-black text-xs"
+                  >
+                    <StoreIcon size={13} />
+                    <span>{isAr ? "إدارة متجر NOORMEXA الرسمي" : "Manage NOORMEXA Official Store"}</span>
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="p-4 rounded-2xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border border-orange-500/30 shadow-xs flex items-center justify-between gap-3">
