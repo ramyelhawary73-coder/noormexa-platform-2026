@@ -32,7 +32,7 @@ import type {
 } from "@/types/marketplace";
 import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
 import { generateInitialDemoOrders } from "@/data/initialOrders";
-import { storeCloudServices } from "@/lib/supabaseClient";
+import { storeCloudServices, supabase } from "@/lib/supabaseClient";
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
   EGP: {
@@ -1684,10 +1684,11 @@ const STORAGE_KEYS = {
   CURRENCIES: "noormexa_currencies_v3",
   PAYOUTS: "noormexa_payouts_v2",
   CURRENT_STORE: "noormexa_active_store_id_v3",
-  MARKETING_POSTS: "noormexa_marketing_posts_v3",
   CARRIERS: "noormexa_carriers_v1",
   SHIPMENTS: "noormexa_shipments_v1",
 };
+
+const OFFICIAL_STORE_ID = "store-noormexa-official";
 
 export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>("EGP");
@@ -1697,7 +1698,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [stores, setStoresState] = useState<Store[]>(INITIAL_STORES);
   const [currentStoreId, setCurrentStoreIdState] = useState<string>("store-noormexa-official");
   const [products, setProductsState] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [marketingPosts, setMarketingPostsState] = useState<MarketingPost[]>(INITIAL_MARKETING_POSTS);
+  const [marketingPosts, setMarketingPostsState] = useState<MarketingPost[]>([]);
   const [payouts, setPayoutsState] = useState<StorePayout[]>(INITIAL_PAYOUTS);
   const [wishlist, setWishlistState] = useState<string[]>([]);
   const [cartItems, setCartItemsState] = useState<CartItem[]>([]);
@@ -1765,12 +1766,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         const savedActiveStore = window.localStorage.getItem(STORAGE_KEYS.CURRENT_STORE);
         if (savedActiveStore) setCurrentStoreIdState(savedActiveStore);
 
-        const savedPosts = window.localStorage.getItem(STORAGE_KEYS.MARKETING_POSTS);
-        if (savedPosts) {
-          const parsed = JSON.parse(savedPosts);
-          if (Array.isArray(parsed) && parsed.length > 0) setMarketingPostsState(parsed);
-        }
-
         const savedPayouts = window.localStorage.getItem(STORAGE_KEYS.PAYOUTS);
         if (savedPayouts) {
           const parsed = JSON.parse(savedPayouts);
@@ -1824,7 +1819,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       window.localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify(stores));
       window.localStorage.setItem(STORAGE_KEYS.CURRENT_STORE, currentStoreId);
-      window.localStorage.setItem(STORAGE_KEYS.MARKETING_POSTS, JSON.stringify(marketingPosts));
       window.localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(payouts));
       window.localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
       window.localStorage.setItem(STORAGE_KEYS.CARRIERS, JSON.stringify(carriers));
@@ -1837,7 +1831,27 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Failed to persist marketplace state:", err);
     }
-  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, currentStoreId, marketingPosts, payouts, orders, carriers, shipments, appliedPromo]);
+  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, currentStoreId, payouts, orders, carriers, shipments, appliedPromo]);
+
+  const loadOfficialMarketingPosts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("marketing_posts")
+      .select("*")
+      .eq("store_id", OFFICIAL_STORE_ID)
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to load official marketing posts:", error.message);
+      return;
+    }
+
+    setMarketingPostsState((data ?? []) as MarketingPost[]);
+  }, []);
+
+  useEffect(() => {
+    void loadOfficialMarketingPosts();
+  }, [loadOfficialMarketingPosts]);
 
   // Currency helpers
   const setCurrency = useCallback((newCur: CurrencyCode) => {
@@ -2032,32 +2046,107 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
 
   const addMarketingPost = useCallback(
     (postData: Omit<MarketingPost, "id" | "created_at" | "likes_count" | "views_count">): MarketingPost => {
+      const officialStore = stores.find((store) => store.id === OFFICIAL_STORE_ID);
       const newPost: MarketingPost = {
         ...postData,
-        id: `post-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        store_id: OFFICIAL_STORE_ID,
+        store_name: officialStore?.name || "متجر نورميكسا الرسمي",
+        store_logo: officialStore?.logo_url || undefined,
+        id: `post-${crypto.randomUUID()}`,
         likes_count: 0,
-        views_count: 1,
+        views_count: 0,
         created_at: new Date().toISOString(),
       };
-      setMarketingPostsState((prev) => [newPost, ...prev]);
+
+      if (newPost.status === "published") {
+        setMarketingPostsState((prev) => [newPost, ...prev]);
+      }
+
+      void supabase
+        .from("marketing_posts")
+        .insert(newPost)
+        .then(({ error }) => {
+          if (error) {
+            console.error("Failed to persist official marketing post:", error.message);
+            void loadOfficialMarketingPosts();
+          }
+        });
+
       return newPost;
     },
-    []
+    [loadOfficialMarketingPosts, stores]
   );
 
-  const updateMarketingPost = useCallback((id: string, updates: Partial<MarketingPost>) => {
-    setMarketingPostsState((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
-  }, []);
+  const updateMarketingPost = useCallback(
+    (id: string, updates: Partial<MarketingPost>) => {
+      if (updates.status && updates.status !== "published") {
+        setMarketingPostsState((prev) => prev.filter((post) => post.id !== id));
+      } else {
+        setMarketingPostsState((prev) =>
+          prev.map((post) => (post.id === id ? { ...post, ...updates } : post))
+        );
+      }
 
-  const deleteMarketingPost = useCallback((id: string) => {
-    setMarketingPostsState((prev) => prev.filter((p) => p.id !== id));
-  }, []);
+      void supabase
+        .from("marketing_posts")
+        .update(updates)
+        .eq("id", id)
+        .eq("store_id", OFFICIAL_STORE_ID)
+        .then(({ error }) => {
+          if (error) {
+            console.error("Failed to update official marketing post:", error.message);
+            void loadOfficialMarketingPosts();
+          }
+        });
+    },
+    [loadOfficialMarketingPosts]
+  );
 
-  const likeMarketingPost = useCallback((id: string) => {
-    setMarketingPostsState((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, likes_count: (p.likes_count || 0) + 1 } : p))
-    );
-  }, []);
+  const deleteMarketingPost = useCallback(
+    (id: string) => {
+      setMarketingPostsState((prev) => prev.filter((post) => post.id !== id));
+
+      void supabase
+        .from("marketing_posts")
+        .delete()
+        .eq("id", id)
+        .eq("store_id", OFFICIAL_STORE_ID)
+        .then(({ error }) => {
+          if (error) {
+            console.error("Failed to delete official marketing post:", error.message);
+            void loadOfficialMarketingPosts();
+          }
+        });
+    },
+    [loadOfficialMarketingPosts]
+  );
+
+  const likeMarketingPost = useCallback(
+    (id: string) => {
+      const post = marketingPosts.find((item) => item.id === id);
+      if (!post) return;
+
+      const nextLikes = (post.likes_count || 0) + 1;
+      setMarketingPostsState((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, likes_count: nextLikes } : item
+        )
+      );
+
+      void supabase
+        .from("marketing_posts")
+        .update({ likes_count: nextLikes })
+        .eq("id", id)
+        .eq("store_id", OFFICIAL_STORE_ID)
+        .then(({ error }) => {
+          if (error) {
+            console.error("Failed to update official marketing likes:", error.message);
+            void loadOfficialMarketingPosts();
+          }
+        });
+    },
+    [loadOfficialMarketingPosts, marketingPosts]
+  );
 
   // Payout actions
   const requestStorePayout = useCallback(

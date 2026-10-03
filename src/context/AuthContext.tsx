@@ -3,12 +3,15 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { getMyOfficialStaffStore } from "@/lib/officialStaff";
+import type { TenantStore } from "@/lib/marketplace";
 
 type Profile = Record<string, unknown>;
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
+  officialStaffStore: TenantStore | null;
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -19,9 +22,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [officialStaffStore, setOfficialStaffStore] = useState<TenantStore | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (authUser: User) => {
+  const refreshOfficialStaffStore = useCallback(async (accessToken?: string) => {
+    const store = await getMyOfficialStaffStore(accessToken);
+    setOfficialStaffStore(store);
+  }, []);
+
+  const fetchProfile = useCallback(async (authUser: User, accessToken?: string) => {
     const claimTenantInvitations = async () => {
       // Best-effort only. The database function derives identity from the
       // authenticated session and refuses Platform accounts.
@@ -37,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!error && data) {
       setProfile(data as Profile);
       await claimTenantInvitations();
+      await refreshOfficialStaffStore(accessToken);
       return;
     }
 
@@ -70,15 +80,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (created) {
       setProfile(created as Profile);
       await claimTenantInvitations();
+      await refreshOfficialStaffStore(accessToken);
     } else {
       // لو upsert ماردّش صف (لأن الصف كان موجود بالفعل)، نجيبه تاني.
       const { data: existing } = await supabase.from("profiles").select("*").eq("id", authUser.id).maybeSingle();
       if (existing) {
         setProfile(existing as Profile);
         await claimTenantInvitations();
+        await refreshOfficialStaffStore(accessToken);
       }
     }
-  }, []);
+  }, [refreshOfficialStaffStore]);
 
   useEffect(() => {
     const getInitialSession = async () => {
@@ -88,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user);
+        await fetchProfile(session.user, session.access_token);
       }
 
       setLoading(false);
@@ -101,10 +113,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user);
+        await fetchProfile(session.user, session.access_token);
       } else {
         setUser(null);
         setProfile(null);
+        setOfficialStaffStore(null);
       }
       setLoading(false);
     });
@@ -117,6 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    setOfficialStaffStore(null);
     setLoading(false);
   };
 
@@ -125,12 +139,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { session },
     } = await supabase.auth.getSession();
     if (session) {
-      await fetchProfile(session.user);
+      await fetchProfile(session.user, session.access_token);
     }
   }, [fetchProfile]);
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, officialStaffStore, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
