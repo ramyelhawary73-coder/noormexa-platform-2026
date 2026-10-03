@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   KeyRound,
+  Mail,
   RefreshCw,
   ShieldCheck,
   Trash2,
@@ -170,6 +171,56 @@ export default function OfficialStoreTeamPage() {
     setPlatformSaving(false);
   };
 
+  const sendOfficialTeamInvite = async (
+    email: string,
+    memberRole: TeamRole
+  ) => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      throw new Error("انتهت جلسة الدخول. سجل دخولك مرة أخرى.");
+    }
+
+    const response = await fetch("/api/admin/team/invite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        email: email.trim(),
+        role: memberRole,
+      }),
+    });
+
+    const result = (await response.json()) as {
+      ok?: boolean;
+      membershipStatus?: "pending" | "active";
+      emailSent?: boolean;
+      emailType?: "invite" | "recovery";
+      existingAccount?: boolean;
+      membershipSaved?: boolean;
+      error?: string;
+    };
+
+    if (!response.ok || !result.ok) {
+      if (result.membershipSaved) {
+        throw new Error(
+          "تم حفظ العضوية Pending، لكن تعذر إرسال البريد الآن. استخدم زر إعادة إرسال الدعوة."
+        );
+      }
+      throw new Error(
+        result.error === "protected_super_admin"
+          ? "لا يمكن تغيير عضوية حساب Platform Super Admin من هذا المسار."
+          : "تعذر إنشاء دعوة الفريق. حاول مرة أخرى."
+      );
+    }
+
+    return result;
+  };
+
   const handleAddTeamMember = async (event: FormEvent) => {
     event.preventDefault();
     if (!isSuperAdmin || !teamEmail.trim()) return;
@@ -178,22 +229,56 @@ export default function OfficialStoreTeamPage() {
     setError(null);
     setNotice(null);
 
-    const { error: rpcError } = await supabase.rpc(
-      "add_official_store_member_by_email",
-      {
-        p_email: teamEmail.trim(),
-        p_role: role,
-      }
-    );
+    try {
+      const result = await sendOfficialTeamInvite(teamEmail, role);
 
-    if (rpcError) {
-      setError(rpcError.message);
-    } else {
-      setNotice(
-        "تم حفظ عضوية المتجر الرسمي. هذه العضوية تدير المتجر فقط ولا تمنح دخول /admin. لو الشخص مطلوب كمدير للمنصة استخدم قسم Platform Admins بالأعلى."
-      );
+      if (result.membershipStatus === "active") {
+        setNotice(
+          "الحساب موجود بالفعل وتم تفعيل عضويته في المتجر الرسمي. يمكنه تسجيل الدخول فورًا."
+        );
+      } else if (result.emailSent) {
+        setNotice(
+          "تم حفظ العضوية وإرسال رسالة دعوة إلى البريد. يفتح المستخدم الرابط، ينشئ كلمة مرور، ثم يدخل مساحة العمل حسب دوره."
+        );
+      } else {
+        setNotice("تم حفظ عضوية المتجر الرسمي.");
+      }
+
       setTeamEmail("");
       await loadTeam();
+    } catch (inviteError) {
+      setError(
+        inviteError instanceof Error
+          ? inviteError.message
+          : "تعذر إنشاء الدعوة."
+      );
+      await loadTeam();
+    }
+
+    setTeamSaving(false);
+  };
+
+  const handleResendTeamInvite = async (member: TeamMember) => {
+    if (!isSuperAdmin || member.status !== "pending") return;
+
+    setTeamSaving(true);
+    setError(null);
+    setNotice(null);
+
+    try {
+      const result = await sendOfficialTeamInvite(member.email, member.role);
+      setNotice(
+        result.emailSent
+          ? "تمت إعادة إرسال رسالة الدعوة إلى البريد."
+          : "الحساب أصبح موجودًا وتم تفعيل العضوية."
+      );
+      await loadTeam();
+    } catch (inviteError) {
+      setError(
+        inviteError instanceof Error
+          ? inviteError.message
+          : "تعذر إعادة إرسال الدعوة."
+      );
     }
 
     setTeamSaving(false);
@@ -404,8 +489,9 @@ export default function OfficialStoreTeamPage() {
                 Official Store Team — فريق المتجر الرسمي
               </h2>
               <p className="mt-1 text-xs text-muted">
-                Manager / Editor / Support هنا أدوار تشغيل المتجر فقط. لا تمنح
-                الدخول إلى /admin.
+                Manager / Editor / Support هنا أدوار تشغيل المتجر فقط. الدعوة
+                ترسل Email حقيقي لإنشاء الحساب وكلمة المرور، ولا تمنح الدخول
+                إلى /admin.
               </p>
             </div>
           </div>
@@ -510,6 +596,20 @@ export default function OfficialStoreTeamPage() {
                         >
                           {member.status === "active" ? "Active" : "Pending"}
                         </span>
+
+                        {isSuperAdmin &&
+                          member.status === "pending" &&
+                          !protectedMember && (
+                            <button
+                              type="button"
+                              onClick={() => void handleResendTeamInvite(member)}
+                              disabled={teamSaving}
+                              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 px-3 py-1.5 text-xs font-black text-amber-700 hover:bg-amber-500/10 disabled:opacity-60 dark:text-amber-300"
+                            >
+                              <Mail size={13} />
+                              إعادة إرسال الدعوة
+                            </button>
+                          )}
 
                         {isSuperAdmin && !protectedMember && (
                           <button
