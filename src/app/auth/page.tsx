@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Megaphone, Search, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabaseClient";
+import { getMyOfficialStaffStore } from "@/lib/officialStaff";
 
 type Language = "ar" | "en";
 type Mode = "register" | "login";
@@ -162,7 +163,9 @@ export default function AuthPage() {
         if (error) throw error;
         setStatus("success");
         setMessage(text.successLogin);
-        router.push("/");
+
+        const officialStaffStore = await getMyOfficialStaffStore();
+        router.push(officialStaffStore ? "/seller/dashboard" : "/");
         return;
       }
 
