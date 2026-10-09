@@ -12,9 +12,16 @@ const checks = [
   ["no fictional numerical marketplace proof", !homepage.includes('value: "+500"') && !homepage.includes('value: "+120k"') && !homepage.includes('value: "500+"')],
   ["no static partner brand showcase", !homepage.includes("<GlobalBrandsShowcase")],
   ["realistic marketplace principles", homepage.includes("A Marketplace Built on Real Data")],
+  ["no embedded fabricated customer reels", !homepage.includes("ReelsVideoModal") && !homepage.includes("const videoStories:")],
+  ["no invented category inventory counts", !homepage.includes('count: "128+ منتج"')],
+  ["homepage new icon resolved", homepage.includes("  Megaphone,")],
+
   ["admin orders read from Supabase", admin.includes('supabase.from("orders").select("*")')],
   ["admin never uses context demo order data", !/const\s*\{[^}]*\borders\b[^}]*\}\s*=\s*useMarketplace\(/s.test(admin)],
   ["no fake analytics insights", !admin.includes("42.6%") && !admin.includes("1,482") && !admin.includes("NOORMEXA2026")],
+  ["no fabricated growth or promotion ROI", !admin.includes("18.4%") && !admin.includes("12.8x") && !admin.includes("48200")],
+  ["orders cannot be truncated into financial totals", admin.includes('(count ?? 0) > 500')],
+
   ["admin disables local-only order edits", admin.includes("allowStatusChanges={false}")],
   ["admin has no fake payout actions", !admin.includes("updatePayoutStatus(")],
   ["context does not seed sample orders", !context.includes("generateInitialDemoOrders")],
