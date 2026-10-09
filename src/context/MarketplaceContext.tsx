@@ -233,76 +233,9 @@ export const INITIAL_STORES: Store[] = [
 
 export const INITIAL_PAYOUTS: StorePayout[] = [];
 
-export const INITIAL_MARKETING_POSTS: MarketingPost[] = [
-  {
-    id: "post-1",
-    store_id: "store-noormexa-official",
-    store_name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    store_logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    title: "🔥 إطلاق هاتف NOORMEXA Titan Ultra 5G الفلاجشيب مع شحن مجاني وسنتين ضمان!",
-    content: "استمتع بتجربة الفخامة والسرعة الفائقة مع هاتف Titan Ultra 5G بهيكل التيتانيوم المصقول، شاشة 120Hz ديناميكية، وكاميرا 200MP سينمائية مع شاحن سريع 120W مجاناً وضمان الوكيل سنتين.",
-    image_url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80",
-    promo_code: "NOOR10",
-    discount_percent: 10,
-    featured_product_id: "prod-titan-smartphone",
-    likes_count: 342,
-    views_count: 1850,
-    is_pinned: true,
-    status: "published",
-    created_at: "2026-02-18T10:00:00Z",
-  },
-  {
-    id: "post-2",
-    store_id: "store-noormexa-official",
-    store_name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    store_logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    title: "⚡ تخفيضات الفلاش: خصم 20% على سماعات NOORMEXA Pro ANC اللاسلكية",
-    content: "لفترة محدودة حتى نهاية عطلة الأسبوع! احصل على سماعات NOORMEXA Pro ANC بصوت نقي Hi-Res، وعزل ضوضاء فعال وبطارية 55 ساعة عمل متواصل مع تغليف هدايا ملكي مجاني.",
-    image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&auto=format&fit=crop&q=80",
-    promo_code: "WELCOME20",
-    discount_percent: 20,
-    featured_product_id: "prod-aurora-headphones",
-    likes_count: 189,
-    views_count: 940,
-    is_pinned: false,
-    status: "published",
-    created_at: "2026-02-19T14:30:00Z",
-  },
-  {
-    id: "post-3",
-    store_id: "store-noormexa-official",
-    store_name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    store_logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    title: "👑 وصول الدفعة الملكية من عطر السلطان (Imperial Oud & Ambergris)",
-    content: "توليفة نادرة من دهن العود المعتق، العنبر الحوتي الأبيض، قطرات الورد الطائفي وخشب الصندل العطري لثبات وفوحان يدوم لأكثر من 48 ساعة. كميات محدودة للطلب الفوري.",
-    image_url: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1200&auto=format&fit=crop&q=80",
-    promo_code: "GLOBAL15",
-    discount_percent: 15,
-    featured_product_id: "prod-royal-oud-perfume",
-    likes_count: 245,
-    views_count: 1210,
-    is_pinned: false,
-    status: "published",
-    created_at: "2026-02-20T09:15:00Z",
-  },
-  {
-    id: "post-4",
-    store_id: "store-noormexa-official",
-    store_name: "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    store_logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    title: "👜 تدشين حقيبة اليد الجلدية الإيطالية NOORMEXA Milano المصنوعة يدوياً",
-    content: "حقيبة يد نسائية أيقونية مصنوعة يدويًا في فلورنسا من أجود أنواع جلد العجل الإيطالي المحبب مع إكسسوارات نحاسية مطلية بالذهب عيار 24 وبطانة سويدي فاخرة.",
-    image_url: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80",
-    promo_code: "NOOR10",
-    discount_percent: 10,
-    featured_product_id: "prod-milano-leather-bag",
-    likes_count: 178,
-    views_count: 890,
-    is_pinned: false,
-    status: "published",
-    created_at: "2026-02-20T16:45:00Z",
-  },
-];
+// Historical product-offer demo posts are deliberately retired. Real official
+// marketing is loaded from Supabase; this export remains for type/API stability.
+export const INITIAL_MARKETING_POSTS: MarketingPost[] = [];
 
 export const INITIAL_PRODUCTS: Product[] = [
   {

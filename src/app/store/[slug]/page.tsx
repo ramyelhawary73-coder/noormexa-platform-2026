@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useSyncExternalStore, useMemo } from "react";
+import { use, useState, useSyncExternalStore, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ProductImage from "@/components/ProductImage";
@@ -8,15 +9,12 @@ import {
   BadgeCheck,
   Check,
   Copy,
-  Heart,
   Megaphone,
   Package,
-  Phone,
   Search,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
-  Star,
   Store as StoreIcon,
   Tag,
   Truck,
@@ -24,7 +22,9 @@ import {
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { NoormexaEmblemSvg } from "@/components/BrandLogo";
 import { useTheme } from "@/context/ThemeContext";
-import type { Product } from "@/types/marketplace";
+import type { Product, MarketingPost } from "@/types/marketplace";
+import type { PublicStore } from "@/lib/marketplace";
+import { loadPublicStorefront } from "@/lib/publicStorefront";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -49,12 +49,18 @@ function useNoormexaLanguage() {
 
 export default function StorePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
+  const router = useRouter();
   const language = useNoormexaLanguage();
   const isAr = language === "ar";
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const { stores, products, marketingPosts, formatPrice, addToCart, likeMarketingPost } = useMarketplace();
+  const { formatPrice, addToCart } = useMarketplace();
+  const [store, setStore] = useState<PublicStore | null>(null);
+  const [storeProducts, setStoreProducts] = useState<Product[]>([]);
+  const [storePosts, setStorePosts] = useState<MarketingPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -62,22 +68,39 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
   const [addedAlert, setAddedAlert] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Find store by slug
-  const store = useMemo(() => {
-    return stores.find((s) => s.slug.toLowerCase() === slug.toLowerCase() || s.id === slug);
-  }, [stores, slug]);
+  // Resolve the canonical store from Supabase. Legacy slugs are routing aliases
+  // only; browser localStorage and demo fixtures never decide public visibility.
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
+    setStore(null);
+    setStoreProducts([]);
+    setStorePosts([]);
 
-  // Find products belonging to this store
-  const storeProducts = useMemo(() => {
-    if (!store) return [];
-    return products.filter((p) => (p.store_id === store.id || p.store_name === store.name) && p.status === "active");
-  }, [products, store]);
+    void loadPublicStorefront(slug)
+      .then(({ storefront, error }) => {
+        if (cancelled) return;
+        if (error) {
+          setLoadError(true);
+        } else if (storefront) {
+          setStore(storefront.store);
+          setStoreProducts(storefront.products);
+          setStorePosts(storefront.posts);
+          if (slug.toLowerCase() !== storefront.store.slug.toLowerCase()) {
+            router.replace(`/store/${encodeURIComponent(storefront.store.slug)}`);
+          }
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-  // Find marketing posts belonging to this store
-  const storePosts = useMemo(() => {
-    if (!store) return [];
-    return marketingPosts.filter((p) => p.store_id === store.id && p.status === "published");
-  }, [marketingPosts, store]);
+    return () => { cancelled = true; };
+  }, [slug, router]);
 
   // Filtered and sorted products
   const filteredProducts = useMemo(() => {
@@ -93,7 +116,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
       .sort((a, b) => {
         if (sortBy === "price-asc") return a.price - b.price;
         if (sortBy === "price-desc") return b.price - a.price;
-        return (b.rating || 5) - (a.rating || 5);
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
   }, [storeProducts, searchQuery, selectedCategory, sortBy]);
 
@@ -112,6 +135,34 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
       setAddedAlert(null);
     }, 2500);
   };
+
+  if (loading) {
+    return (
+      <main className="noormexa-main py-16">
+        <div className="noormexa-container max-w-xl text-center text-sm text-muted">
+          {isAr ? "جاري تحميل بيانات المتجر..." : "Loading storefront..."}
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main className="noormexa-main py-16">
+        <div className="noormexa-container max-w-xl text-center space-y-4">
+          <h1 className="text-xl font-black text-foreground">
+            {isAr ? "تعذر تحميل المتجر حاليًا" : "Store temporarily unavailable"}
+          </h1>
+          <p className="text-xs text-muted">
+            {isAr ? "تعذر الاتصال ببيانات المتجر. أعد المحاولة بعد قليل." : "Could not load storefront data. Please try again."}
+          </p>
+          <button type="button" onClick={() => window.location.reload()} className="noormexa-primary-button px-5 py-2 rounded-xl text-xs font-bold">
+            {isAr ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (!store) {
     return (
@@ -207,11 +258,6 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               )}
 
               <div className="flex flex-wrap items-center gap-4 text-xs text-muted pt-1">
-                <span className="flex items-center gap-1 text-amber-600 dark:text-gold font-bold">
-                  <Star size={14} className="fill-amber-500 text-amber-500" />
-                  <span>{store.rating || 5.0} / 5.0</span>
-                </span>
-                <span>•</span>
                 <span>{store.country || (isAr ? "المملكة العربية السعودية" : "Saudi Arabia")}</span>
                 <span>•</span>
                 <span>{storeProducts.length} {isAr ? "منتج متوفر" : "products listed"}</span>
@@ -220,15 +266,6 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
-            {store.contact_phone && (
-              <a
-                href={`tel:${store.contact_phone}`}
-                className="px-4 py-2.5 rounded-xl border border-line hover:border-gold/50 bg-surface text-foreground font-bold text-xs flex items-center gap-2 shadow-xs transition-all"
-              >
-                <Phone size={14} className="text-amber-600 dark:text-gold" />
-                <span>{isAr ? "اتصال بالبائع" : "Call Store"}</span>
-              </a>
-            )}
 
             <Link
               href="/seller/dashboard"
@@ -247,11 +284,11 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               <div className="flex items-center gap-2">
                 <Megaphone size={18} className="text-gold" />
                 <h2 className="text-sm sm:text-base font-black text-foreground">
-                  {isAr ? "عروض ومنشورات المتجر الحصرية" : "Exclusive Store Campaigns & Promos"}
+                  {isAr ? "منشورات وأخبار المتجر" : "Store Updates & Posts"}
                 </h2>
               </div>
               <span className="text-xs font-bold text-muted">
-                {storePosts.length} {isAr ? "عروض نشطة" : "active offers"}
+                {storePosts.length} {isAr ? "منشورات منشورة" : "published posts"}
               </span>
             </div>
 
@@ -267,7 +304,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                         {post.is_pinned && (
                           <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-gold font-black text-[10px] flex items-center gap-1">
                             <Sparkles size={11} />
-                            <span>{isAr ? "عرض مميز مثبت" : "Featured Deal"}</span>
+                            <span>{isAr ? "منشور مثبت" : "Pinned Post"}</span>
                           </span>
                         )}
                         <span className="text-[11px] text-muted">
@@ -308,35 +345,22 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                       </div>
                     )}
 
-                    {post.featured_product_id && (
+                    {post.featured_product_id && storeProducts.some((product) => product.id === post.featured_product_id) && (
                       <div className="p-3 rounded-2xl bg-surface-soft border border-line flex items-center justify-between gap-3 text-xs">
                         <span className="font-bold text-foreground truncate">
-                          {products.find((p) => p.id === post.featured_product_id)?.name || (isAr ? "منتج العرض" : "Featured item")}
+                          {storeProducts.find((p) => p.id === post.featured_product_id)?.name || (isAr ? "المنتج المرتبط" : "Related product")}
                         </span>
                         <Link
-                          href={`/product/${post.featured_product_id}`}
+                          href={`/product/${post.featured_product_id}?source=store`}
                           className="px-3 py-1 rounded-lg bg-gold text-navy font-black text-[11px] shrink-0"
                         >
-                          {isAr ? "شراء العرض" : "Shop Deal"}
+                          {isAr ? "مشاهدة المنتج" : "View product"}
                         </Link>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-line/60 text-xs text-muted">
-                    <button
-                      type="button"
-                      onClick={() => likeMarketingPost(post.id)}
-                      className="flex items-center gap-1.5 text-rose-500 hover:scale-105 transition-transform font-bold"
-                    >
-                      <Heart size={14} className="fill-rose-500 text-rose-500" />
-                      <span>{post.likes_count || 0} {isAr ? "إعجاب" : "likes"}</span>
-                    </button>
 
-                    <span className="text-[11px]">
-                      {post.views_count || 1} {isAr ? "مشاهدة" : "views"}
-                    </span>
-                  </div>
                 </div>
               ))}
             </div>
@@ -449,7 +473,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               >
                 <div>
                   {/* Image Container */}
-                  <Link href={`/marketplace/${prod.id}`} className="block relative aspect-square overflow-hidden bg-surface-soft">
+                  <Link href={`/marketplace/${prod.id}?source=store`} className="block relative aspect-square overflow-hidden bg-surface-soft">
                     <ProductImage
                       src={prod.image_url}
                       alt={prod.name}
@@ -473,13 +497,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
 
                   {/* Details */}
                   <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-1 text-gold text-xs font-bold">
-                      <Star size={13} className="fill-gold" />
-                      <span>{prod.rating || 5.0}</span>
-                      <span className="text-muted text-[10px]">({prod.reviews_count || 1})</span>
-                    </div>
-
-                    <Link href={`/marketplace/${prod.id}`} className="font-bold text-xs text-foreground line-clamp-2 hover:text-gold block leading-snug">
+                    <Link href={`/marketplace/${prod.id}?source=store`} className="font-bold text-xs text-foreground line-clamp-2 hover:text-gold block leading-snug">
                       {prod.name}
                     </Link>
 

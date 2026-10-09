@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useSyncExternalStore, use } from "react";
+import { useState, useMemo, useSyncExternalStore, use, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProductImage from "@/components/ProductImage";
@@ -27,7 +27,9 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
-import type { SelectedVariant } from "@/types/marketplace";
+import type { SelectedVariant, Product } from "@/types/marketplace";
+import type { PublicStore } from "@/lib/marketplace";
+import { supabase } from "@/lib/supabaseClient";
 
 type Language = "ar" | "en";
 const LANGUAGE_KEY = "noormexa-language";
@@ -115,9 +117,62 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     isInWishlist,
   } = useMarketplace();
 
-  // Find product by id
-  const product = products.find((p) => p.id === productId) || products[0];
-  const store = stores.find((s) => s.id === product?.store_id);
+  // DB is authoritative for real products. Strict links from a public storefront
+  // must NEVER silently show an unrelated legacy demo product.
+  const [lookup, setLookup] = useState<{
+    loading: boolean;
+    strict: boolean;
+    product: Product | null;
+    store: PublicStore | null;
+    error: boolean;
+  }>({ loading: true, strict: false, product: null, store: null, error: false });
+
+  useEffect(() => {
+    let cancelled = false;
+    const strict = new URLSearchParams(window.location.search).get("source") === "store";
+    setLookup({ loading: true, strict, product: null, store: null, error: false });
+
+    const load = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", productId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (error) {
+        if (!cancelled) setLookup({ loading: false, strict, product: null, store: null, error: true });
+        return;
+      }
+
+      let publicStore: PublicStore | null = null;
+      if (data) {
+        const result = await supabase.rpc("get_public_store_by_id", { p_store_id: data.store_id });
+        if (result.error) {
+          if (!cancelled) setLookup({ loading: false, strict, product: null, store: null, error: true });
+          return;
+        }
+        publicStore = (result.data?.[0] ?? null) as PublicStore | null;
+      }
+      if (!cancelled) {
+        setLookup({
+          loading: false,
+          strict,
+          product: publicStore ? (data as Product) : null,
+          store: publicStore,
+          error: false,
+        });
+      }
+    };
+
+    void load().catch(() => {
+      if (!cancelled) setLookup({ loading: false, strict, product: null, store: null, error: true });
+    });
+    return () => { cancelled = true; };
+  }, [productId]);
+
+  const product = lookup.product ?? (lookup.strict ? undefined : products.find((p) => p.id === productId));
+  const store = lookup.product ? lookup.store : stores.find((s) => s.id === product?.store_id);
 
   // Gallery state
   const gallery = useMemo(() => {
@@ -170,6 +225,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     }
     return base;
   }, [product, selectedVariants]);
+
+  if (lookup.loading) {
+    return (
+      <main className="noormexa-main py-16 text-center">
+        <div className="noormexa-container text-sm text-muted">جاري تحميل المنتج...</div>
+      </main>
+    );
+  }
+
+  if (lookup.error) {
+    return (
+      <main className="noormexa-main py-16 text-center">
+        <div className="noormexa-container text-sm text-muted">تعذر تحميل المنتج حاليًا. حاول مرة أخرى.</div>
+      </main>
+    );
+  }
 
   if (!product) {
     return (
@@ -251,7 +322,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   };
 
   // Related products from same category or store
-  const relatedProducts = products
+  const relatedProducts = (lookup.product ? [] : products)
     .filter((p) => p.id !== product.id && (p.category_id === product.category_id || p.store_id === product.store_id))
     .slice(0, 4);
 
@@ -360,7 +431,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <span className="p-1 rounded-lg bg-surface border border-line">
                   <StoreIcon size={16} className="text-gold" />
                 </span>
-                <span className="font-bold text-xs text-foreground">{product.store_name}</span>
+                <span className="font-bold text-xs text-foreground">{store?.name || product.store_name}</span>
                 {store?.is_verified && (
                   <span className="flex items-center gap-1 text-[10px] bg-emerald-600/10 text-emerald-600 font-bold px-2 py-0.5 rounded-full border border-emerald-600/20">
                     <BadgeCheck size={11} />
@@ -369,18 +440,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 )}
               </div>
 
-              <div className="flex items-center gap-1.5 text-gold font-bold text-xs">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      className={i < Math.floor(product.rating || 5) ? "fill-gold text-gold" : "text-muted"}
-                    />
-                  ))}
+              {!lookup.product && (
+                <div className="flex items-center gap-1.5 text-gold font-bold text-xs">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={i < Math.floor(product.rating || 5) ? "fill-gold text-gold" : "text-muted"}
+                      />
+                    ))}
+                  </div>
+                  <span>({product.reviews_count || 12} تقييم)</span>
                 </div>
-                <span>({product.reviews_count || 12} تقييم)</span>
-              </div>
+              )}
             </div>
 
             {/* Title */}
@@ -615,7 +688,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   : "text-muted hover:text-foreground"
               }`}
             >
-              {text.tabReviews} ({reviewsList.length})
+              {text.tabReviews} ({lookup.product ? 0 : reviewsList.length})
             </button>
           </div>
 
@@ -657,7 +730,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           )}
 
           {/* Tab 3: Reviews & Add Review */}
-          {activeTab === "reviews" && (
+          {activeTab === "reviews" && (lookup.product ? (
+            <div className="p-5 rounded-2xl bg-surface-soft border border-line text-sm text-muted">
+              {language === "ar" ? "لا توجد تقييمات موثقة لهذا المنتج حتى الآن." : "No verified product reviews yet."}
+            </div>
+          ) : (
             <div className="space-y-8">
               {/* Existing reviews */}
               <div className="space-y-3">
@@ -726,7 +803,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </form>
               </div>
             </div>
-          )}
+          ))}
         </div>
 
         {/* Related Products Grid */}
