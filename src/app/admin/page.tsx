@@ -585,7 +585,7 @@ export default function SuperAdminPage() {
                   {activeStoresCount} / {stores.length}
                 </div>
                 <div className="text-[11px] text-emerald-600 font-bold">
-                  {isAr ? "متاجر موثقة ومعتمدة" : "Verified Stores"}
+                  {isAr ? "متاجر معتمدة" : "Approved stores"}
                 </div>
               </div>
 
@@ -597,7 +597,7 @@ export default function SuperAdminPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-black text-foreground">
-                  {totalOrdersCount}
+                  {ordersLoading || ordersError ? "—" : totalOrdersCount}
                 </div>
                 <div className="text-[11px] text-muted">
                   {ordersError ? (isAr ? "بيانات غير متاحة" : "Data unavailable") : (isAr ? "من قاعدة البيانات" : "Database records")}
@@ -960,19 +960,20 @@ export default function SuperAdminPage() {
                 <Truck size={18} className="text-gold" />
                 <h2 className="text-base font-bold text-foreground">{text.tabOrders}</h2>
                 <span className="text-xs font-bold text-muted bg-surface-soft px-2 py-0.5 rounded-full border border-line">
-                  {orders.length}
+                  {ordersLoading || ordersError ? "—" : orders.length}
                 </span>
               </div>
             </div>
 
-            <VirtualizedOrdersTable
+            {ordersError ? <p role="alert" className="text-red-600 text-sm">{isAr ? "تعذر تحميل الطلبات الحقيقية." : "Unable to load live orders."}</p> : ordersLoading ? <p className="text-muted text-sm">{isAr ? "جاري تحميل الطلبات..." : "Loading orders..."}</p> : <VirtualizedOrdersTable
               orders={orders}
               formatPrice={formatPrice}
-              updateOrderStatus={updateOrderStatus}
+              updateOrderStatus={() => { /* No local-only order updates in platform admin */ }}
+              allowStatusChanges={false}
               onExportCsv={handleExportOrdersCsv}
               exportNotice={exportNotice}
               isAr={isAr}
-            />
+            />}
           </div>
         )}
 
