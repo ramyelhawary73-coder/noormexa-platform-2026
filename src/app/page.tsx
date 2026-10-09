@@ -43,7 +43,6 @@ import {
 } from "lucide-react";
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import SmoothFlashTimer from "@/components/landing/SmoothFlashTimer";
-import GlobalBrandsShowcase from "@/components/landing/GlobalBrandsShowcase";
 import OfficialStoreUpdates from "@/components/landing/OfficialStoreUpdates";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
@@ -103,14 +102,14 @@ const copy = {
   ar: {
     trustBar: {
       freeShipping: "شحن مجاني وسريع للطلبات المؤهلة",
-      guarantee: "منتجات أصلية 100% معتمدة بفحص الجودة",
-      fastDelivery: "توصيل سريع وتتبع مباشر لحظة بلحظة",
-      securePay: "دفع آمن بالبطاقات، مدى، Apple Pay، والدفع عند الاستلام",
+      guarantee: "عرض المنتجات الموثقة بعد إتاحتها",
+      fastDelivery: "متابعة الطلبات من حسابك",
+      securePay: "خطوات طلب واضحة مع مراجعة المبلغ قبل التأكيد",
     },
     hero: {
-      badge: "الوجهة الأولى للتسوق الفاخر والتجارة الموثوقة",
+      badge: "مساحة جديدة للتسوق وإدارة المتاجر",
       title: "عالمك المتكامل للتسوق الذكي وتجارة المستقبل",
-      subtitle: "استمتع بتجربة تسوق استثنائية مع آلاف المنتجات الأصلية 100% من أرقى العلامات التجارية العالمية، أو أطلق متجرك الخاص وحقق أرباحك بأعلى معايير الأمان والسرعة.",
+      subtitle: "استكشف المتاجر المعتمدة ومحتوى متجر نورميكسا الرسمي، أو قدم طلب إنشاء متجرك. تظهر المنتجات للبيع بعد إضافتها والتحقق من بياناتها الفعلية.",
       searchPlaceholder: "ابحث عن منتجات أصلية، ماركات فاخرة، متاجر موثقة، أو كود خصم...",
       searchButton: "بحث فوري",
       quickTags: ["ساعات ذكية وفخمة", "عطور وبخور ملكي", "أجهزة وإلكترونيات", "أزياء وموضة", "مستلزمات المنزل"],
@@ -121,7 +120,7 @@ const copy = {
     officialSection: {
       tag: "المتجر المعتمد الحصري",
       title: "متجر نورميكسا الرسمي المباشر",
-      desc: "التشكيلة الرسمية المباشرة من المنصة بعمولة 0%، ضمان الجودة المعتمد، شحن فوري مع كونسيرج VIP على مدار الساعة.",
+      desc: "تعرف على متجر نورميكسا الرسمي وتابع منشوراته المعتمدة. ستظهر المنتجات عند إدخال أسعار ومخزون حقيقيين.",
       visitStore: "زيارة المتجر الرسمي",
     },
     flashDeals: {
@@ -137,8 +136,8 @@ const copy = {
     },
     brandsSection: {
       badge: "العلامات المعتمدة",
-      title: "أشهر الماركات والمتاجر الموثقة",
-      subtitle: "تسوق منتجات أصلية 100% مباشرة من الوكلاء المعتمدين والموزعين الرسميين.",
+      title: "استكشف المتاجر والأقسام",
+      subtitle: "استكشف الأقسام وتابع المنتجات التي تضيفها المتاجر المعتمدة فعليًا.",
       viewAllBrands: "تصفح جميع الماركات",
     },
     categories: {
@@ -149,8 +148,8 @@ const copy = {
     },
     featuredProducts: {
       badge: "التشكيلة الأكثر مبيعاً",
-      title: "أفضل المنتجات وأعلاها تقييماً",
-      subtitle: "اخترنا لك نخبة من أفضل منتجات المتاجر المعتمدة ذات الجودة الاستثنائية وتقييمات العملاء العالية.",
+      title: "المنتجات المتاحة من المتاجر المعتمدة",
+      subtitle: "هذه القائمة تعرض فقط المنتجات النشطة ذات السعر والمخزون المتاحين في قاعدة البيانات.",
       addToCart: "إضافة للسلة",
       added: "تمت الإضافة ✓",
       viewProduct: "تفاصيل المنتج",
@@ -183,38 +182,38 @@ const copy = {
       watchNow: "مشاهدة التقييم",
     },
     guaranteesSection: {
-      badge: "ضمانات NOORMEXA الذهبية",
-      title: "لماذا يفضل ملايين المشترين التسوق معنا؟",
-      subtitle: "تجربة تسوق آمنة ومتكاملة تحميك في كل خطوة من التصفح حتى الاستلام وما بعد البيع.",
+      badge: "كيف نُجهز تجربة NOORMEXA",
+      title: "أسس تشغيل السوق",
+      subtitle: "نعرض معلومات المنصة والخدمات المتاحة بدون اختلاق عمليات بيع أو تقييمات.",
       items: [
         {
-          title: "أصالة مضمونة 100%",
-          desc: "جميع المتاجر تخضع للتحقق الصارم من السجل التجاري وجودة البضائع.",
+          title: "كتالوج مرتبط بقاعدة البيانات",
+          desc: "المنتجات الظاهرة للبيع تأتي من سجلات المتاجر المعتمدة فقط.",
           icon: ShieldCheck,
         },
         {
-          title: "استرجاع مجاني وسهل",
-          desc: "إمكانية إرجاع أو استبدال المنتج خلال 14 يوماً مع استرداد كامل المبلغ.",
+          title: "معلومات واضحة قبل الشراء",
+          desc: "تظهر تفاصيل المنتج والسعر والمخزون كما هي مسجلة في النظام.",
           icon: RefreshCw,
         },
         {
-          title: "شحن جوي سريع وتتبع حي",
-          desc: "شراكات لوجستية مع كبرى شركات الشحن العالمية مع تتبع فوري مباشر.",
+          title: "متابعة حالة الطلب",
+          desc: "مساحة لإدارة الطلبات والشحن عند تفعيل العمليات للمتجر.",
           icon: Truck,
         },
         {
-          title: "أمان دفع إلكتروني متقدم",
-          desc: "تشفير بنكي عالي المستوى وحماية كاملة لبيانات البطاقات وبوابات الدفع.",
+          title: "التحقق من الطلب قبل إنشائه",
+          desc: "الخادم يعيد التحقق من المنتجات والمخزون والأسعار قبل تسجيل الطلب.",
           icon: CreditCard,
         },
         {
-          title: "خدمة عملاء كونسيرج 24/7",
-          desc: "فريق دعم فني متفرغ لمساعدتك في أي استفسار عبر المحادثة الحية والهاتف.",
+          title: "فريق لكل متجر",
+          desc: "صلاحيات تشغيل المتجر منفصلة عن صلاحيات إدارة المنصة.",
           icon: HelpCircle,
         },
         {
-          title: "أفضل سعر وتوفير حقيقي",
-          desc: "عروض يومية وكوبونات مستمرة مع نقاط ولاء وكاش باك على كل طلب.",
+          title: "محتوى رسمي موثوق",
+          desc: "منشورات المتجر الرسمي مرتبطة بقاعدة البيانات، ولا تُعرض عروض غير معتمدة.",
           icon: Award,
         },
       ],
@@ -258,42 +257,14 @@ const copy = {
         },
       ] as RoleCard[],
     },
-    testimonials: {
-      badge: "آراء وتجارب العملاء",
-      title: "موثوق به من آلاف المتسوقين والتجار",
-      subtitle: "شهادات حقيقية من عملائنا في المملكة العربية السعودية، الإمارات، مصر، الكويت، وكافة دول المنطقة.",
-      reviews: [
-        {
-          name: "عبدالرحمن الشمري",
-          location: "الرياض، المملكة العربية السعودية",
-          rating: 5,
-          comment: "تجربة شراء ساعة NOORMEXA الفاخرة كانت استثنائية. الشحن وصل في 48 ساعة والتغليف الملكي فاق توقعاتي.",
-          product: "ساعة الكرونوغراف الفاخرة",
-        },
-        {
-          name: "سارة المهيري",
-          location: "دبي، الإمارات العربية المتحدة",
-          rating: 5,
-          comment: "عطر السلطان الملكي أصلي 100% وثباته مذهل. بوابات الدفع سهلة جداً وخيار الدفع بالدرهم فوري.",
-          product: "عطر السلطان الملكي (100ml)",
-        },
-        {
-          name: "م. كريم حسام",
-          location: "القاهرة، جمهورية مصر العربية",
-          rating: 5,
-          comment: "كمتجر شريك في المنصة، لوحة تحكم التاجر وسرعة تحويل الأرباح للبنوك هي الأفضل على الإطلاق.",
-          product: "متجر TechCraft Global",
-        },
-      ],
-    },
     stats: {
-      badge: "أرقام تتحدث عن ريادتنا",
-      title: "أرقام تنمو باطراد كل يوم",
+      badge: "مبادئ التشغيل",
+      title: "سوق يعتمد على بيانات فعلية",
       items: [
-        { value: "+500", label: "متجر وعلامة موثقة", sublabel: "تخضع لتدقيق الجودة KYC", icon: Store },
-        { value: "+120k", label: "طلب مكتمل بنجاح", sublabel: "بنسبة رضا تفوق 99.4%", icon: Package },
-        { value: "+12", label: "دولة حول العالم", sublabel: "شحن جوي سريع ودولي", icon: Truck },
-        { value: "24/7", label: "دعم عملاء كونسيرج", sublabel: "خدمة فورية ومخصصة", icon: ShieldCheck },
+        { value: "DB", label: "كتالوج من قاعدة البيانات", sublabel: "لا نعرض منتجات تجريبية للبيع", icon: Package },
+        { value: "✓", label: "متاجر معتمدة", sublabel: "المتاجر العامة بعد المراجعة فقط", icon: Store },
+        { value: "✓", label: "فريق لكل متجر", sublabel: "أدوار تشغيلية منفصلة", icon: ShieldCheck },
+        { value: "✓", label: "منشورات رسمية", sublabel: "محتوى منشور من المتجر الرسمي", icon: Megaphone },
       ] as StatCard[],
     },
     plans: {
@@ -352,14 +323,14 @@ const copy = {
   en: {
     trustBar: {
       freeShipping: "Free express shipping on qualifying orders",
-      guarantee: "100% Genuine Certified & Quality Inspected",
-      fastDelivery: "Express delivery & real-time GPS tracking",
-      securePay: "Secure checkout via Cards, Apple Pay, Mada & COD",
+      guarantee: "Verified catalog once inventory is available",
+      fastDelivery: "Order status available in your account",
+      securePay: "Order review before confirmation",
     },
     hero: {
-      badge: "Premier Destination for Luxury & Smart Commerce",
+      badge: "A New Marketplace for Stores and Shoppers",
       title: "Your Ultimate Ecosystem for Smart Shopping & Future Commerce",
-      subtitle: "Experience exceptional shopping with thousands of 100% authentic products from world-renowned brands, or launch your thriving store with cutting-edge security and instant payouts.",
+      subtitle: "Explore approved storefronts and NOORMEXA's official updates, or apply to open your store. Products are listed when real prices and stock are provided.",
       searchPlaceholder: "Search authentic products, luxury brands, verified stores, or discount codes...",
       searchButton: "Instant Search",
       quickTags: ["Smartwatches", "Royal Oud", "Pro Audio", "Designer Fashion", "Smart Living"],
@@ -370,7 +341,7 @@ const copy = {
     officialSection: {
       tag: "Certified Platform Flagship",
       title: "NOORMEXA Official Flagship Store",
-      desc: "Direct luxury curation from the platform with 0% commission, certified golden guarantee, express priority dispatch, and 24/7 VIP concierge support.",
+      desc: "Explore verified NOORMEXA official-store updates. Sellable products will appear when confirmed stock and prices are available.",
       visitStore: "Visit Official Store",
     },
     flashDeals: {
@@ -386,8 +357,8 @@ const copy = {
     },
     brandsSection: {
       badge: "Authorized Brands",
-      title: "Top Verified Brands & Flagship Houses",
-      subtitle: "Shop 100% original goods directly from authorized distributors and verified brand partners.",
+      title: "Explore Stores and Categories",
+      subtitle: "Browse approved stores and discover products as real inventory becomes available.",
       viewAllBrands: "Browse All Brands",
     },
     categories: {
@@ -398,8 +369,8 @@ const copy = {
     },
     featuredProducts: {
       badge: "Trending Best Sellers",
-      title: "Top-Rated Products & 5-Star Craftsmanship",
-      subtitle: "Handpicked bestsellers from our highest-rated verified merchant partners.",
+      title: "Available Marketplace Products",
+      subtitle: "Only active, priced, in-stock products from approved stores are shown here.",
       addToCart: "Add to Cart",
       added: "Added to Cart ✓",
       viewProduct: "View Details",
@@ -432,32 +403,32 @@ const copy = {
       watchNow: "Watch Review",
     },
     guaranteesSection: {
-      badge: "Golden Guarantees",
-      title: "Why Millions of Discerning Shoppers Choose Us",
-      subtitle: "A seamless, secure ecosystem protecting your purchase at every step from cart to doorstep.",
+      badge: "How NOORMEXA Works",
+      title: "Our Marketplace Foundations",
+      subtitle: "We describe actual platform capabilities without invented sales figures or customer testimonials.",
       items: [
         {
-          title: "100% Authenticity Guaranteed",
-          desc: "Every merchant undergoes rigorous KYC vetting and quality audits.",
+          title: "Database-Backed Catalog",
+          desc: "Sellable listings are limited to approved stores and verified catalog status.",
           icon: ShieldCheck,
         },
         {
-          title: "14-Day Free Returns",
-          desc: "Hassle-free return and exchange policy with 100% money-back guarantee.",
+          title: "Product Details Before Checkout",
+          desc: "Product information, prices and stock come from marketplace records.",
           icon: RefreshCw,
         },
         {
-          title: "Express Air Shipping",
-          desc: "Priority logistics partnerships with real-time GPS tracking.",
+          title: "Order and Shipment Workspace",
+          desc: "Stores have operational tools for orders and shipping when enabled.",
           icon: Truck,
         },
         {
-          title: "Bank-Grade Payment Security",
+          title: "Server-Verified Checkout",
           desc: "End-to-end encrypted checkout supporting Cards, Apple Pay & Mada.",
           icon: CreditCard,
         },
         {
-          title: "24/7 VIP Concierge Support",
+          title: "Store-Scoped Staff Roles Support",
           desc: "Dedicated multilingual customer success team ready around the clock.",
           icon: HelpCircle,
         },
@@ -507,42 +478,14 @@ const copy = {
         },
       ] as RoleCard[],
     },
-    testimonials: {
-      badge: "Customer Testimonials",
-      title: "Trusted by Thousands Across the Globe",
-      subtitle: "Genuine reviews from verified shoppers and merchants in Saudi Arabia, UAE, Egypt, and Kuwait.",
-      reviews: [
-        {
-          name: "Abdulrahman Al-Shammary",
-          location: "Riyadh, Saudi Arabia",
-          rating: 5,
-          comment: "Purchasing the NOORMEXA Royal watch was seamless. Delivered in 48 hours with royal packaging.",
-          product: "Royal Sapphire Chronograph",
-        },
-        {
-          name: "Sara Al-Mheiri",
-          location: "Dubai, UAE",
-          rating: 5,
-          comment: "The Sultan Oud is 100% authentic with remarkable longevity. Native AED payment was instantaneous.",
-          product: "Imperial Oud & Ambergris 100ml",
-        },
-        {
-          name: "Eng. Karim Hossam",
-          location: "Cairo, Egypt",
-          rating: 5,
-          comment: "As a vendor, the seller dashboard and rapid bank payout settlement are best in class.",
-          product: "TechCraft Global Innovations",
-        },
-      ],
-    },
     stats: {
-      badge: "Platform Milestones",
-      title: "Proven Momentum Every Day",
+      badge: "Platform Principles",
+      title: "A Marketplace Built on Real Data",
       items: [
-        { value: "500+", label: "Verified Stores", sublabel: "KYC quality vetted", icon: Store },
-        { value: "120k+", label: "Delivered Orders", sublabel: "99.4% satisfaction score", icon: Package },
-        { value: "12+", label: "Countries Served", sublabel: "Express international air freight", icon: Truck },
-        { value: "24/7", label: "VIP Concierge", sublabel: "Dedicated instant support", icon: ShieldCheck },
+        { value: "DB", label: "Database Catalog", sublabel: "No demo inventory offered for sale", icon: Package },
+        { value: "✓", label: "Approved Storefronts", sublabel: "Public stores require approval", icon: Store },
+        { value: "✓", label: "Store Teams", sublabel: "Separate operational roles", icon: ShieldCheck },
+        { value: "✓", label: "Official Updates", sublabel: "Published official-store content", icon: Megaphone },
       ] as StatCard[],
     },
     plans: {
@@ -989,9 +932,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. Authorized Global Brands Showcase */}
-      <GlobalBrandsShowcase isAr={isAr} />
-
       {/* 6. Signature Categories Department Catalog */}
       <section id="categories" className="py-12 md:py-16 border-b border-line bg-surface scroll-mt-28">
         <div className="noormexa-container space-y-8">
@@ -1236,7 +1176,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 12. Platform Statistics & Proof of Scale */}
+      {/* 12. Verified Marketplace Principles (not fabricated metrics) */}
       <section className="py-12 md:py-16 border-b border-line bg-gradient-to-r from-slate-900 via-navy to-slate-900 text-white">
         <div className="noormexa-container space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-1">
@@ -1261,53 +1201,6 @@ export default function HomePage() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* 13. Verified Testimonials & Customer Trust */}
-      <section className="py-12 md:py-16 border-b border-line bg-surface">
-        <div className="noormexa-container space-y-8">
-          <div className="text-center max-w-xl mx-auto space-y-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-black text-xs border border-emerald-500/20">
-              <Star size={13} className="fill-emerald-500 text-emerald-500" />
-              <span>{text.testimonials.badge}</span>
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">{text.testimonials.title}</h2>
-            <p className="text-xs sm:text-sm text-muted">{text.testimonials.subtitle}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {text.testimonials.reviews.map((rev) => (
-              <div
-                key={rev.name}
-                className="p-6 rounded-3xl bg-surface-soft border border-line space-y-4 shadow-xs flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  {/* Star Rating */}
-                  <div className="flex items-center gap-1 text-orange-500">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} size={15} className="fill-orange-500" />
-                    ))}
-                  </div>
-
-                  <p className="text-xs text-foreground/90 leading-relaxed font-medium">
-                    &ldquo;{rev.comment}&rdquo;
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-line/60 flex items-center justify-between text-xs">
-                  <div>
-                    <h4 className="font-bold text-foreground">{rev.name}</h4>
-                    <span className="text-[11px] text-muted">{rev.location}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-600 font-bold text-[10px] flex items-center gap-1">
-                    <BadgeCheck size={12} />
-                    <span>{isAr ? "طلب موثق" : "Verified"}</span>
-                  </span>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -1438,72 +1331,6 @@ export default function HomePage() {
 
       {/* Published content from the NOORMEXA official store (no local marketing fixtures) */}
       <OfficialStoreUpdates isAr={isAr} />
-
-      {/* 14. Merchant Subscription Plans */}
-      <section id="plans" className="py-12 md:py-20 border-b border-line bg-surface-soft/60">
-        <div className="noormexa-container space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400 font-black text-xs border border-orange-500/20">
-              <Coins size={14} />
-              <span>{text.plans.badge}</span>
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
-              {text.plans.title}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted">{text.plans.subtitle}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {text.plans.items.map((plan) => (
-              <div
-                key={plan.name}
-                className={`p-6 sm:p-8 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 ${
-                  plan.highlight
-                    ? "bg-surface border-2 border-orange-500 shadow-xl relative scale-105"
-                    : "bg-surface border border-line shadow-sm hover:border-slate-300"
-                }`}
-              >
-                {plan.highlight && (
-                  <div className="absolute -top-3.5 start-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-orange-500 text-white text-[11px] font-black shadow-md flex items-center gap-1">
-                    <Sparkles size={12} />
-                    <span>{plan.badge}</span>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-base font-black text-foreground">{plan.name}</h3>
-                    <div className="flex items-baseline gap-1 mt-2">
-                      <span className="text-3xl font-black text-foreground">{plan.price}</span>
-                      {plan.period && <span className="text-xs text-muted">{plan.period}</span>}
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2.5 pt-4 border-t border-line text-xs">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2 text-foreground/90 font-medium">
-                        <BadgeCheck size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Link
-                  href="/auth?mode=signup&role=seller"
-                  className={`w-full py-3 rounded-xl font-black text-xs text-center transition-all ${
-                    plan.highlight
-                      ? "bg-orange-500 hover:bg-orange-600 !text-white shadow-md"
-                      : "bg-surface-soft hover:bg-surface border border-line text-foreground"
-                  }`}
-                >
-                  {isAr ? "ابدأ بهذه الباقة" : "Choose Plan"}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 15. Interactive Frequently Asked Questions */}
       <section id="faq" className="py-12 md:py-16 bg-surface">
