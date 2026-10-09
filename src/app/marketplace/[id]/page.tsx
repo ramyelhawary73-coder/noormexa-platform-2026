@@ -130,7 +130,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     let cancelled = false;
     const strict = new URLSearchParams(window.location.search).get("source") === "store";
-    setLookup({ loading: true, strict, product: null, store: null, error: false });
+    // New route state is reset in a cancellable microtask, not synchronously
+    // during effect setup. DB and public-store RPC stay authoritative.
+    void Promise.resolve().then(() => {
+      if (!cancelled) setLookup({ loading: true, strict, product: null, store: null, error: false });
+    });
 
     const load = async () => {
       const { data, error } = await supabase
