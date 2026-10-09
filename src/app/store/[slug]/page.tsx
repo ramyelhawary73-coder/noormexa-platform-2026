@@ -117,7 +117,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
       .sort((a, b) => {
         if (sortBy === "price-asc") return a.price - b.price;
         if (sortBy === "price-desc") return b.price - a.price;
-        return (b.rating || 5) - (a.rating || 5);
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
   }, [storeProducts, searchQuery, selectedCategory, sortBy]);
 
@@ -346,13 +346,13 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                       </div>
                     )}
 
-                    {post.featured_product_id && (
+                    {post.featured_product_id && storeProducts.some((product) => product.id === post.featured_product_id) && (
                       <div className="p-3 rounded-2xl bg-surface-soft border border-line flex items-center justify-between gap-3 text-xs">
                         <span className="font-bold text-foreground truncate">
                           {storeProducts.find((p) => p.id === post.featured_product_id)?.name || (isAr ? "منتج العرض" : "Featured item")}
                         </span>
                         <Link
-                          href={`/product/${post.featured_product_id}`}
+                          href={`/product/${post.featured_product_id}?source=store`}
                           className="px-3 py-1 rounded-lg bg-gold text-navy font-black text-[11px] shrink-0"
                         >
                           {isAr ? "شراء العرض" : "Shop Deal"}
@@ -368,7 +368,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                     </span>
 
                     <span className="text-[11px]">
-                      {post.views_count || 1} {isAr ? "مشاهدة" : "views"}
+                      {post.views_count ?? 0} {isAr ? "مشاهدة" : "views"}
                     </span>
                   </div>
                 </div>
@@ -483,7 +483,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               >
                 <div>
                   {/* Image Container */}
-                  <Link href={`/marketplace/${prod.id}`} className="block relative aspect-square overflow-hidden bg-surface-soft">
+                  <Link href={`/marketplace/${prod.id}?source=store`} className="block relative aspect-square overflow-hidden bg-surface-soft">
                     <ProductImage
                       src={prod.image_url}
                       alt={prod.name}
@@ -507,13 +507,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
 
                   {/* Details */}
                   <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-1 text-gold text-xs font-bold">
-                      <Star size={13} className="fill-gold" />
-                      <span>{prod.rating || 5.0}</span>
-                      <span className="text-muted text-[10px]">({prod.reviews_count || 1})</span>
-                    </div>
-
-                    <Link href={`/marketplace/${prod.id}`} className="font-bold text-xs text-foreground line-clamp-2 hover:text-gold block leading-snug">
+                    <Link href={`/marketplace/${prod.id}?source=store`} className="font-bold text-xs text-foreground line-clamp-2 hover:text-gold block leading-snug">
                       {prod.name}
                     </Link>
 
