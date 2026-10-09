@@ -15,7 +15,7 @@ function validEmail(value: unknown): value is string {
 
 function authScopedClient(token: string) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !anonKey) return null;
   return createClient(url, anonKey, {
     global: { headers: { Authorization: `Bearer ${token}` } },
@@ -142,7 +142,17 @@ export async function POST(request: NextRequest) {
   // For previously registered auth users without profiles, inviteUserByEmail
   // may reject the invite; use the existing recovery/setup channel.
   if (profile) {
-    return NextResponse.json({ ok: true, membershipStatus: "pending", emailSent: false, existingAccount: true });
+    const { error: magicError } = await supabaseAdmin.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${siteOrigin(request)}/auth/callback?next=${encodeURIComponent("/seller/dashboard")}`,
+      },
+    });
+    if (magicError) {
+      return NextResponse.json({ error: "email_delivery_failed", membershipSaved: true }, { status: 502 });
+    }
+    return NextResponse.json({ ok: true, membershipStatus: "pending", emailSent: true });
   }
 
   const { error: inviteMailError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
@@ -154,8 +164,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, membershipStatus: "pending", emailSent: true });
   }
 
-  const { error: recoveryError } = await supabaseAdmin.auth.resetPasswordForEmail(email, { redirectTo });
-  if (recoveryError) {
+  const { error: magicError } = await supabaseAdmin.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false,
+      emailRedirectTo: `${siteOrigin(request)}/auth/callback?next=${encodeURIComponent("/seller/dashboard")}`,
+    },
+  });
+  if (magicError) {
     return NextResponse.json({ error: "email_delivery_failed", membershipSaved: true }, { status: 502 });
   }
   return NextResponse.json({ ok: true, membershipStatus: "pending", emailSent: true });
