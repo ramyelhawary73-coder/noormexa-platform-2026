@@ -230,18 +230,24 @@ export default function SellerDashboardPage() {
   }, [selectedStoreId, stores]);
 
   useEffect(() => {
+    let active = true;
     if (!currentStore.id) {
-      setProducts([]);
-      setOrders([]);
-      setShipments([]);
-      setMarketingPosts([]);
-      setWorkspaceError(null);
-      return;
+      // Discard the prior store workspace when the authenticated selection is
+      // absent. Deferral avoids cascading renders during effect setup.
+      void Promise.resolve().then(() => {
+        if (!active) return;
+        setProducts([]);
+        setOrders([]);
+        setShipments([]);
+        setMarketingPosts([]);
+        setWorkspaceError(null);
+      });
+      return () => { active = false; };
     }
 
-    let active = true;
-
     const loadWorkspace = async () => {
+      await Promise.resolve();
+      if (!active) return;
       setWorkspaceLoading(true);
       setWorkspaceError(null);
 
@@ -303,46 +309,31 @@ export default function SellerDashboardPage() {
     };
   }, [currentStore.id, currentStore.membership_role]);
 
-  const [activeTab, setActiveTab] = useState<
-    "analytics" | "products" | "orders" | "shipments" | "marketing" | "payouts" | "settings"
-  >("analytics");
+  type WorkspaceTab =
+    "analytics" | "products" | "orders" | "shipments" | "marketing" | "payouts" | "settings";
+  const [requestedTab, setActiveTab] = useState<WorkspaceTab>("analytics");
 
-  useEffect(() => {
-    if (!currentStore.id) return;
-
-    if (!canViewAnalytics && activeTab === "analytics") {
-      setActiveTab(currentStore.membership_role === "support" ? "orders" : "products");
-      return;
+  // Immediately select a permitted tab whenever store membership changes.
+  // Do not allow a stale tab from a previous role to render before an effect runs.
+  const activeTab: WorkspaceTab = (() => {
+    if (!currentStore.id) return requestedTab;
+    if (!canViewAnalytics && requestedTab === "analytics") {
+      return currentStore.membership_role === "support" ? "orders" : "products";
     }
-
-    if (!canManageCatalog && activeTab === "products") {
-      setActiveTab(canManageOrders ? "orders" : "marketing");
-      return;
+    if (!canManageCatalog && requestedTab === "products") {
+      return canManageOrders ? "orders" : "marketing";
     }
-
-    if (!canManageOrders && (activeTab === "orders" || activeTab === "shipments")) {
-      setActiveTab(canManageCatalog ? "products" : "marketing");
-      return;
+    if (!canManageOrders && (requestedTab === "orders" || requestedTab === "shipments")) {
+      return canManageCatalog ? "products" : "marketing";
     }
-
-    if (!canManageMarketing && activeTab === "marketing") {
-      setActiveTab(canManageOrders ? "orders" : "products");
-      return;
+    if (!canManageMarketing && requestedTab === "marketing") {
+      return canManageOrders ? "orders" : "products";
     }
-
-    if (!canManageFinancials && (activeTab === "payouts" || activeTab === "settings")) {
-      setActiveTab(canManageCatalog ? "products" : "orders");
+    if (!canManageFinancials && (requestedTab === "payouts" || requestedTab === "settings")) {
+      return canManageCatalog ? "products" : "orders";
     }
-  }, [
-    activeTab,
-    canManageCatalog,
-    canManageFinancials,
-    canManageMarketing,
-    canManageOrders,
-    canViewAnalytics,
-    currentStore.id,
-    currentStore.membership_role,
-  ]);
+    return requestedTab;
+  })();
 
   const workspaceRoleLabel =
     currentStore.membership_role === "manager"
