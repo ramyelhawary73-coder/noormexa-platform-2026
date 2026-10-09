@@ -354,6 +354,8 @@ function MarketplaceContent() {
     products,
     categories,
     stores,
+    catalogStatus,
+    refreshCatalog,
     formatPrice,
     addToCart,
     wishlist,
@@ -525,59 +527,12 @@ function MarketplaceContent() {
     }, 2800);
   };
 
-  // Active Promo Coupons List
-  const activeCoupons = [
-    {
-      code: "NOOR20",
-      discount: "20%",
-      titleAr: "خصم 20% على جميع المنتجات الفاخرة",
-      titleEn: "20% OFF on all luxury products",
-      minSpend: "200 ر.س",
-      badge: "الأكثر استخداماً",
-      badgeEn: "Most Popular",
-      color: "from-amber-500/20 to-orange-500/20 border-orange-500/40 text-orange-500",
-    },
-    {
-      code: "WELCOME10",
-      discount: "10%",
-      titleAr: "خصم ترحيبي 10% للعملاء الجدد",
-      titleEn: "10% Welcome discount for new members",
-      minSpend: "لا يوجد حد أدنى",
-      badge: "هدية تسجيل",
-      badgeEn: "Welcome Gift",
-      color: "from-blue-500/20 to-indigo-500/20 border-blue-500/40 text-blue-500",
-    },
-    {
-      code: "VIP50",
-      discount: "50 ر.س",
-      titleAr: "قسيمة فورية 50 ر.س للطلبات المؤهلة",
-      titleEn: "Instant 50 SAR/AED voucher on qualified orders",
-      minSpend: "500 ر.س",
-      badge: "عملاء VIP",
-      badgeEn: "VIP Exclusive",
-      color: "from-purple-500/20 to-pink-500/20 border-purple-500/40 text-purple-500",
-    },
-    {
-      code: "FREESHIP",
-      discount: "100%",
-      titleAr: "شحن جوي ودولي مجاني بالكامل",
-      titleEn: "100% Free Express Global & Local Shipping",
-      minSpend: "150 ر.س",
-      badge: "شحن مجاني",
-      badgeEn: "Free Shipping",
-      color: "from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-500",
-    },
-    {
-      code: "FLASH35",
-      discount: "35%",
-      titleAr: "كود إضافي 35% خاص بعروض الفلاش",
-      titleEn: "Extra 35% OFF on Flash Deals items",
-      minSpend: "300 ر.س",
-      badge: "عرض محدود",
-      badgeEn: "Flash Special",
-      color: "from-red-500/20 to-rose-500/20 border-red-500/40 text-red-500",
-    },
-  ];
+  // Do not advertise unverified coupons. Server-backed campaigns will be
+  // reintroduced only with a validated source and checkout contract.
+  const activeCoupons: Array<{
+    code: string; discount: string; titleAr: string; titleEn: string;
+    minSpend: string; badge: string; badgeEn: string; color: string;
+  }> = [];
 
   const currentBrandInfo = AVAILABLE_BRANDS.find((b) => b.id === selectedBrand);
 
@@ -691,11 +646,7 @@ function MarketplaceContent() {
         // Official Flagship filter
         if (officialOnly) {
           const store = stores.find((s) => s.id === prod.store_id);
-          const isOfficial =
-            prod.store_id === "store-noormexa-official" ||
-            store?.is_official ||
-            store?.is_verified ||
-            prod.is_featured;
+          const isOfficial = store?.is_official === true;
           if (!isOfficial) return false;
         }
 
@@ -1086,13 +1037,13 @@ function MarketplaceContent() {
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black backdrop-blur-md">
                   <Flame size={14} className="animate-bounce text-amber-300" />
-                  <span>{language === "ar" ? "عروض الفلاش الحصرية نشطة الآن" : "Flash Deals 50% Active Now"}</span>
+                  <span>{language === "ar" ? "المنتجات ذات التخفيضات المسجلة" : "Products with Listed Discounts"}</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black">{language === "ar" ? "تخفيضات كبرى تصل إلى 50% لفترة محدودة" : "Mega Discounts Up To 50% OFF For A Limited Time"}</h2>
+                <h2 className="text-xl sm:text-2xl font-black">{language === "ar" ? "استكشف التخفيضات المسجلة على المنتجات المتاحة" : "Browse Listed Savings on Available Products"}</h2>
                 <p className="text-xs text-white/90 max-w-xl">
                   {language === "ar"
-                    ? "يتم الآن عرض جميع المنتجات التي تحتوي على خصومات كبرى ومميزات ترويجية خاصة مع إمكانية استخدام كود FLASH35 الإضافي."
-                    : "Showing all items with high discounts and special promotions. You can combine coupon FLASH35 at checkout."}
+                    ? "تظهر هنا المنتجات التي لديها سعر سابق أعلى من سعر البيع الحالي، عند توفرها لدى المتجر."
+                    : "Only available products with a listed previous price appear here."}
                 </p>
               </div>
 
@@ -1103,7 +1054,7 @@ function MarketplaceContent() {
                   className="px-4 py-2.5 rounded-xl bg-white text-red-600 font-extrabold text-xs shadow-md hover:bg-slate-100 transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Tag size={13} />
-                  <span>{language === "ar" ? "نسخ كوبون الفلاش" : "Copy Flash Coupon"}</span>
+                  <span>{language === "ar" ? "الكوبونات المتاحة" : "Available Coupons"}</span>
                 </button>
                 <button
                   type="button"
@@ -1124,13 +1075,13 @@ function MarketplaceContent() {
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black backdrop-blur-md">
                   <Crown size={14} className="text-amber-300" />
-                  <span>{language === "ar" ? "تصفية المتاجر الرسمية المعتمدة" : "Official Flagship Stores Only"}</span>
+                  <span>{language === "ar" ? "منتجات متجر NOORMEXA الرسمي" : "NOORMEXA Official Store Products"}</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black">{language === "ar" ? "منتجات معتمدة وموثقة 100% مع ضمان الوكالة" : "100% Certified Authentic with Official Warranty"}</h2>
+                <h2 className="text-xl sm:text-2xl font-black">{language === "ar" ? "منتجات المتجر الرسمي المتاحة" : "Available Official Store Products"}</h2>
                 <p className="text-xs text-white/90 max-w-xl">
                   {language === "ar"
-                    ? "تصفح حصري لمنتجات متاجر NOORMEXA Flagship والمتاجر العالمية المعتمدة مع فحص دقيق للجودة وشحن سريع ومؤمّن."
-                    : "Exclusively browsing products from verified flagship stores with quality certification and insured express delivery."}
+                    ? "تُعرض المنتجات النشطة والمتوفرة فقط من متجر NOORMEXA الرسمي."
+                    : "Shows active in-stock items from NOORMEXA Official Store only."}
                 </p>
               </div>
 
@@ -1413,14 +1364,28 @@ function MarketplaceContent() {
             </div>
 
             {/* Products Grid - 2 columns on mobile, 3 columns on desktop */}
-            {filteredProducts.length === 0 ? (
+            {catalogStatus !== "ready" ? (
+              <div className="text-center py-16 px-4 bg-surface rounded-3xl border border-line space-y-4">
+                <Package size={42} className="mx-auto text-muted" />
+                <h3 className="text-lg font-bold text-foreground">
+                  {catalogStatus === "loading"
+                    ? (language === "ar" ? "جاري تحميل المنتجات من المتاجر المعتمدة..." : "Loading verified inventory...")
+                    : (language === "ar" ? "تعذر تحميل الكتالوج حاليًا" : "Catalog temporarily unavailable")}
+                </h3>
+                {catalogStatus === "error" && (
+                  <button type="button" onClick={() => void refreshCatalog()} className="px-5 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold">
+                    {language === "ar" ? "إعادة المحاولة" : "Retry"}
+                  </button>
+                )}
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-16 px-4 bg-surface rounded-3xl border border-line space-y-4">
                 <Package size={48} className="mx-auto text-muted" />
                 <h3 className="text-lg font-bold text-foreground">{text.noProducts}</h3>
                 <p className="text-xs text-muted max-w-md mx-auto">
-                  {language === "ar"
-                    ? "جرّب تغيير كلمات البحث أو إعادة تعيين الفلاتر لعرض كل المنتجات المتاحة."
-                    : "Try adjusting your search query or reset the filters to see all available products."}
+                  {products.length === 0
+                    ? (language === "ar" ? "تظهر المنتجات بعد اعتمادها وتوفرها في المتاجر. تابع منشورات المتجر الرسمي للتحديثات." : "Products will appear after stores list available stock. Follow official store news meanwhile.")
+                    : (language === "ar" ? "جرّب تعديل البحث أو تصفية المنتجات." : "Try adjusting your filters or search.")}
                 </p>
                 <button
                   type="button"
@@ -1500,10 +1465,12 @@ function MarketplaceContent() {
                             <StoreIcon size={11} className="text-orange-500" />
                             <span className="truncate">{product.store_name}</span>
                           </span>
-                          <span className="flex items-center gap-0.5 text-amber-500 font-bold">
-                            <Star size={11} className="fill-amber-500" />
-                            <span>{product.rating?.toFixed(1) || "5.0"}</span>
-                          </span>
+                          {typeof product.rating === "number" && (
+                            <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                              <Star size={11} />
+                              <span>{product.rating.toFixed(1)}</span>
+                            </span>
+                          )}
                         </div>
 
                         {/* Product Title */}
@@ -1602,6 +1569,11 @@ function MarketplaceContent() {
             </div>
 
             <div className="space-y-3">
+              {activeCoupons.length === 0 && (
+                <div className="p-6 rounded-xl border border-line bg-surface-soft text-center text-sm text-muted">
+                  {language === "ar" ? "لا توجد كوبونات مؤكدة ومفعّلة حاليًا." : "No verified active coupons at the moment."}
+                </div>
+              )}
               {activeCoupons.map((c) => {
                 const isCopied = copiedCoupon === c.code;
                 return (
