@@ -34,7 +34,7 @@ import {
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { supabase } from "@/lib/supabaseClient";
 import { updateStoreStatus, updateStoreCommission } from "@/lib/marketplace";
-import type { CurrencyCode, Store, Order } from "@/types/marketplace";
+import type { CurrencyCode, Store, Order, StorePayout } from "@/types/marketplace";
 import { VirtualizedOrdersTable } from "@/components/VirtualizedOrdersTable";
 
 type Language = "ar" | "en";
@@ -132,7 +132,7 @@ export default function SuperAdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState(false);
-  const payouts: never[] = []; // No verified payout ledger exists in production.
+  const payouts: StorePayout[] = []; // No verified payout ledger exists in production.
 
   useEffect(() => {
     let active = true;
