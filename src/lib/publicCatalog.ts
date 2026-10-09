@@ -30,7 +30,7 @@ export async function loadPublicCatalog(): Promise<PublicCatalog> {
     owner_id: "",
     commission_rate: 0,
     plan: "",
-    status: "approved",
+    status: "approved" as const,
     created_at: "",
   }));
 
