@@ -39,6 +39,7 @@ import {
   Smartphone,
   Laptop,
   Zap,
+  Megaphone,
 } from "lucide-react";
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import SmoothFlashTimer from "@/components/landing/SmoothFlashTimer";
