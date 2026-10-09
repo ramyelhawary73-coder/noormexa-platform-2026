@@ -100,3 +100,12 @@ No changes to Platform Super Admin, Platform Admin, RLS, Auth configuration, sec
 ## Independent Production data packages
 
 The editorial news package and legacy product candidates are now completely separated. A site owner may approve **news-only draft import** while explicitly rejecting/defering historical product fixtures. This is the recommended first content action. The news package creates four drafts, then official store editor may publish the approved wording through the authenticated dashboard. No fake stock/offers are implied. Public homepage and official store only display actual published posts from Supabase.
+
+## Production Execution Log — 2026-10-09
+
+- **Owner authorization:** User explicitly authorized continuing the next production rollout steps on 2026-10-09.
+- **Applied (content DML, not DDL):** `supabase/data_phase12_official_news_drafts_REVIEW_ONLY.sql` once against Supabase `qiqvmsjjgwdsievkrhly` via an approved connected action. The filename is a historical review gate; the SQL is idempotent and should not be applied indiscriminately again.
+- **Verified immediately after apply:** exactly four `noormexa-official-news-2026-01..04` rows, all `store_id=store-noormexa-official`, `status=draft`, no promo codes or product links.
+- **Products count remains 0**. The legacy product backfill was NOT applied and remains for explicit inventory/content review only.
+- Next gate: verify app branch/Vercel, merge with exact Head if successful, then perform authenticated editorial publish and check that public home + store show only `published` entries.
+- No changes to Auth, RLS, Secrets, platform roles or team permissions.
