@@ -1801,7 +1801,11 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    void refreshCatalog();
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) void refreshCatalog();
+    });
+    return () => { cancelled = true; };
   }, [hydrated, refreshCatalog]);
 
   const loadOfficialMarketingPosts = useCallback(async () => {
@@ -1821,7 +1825,11 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void loadOfficialMarketingPosts();
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) void loadOfficialMarketingPosts();
+    });
+    return () => { cancelled = true; };
   }, [loadOfficialMarketingPosts]);
 
   // Currency helpers
