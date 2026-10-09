@@ -31,7 +31,11 @@ No direct edits to `main`, production DB changes, RLS/Authentication/SMTP/secret
 - [x] Stop demo orders, shipments and payouts from hydrating browser business state; preserve legacy localStorage keys without deleting data.
 - [x] Read platform orders from RLS-backed `orders` and stop display of fabricated analytics or payout transactions.
 - [x] Add regression assertions for authority boundaries.
-- [ ] Run `node scripts/check-production-commercial-truth.mjs`, `npx tsc --noEmit`, `npm run lint`, `npm run build` on exact branch HEAD. No run should be claimed before execution.
+- [x] `node scripts/check-production-commercial-truth.mjs`: 18/18 assertions passed (GitHub Actions run `37985604510`).
+- [x] `npx tsc --noEmit`: passed in run `37985604510`.
+- [x] `npm run build`: passed in run `37985604510`; Vercel Preview also reported Ready for code SHA `c26ce6d41cb0371f4b9fb0e106b6b2425fba6c74`.
+- [ ] `npm run lint`: **FAILED** in run `37985604510`, due to React Hooks `set-state-in-effect` errors also present on original `main` (admin, checkout, storefront, seller and MarketplaceContext). Do not mark A1 as lint-clean; separate baseline cleanup decision required.
+- [ ] Browser role tests/Preview inspection remain outstanding. Vercel project is under `ramyelhawary73-coders-projects`, not the connected Vercel team, so only GitHub's deployment status/Preview link could be verified.
 - [ ] Verify Preview desktop/mobile, public empty/error/catalog states, old cached cart, restricted admin reads; review final diff, receive user's acceptance.
 - [ ] Separate merge approval, production smoke check, no regression.
 **Exit:** no demo sales or testimonials are presented as commercial evidence; real admin metrics are never replaced by demo browser data; checks, Preview and review pass.
@@ -84,6 +88,14 @@ No direct edits to `main`, production DB changes, RLS/Authentication/SMTP/secret
 - Verify RLS, cross-tenant reads/writes, IDOR, role escalation, invitation replay, session revocation, protected platform accounts, products/posts, checkout price/stock races, orders/shipping, no secret exposure.
 - Use two independent test tenants in non-production. Security Advisor review. Full browser desktop/mobile, TypeScript/lint/build/CI/Preview.
 **Exit:** all P0/P1 defects resolved or explicitly deferred with risk approval; approved pre-merge and post-deploy verification.
+
+## A1 validation record — 2026-10-09
+
+- GitHub Draft PR: https://github.com/ramyelhawary73-coder/noormexa-platform-2026/pull/10
+- GitHub Actions: https://github.com/ramyelhawary73-coder/noormexa-platform-2026/actions/runs/37985604510
+- Preview reported Ready: https://noormexa-platform-202-git-bf3d8e-ramyelhawary73-coders-projects.vercel.app
+- Repo `main` remained `ae968f093a9f3d8fc533de7edad02f7407107ff9` during A1. PR #9 remains separate and open.
+- **Gate remains blocked:** Full ESLint fails on inherited baseline violations, no browser E2E/tenant-role acceptance, and no confirmed direct Vercel inspection. No merge or production release authorized.
 
 ## Work-package and PR discipline
 
