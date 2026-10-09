@@ -9,7 +9,6 @@ import {
   BadgeCheck,
   Check,
   Copy,
-  Heart,
   Megaphone,
   Package,
   Search,
@@ -285,11 +284,11 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               <div className="flex items-center gap-2">
                 <Megaphone size={18} className="text-gold" />
                 <h2 className="text-sm sm:text-base font-black text-foreground">
-                  {isAr ? "عروض ومنشورات المتجر الحصرية" : "Exclusive Store Campaigns & Promos"}
+                  {isAr ? "منشورات وأخبار المتجر" : "Store Updates & Posts"}
                 </h2>
               </div>
               <span className="text-xs font-bold text-muted">
-                {storePosts.length} {isAr ? "عروض نشطة" : "active offers"}
+                {storePosts.length} {isAr ? "منشورات منشورة" : "published posts"}
               </span>
             </div>
 
@@ -305,7 +304,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                         {post.is_pinned && (
                           <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-gold font-black text-[10px] flex items-center gap-1">
                             <Sparkles size={11} />
-                            <span>{isAr ? "عرض مميز مثبت" : "Featured Deal"}</span>
+                            <span>{isAr ? "منشور مثبت" : "Pinned Post"}</span>
                           </span>
                         )}
                         <span className="text-[11px] text-muted">
@@ -349,28 +348,19 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                     {post.featured_product_id && storeProducts.some((product) => product.id === post.featured_product_id) && (
                       <div className="p-3 rounded-2xl bg-surface-soft border border-line flex items-center justify-between gap-3 text-xs">
                         <span className="font-bold text-foreground truncate">
-                          {storeProducts.find((p) => p.id === post.featured_product_id)?.name || (isAr ? "منتج العرض" : "Featured item")}
+                          {storeProducts.find((p) => p.id === post.featured_product_id)?.name || (isAr ? "المنتج المرتبط" : "Related product")}
                         </span>
                         <Link
                           href={`/product/${post.featured_product_id}?source=store`}
                           className="px-3 py-1 rounded-lg bg-gold text-navy font-black text-[11px] shrink-0"
                         >
-                          {isAr ? "شراء العرض" : "Shop Deal"}
+                          {isAr ? "مشاهدة المنتج" : "View product"}
                         </Link>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-line/60 text-xs text-muted">
-                    <span className="flex items-center gap-1.5 text-rose-500 font-bold">
-                      <Heart size={14} />
-                      <span>{post.likes_count || 0} {isAr ? "إعجاب" : "likes"}</span>
-                    </span>
 
-                    <span className="text-[11px]">
-                      {post.views_count ?? 0} {isAr ? "مشاهدة" : "views"}
-                    </span>
-                  </div>
                 </div>
               ))}
             </div>
