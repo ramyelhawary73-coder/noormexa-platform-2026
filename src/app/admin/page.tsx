@@ -221,9 +221,17 @@ export default function SuperAdminPage() {
   const [newOfficialDesc, setNewOfficialDesc] = useState("المتجر الرسمي المباشر للمنصة - أعلى معايير الجودة وشحن فوري");
 
   // Promotional Codes & Marketing State
-  const [coupons, setCoupons] = useState([
-
-  ]);
+  type AdminCouponDraft = {
+    id: string;
+    code: string;
+    discount: number;
+    type: string;
+    usageCount: number;
+    maxUsage: number;
+    active: boolean;
+    minOrder: number;
+  };
+  const [coupons, setCoupons] = useState<AdminCouponDraft[]>([]);
   const [newCouponCode, setNewCouponCode] = useState("");
   const [newCouponDiscount, setNewCouponDiscount] = useState(15);
   const [newCouponType, setNewCouponType] = useState<"percent" | "fixed">("percent");
