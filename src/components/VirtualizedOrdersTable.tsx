@@ -24,6 +24,7 @@ interface VirtualizedOrdersProps {
   onExportCsv: () => void;
   exportNotice: boolean;
   isAr: boolean;
+  allowStatusChanges?: boolean;
 }
 
 // Fixed row heights: Compact row = 76px, Expanded row = 240px
@@ -39,6 +40,7 @@ export function VirtualizedOrdersTable({
   onExportCsv,
   exportNotice,
   isAr,
+  allowStatusChanges = true,
 }: VirtualizedOrdersProps) {
   // Local high-performance filtering and sorting state
   const [searchTerm, setSearchTerm] = useState("");
@@ -562,6 +564,7 @@ export function VirtualizedOrdersTable({
                         {/* Quick Status Select */}
                         <select
                           value={ord.status}
+                          disabled={!allowStatusChanges}
                           onChange={(e) => updateOrderStatus(ord.id, e.target.value as Order["status"])}
                           className="px-2 py-1 rounded-lg bg-surface border border-line text-foreground font-bold text-[11px] focus:outline-none focus:border-gold cursor-pointer"
                         >
