@@ -44,6 +44,7 @@ import {
 import HeroImageSlider from "@/components/landing/HeroImageSlider";
 import SmoothFlashTimer from "@/components/landing/SmoothFlashTimer";
 import GlobalBrandsShowcase from "@/components/landing/GlobalBrandsShowcase";
+import OfficialStoreUpdates from "@/components/landing/OfficialStoreUpdates";
 import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { NoormexaEmblemSvg } from "@/components/BrandLogo";
@@ -1677,6 +1678,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Published content from the NOORMEXA official store (no local marketing fixtures) */}
+      <OfficialStoreUpdates isAr={isAr} />
 
       {/* 14. Merchant Subscription Plans */}
       <section id="plans" className="py-12 md:py-20 border-b border-line bg-surface-soft/60">
