@@ -137,10 +137,11 @@ export default function SuperAdminPage() {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const { data, error } = await supabase.from("orders").select("*")
+      const { data, error, count } = await supabase.from("orders").select("*", { count: "exact" })
         .order("created_at", { ascending: false }).limit(500);
       if (!active) return;
-      if (error) {
+      if (error || count === null || (count ?? 0) > 500) {
+        // Never describe a truncated subset as platform-wide financial totals.
         setOrders([]);
         setOrdersError(true);
       } else {
@@ -339,14 +340,12 @@ export default function SuperAdminPage() {
   const totalOrdersCount = orders.length;
   const activeStoresCount = useMemo(() => stores.filter((s) => s.status === "approved").length, [stores]);
 
-  // Payout Transaction Ref helper state
-  const [payoutTrxRefs, setPayoutTrxRefs] = useState<Record<string, string>>({});
   const [exportNotice, setExportNotice] = useState(false);
 
   const handleExportOrdersCsv = () => {
     if (ordersLoading || ordersError || orders.length === 0) return;
 
-    // Build comprehensive CSV columns for financial reconciliation
+    // Export only fully loaded RLS-authorized order rows. Never export demo ledger.
     const headers = [
       "Order Number",
       "Tracking Number",
@@ -497,12 +496,12 @@ export default function SuperAdminPage() {
               { id: "overview", label: text.tabOverview, icon: Activity, count: null },
               { id: "stores", label: text.tabStores, icon: StoreIcon, count: `${stores.length}` },
               { id: "payouts", label: text.tabPayouts, icon: Wallet, count: `${payouts.length}` },
-              { id: "orders", label: text.tabOrders, icon: Truck, count: `${totalOrdersCount}` },
+              { id: "orders", label: text.tabOrders, icon: Truck, count: ordersLoading || ordersError ? "—" : `${totalOrdersCount}` },
               { id: "products", label: text.tabProducts, icon: Boxes, count: `${products.length}` },
               { id: "gateways", label: text.tabGateways, icon: CreditCard, count: null },
               { id: "currencies", label: text.tabCurrencies, icon: Coins, count: `${Object.keys(currencies).length}` },
               { id: "promotions", label: text.tabPromotions, icon: Megaphone, count: `${coupons.length}` },
-              { id: "analytics", label: text.tabAnalytics, icon: BarChart3, count: "LIVE" },
+              { id: "analytics", label: text.tabAnalytics, icon: BarChart3, count: "DB" },
               { id: "settings", label: text.tabSettings, icon: Settings, count: null },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -555,7 +554,7 @@ export default function SuperAdminPage() {
                   {ordersLoading || ordersError ? "—" : formatPrice(gmv)}
                 </div>
                 <div className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-                  <span>+18.4% {isAr ? "نمو شهري في المبيعات" : "MoM Growth"}</span>
+                  <span>{isAr ? "مقارنة الأشهر غير متاحة حتى توفر سجلات كافية" : "Month-over-month comparison unavailable"}</span>
                 </div>
               </div>
 
@@ -1147,7 +1146,10 @@ export default function SuperAdminPage() {
         {/* Tab 8: Promotions, Coupons & Marketing Campaigns */}
         {activeTab === "promotions" && (
           <div className="space-y-6 animate-in fade-in">
-            {/* Promo KPIs */}
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-5 py-4 text-sm text-foreground">
+              {isAr ? "تنبيه: إعدادات الكوبونات والحملات هنا نماذج واجهة محلية، ولا تنشر عروضًا أو تعدّ مبيعات حقيقية." : "Notice: coupon and campaign settings here are local UI drafts, not published offers or real sales."}
+            </div>
+            {/* Promo KPIs (local UI drafts only) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="p-5 rounded-3xl bg-surface border border-line shadow-sm space-y-2">
                 <div className="flex items-center justify-between text-xs text-muted">
@@ -1160,7 +1162,7 @@ export default function SuperAdminPage() {
                   {coupons.filter((c) => c.active).length} / {coupons.length}
                 </div>
                 <div className="text-[11px] text-emerald-600 font-bold">
-                  متاحة للاستخدام الفوري
+                  مسودات محلية غير منشورة للمشترين
                 </div>
               </div>
 
@@ -1175,7 +1177,7 @@ export default function SuperAdminPage() {
                   {coupons.reduce((sum, c) => sum + c.usageCount, 0)} عملية
                 </div>
                 <div className="text-[11px] text-blue-600 font-bold">
-                  +34 عملية هذا الأسبوع
+                  لا توجد قياسات استخدام متصلة بقاعدة البيانات
                 </div>
               </div>
 
@@ -1187,7 +1189,7 @@ export default function SuperAdminPage() {
                   </span>
                 </div>
                 <div className="text-lg font-black text-foreground">
-                  {promoBannerActive ? "مفعل وظاهر للزوار" : "معطل مؤقتاً"}
+                  {"إعداد محلي غير منشور"}
                 </div>
                 <div className="text-[11px] text-muted font-bold">
                   شريط أعلى الموقع
@@ -1202,10 +1204,10 @@ export default function SuperAdminPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-black text-foreground">
-                  {formatPrice(48200)}
+                  {"—"}
                 </div>
                 <div className="text-[11px] text-emerald-600 font-bold">
-                  عائد تسويقي 12.8x
+                  لا توجد حسابات لعائد الحملات متصلة بقاعدة البيانات
                 </div>
               </div>
             </div>
