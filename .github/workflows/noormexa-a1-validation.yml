@@ -1,9 +1,6 @@
 name: NOORMEXA A1 Validation
 
 on:
-  push:
-    branches:
-      - fix/noormexa-a1-production-commercial-truth
   pull_request:
     branches:
       - main
