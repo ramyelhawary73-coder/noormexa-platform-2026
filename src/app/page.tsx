@@ -48,7 +48,6 @@ import { openPwaInstallModal } from "@/components/PwaInstallPrompt";
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { NoormexaEmblemSvg } from "@/components/BrandLogo";
 import { useTheme } from "@/context/ThemeContext";
-import ReelsVideoModal, { type ReelStory } from "@/components/landing/ReelsVideoModal";
 
 type Language = "ar" | "en";
 
@@ -65,7 +64,6 @@ type CategoryCard = {
   name: string;
   nameEn: string;
   slug: string;
-  count: string;
   icon: LucideIcon;
   image: string;
 };
@@ -86,15 +84,6 @@ type PlanCard = {
   highlight?: boolean;
 };
 
-type CouponItem = {
-  code: string;
-  discount: string;
-  titleAr: string;
-  titleEn: string;
-  descAr: string;
-  descEn: string;
-  minSpend: string;
-};
 
 const LANGUAGE_KEY = "noormexa-language";
 
@@ -574,8 +563,6 @@ export default function HomePage() {
   // Search input state
   const [searchQuery, setSearchQuery] = useState("");
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
-  const [copiedCoupon, setCopiedCoupon] = useState<string | null>(null);
-  const [selectedReelIndex, setSelectedReelIndex] = useState<number | null>(null);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -594,12 +581,6 @@ export default function HomePage() {
     }, 2000);
   };
 
-  const handleCopyCoupon = (code: string) => {
-    navigator.clipboard?.writeText(code);
-    setCopiedCoupon(code);
-    setTimeout(() => setCopiedCoupon(null), 2500);
-  };
-
   const DirectionIcon = isAr ? ArrowLeft : ArrowRight;
 
   // Curated Categories List with High-Resolution Visuals
@@ -608,7 +589,7 @@ export default function HomePage() {
       name: "إلكترونيات وهواتف ذكية",
       nameEn: "Smart Electronics & Tech",
       slug: "electronics",
-      count: "128+ منتج",
+
       icon: Package,
       image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80",
     },
@@ -616,7 +597,7 @@ export default function HomePage() {
       name: "أزياء وكشمير فاخر",
       nameEn: "Haute Fashion & Apparel",
       slug: "fashion",
-      count: "94+ منتج",
+
       icon: ShoppingBag,
       image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&auto=format&fit=crop&q=80",
     },
@@ -624,7 +605,7 @@ export default function HomePage() {
       name: "عطور ملكية وبخور شرقي",
       nameEn: "Royal Perfumery & Oud",
       slug: "beauty",
-      count: "67+ منتج",
+
       icon: Sparkles,
       image: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&auto=format&fit=crop&q=80",
     },
@@ -632,7 +613,7 @@ export default function HomePage() {
       name: "ساعات كرونوغراف ومجوهرات",
       nameEn: "Watches & Fine Jewelry",
       slug: "accessories",
-      count: "52+ منتج",
+
       icon: Crown,
       image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=500&auto=format&fit=crop&q=80",
     },
@@ -640,92 +621,13 @@ export default function HomePage() {
       name: "ديكور ومنزل حرفي",
       nameEn: "Artisan Home & Living",
       slug: "home",
-      count: "81+ منتج",
+
       icon: Tag,
       image: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=500&auto=format&fit=crop&q=80",
     },
   ];
 
   // Historical demo coupon content is not a public commercial offer.
-
-  // Customer Video Unboxing Stories & Real Interactive Reels
-  const videoStories: ReelStory[] = [
-    {
-      id: "v1",
-      titleAr: "فتح صندوق ساعة الكرونوغراف الملكية وتجربة السوار الجلدي الفاخر",
-      titleEn: "Unboxing the Royal Chronograph & Luxury Leather Strap",
-      author: "سلطان العتيبي",
-      authorCityAr: "الرياض، المملكة العربية السعودية",
-      authorCityEn: "Riyadh, Saudi Arabia",
-      authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
-      rating: 5.0,
-      orderNumber: "NRX-98214-KSA",
-      commentAr: "الساعة وصلتني في تغليف ملكي فاخر جداً ومعها بطاقة الضمان والرقم التسلسلي المعتمد. الفولاذ المصقول والزجاج الياقوتي فائق الجودة والوزن رائع جداً. تجربة شراء فاخرة تستحق 5 نجوم.",
-      commentEn: "The timepiece arrived in royal luxury presentation packaging complete with warranty certificate and serial stamp. The 316L steel and sapphire crystal feel ultra-premium.",
-      views: "18.4K",
-      initialLikes: 1420,
-      videoUrl: "https://vjs.zencdn.net/v/oceans.mp4",
-      posterImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&auto=format&fit=crop&q=80",
-      durationText: "00:45",
-      productId: "prod-chronograph-watch",
-      productNameAr: "ساعة الكرونوغراف الفاخرة NOORMEXA Royal Sapphire",
-      productNameEn: "NOORMEXA Royal Sapphire Chronograph Watch",
-      productPrice: 6800,
-      productOriginalPrice: 8500,
-      productImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&auto=format&fit=crop&q=80",
-      storeName: "TechCraft Global Innovations",
-    },
-    {
-      id: "v2",
-      titleAr: "تجربة عطر السلطان الفاخر وثبات الفوحان لأكثر من 36 ساعة",
-      titleEn: "Royal Oud Longevity & Projection Real-World Test",
-      author: "مروة الشامسي",
-      authorCityAr: "دبي، الإمارات العربية المتحدة",
-      authorCityEn: "Dubai, United Arab Emirates",
-      authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
-      rating: 4.9,
-      orderNumber: "NRX-87412-UAE",
-      commentAr: "رائحة العود المعتق مع قطرات الورد الطائفي والعنبر الأبيض خيالية وفوحان رهيب! الكل سألني عن العطر وثباته استمر على العباية لأكثر من 48 ساعة. التوصيل كان في أقل من 24 ساعة.",
-      commentEn: "The aged Cambodian oud combined with white ambergris and Taif rose is simply mesmerizing. Sillage lasted over 48 hours. Incredible luxury fragrance.",
-      views: "24.1K",
-      initialLikes: 2180,
-      videoUrl: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-      posterImage: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&auto=format&fit=crop&q=80",
-      durationText: "00:52",
-      productId: "prod-royal-oud-perfume",
-      productNameAr: "عطر السلطان الملكي (Imperial Oud & Ambergris 100ml)",
-      productNameEn: "Imperial Oud & Ambergris Eau de Parfum 100ml",
-      productPrice: 2890,
-      productOriginalPrice: 3600,
-      productImage: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&auto=format&fit=crop&q=80",
-      storeName: "Royal Oud & Perfumery",
-    },
-    {
-      id: "v3",
-      titleAr: "مراجعة سماعة Pro Wireless ANC مع ميزة عزل الضوضاء والشحن السريع",
-      titleEn: "Pro Wireless ANC Studio Headphones Deep Dive",
-      author: "أحمد منصور",
-      authorCityAr: "القاهرة، جمهورية مصر العربية",
-      authorCityEn: "Cairo, Egypt",
-      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
-      rating: 5.0,
-      orderNumber: "NRX-76291-EGY",
-      commentAr: "عزل الضوضاء ANC مبهر جداً في الشارع والمكتب، ونقاء الصوت وتجسيم البيز عالي جداً. البطارية جلست معايا أسبوع كامل بدون ما أحتاج أشحنها. خامات وسائد الأذن جلد وميموري فوم مريحة للغاية.",
-      commentEn: "Studio sound quality with powerful active noise cancellation. Battery truly lasts 55 hours. Memory foam cushions are comfortable for long working hours.",
-      views: "12.8K",
-      initialLikes: 980,
-      videoUrl: "https://media.w3.org/2010/05/sintel/trailer.mp4",
-      posterImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
-      durationText: "00:38",
-      productId: "prod-aurora-headphones",
-      productNameAr: "سماعات الرأس اللاسلكية الاحترافية NOORMEXA Pro ANC",
-      productNameEn: "NOORMEXA Pro Wireless ANC Studio Headphones",
-      productPrice: 3450,
-      productOriginalPrice: 4200,
-      productImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
-      storeName: "TechCraft Global Innovations",
-    },
-  ];
 
   // Official Store (Flagship)
   const officialStore = stores.find((s) => s.is_official) || stores[0];
@@ -1365,14 +1267,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Interactive Reels Video Modal */}
-      <ReelsVideoModal
-        isOpen={selectedReelIndex !== null}
-        onClose={() => setSelectedReelIndex(null)}
-        initialIndex={selectedReelIndex || 0}
-        reels={videoStories}
-        language={language}
-      />
     </main>
   );
 }
