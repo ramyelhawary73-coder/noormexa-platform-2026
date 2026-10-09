@@ -37,6 +37,14 @@ type TeamMember = {
   created_at: string;
 };
 
+type PendingInvitation = {
+  membership_id: string;
+  email: string;
+  role: ManageableRole;
+  status: "pending";
+  created_at: string;
+};
+
 const roleLabels = {
   ar: {
     owner: "مالك",
@@ -60,6 +68,7 @@ export default function SellerTeamPage() {
   const [memberships, setMemberships] = useState<StoreMembership[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState("");
   const [members, setMembers] = useState<TeamMember[]>([]);
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [email, setEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<ManageableRole>("editor");
   const [loading, setLoading] = useState(true);
@@ -128,6 +137,7 @@ export default function SellerTeamPage() {
   const loadTeam = useCallback(async () => {
     if (!selectedStoreId) {
       setMembers([]);
+      setPendingInvitations([]);
       return;
     }
 
@@ -145,8 +155,30 @@ export default function SellerTeamPage() {
       setMembers((data ?? []) as TeamMember[]);
     }
 
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setPendingInvitations([]);
+    } else {
+      try {
+        const response = await fetch(
+          `/api/seller/team/invite?storeId=${encodeURIComponent(selectedStoreId)}`,
+          { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" }
+        );
+        if (response.ok) {
+          const payload = await response.json() as { invitations?: PendingInvitation[] };
+          setPendingInvitations(payload.invitations ?? []);
+        } else {
+          setPendingInvitations([]);
+          setError(isAr ? "تعذر تحميل الدعوات المعلقة." : "Could not load pending invitations.");
+        }
+      } catch {
+        setPendingInvitations([]);
+        setError(isAr ? "تعذر الاتصال بخدمة الدعوات." : "Invitation service is unavailable.");
+      }
+    }
+
     setTeamLoading(false);
-  }, [selectedStoreId]);
+  }, [selectedStoreId, isAr]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -183,33 +215,62 @@ export default function SellerTeamPage() {
     return false;
   };
 
-  const handleInvite = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!selectedStoreId || !email.trim() || allowedRoles.length === 0) return;
+  const sendInvitation = async (targetEmail: string, targetRole: ManageableRole) => {
+    if (!selectedStoreId || !allowedRoles.includes(targetRole)) return;
 
     setSaving(true);
     setError(null);
     setNotice(null);
 
-    const { error: inviteError } = await supabase.rpc("invite_store_member_by_email", {
-      p_store_id: selectedStoreId,
-      p_email: email.trim(),
-      p_role: inviteRole,
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError(isAr ? "سجل دخولك لإرسال دعوة." : "Sign in before inviting members.");
+        return;
+      }
 
-    if (inviteError) {
-      setError(inviteError.message);
-    } else {
+      const response = await fetch("/api/seller/team/invite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          storeId: selectedStoreId,
+          email: targetEmail.trim().toLowerCase(),
+          role: targetRole,
+        }),
+      });
+      const result = await response.json() as {
+        ok?: boolean;
+        emailSent?: boolean;
+        membershipSaved?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok) {
+        setError(result.membershipSaved
+          ? (isAr ? "تم حفظ الدعوة لكن تعذر إرسال البريد. حاول إعادة الإرسال لاحقًا." : "Invitation saved, but email failed. Please retry.")
+          : (isAr ? "تعذر إكمال الدعوة. راجع الصلاحيات أو جرّب لاحقًا." : "Invitation failed. Check permissions and retry."));
+        return;
+      }
+
       setEmail("");
-      setNotice(
-        isAr
-          ? "تم حفظ الدعوة. ستظهر العضوية في الفريق بعد أن يسجل صاحب البريد ويدخل إلى حسابه."
-          : "Invitation saved. The member will appear after the invited account signs in and claims it."
-      );
+      setNotice(result.emailSent
+        ? (isAr ? "تم إرسال رسالة الدعوة. سيظهر العضو ضمن الفريق بعد تفعيل الحساب." : "Email invitation sent. Membership activates when the invitee signs in.")
+        : (isAr ? "تمت معالجة الطلب. إرسال البريد متاح فقط للحسابات المؤهلة." : "Request handled. Email delivery is available only for eligible accounts."));
       await loadTeam();
+    } catch {
+      setError(isAr ? "تعذر الاتصال بخدمة الدعوات." : "Invitation service is unavailable.");
+    } finally {
+      setSaving(false);
     }
+  };
 
-    setSaving(false);
+  const handleInvite = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    await sendInvitation(email, inviteRole);
   };
 
   const handleRoleChange = async (member: TeamMember, nextRole: ManageableRole) => {
@@ -429,6 +490,36 @@ export default function SellerTeamPage() {
                 {error}
               </div>
             )}
+
+            <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
+              <div className="mb-4 flex items-center gap-3">
+                <UserPlus size={18} className="text-orange-500" />
+                <h2 className="font-black text-foreground">{isAr ? "الدعوات المعلقة" : "Pending Invitations"}</h2>
+                <span className="text-xs text-muted font-bold">{pendingInvitations.length}</span>
+              </div>
+              {pendingInvitations.length === 0 ? (
+                <p className="text-sm text-muted">{isAr ? "لا توجد دعوات في انتظار التفعيل." : "No pending invitations."}</p>
+              ) : (
+                <div className="space-y-3">
+                  {pendingInvitations.map((invitation) => (
+                    <div key={invitation.membership_id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-soft rounded-2xl border border-line p-4">
+                      <div>
+                        <p className="font-bold text-foreground text-sm">{invitation.email}</p>
+                        <p className="text-xs text-muted">{roleLabels[language][invitation.role]} — {isAr ? "بانتظار تسجيل الدخول" : "Awaiting sign in"}</p>
+                      </div>
+                      {allowedRoles.includes(invitation.role) && (
+                        <button type="button" disabled={saving}
+                          onClick={() => void sendInvitation(invitation.email, invitation.role)}
+                          className="px-4 py-2 rounded-xl border border-orange-500/30 text-orange-600 font-bold text-xs hover:bg-orange-500/10 disabled:opacity-60">
+                          {isAr ? "إعادة إرسال البريد" : "Resend Email"}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
 
             <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
               <div className="mb-5 flex items-center justify-between gap-3">
