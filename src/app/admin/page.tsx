@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useSyncExternalStore } from "react";
+import { useState, useMemo, useSyncExternalStore, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -32,6 +32,8 @@ import {
   X,
 } from "lucide-react";
 import { useMarketplace } from "@/context/MarketplaceContext";
+import { supabase } from "@/lib/supabaseClient";
+import { updateStoreStatus, updateStoreCommission } from "@/lib/marketplace";
 import type { CurrencyCode, Store } from "@/types/marketplace";
 import { VirtualizedOrdersTable } from "@/components/VirtualizedOrdersTable";
 
@@ -114,7 +116,6 @@ export default function SuperAdminPage() {
 
   const {
     products,
-    stores,
     orders,
     payouts,
     marketingPosts,
@@ -124,12 +125,6 @@ export default function SuperAdminPage() {
     currencies,
     updateExchangeRate,
     formatPrice,
-    updateStoreStatusItem,
-    deleteStoreItem,
-    bulkUpdateStoresStatus,
-    bulkDeleteStores,
-    toggleStoreVerified,
-    updateStoreCommissionRate,
     updateProductItem,
     deleteProductItem,
     updateOrderStatus,
@@ -137,6 +132,79 @@ export default function SuperAdminPage() {
     createOfficialStore,
     deleteMarketingPost,
   } = useMarketplace();
+
+  // This is an authenticated platform-administration view, not a public storefront.
+  // The MarketplaceContext store list is public-approved only and CANNOT be
+  // used to approve pending merchants or inspect tenant KYC.
+  const [stores, setAdminStores] = useState<Store[]>([]);
+  const [storesLoading, setStoresLoading] = useState(true);
+  const [storesError, setStoresError] = useState<string | null>(null);
+
+  const loadAdminStores = useCallback(async () => {
+    setStoresLoading(true);
+    const { data, error } = await supabase.from("stores")
+      .select("*").order("created_at", { ascending: false });
+    if (error) {
+      setStoresError("تعذر تحميل المتاجر من قاعدة البيانات. أعد المحاولة.");
+      setAdminStores([]);
+    } else {
+      setStoresError(null);
+      setAdminStores((data ?? []) as Store[]);
+    }
+    setStoresLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void loadAdminStores();
+  }, [loadAdminStores]);
+
+  const updateStoreStatusItem = useCallback(async (
+    storeId: string, status: Store["status"]
+  ) => {
+    const target = stores.find((item) => item.id === storeId);
+    if (!target || target.is_official) return;
+    const ok = await updateStoreStatus(storeId, status);
+    if (!ok) setStoresError("تعذر حفظ حالة المتجر. راجع الصلاحيات.");
+    await loadAdminStores();
+  }, [stores, loadAdminStores]);
+
+  const updateStoreCommissionRate = useCallback(async (storeId: string, rate: number) => {
+    const target = stores.find((item) => item.id === storeId);
+    if (!target || target.is_official || !Number.isFinite(rate) || rate < 0 || rate > 30) return;
+    const ok = await updateStoreCommission(storeId, rate);
+    if (!ok) setStoresError("تعذر حفظ عمولة المتجر.");
+    await loadAdminStores();
+  }, [stores, loadAdminStores]);
+
+  const toggleStoreVerified = useCallback(async (storeId: string) => {
+    const target = stores.find((item) => item.id === storeId);
+    if (!target || target.is_official) return;
+    const { error } = await supabase.from("stores")
+      .update({ is_verified: !target.is_verified })
+      .eq("id", storeId).eq("is_official", false);
+    if (error) setStoresError("تعذر تحديث شارة التوثيق.");
+    await loadAdminStores();
+  }, [stores, loadAdminStores]);
+
+  const bulkUpdateStoresStatus = useCallback(async (
+    storeIds: string[], status: Store["status"]
+  ) => {
+    const permitted = stores.filter((item) => storeIds.includes(item.id) && !item.is_official);
+    for (const item of permitted) {
+      const ok = await updateStoreStatus(item.id, status);
+      if (!ok) setStoresError("لم يكتمل تحديث كل المتاجر. راجع النتائج.");
+    }
+    await loadAdminStores();
+  }, [stores, loadAdminStores]);
+
+  // Destructive merchant deletion needs its own audited DB/server workflow.
+  // Never make the UI appear to delete a store by mutating local React state.
+  const deleteStoreItem = useCallback((_storeId: string) => {
+    setStoresError("حذف المتجر معطل لحين اعتماد إجراء الحذف الآمن.");
+  }, []);
+  const bulkDeleteStores = useCallback((_storeIds: string[]) => {
+    setStoresError("الحذف الجماعي معطل لحين اعتماد إجراء الحذف الآمن.");
+  }, []);
 
   const [activeTab, setActiveTab] = useState<
     "overview" | "settings" | "gateways" | "currencies" | "stores" | "products" | "orders" | "payouts" | "promotions" | "analytics"
@@ -153,18 +221,23 @@ export default function SuperAdminPage() {
   const [newOfficialDesc, setNewOfficialDesc] = useState("المتجر الرسمي المباشر للمنصة - أعلى معايير الجودة وشحن فوري");
 
   // Promotional Codes & Marketing State
-  const [coupons, setCoupons] = useState([
-    { id: "c1", code: "NOORMEXA2026", discount: 20, type: "percent", usageCount: 142, maxUsage: 500, active: true, minOrder: 50 },
-    { id: "c2", code: "RAMADAN20", discount: 20, type: "percent", usageCount: 88, maxUsage: 200, active: true, minOrder: 100 },
-    { id: "c3", code: "WELCOME50", discount: 50, type: "fixed", usageCount: 231, maxUsage: 1000, active: true, minOrder: 150 },
-    { id: "c4", code: "FREESHIP", discount: 100, type: "shipping", usageCount: 64, maxUsage: 300, active: true, minOrder: 200 },
-  ]);
+  type AdminCouponDraft = {
+    id: string;
+    code: string;
+    discount: number;
+    type: string;
+    usageCount: number;
+    maxUsage: number;
+    active: boolean;
+    minOrder: number;
+  };
+  const [coupons, setCoupons] = useState<AdminCouponDraft[]>([]);
   const [newCouponCode, setNewCouponCode] = useState("");
   const [newCouponDiscount, setNewCouponDiscount] = useState(15);
   const [newCouponType, setNewCouponType] = useState<"percent" | "fixed">("percent");
 
-  const [promoBannerText, setPromoBannerText] = useState("عروض الموسم الكبرى: خصم يصل إلى 40% + شحن مجاني للطلبات فوق 200 ج.م!");
-  const [promoBannerActive, setPromoBannerActive] = useState(true);
+  const [promoBannerText, setPromoBannerText] = useState("");
+  const [promoBannerActive, setPromoBannerActive] = useState(false);
 
   const toggleCouponStatus = (id: string) => {
     setCoupons((prev) =>
@@ -207,8 +280,8 @@ export default function SuperAdminPage() {
 
   // Financial KPIs - memoized for performance during high-volume financial reconciliation
   const { gmv, netCommission } = useMemo(() => {
-    let gross = 185400; // base demo GMV
-    let commission = 16800; // base platform commission
+    let gross = 0; // never seed fictitious platform revenue
+    let commission = 0; // never seed fictitious commissions
     for (let i = 0; i < orders.length; i++) {
       gross += orders[i].total_amount || 0;
       commission += orders[i].commission_amount || 0;
@@ -216,7 +289,7 @@ export default function SuperAdminPage() {
     return { gmv: gross, netCommission: commission };
   }, [orders]);
 
-  const totalOrdersCount = orders.length + 42;
+  const totalOrdersCount = orders.length;
   const activeStoresCount = useMemo(() => stores.filter((s) => s.status === "approved").length, [stores]);
 
   // Payout Transaction Ref helper state
@@ -553,11 +626,12 @@ export default function SuperAdminPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowOfficialModal(true)}
+                  disabled
+                  title={isAr ? "المتجر الرسمي موجود بالفعل ولا يمكن إنشاء نسخة ثانية" : "The official store already exists"}
                   className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <Crown size={14} className="fill-white" />
-                  <span>{isAr ? "إنشاء متجر رسمي للمنصة" : "Create Official Store"}</span>
+                  <span>{isAr ? "المتجر الرسمي موجود" : "Official Store Exists"}</span>
                 </button>
 
                 <Link
@@ -576,10 +650,10 @@ export default function SuperAdminPage() {
                 <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    checked={stores.length > 0 && selectedStoreIds.length === stores.length}
+                    checked={stores.some((s) => !s.is_official) && selectedStoreIds.length === stores.filter((s) => !s.is_official).length}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedStoreIds(stores.map((s) => s.id));
+                        setSelectedStoreIds(stores.filter((s) => !s.is_official).map((s) => s.id));
                       } else {
                         setSelectedStoreIds([]);
                       }
@@ -630,6 +704,7 @@ export default function SuperAdminPage() {
                   <button
                     type="button"
                     onClick={() => setShowBulkDeleteConfirm(true)}
+                    disabled
                     className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                   >
                     <Trash2 size={14} />
@@ -649,7 +724,17 @@ export default function SuperAdminPage() {
               )}
             </div>
 
-            {/* Stores List */}
+            {storesError && (
+              <div role="alert" className="p-3 rounded-xl border border-red-500/30 text-red-600 text-sm">
+                {storesError}
+                <button onClick={() => void loadAdminStores()} type="button" className="ms-3 underline">
+                  {isAr ? "إعادة المحاولة" : "Retry"}
+                </button>
+              </div>
+            )}
+            {storesLoading && <div className="text-sm text-muted">{isAr ? "جاري تحميل المتاجر..." : "Loading stores..."}</div>}
+
+            {/* Stores List — authenticated platform query (includes pending) */}
             <div className="space-y-4">
               {stores.map((s) => {
                 const isSelected = selectedStoreIds.includes(s.id);
@@ -669,6 +754,7 @@ export default function SuperAdminPage() {
                           <input
                             type="checkbox"
                             checked={isSelected}
+                            disabled={s.is_official}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setSelectedStoreIds((prev) => [...prev, s.id]);
@@ -734,7 +820,8 @@ export default function SuperAdminPage() {
                         {/* Toggle Verified Badge */}
                         <button
                           type="button"
-                          onClick={() => toggleStoreVerified(s.id)}
+                          onClick={() => void toggleStoreVerified(s.id)}
+                          disabled={s.is_official}
                           className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
                             s.is_verified
                               ? "bg-emerald-600/10 text-emerald-600 border-emerald-600/30"
@@ -747,7 +834,8 @@ export default function SuperAdminPage() {
                         {/* Status selector */}
                         <select
                           value={s.status}
-                          onChange={(e) => updateStoreStatusItem(s.id, e.target.value as Store["status"])}
+                          onChange={(e) => void updateStoreStatusItem(s.id, e.target.value as Store["status"])}
+                          disabled={s.is_official}
                           className="px-3 py-1.5 rounded-xl bg-surface border border-line text-foreground font-bold text-xs focus:outline-none cursor-pointer"
                         >
                           <option value="approved">{isAr ? "معتمد (Approved)" : "Approved"}</option>
@@ -759,6 +847,7 @@ export default function SuperAdminPage() {
                         <button
                           type="button"
                           onClick={() => setStoreToDelete(s.id)}
+                          disabled
                           className="p-1.5 rounded-xl bg-surface border border-line hover:border-red-500/50 hover:bg-red-500/10 text-muted hover:text-red-600 transition-all cursor-pointer"
                           title={isAr ? "حذف المتجر" : "Delete Store"}
                           aria-label={isAr ? "حذف المتجر" : "Delete Store"}
@@ -772,18 +861,18 @@ export default function SuperAdminPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 rounded-xl bg-surface border border-line/60 text-xs">
                       <div>
                         <span className="text-muted text-[11px] block">{isAr ? "السجل التجاري / الوثيقة:" : "CR / License:"}</span>
-                        <strong className="font-mono text-foreground">{s.cr_number || "CR-1010-88992"}</strong>
+                        <strong className="font-mono text-foreground">{s.cr_number || (isAr ? "غير مسجل" : "Not provided")}</strong>
                       </div>
 
                       <div>
                         <span className="text-muted text-[11px] block">{isAr ? "الرقم الضريبي:" : "Tax Number:"}</span>
-                        <strong className="font-mono text-foreground">{s.tax_number || "30012938400003"}</strong>
+                        <strong className="font-mono text-foreground">{s.tax_number || (isAr ? "غير مسجل" : "Not provided")}</strong>
                       </div>
 
                       <div>
                         <span className="text-muted text-[11px] block">{isAr ? "الحساب البنكي (IBAN):" : "Bank & IBAN:"}</span>
-                        <strong className="font-mono text-foreground truncate block">{s.iban || "SA12 1000 0001 2345 6789"}</strong>
-                        <span className="text-[10px] text-muted">{s.bank_name || "مصرف الراجحي"}</span>
+                        <strong className="font-mono text-foreground truncate block">{s.iban || (isAr ? "غير مسجل" : "Not provided")}</strong>
+                        <span className="text-[10px] text-muted">{s.bank_name || (isAr ? "غير مسجل" : "Not provided")}</span>
                       </div>
 
                       <div>
@@ -794,7 +883,8 @@ export default function SuperAdminPage() {
                             min="0"
                             max="30"
                             value={s.commission_rate || 0}
-                            onChange={(e) => updateStoreCommissionRate(s.id, Number(e.target.value))}
+                            onChange={(e) => void updateStoreCommissionRate(s.id, Number(e.target.value))}
+                            disabled={s.is_official}
                             className="w-14 p-1 rounded-lg bg-surface-soft border border-line font-mono font-bold text-center text-xs text-foreground focus:outline-none focus:border-gold"
                           />
                           <span className="text-xs font-bold text-gold">%</span>

@@ -32,20 +32,44 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const loading = loadedSlug !== slug;
 
   useEffect(() => {
     let active = true;
-    Promise.all([getCategoryBySlug(slug), getProductsByCategorySlug(slug)]).then(([cat, prods]) => {
-      if (!active) return;
-      setCategory(cat);
-      setProducts(prods);
-      setLoadedSlug(slug);
-    });
-    return () => {
-      active = false;
-    };
+    Promise.all([getCategoryBySlug(slug), getProductsByCategorySlug(slug)])
+      .then(([cat, prods]) => {
+        if (!active) return;
+        setCategory(cat);
+        setProducts(prods);
+        setLoadError(false);
+        setLoadedSlug(slug);
+      })
+      .catch(() => {
+        if (!active) return;
+        setProducts([]);
+        setLoadError(true);
+        setLoadedSlug(slug);
+      });
+    return () => { active = false; };
   }, [slug]);
+
+  if (!loading && loadError) {
+    return (
+      <main className="noormexa-main py-16">
+        <div className="noormexa-container max-w-lg text-center space-y-5">
+          <Package size={36} className="mx-auto text-muted" />
+          <h1 className="font-black text-foreground">
+            {language === "ar" ? "تعذر تحميل منتجات القسم" : "Category inventory unavailable"}
+          </h1>
+          <button type="button" onClick={() => window.location.reload()}
+            className="px-5 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold">
+            {language === "ar" ? "إعادة المحاولة" : "Try again"}
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (!loading && !category) {
     return (

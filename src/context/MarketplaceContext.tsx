@@ -1769,8 +1769,14 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       setCartItemsState((previous) =>
         previous.flatMap((item) => {
           const liveProduct = byId.get(item.productId);
-          if (!liveProduct) return [];
-          const quantity = Math.max(1, Math.min(item.quantity, liveProduct.stock));
+          if (!liveProduct || !Number.isFinite(liveProduct.stock) || liveProduct.stock < 1) return [];
+          // Browser cart data is untrusted. Normalize stale/tampered quantities
+          // before rendering totals; checkout still revalidates server-side.
+          const savedQuantity = Number(item.quantity);
+          const quantity = Math.min(
+            liveProduct.stock,
+            Math.max(1, Number.isFinite(savedQuantity) ? Math.trunc(savedQuantity) : 1)
+          );
           return [{
             ...item,
             quantity,
@@ -2209,7 +2215,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         (item) => item.id === product.id && item.store_id === product.store_id &&
         item.status === "active" && item.stock > 0 && item.price > 0
       );
-      if (!verified) return;
+      if (!verified || !Number.isFinite(quantity) || quantity < 1) return;
+      quantity = Math.trunc(quantity);
       product = verified;
       if (typeof window !== "undefined") {
         window.dispatchEvent(
