@@ -149,24 +149,31 @@ export default function SellerTeamPage() {
   }, [selectedStoreId]);
 
   useEffect(() => {
-    if (!authLoading) {
-      void loadMemberships();
-    }
+    // Queue the initial refresh after the effect; preserve the existing
+    // authenticated/RLS-backed loader without synchronous state updates.
+    if (authLoading) return;
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) void loadMemberships();
+    });
+    return () => { cancelled = true; };
   }, [authLoading, loadMemberships]);
 
   useEffect(() => {
-    if (selectedStoreId) {
-      void loadTeam();
-    } else {
-      setMembers([]);
-    }
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      if (selectedStoreId) void loadTeam();
+      else setMembers([]);
+    });
+    return () => { cancelled = true; };
   }, [selectedStoreId, loadTeam]);
 
-  useEffect(() => {
-    if (allowedRoles.length > 0 && !allowedRoles.includes(inviteRole)) {
-      setInviteRole(allowedRoles[0]);
-    }
-  }, [allowedRoles, inviteRole]);
+  // Permissions are authoritative at render and submit time, not after an effect.
+  // A Manager never retains an Owner-only invite choice on role changes.
+  const effectiveInviteRole = allowedRoles.includes(inviteRole)
+    ? inviteRole
+    : (allowedRoles[0] ?? "editor");
 
   const canManageMember = (member: TeamMember) => {
     if (!selectedMembership) return false;
@@ -194,7 +201,7 @@ export default function SellerTeamPage() {
     const { error: inviteError } = await supabase.rpc("invite_store_member_by_email", {
       p_store_id: selectedStoreId,
       p_email: email.trim(),
-      p_role: inviteRole,
+      p_role: effectiveInviteRole,
     });
 
     if (inviteError) {
@@ -385,7 +392,7 @@ export default function SellerTeamPage() {
                 />
 
                 <select
-                  value={inviteRole}
+                  value={effectiveInviteRole}
                   onChange={(event) => setInviteRole(event.target.value as ManageableRole)}
                   className="h-11 rounded-2xl border border-line bg-surface-soft px-4 text-sm font-bold text-foreground outline-none focus:border-gold"
                 >
