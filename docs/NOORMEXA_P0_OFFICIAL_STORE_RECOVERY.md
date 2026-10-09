@@ -27,12 +27,13 @@
 
 **The fixture inventory and promotion promises are NOT verified commercial facts.**
 
-Prepared backfill script:
+Prepared **independent** review-only scripts (apply separately with separate explicit approvals):
 
-`supabase/data_phase12_official_store_legacy_backfill_REVIEW_ONLY.sql`
+- `supabase/data_phase12_official_news_drafts_REVIEW_ONLY.sql` — 4 factual editorial Drafts, with **no product insertion**.
+- `supabase/data_phase12_official_store_legacy_backfill_REVIEW_ONLY.sql` — 36 historical product candidates in hidden state with stock zero; **not necessary to publish news**.
 
-- adds missing product IDs only, with `status='hidden'` and `stock=0`;
-- adds four newly authored official NOORMEXA editorial posts with new stable IDs and `status='draft'`, zero engagement metrics, no discount/promo codes, no product claims or featured product links;
+- the *products-only* file adds missing product IDs with `status='hidden'` and `stock=0`;
+- the *news-only* file adds four newly authored official NOORMEXA editorial posts with stable IDs, `status='draft'`, zero engagement metrics, and no discount/promo codes or product claims;
 - explicitly does not migrate any fictitious legacy `post-1` to `post-4` sales offers;
 - cannot overwrite edited/published existing rows (`ON CONFLICT DO NOTHING`);
 - requires the expected approved official store to exist;
@@ -47,7 +48,7 @@ Before any public activation, owner/editor must validate actual inventory, price
 2. **Read-only production review:** Confirm official store exists and content counts/policies are unchanged.
 3. **User testing:** Canonical and alias store URLs display correct store (with empty content expected until publication); unknown slug gives a genuine not-found page; system failures give retry feedback.
 4. **Content review:** Editorial drafts are genuine platform information rather than fictional deals. Review the exact four messages; verify product inventory before enabling any product draft.
-5. **Production Data Approval (separate):** Apply the review-only backfill using an explicitly authorized controlled database operation. Record counts before/after, verify no overwrites. Existing fake offers are not imported.
+5. **Production Data Approval (separate):** Apply ONLY the four-news-draft script after explicit authorization if the goal is to publish legitimate official updates. The 36-product script stays deferred pending separate catalog review. Record counts before/after; neither script overwrites rows. Old fake offers are never imported.
 6. **Store Editor Acceptance:** Login as an authorized official Editor, publish one reviewed actual product and one reviewed post, confirm other stores unaffected, verify Draft remains hidden. Full Production interaction cannot be attested before this step.
 7. **Pre-merge verification:** Exact branch Head, Vercel success, latest main, diff scope, homepage official news query and rollback readiness.
 8. **Merge approval (separate):** Merge after review; verify Production deployment, canonical + legacy URLs, public product/post consistency and permissions.
@@ -95,3 +96,7 @@ No changes to Platform Super Admin, Platform Admin, RLS, Auth configuration, sec
 - Store: `/store/[slug]` displays posts as official updates, not automatic active discounts, and does not display unverifiable view/like counts.
 - Catalog remains a separate commercial concern: **there are zero verified live products in Production**. The 36 legacy items stay hidden with stock zero if a backfill is explicitly approved, not advertised as genuine ready-to-buy inventory.
 - Editor acceptance must include publishing one factual official news post then checking the public homepage and store after reloading; a draft must remain private. After that, real reviewed merchant/store products can be published independently.
+
+## Independent Production data packages
+
+The editorial news package and legacy product candidates are now completely separated. A site owner may approve **news-only draft import** while explicitly rejecting/defering historical product fixtures. This is the recommended first content action. The news package creates four drafts, then official store editor may publish the approved wording through the authenticated dashboard. No fake stock/offers are implied. Public homepage and official store only display actual published posts from Supabase.
