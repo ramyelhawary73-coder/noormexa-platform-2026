@@ -1,7 +1,7 @@
 -- PROPOSED CONTENT BACKFILL ONLY. NOT APPLIED TO PRODUCTION.
--- Source: legacy INITIAL_PRODUCTS / INITIAL_MARKETING_POSTS in MarketplaceContext.tsx
--- Review all offers, stock, prices, brand authorization and media rights before publishing.
--- Inserts 36 legacy product drafts (hidden, stock 0) + 4 marketing drafts.
+-- Product drafts originate from legacy INITIAL_PRODUCTS; marketing drafts are newly authored truthful NOORMEXA platform messages.
+-- Verify old product stock, prices, brand authorization, and media rights before EVER activating products.
+-- Inserts 36 legacy product drafts (hidden, stock 0) + 4 NEW official editorial drafts (not demo offers).
 -- No fixture is made purchasable or publicly advertised automatically.
 -- Idempotent: existing rows are never changed; no deletes/updates; reruns safe.
 begin;
@@ -616,60 +616,56 @@ with seed as (
   from jsonb_to_recordset($official_posts$
 [
   {
-    "id": "post-1",
+    "id": "noormexa-official-news-2026-01",
     "store_id": "store-noormexa-official",
-    "store_name": "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    "store_logo": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    "title": "🔥 إطلاق هاتف NOORMEXA Titan Ultra 5G الفلاجشيب مع شحن مجاني وسنتين ضمان!",
-    "content": "استمتع بتجربة الفخامة والسرعة الفائقة مع هاتف Titan Ultra 5G بهيكل التيتانيوم المصقول، شاشة 120Hz ديناميكية، وكاميرا 200MP سينمائية مع شاحن سريع 120W مجاناً وضمان الوكيل سنتين.",
-    "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80",
-    "promo_code": "NOOR10",
-    "discount_percent": 10,
-    "featured_product_id": "prod-titan-smartphone",
+    "store_name": "متجر نورميكسا الرسمي",
+    "title": "NOORMEXA — وجهة واحدة لاكتشاف المتاجر والمنتجات",
+    "content": "استكشف أقسام السوق والمتاجر المتاحة من مكان واحد، وتعرّف على المنتجات التي يضيفها التجار بعد اعتماد متاجرهم. تابع المساحات الرسمية لمعرفة المستجدات والمحتوى الجديد أولًا بأول.",
+    "image_url": null,
+    "promo_code": null,
+    "discount_percent": null,
+    "featured_product_id": null,
     "is_pinned": true,
-    "created_at": "2026-02-18T10:00:00Z"
+    "created_at": null
   },
   {
-    "id": "post-2",
+    "id": "noormexa-official-news-2026-02",
     "store_id": "store-noormexa-official",
-    "store_name": "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    "store_logo": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    "title": "⚡ تخفيضات الفلاش: خصم 20% على سماعات NOORMEXA Pro ANC اللاسلكية",
-    "content": "لفترة محدودة حتى نهاية عطلة الأسبوع! احصل على سماعات NOORMEXA Pro ANC بصوت نقي Hi-Res، وعزل ضوضاء فعال وبطارية 55 ساعة عمل متواصل مع تغليف هدايا ملكي مجاني.",
-    "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&auto=format&fit=crop&q=80",
-    "promo_code": "WELCOME20",
-    "discount_percent": 20,
-    "featured_product_id": "prod-aurora-headphones",
+    "store_name": "متجر نورميكسا الرسمي",
+    "title": "المتجر الرسمي لـNOORMEXA — المصدر المباشر لمستجداتنا",
+    "content": "هذه مساحة النشر الرسمية التابعة لمنصة NOORMEXA. نشارك هنا أخبار الخدمات والتحديثات والمحتوى الذي يقدمه فريق المتجر الرسمي، مع فصل واضح بين منشوراتنا ومنشورات المتاجر المستقلة.",
+    "image_url": null,
+    "promo_code": null,
+    "discount_percent": null,
+    "featured_product_id": null,
     "is_pinned": false,
-    "created_at": "2026-02-19T14:30:00Z"
+    "created_at": null
   },
   {
-    "id": "post-3",
+    "id": "noormexa-official-news-2026-03",
     "store_id": "store-noormexa-official",
-    "store_name": "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    "store_logo": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    "title": "👑 وصول الدفعة الملكية من عطر السلطان (Imperial Oud & Ambergris)",
-    "content": "توليفة نادرة من دهن العود المعتق، العنبر الحوتي الأبيض، قطرات الورد الطائفي وخشب الصندل العطري لثبات وفوحان يدوم لأكثر من 48 ساعة. كميات محدودة للطلب الفوري.",
-    "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1200&auto=format&fit=crop&q=80",
-    "promo_code": "GLOBAL15",
-    "discount_percent": 15,
-    "featured_product_id": "prod-royal-oud-perfume",
+    "store_name": "متجر نورميكسا الرسمي",
+    "title": "للتجار — أنشئ متجرك ونظّم أعمالك من مساحة واحدة",
+    "content": "يتيح NOORMEXA طلب إنشاء متجر داخل المنصة، ومتابعة حالته حتى الاعتماد. بعد تفعيل المتجر، يمكن إدارة الكتالوج والمنشورات والمهام التشغيلية بحسب صلاحيات أعضاء فريق المتجر.",
+    "image_url": null,
+    "promo_code": null,
+    "discount_percent": null,
+    "featured_product_id": null,
     "is_pinned": false,
-    "created_at": "2026-02-20T09:15:00Z"
+    "created_at": null
   },
   {
-    "id": "post-4",
+    "id": "noormexa-official-news-2026-04",
     "store_id": "store-noormexa-official",
-    "store_name": "متجر نورميكسا الرسمي (NOORMEXA Flagship Direct)",
-    "store_logo": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80",
-    "title": "👜 تدشين حقيبة اليد الجلدية الإيطالية NOORMEXA Milano المصنوعة يدوياً",
-    "content": "حقيبة يد نسائية أيقونية مصنوعة يدويًا في فلورنسا من أجود أنواع جلد العجل الإيطالي المحبب مع إكسسوارات نحاسية مطلية بالذهب عيار 24 وبطانة سويدي فاخرة.",
-    "image_url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80",
-    "promo_code": "NOOR10",
-    "discount_percent": 10,
-    "featured_product_id": "prod-milano-leather-bag",
+    "store_name": "متجر نورميكسا الرسمي",
+    "title": "NOORMEXA على الهاتف والكمبيوتر",
+    "content": "تصفّح السوق من هاتفك أو الكمبيوتر، واستخدم ميزة تثبيت الموقع كتطبيق للوصول السريع عندما يدعم جهازك ومتصفحك هذه الميزة. تجربة موحّدة لاستكشاف المتاجر والمحتوى المتاح.",
+    "image_url": null,
+    "promo_code": null,
+    "discount_percent": null,
+    "featured_product_id": null,
     "is_pinned": false,
-    "created_at": "2026-02-20T16:45:00Z"
+    "created_at": null
   }
 ]
 $official_posts$::jsonb) as x(
@@ -694,6 +690,7 @@ on conflict (id) do nothing;
 
 commit;
 
+-- EDITORIAL POSTS: four new official platform announcements, with no fake product or offer, status=draft until approved.
 -- REVIEW BEFORE PUBLIC RELEASE:
 -- Verify catalog, stock/fulfilment, brand rights, images, prices and offer/coupon validity.
 -- Owners/Editors should set each legitimate product to active with verified real stock
