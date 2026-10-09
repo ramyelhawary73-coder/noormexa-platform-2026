@@ -34,7 +34,7 @@ import {
 import { useMarketplace } from "@/context/MarketplaceContext";
 import { supabase } from "@/lib/supabaseClient";
 import { updateStoreStatus, updateStoreCommission } from "@/lib/marketplace";
-import type { CurrencyCode, Store } from "@/types/marketplace";
+import type { CurrencyCode, Store, Order } from "@/types/marketplace";
 import { VirtualizedOrdersTable } from "@/components/VirtualizedOrdersTable";
 
 type Language = "ar" | "en";
@@ -116,8 +116,6 @@ export default function SuperAdminPage() {
 
   const {
     products,
-    orders,
-    payouts,
     marketingPosts,
     settings,
     updateSettings,
@@ -127,11 +125,60 @@ export default function SuperAdminPage() {
     formatPrice,
     updateProductItem,
     deleteProductItem,
-    updateOrderStatus,
-    updatePayoutStatus,
     createOfficialStore,
     deleteMarketingPost,
   } = useMarketplace();
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState(false);
+  const payouts: never[] = []; // No verified payout ledger exists in production.
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      const { data, error } = await supabase.from("orders").select("*")
+        .order("created_at", { ascending: false }).limit(500);
+      if (!active) return;
+      if (error) {
+        setOrders([]);
+        setOrdersError(true);
+      } else {
+        setOrdersError(false);
+        setOrders((data ?? []).map((row) => {
+          const ship = (row.shipping_info && typeof row.shipping_info === "object" && !Array.isArray(row.shipping_info)
+            ? row.shipping_info : {}) as Record<string, string>;
+          const rawItems = Array.isArray(row.items) ? row.items as Record<string, unknown>[] : [];
+          return {
+            id: String(row.id), orderNumber: String(row.order_number ?? row.id),
+            trackingNumber: String(row.tracking_number ?? ""), buyer_id: String(row.buyer_id ?? ""),
+            store_id: String(row.store_id ?? ""), store_name: String(row.store_name ?? ""),
+            total_amount: Number(row.total_amount ?? 0), subtotal: Number(row.subtotal ?? 0),
+            discount_amount: Number(row.discount_amount ?? 0), shipping_cost: Number(row.shipping_cost ?? 0),
+            vat_amount: Number(row.vat_amount ?? 0), commission_amount: Number(row.commission_amount ?? 0),
+            status: (row.status ?? "pending") as Order["status"],
+            payment_method: (row.payment_method ?? "cod") as Order["payment_method"],
+            payment_status: (row.payment_status ?? "pending") as Order["payment_status"],
+            shipping_speed: "standard" as const,
+            shipping_info: {
+              fullName: String(ship.fullName ?? ""), email: String(ship.email ?? ""),
+              phone: String(ship.phone ?? ""), country: String(ship.country ?? ""),
+              city: String(ship.city ?? ""), address: String(ship.address ?? ""),
+            },
+            items: rawItems.map((item) => ({
+              id: String(item.id ?? ""), product_id: String(item.product_id ?? ""),
+              product_name: String(item.product_name ?? ""), quantity: Number(item.quantity ?? 0),
+              unit_price: Number(item.unit_price ?? 0),
+            })),
+            tracking_steps: [], created_at: String(row.created_at ?? ""),
+          };
+        }));
+      }
+      setOrdersLoading(false);
+    };
+    void load();
+    return () => { active = false; };
+  }, []);
 
   // This is an authenticated platform-administration view, not a public storefront.
   // The MarketplaceContext store list is public-approved only and CANNOT be
@@ -297,7 +344,7 @@ export default function SuperAdminPage() {
   const [exportNotice, setExportNotice] = useState(false);
 
   const handleExportOrdersCsv = () => {
-    if (orders.length === 0) return;
+    if (ordersLoading || ordersError || orders.length === 0) return;
 
     // Build comprehensive CSV columns for financial reconciliation
     const headers = [
@@ -505,7 +552,7 @@ export default function SuperAdminPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-black text-foreground tracking-tight">
-                  {formatPrice(gmv)}
+                  {ordersLoading || ordersError ? "—" : formatPrice(gmv)}
                 </div>
                 <div className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
                   <span>+18.4% {isAr ? "نمو شهري في المبيعات" : "MoM Growth"}</span>
@@ -520,7 +567,7 @@ export default function SuperAdminPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-black text-amber-600 dark:text-gold tracking-tight">
-                  {formatPrice(netCommission)}
+                  {ordersLoading || ordersError ? "—" : formatPrice(netCommission)}
                 </div>
                 <div className="text-[11px] text-muted">
                   {isAr ? `متوسط عمولة المنصة: ${settings.defaultCommissionRate}%` : `Avg Fee: ${settings.defaultCommissionRate}%`}
@@ -553,7 +600,7 @@ export default function SuperAdminPage() {
                   {totalOrdersCount}
                 </div>
                 <div className="text-[11px] text-muted">
-                  {isAr ? "متوسط قيمة الطلب: 1,850 ج.م" : "Avg Order: 1,850 EGP"}
+                  {ordersError ? (isAr ? "بيانات غير متاحة" : "Data unavailable") : (isAr ? "من قاعدة البيانات" : "Database records")}
                 </div>
               </div>
             </div>
@@ -898,112 +945,10 @@ export default function SuperAdminPage() {
           </div>
         )}
 
-        {/* Tab 3: Payouts & Settlement Hub */}
+        {/* No demo payout or bank-transfer workflow is allowed in Production. */}
         {activeTab === "payouts" && (
-          <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6 animate-in fade-in">
-            <div className="border-b border-line pb-4">
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                <Wallet size={18} className="text-gold" />
-                <span>{isAr ? "مركز تسويات وتحويلات أرباح التجار (Payouts Settlement Hub)" : "Vendor Payouts & Settlements"}</span>
-              </h2>
-              <p className="text-xs text-muted">{isAr ? "مراجعة طلبات سحب الأرباح واعتماد الحوالات البنكية وإدخال أرقام المرجع" : "Review merchant withdrawal requests and record bank wire transaction reference numbers"}</p>
-            </div>
-
-            {payouts.length === 0 ? (
-              <div className="text-center py-12 text-muted text-xs bg-surface-soft rounded-2xl border border-line">
-                {isAr ? "لا توجد طلبات سحب أرباح معلقة حالياً." : "No payout requests found."}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {payouts.map((p) => (
-                  <div key={p.id} className="p-5 rounded-2xl bg-surface-soft border border-line space-y-4 text-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line/60 pb-3">
-                      <div>
-                        <div className="font-black text-sm text-foreground flex items-center gap-2">
-                          <StoreIcon size={16} className="text-gold" />
-                          <span>{p.store_name}</span>
-                        </div>
-                        <div className="text-[11px] text-muted">
-                          {isAr ? "تاريخ الطلب:" : "Requested:"} {new Date(p.requested_at).toLocaleDateString(isAr ? "ar-EG" : "en-US")}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-black text-emerald-600">{formatPrice(p.amount)}</span>
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full font-bold text-[11px] uppercase ${
-                            p.status === "transferred"
-                              ? "bg-emerald-600/15 text-emerald-600"
-                              : p.status === "approved"
-                              ? "bg-sky-500/15 text-sky-500"
-                              : "bg-amber-500/15 text-amber-600 dark:text-gold"
-                          }`}
-                        >
-                          {p.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                      <div>
-                        <span className="text-muted text-[11px] block">{isAr ? "اسم البنك:" : "Bank:"}</span>
-                        <strong className="text-foreground">{p.bank_name}</strong>
-                      </div>
-                      <div>
-                        <span className="text-muted text-[11px] block">{isAr ? "رقم الآيبان (IBAN):" : "IBAN:"}</span>
-                        <strong className="font-mono text-foreground">{p.iban}</strong>
-                      </div>
-                      <div>
-                        <span className="text-muted text-[11px] block">{isAr ? "ملاحظات التاجر:" : "Merchant Note:"}</span>
-                        <span className="text-muted italic">{p.notes || "لا توجد ملاحظات"}</span>
-                      </div>
-                    </div>
-
-                    {/* Action Panel for Super Admin */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-line/60">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder={isAr ? "رقم الحوالة (مثال: TRX-8821)" : "Bank Wire Ref..."}
-                          value={payoutTrxRefs[p.id] || p.transaction_ref || ""}
-                          onChange={(e) => setPayoutTrxRefs((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                          className="px-3 py-1.5 rounded-xl bg-surface border border-line font-mono text-xs text-foreground focus:outline-none focus:border-gold"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const ref = payoutTrxRefs[p.id] || p.transaction_ref || `TRX-${Math.floor(100000 + Math.random() * 900000)}`;
-                            updatePayoutStatus(p.id, "transferred", ref);
-                          }}
-                          className="px-4 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition-all shadow-xs"
-                        >
-                          {isAr ? "تأكيد التحويل البنكي (Transferred)" : "Mark Transferred"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => updatePayoutStatus(p.id, "approved")}
-                          className="px-3 py-1.5 rounded-xl bg-sky-500 text-white font-bold text-xs hover:bg-sky-600 transition-all"
-                        >
-                          {isAr ? "موافقة مبدئية" : "Approve"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => updatePayoutStatus(p.id, "rejected")}
-                          className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 font-bold text-xs hover:bg-red-500 hover:text-white transition-all"
-                        >
-                          {isAr ? "رفض الطلب" : "Reject"}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="rounded-3xl border border-line bg-surface p-8 text-center text-sm text-muted">
+            {isAr ? "التسويات غير متاحة قبل توفير دفتر مالي فعلي ومراجعة الصلاحيات." : "Settlements are unavailable until a verified ledger and authorization review."}
           </div>
         )}
 
@@ -1497,142 +1442,19 @@ export default function SuperAdminPage() {
           </div>
         )}
 
-        {/* Tab 9: Analytics & Growth */}
+        {/* Real recorded orders only; no fictional conversion / country sales numbers. */}
         {activeTab === "analytics" && (
-          <div className="space-y-6 animate-in fade-in">
-            {/* Analytics Header Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <span>{isAr ? "معدل التحويل العام (CVR)" : "Conversion Rate"}</span>
-                  <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600">
-                    <TrendingUp size={15} />
-                  </span>
-                </div>
-                <div className="text-2xl font-black text-foreground">3.84%</div>
-                <div className="text-[11px] text-emerald-600 font-bold">+0.6% {isAr ? "أعلى من الشهر الماضي" : "vs last month"}</div>
+          <section className="rounded-3xl border border-line bg-surface p-8 space-y-4">
+            <h2 className="text-lg font-black text-foreground">{isAr ? "المؤشرات التشغيلية المسجلة" : "Recorded Operational Metrics"}</h2>
+            {ordersError ? <p role="alert" className="text-red-600">{isAr ? "تعذر تحميل الطلبات من قاعدة البيانات." : "Unable to load orders from database."}</p> : ordersLoading ? <p className="text-muted">{isAr ? "جاري التحميل..." : "Loading..."}</p> : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="bg-surface-soft p-4 rounded-xl"><div className="text-xs text-muted">{isAr ? "الطلبات" : "Orders"}</div><strong>{totalOrdersCount}</strong></div>
+                <div className="bg-surface-soft p-4 rounded-xl"><div className="text-xs text-muted">GMV</div><strong>{formatPrice(gmv)}</strong></div>
+                <div className="bg-surface-soft p-4 rounded-xl"><div className="text-xs text-muted">{isAr ? "العمولات" : "Commissions"}</div><strong>{formatPrice(netCommission)}</strong></div>
               </div>
-
-              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <span>{isAr ? "الزوار النشطون حالياً" : "Live Active Shoppers"}</span>
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                  </span>
-                </div>
-                <div className="text-2xl font-black text-foreground">1,482</div>
-                <div className="text-[11px] text-muted">{isAr ? "متسوق يتصفحون المنتجات الآن" : "Browsing live catalogs"}</div>
-              </div>
-
-              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <span>{isAr ? "معدل الاحتفاظ بالعملاء" : "Customer Retention"}</span>
-                  <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600">
-                    <Activity size={15} />
-                  </span>
-                </div>
-                <div className="text-2xl font-black text-foreground">42.6%</div>
-                <div className="text-[11px] text-emerald-600 font-bold">{isAr ? "عملاء متكررو الشراء" : "Repeat buyers"}</div>
-              </div>
-
-              <div className="p-5 rounded-3xl bg-surface border border-line shadow-xs space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <span>{isAr ? "نسبة إتمام الدفع الإلكتروني" : "Online Payment Share"}</span>
-                  <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600">
-                    <CreditCard size={15} />
-                  </span>
-                </div>
-                <div className="text-2xl font-black text-foreground">68.2%</div>
-                <div className="text-[11px] text-muted">{isAr ? "بطاقات ومدى وApple Pay" : "Digital vs COD"}</div>
-              </div>
-            </div>
-
-            {/* Geographical Distribution & Category Performance */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Regional Sales Breakdown */}
-              <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
-                    <Coins size={16} className="text-amber-500" />
-                    <span>{isAr ? "توزيع المبيعات الجغرافي بالعملات والأسواق" : "Geographic Revenue Share"}</span>
-                  </h3>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold">
-                    {isAr ? "تحديث حي" : "Live"}
-                  </span>
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  {[
-                    { market: isAr ? "المملكة العربية السعودية (SAR)" : "Saudi Arabia (SAR)", percent: 42, color: "bg-emerald-500", gmv: "78,200 SAR" },
-                    { market: isAr ? "جمهورية مصر العربية (EGP)" : "Egypt (EGP)", percent: 28, color: "bg-amber-500", gmv: "195,400 EGP" },
-                    { market: isAr ? "دولة الإمارات العربية المتحدة (AED)" : "United Arab Emirates (AED)", percent: 18, color: "bg-blue-500", gmv: "29,600 AED" },
-                    { market: isAr ? "دولة الكويت وقطر (KWD/QAR)" : "Kuwait & Qatar (KWD/QAR)", percent: 8, color: "bg-purple-500", gmv: "14,800 USD eq." },
-                    { market: isAr ? "باقي دول العالم (USD/EUR)" : "International (USD/EUR)", percent: 4, color: "bg-slate-400", gmv: "6,200 USD" },
-                  ].map((item) => (
-                    <div key={item.market} className="space-y-1.5">
-                      <div className="flex items-center justify-between font-bold">
-                        <span className="text-foreground">{item.market}</span>
-                        <span className="text-muted">{item.gmv} ({item.percent}%)</span>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-surface-soft border border-line overflow-hidden">
-                        <div className={`h-full rounded-full ${item.color}`} style={{ width: `${item.percent}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Top Categories & AI Marketplace Recommendations */}
-              <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
-                    <Sparkles size={16} className="text-gold" />
-                    <span>{isAr ? "توصيات الذكاء الاصطناعي لنمو السوق" : "AI Marketplace Growth Insights"}</span>
-                  </h3>
-                  <span className="text-[11px] text-muted">NOORMEXA AI Core</span>
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-foreground space-y-1">
-                    <div className="font-black text-amber-700 dark:text-gold flex items-center gap-1.5">
-                      <Crown size={14} />
-                      <span>{isAr ? "زيادة الطلب على العطور الملكية والساعات" : "High Demand Surge: Luxury Watches & Oud"}</span>
-                    </div>
-                    <p className="text-[11px] text-muted leading-relaxed">
-                      {isAr
-                        ? "سجل قطاع العطور والساعات الفاخرة نمواً بنسبة +34% هذا الأسبوع. يُوصى بتدشين حملة فلاش سيل موجهة للمتسوقين في الخليج."
-                        : "Luxury Oud & Chronograph Watches saw a +34% surge. Recommended to launch a targeted Flash Deal campaign."}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-foreground space-y-1">
-                    <div className="font-black text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
-                      <BadgeCheck size={14} />
-                      <span>{isAr ? "كفاءة تسوية أرباح المتاجر ممتازة" : "Payout Health: 99.4% On-Time"}</span>
-                    </div>
-                    <p className="text-[11px] text-muted leading-relaxed">
-                      {isAr
-                        ? "متوسط وقت إنجاز طلبات سحب الأرباح للتجار 1.2 يوم عمل، مما يرفع مؤشر رضا البائعين وولاء المتاجر للمنصة."
-                        : "Average vendor payout fulfillment time is 1.2 business days, maintaining high merchant retention."}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-foreground space-y-1">
-                    <div className="font-black text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
-                      <Activity size={14} />
-                      <span>{isAr ? "الترويج عبر كود NOORMEXA2026 حقق أعلى مبيعات" : "Top Promo Code ROI: NOORMEXA2026"}</span>
-                    </div>
-                    <p className="text-[11px] text-muted leading-relaxed">
-                      {isAr
-                        ? "الكوبون ساهم في إتمام أكثر من 142 طلباً بقيمة تجاوزت 64,000 ج.م في أول 72 ساعة من إطلاقه."
-                        : "Generated 142 orders totaling over 64k within the initial 72 hours of activation."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            )}
+            <p className="text-sm text-muted">{isAr ? "نسب التحويل والاحتفاظ والزيارات لا تُعرض بدون مصدر قياس فعلي." : "Conversion, retention and visitors are not displayed without measured data."}</p>
+          </section>
         )}
 
         {/* Tab 10: Platform Global Settings & Logistics */}
