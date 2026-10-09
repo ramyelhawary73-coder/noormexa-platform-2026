@@ -138,6 +138,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         .select("*")
         .eq("id", productId)
         .eq("status", "active")
+        .gt("stock", 0)
+        .gt("price", 0)
         .maybeSingle();
 
       if (error) {
