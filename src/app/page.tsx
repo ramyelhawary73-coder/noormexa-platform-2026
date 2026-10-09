@@ -30,7 +30,6 @@ import {
   ShoppingBag,
   ShoppingCart,
   Sparkles,
-  Star,
   Store,
   Tag,
   Truck,
