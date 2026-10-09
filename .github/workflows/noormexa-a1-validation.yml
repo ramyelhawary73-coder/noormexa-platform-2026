@@ -1,0 +1,44 @@
+name: NOORMEXA A1 Validation
+
+on:
+  push:
+    branches:
+      - fix/noormexa-a1-production-commercial-truth
+  pull_request:
+    branches:
+      - main
+    paths:
+      - src/app/page.tsx
+      - src/app/admin/page.tsx
+      - src/context/MarketplaceContext.tsx
+      - src/components/VirtualizedOrdersTable.tsx
+      - scripts/check-production-commercial-truth.mjs
+      - .github/workflows/noormexa-a1-validation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: TypeScript, ESLint, build and commercial truth
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9cae6d # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Commercial authority regression
+        run: node scripts/check-production-commercial-truth.mjs
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: ESLint
+        run: npm run lint
+      - name: Next.js build
+        run: npm run build
