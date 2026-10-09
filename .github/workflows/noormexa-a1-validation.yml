@@ -38,4 +38,5 @@ jobs:
       - name: ESLint
         run: npm run lint
       - name: Next.js build
+        if: ${{ !cancelled() }}
         run: npm run build
