@@ -33,6 +33,7 @@ import type {
 import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
 import { generateInitialDemoOrders } from "@/data/initialOrders";
 import { storeCloudServices, supabase } from "@/lib/supabaseClient";
+import { loadPublicCatalog } from "@/lib/publicCatalog";
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
   EGP: {
@@ -1502,6 +1503,8 @@ interface MarketplaceContextType {
   categories: Category[];
   stores: Store[];
   products: Product[];
+  catalogStatus: "loading" | "ready" | "error";
+  refreshCatalog: () => Promise<void>;
   currentStoreId: string;
   setCurrentStoreId: (storeId: string) => void;
   createOfficialStore: (name: string, description: string, slug?: string) => Store;
@@ -1611,8 +1614,6 @@ const STORAGE_KEYS = {
   WISHLIST: "noormexa_wishlist",
   CART: "noormexa_smart_cart",
   PROMO: "noormexa_applied_promo",
-  PRODUCTS: "noormexa_products_v5",
-  STORES: "noormexa_stores_v4",
   ORDERS: "noormexa_orders_v2",
   CURRENCIES: "noormexa_currencies_v3",
   PAYOUTS: "noormexa_payouts_v2",
@@ -1628,9 +1629,10 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [currenciesState, setCurrenciesState] = useState<Record<CurrencyCode, CurrencyInfo>>(CURRENCIES);
   const [settings, setSettingsState] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
   const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
-  const [stores, setStoresState] = useState<Store[]>(INITIAL_STORES);
+  const [stores, setStoresState] = useState<Store[]>([]);
   const [currentStoreId, setCurrentStoreIdState] = useState<string>("store-noormexa-official");
-  const [products, setProductsState] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products, setProductsState] = useState<Product[]>([]);
+  const [catalogStatus, setCatalogStatus] = useState<"loading" | "ready" | "error">("loading");
   const [marketingPosts, setMarketingPostsState] = useState<MarketingPost[]>([]);
   const [payouts, setPayoutsState] = useState<StorePayout[]>(INITIAL_PAYOUTS);
   const [wishlist, setWishlistState] = useState<string[]>([]);
@@ -1684,17 +1686,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         const savedPromo = window.localStorage.getItem(STORAGE_KEYS.PROMO);
         if (savedPromo) setAppliedPromo(JSON.parse(savedPromo));
 
-        const savedProducts = window.localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-        if (savedProducts) {
-          const parsed = JSON.parse(savedProducts);
-          if (Array.isArray(parsed) && parsed.length > 0) setProductsState(parsed);
-        }
-
-        const savedStores = window.localStorage.getItem(STORAGE_KEYS.STORES);
-        if (savedStores) {
-          const parsed = JSON.parse(savedStores);
-          if (Array.isArray(parsed) && parsed.length > 0) setStoresState(parsed);
-        }
+        // Catalog and stores are no longer hydrated from untrusted localStorage.
+        // Previously persisted demo products/stores are ignored on every device.
 
         const savedActiveStore = window.localStorage.getItem(STORAGE_KEYS.CURRENT_STORE);
         if (savedActiveStore) setCurrentStoreIdState(savedActiveStore);
@@ -1749,8 +1742,6 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
       window.localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(wishlist));
       window.localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
-      window.localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-      window.localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify(stores));
       window.localStorage.setItem(STORAGE_KEYS.CURRENT_STORE, currentStoreId);
       window.localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(payouts));
       window.localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
@@ -1764,7 +1755,54 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Failed to persist marketplace state:", err);
     }
-  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, products, stores, currentStoreId, payouts, orders, carriers, shipments, appliedPromo]);
+  }, [hydrated, currency, currenciesState, settings, wishlist, cartItems, currentStoreId, payouts, orders, carriers, shipments, appliedPromo]);
+
+  const refreshCatalog = useCallback(async () => {
+    setCatalogStatus("loading");
+    try {
+      const live = await loadPublicCatalog();
+      setStoresState(live.stores);
+      setProductsState(live.products);
+      const byId = new Map(live.products.map((product) => [product.id, product]));
+      // Remove stale browser-only/demo items and reprice remaining cart rows
+      // from actual sellable inventory, never from localStorage values.
+      setCartItemsState((previous) =>
+        previous.flatMap((item) => {
+          const liveProduct = byId.get(item.productId);
+          if (!liveProduct || !Number.isFinite(liveProduct.stock) || liveProduct.stock < 1) return [];
+          // Browser cart data is untrusted. Normalize stale/tampered quantities
+          // before rendering totals; checkout still revalidates server-side.
+          const savedQuantity = Number(item.quantity);
+          const quantity = Math.min(
+            liveProduct.stock,
+            Math.max(1, Number.isFinite(savedQuantity) ? Math.trunc(savedQuantity) : 1)
+          );
+          return [{
+            ...item,
+            quantity,
+            price: liveProduct.price,
+            maxStock: liveProduct.stock,
+            name: liveProduct.name,
+            nameEn: liveProduct.name_en,
+            imageUrl: liveProduct.image_url,
+            storeId: liveProduct.store_id,
+            storeName: liveProduct.store_name || "",
+          }];
+        })
+      );
+      setCatalogStatus("ready");
+    } catch (error) {
+      console.error("Could not load verified public catalog", error);
+      setProductsState([]);
+      setStoresState([]);
+      setCatalogStatus("error");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    void refreshCatalog();
+  }, [hydrated, refreshCatalog]);
 
   const loadOfficialMarketingPosts = useCallback(async () => {
     const { data, error } = await supabase
@@ -1872,30 +1910,62 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   );
 
   // Catalog
+  // Deprecated optimistic catalog writes. The DB + tenant RLS own mutations.
+  // Old callers may retain their sync signature, but uncommitted browser state
+  // is never advertised as real merchandise to a shopper.
   const addProduct = useCallback((productData: Omit<Product, "id" | "created_at">): Product => {
     const newProd: Product = {
       ...productData,
-      id: `prod-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `prod-${crypto.randomUUID()}`,
       created_at: new Date().toISOString(),
-      status: "active",
-      rating: 5.0,
-      reviews_count: 1,
+      status: "hidden",
+      stock: 0,
     };
-    setProductsState((prev) => [newProd, ...prev]);
-    // Cloud sync to isolated store space
-    if (newProd.store_id) {
-      storeCloudServices.syncStoreProduct(newProd.store_id, newProd).catch(() => {});
-    }
+    void supabase.from("products").insert({
+      id: newProd.id,
+      store_id: newProd.store_id,
+      name: newProd.name,
+      name_en: newProd.name_en ?? null,
+      description: newProd.description,
+      description_en: newProd.description_en ?? null,
+      category_id: newProd.category_id,
+      category_slug: newProd.category_slug ?? null,
+      brand_name: newProd.brand_name ?? null,
+      price: newProd.price,
+      original_price: newProd.original_price ?? null,
+      image_url: newProd.image_url,
+      stock: 0,
+      status: "hidden",
+    }).then(({ error }) => {
+      if (error) console.error("Catalog create was rejected by database permissions", error.message);
+      else void refreshCatalog();
+    });
     return newProd;
-  }, []);
+  }, [refreshCatalog]);
 
   const updateProductItem = useCallback((id: string, updates: Partial<Product>) => {
-    setProductsState((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
-  }, []);
+    const editable = ["name", "name_en", "description", "description_en",
+      "brand_name", "category_id", "category_slug", "price", "original_price",
+      "image_url", "stock", "status", "free_shipping"] as const;
+    const changes: Record<string, unknown> = {};
+    for (const field of editable) {
+      if (Object.prototype.hasOwnProperty.call(updates, field)) {
+        changes[field] = updates[field];
+      }
+    }
+    if (Object.keys(changes).length === 0) return;
+    void supabase.from("products").update(changes).eq("id", id).then(({ error }) => {
+      if (error) console.error("Catalog update was rejected by database permissions", error.message);
+      else void refreshCatalog();
+    });
+  }, [refreshCatalog]);
 
   const deleteProductItem = useCallback((id: string) => {
-    setProductsState((prev) => prev.filter((p) => p.id !== id));
-  }, []);
+    void supabase.from("products").delete().eq("id", id).then(({ error }) => {
+      if (error) console.error("Catalog delete was rejected by database permissions", error.message);
+      else void refreshCatalog();
+    });
+  }, [refreshCatalog]);
 
   const updateStoreProfile = useCallback((storeId: string, updates: Partial<Store>) => {
     setStoresState((prev) => prev.map((s) => (s.id === storeId ? { ...s, ...updates } : s)));
@@ -2141,6 +2211,13 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       selectedVariants?: SelectedVariant,
       selectedVariantsLabel?: string
     ) => {
+      const verified = catalogStatus === "ready" && products.find(
+        (item) => item.id === product.id && item.store_id === product.store_id &&
+        item.status === "active" && item.stock > 0 && item.price > 0
+      );
+      if (!verified || !Number.isFinite(quantity) || quantity < 1) return;
+      quantity = Math.trunc(quantity);
+      product = verified;
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("noormexa:cart:item-added", {
@@ -2160,7 +2237,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         if (existingIdx > -1) {
           const next = [...prev];
           const current = next[existingIdx];
-          const newQty = Math.min(current.quantity + quantity, product.stock || 99);
+          const newQty = Math.min(current.quantity + quantity, product.stock);
           next[existingIdx] = { ...current, quantity: newQty };
           return next;
         }
@@ -2173,7 +2250,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
           imageUrl: product.image_url,
           storeId: product.store_id,
           storeName: product.store_name || "NOORMEXA Verified Store",
-          quantity: Math.min(quantity, product.stock || 99),
+          quantity: Math.min(quantity, product.stock),
           maxStock: product.stock,
           selectedVariants,
           selectedVariantsLabel,
@@ -2181,7 +2258,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         return [newItem, ...prev];
       });
     },
-    []
+    [catalogStatus, products]
   );
 
   const removeFromCart = useCallback((productId: string, variantKey?: string) => {
@@ -2557,6 +2634,8 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         categories,
         stores,
         products,
+        catalogStatus,
+        refreshCatalog,
         currentStoreId,
         setCurrentStoreId,
         createOfficialStore,

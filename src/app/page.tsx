@@ -703,36 +703,7 @@ export default function HomePage() {
     },
   ];
 
-  // Live Smart Coupons
-  const smartCoupons: CouponItem[] = [
-    {
-      code: "NOOR10",
-      discount: "10% خصم",
-      titleAr: "خصم ترحيبي فوري للمتسوقين الجدد",
-      titleEn: "Instant Welcome Discount",
-      descAr: "يسري على جميع مشترياتك الأولى بدون حد أقصى للخصم",
-      descEn: "Valid on all first-time purchases across the catalog",
-      minSpend: "200 ج.م / 50 ر.س",
-    },
-    {
-      code: "FREESHIP",
-      discount: "شحن مجاني",
-      titleAr: "قسيمة التوصيل الجوي السريع المجاني",
-      titleEn: "Free Express Delivery Voucher",
-      descAr: "شحن فوري لباب منزلك لجميع الطلبات في الشرق الأوسط",
-      descEn: "Direct air freight dispatch to your doorstep",
-      minSpend: "350 ج.م / 90 ر.س",
-    },
-    {
-      code: "FLAGSHIP20",
-      discount: "20% توفير",
-      titleAr: "كوبون متجر نورميكسا الرسمي المباشر",
-      titleEn: "NOORMEXA Flagship Special Coupon",
-      descAr: "خصم إضافي خاص على تشكيلة متجر المنصة الحصرية",
-      descEn: "Exclusive extra discount on Flagship Direct products",
-      minSpend: "500 ج.م / 120 ر.س",
-    },
-  ];
+  // Historical demo coupon content is not a public commercial offer.
 
   // Customer Video Unboxing Stories & Real Interactive Reels
   const videoStories: ReelStory[] = [
@@ -952,128 +923,69 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* 4. Live Flash Deals & Countdown Vault */}
+      {/* Real inventory only: never advertise fixed demo flash discounts or urgency. */}
       <section id="deals" className="py-10 md:py-16 border-b border-line bg-surface scroll-mt-28">
         <div className="noormexa-container space-y-8">
-          {/* Section Header with Smooth Live Countdown Timer */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-line pb-6">
-            <div className="space-y-1 max-w-xl">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-black text-xs border border-red-500/20">
-                <Flame size={14} className="fill-red-500 text-red-500 animate-bounce" />
-                <span>{text.flashDeals.badge}</span>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 font-bold text-xs">
+                <ShoppingBag size={14} />
+                {isAr ? "الكتالوج المتاح" : "Available Catalog"}
               </span>
-              <h2 className="text-xl sm:text-3xl font-black text-foreground tracking-tight break-words">
-                {text.flashDeals.title}
+              <h2 className="text-xl sm:text-3xl font-black text-foreground">
+                {isAr ? "منتجات من المتاجر المعتمدة" : "Products from Approved Stores"}
               </h2>
-              <p className="text-xs sm:text-sm text-muted">{text.flashDeals.subtitle}</p>
+              <p className="text-xs sm:text-sm text-muted">
+                {isAr ? "المعروض هنا مرتبط بمنتجات نشطة ومخزون فعلي في قاعدة البيانات." : "Listings come from live, in-stock inventory at approved stores."}
+              </p>
             </div>
-
-            {/* Smooth Digital Animated Flip Timer */}
-            <SmoothFlashTimer language={language} className="shrink-0" />
+            <Link href="/marketplace" className="px-5 py-3 bg-orange-500 text-white font-bold text-xs rounded-xl hover:bg-orange-600">
+              {isAr ? "استكشف السوق" : "Browse Marketplace"}
+            </Link>
           </div>
-
-          {/* Flash Deals Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.slice(0, 4).map((prod) => {
-              const store = stores.find((s) => s.id === prod.store_id);
-              const isAdded = addedProductId === prod.id;
-              const isFav = wishlist.includes(prod.id);
-
-              return (
-                <div
-                  key={prod.id}
-                  className="group rounded-3xl bg-surface border border-line hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between"
-                >
-                  <div className="relative aspect-square overflow-hidden bg-surface-soft shrink-0">
-                    <ProductImage
-                      src={prod.image_url}
-                      alt={prod.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-
-                    {/* Discount Badge */}
-                    <div className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-red-600 text-white font-black text-[11px] shadow-sm flex items-center gap-1">
-                      <Percent size={11} />
-                      <span>{isAr ? "خصم 35%" : "35% OFF"}</span>
-                    </div>
-
-                    {/* Wishlist Button */}
-                    <button
-                      type="button"
-                      onClick={() => toggleWishlist(prod.id)}
-                      className={`absolute top-3 end-3 w-8 h-8 rounded-full border border-line flex items-center justify-center transition-all cursor-pointer ${
-                        isFav ? "bg-red-500 text-white border-red-500" : "bg-surface/90 text-muted hover:text-red-500 backdrop-blur-xs"
-                      }`}
-                      aria-label="Wishlist"
-                    >
-                      <Heart size={14} className={isFav ? "fill-white" : ""} />
-                    </button>
-                  </div>
-
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-1.5">
-                      {/* Store Attribution */}
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted">
-                        <Store size={12} className="text-orange-500 shrink-0" />
-                        <span className="truncate font-bold text-foreground/80">{store?.name || "Official Store"}</span>
-                        {store?.is_official && <Crown size={11} className="text-orange-500 shrink-0" />}
-                      </div>
-
-                      <Link href={`/product/${prod.id}`} className="block">
-                        <h3 className="font-bold text-foreground text-sm line-clamp-2 min-h-[2.6rem] group-hover:text-orange-500 transition-colors leading-snug">
-                          {prod.name}
-                        </h3>
-                      </Link>
-
-                      {/* Pricing */}
-                      <div className="flex items-baseline gap-2 pt-1">
-                        <span className="text-lg font-black text-foreground">{formatPrice(prod.price)}</span>
-                        <span className="text-xs text-muted line-through">{formatPrice(prod.price * 1.35)}</span>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar & CTA */}
-                    <div className="space-y-3 pt-2 border-t border-line/60">
-                      <div className="space-y-1 text-[10px]">
-                        <div className="flex justify-between text-muted font-bold">
-                          <span>{text.flashDeals.claimed} 78%</span>
-                          <span className="text-orange-600 dark:text-orange-400 font-black whitespace-nowrap">{isAr ? "متبقي 6 قطع فقط" : "6 left"}</span>
-                        </div>
-                        <div className="w-full h-1.5 rounded-full bg-surface-soft border border-line overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full" style={{ width: "78%" }} />
-                        </div>
-                      </div>
-
-                      {/* Add to Cart CTA (Amazon Style) */}
-                      <button
-                        type="button"
-                        onClick={() => handleQuickAdd(prod)}
-                        className={`w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer ${
-                          isAdded
-                            ? "bg-emerald-600 !text-white shadow-sm"
-                            : "bg-orange-500 hover:bg-orange-600 !text-white shadow-sm"
-                        }`}
-                      >
-                        {isAdded ? (
-                          <>
-                            <Check size={14} />
-                            <span>{text.featuredProducts.added}</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart size={14} />
-                            <span>{text.featuredProducts.addToCart}</span>
-                          </>
-                        )}
+          {products.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {products.slice(0, 4).map((prod) => {
+                const store = stores.find((s) => s.id === prod.store_id);
+                const discount = prod.original_price && prod.original_price > prod.price
+                  ? Math.round(100 * (prod.original_price - prod.price) / prod.original_price)
+                  : 0;
+                return (
+                  <article key={prod.id} className="rounded-3xl bg-surface border border-line overflow-hidden shadow-xs">
+                    <Link href={`/product/${prod.id}`} className="block relative aspect-square">
+                      <ProductImage src={prod.image_url} alt={prod.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover" />
+                      {discount > 0 && (
+                        <span className="absolute top-3 start-3 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                          {discount}% {isAr ? "توفير" : "OFF"}
+                        </span>
+                      )}
+                    </Link>
+                    <div className="p-4 space-y-3">
+                      <p className="text-xs text-muted">{store?.name || prod.store_name}</p>
+                      <Link href={`/product/${prod.id}`} className="block text-sm font-bold text-foreground line-clamp-2">{prod.name}</Link>
+                      <p className="font-black text-foreground">{formatPrice(prod.price)}</p>
+                      <button type="button" onClick={() => handleQuickAdd(prod)}
+                        className="w-full rounded-xl bg-orange-500 py-2.5 text-xs text-white font-bold hover:bg-orange-600">
+                        {addedProductId === prod.id ? (isAr ? "تمت الإضافة" : "Added") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
                       </button>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-7 rounded-3xl bg-surface-soft border border-line flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+              <div className="space-y-2">
+                <h3 className="font-black text-foreground text-base">{isAr ? "اكتشف NOORMEXA ومتجرها الرسمي" : "Discover NOORMEXA Official Store"}</h3>
+                <p className="text-sm text-muted">
+                  {isAr ? "نتيح الآن متابعة أخبار المتجر الرسمي، وستظهر المنتجات هنا عند اعتمادها وتوفرها." : "Explore official updates; verified products appear here when available."}
+                </p>
+              </div>
+              <Link href="/store/noormexa-flagship-direct" className="px-5 py-3 rounded-xl bg-surface border border-line text-foreground text-xs font-black whitespace-nowrap">
+                {isAr ? "زيارة المتجر الرسمي" : "Visit Official Store"}
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
@@ -1133,7 +1045,7 @@ export default function HomePage() {
                     <h3 className="font-bold text-foreground text-xs sm:text-sm group-hover:text-orange-500 transition-colors line-clamp-1">
                       {isAr ? cat.name : cat.nameEn}
                     </h3>
-                    <span className="text-[11px] text-muted block">{cat.count}</span>
+                    <span className="text-[11px] text-muted block">{isAr ? "استكشف القسم" : "Explore Category"}</span>
                   </div>
                 </Link>
               );
@@ -1142,72 +1054,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. Smart Savings & Instant Coupons Club */}
-      <section id="coupons" className="py-10 md:py-16 border-b border-line bg-surface-soft/60 scroll-mt-28">
-        <div className="noormexa-container space-y-8">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs border border-emerald-500/20">
-              <Gift size={14} />
-              <span>{text.couponsSection.badge}</span>
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-              {text.couponsSection.title}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted">
-              {text.couponsSection.subtitle}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {smartCoupons.map((coupon) => (
-              <div
-                key={coupon.code}
-                className="p-6 rounded-3xl bg-surface border-2 border-dashed border-line hover:border-orange-500 transition-all space-y-4 shadow-xs relative flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 font-black text-xs">
-                      {coupon.discount}
-                    </span>
-                    <span className="text-[11px] text-muted font-medium">
-                      {text.couponsSection.minSpendText} {coupon.minSpend}
-                    </span>
-                  </div>
-                  <h3 className="font-black text-base text-foreground">
-                    {isAr ? coupon.titleAr : coupon.titleEn}
-                  </h3>
-                  <p className="text-xs text-muted leading-relaxed">
-                    {isAr ? coupon.descAr : coupon.descEn}
-                  </p>
-                </div>
-
-                <div className="pt-4 border-t border-line/60 flex items-center justify-between gap-3">
-                  <div className="font-mono font-black text-sm text-foreground bg-surface-soft px-3 py-2 rounded-xl border border-line tracking-wider">
-                    {coupon.code}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyCoupon(coupon.code)}
-                    className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 !text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-                  >
-                    {copiedCoupon === coupon.code ? (
-                      <>
-                        <Check size={14} />
-                        <span>{text.couponsSection.copied}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={14} />
-                        <span>{text.couponsSection.copyCode}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Coupons display requires a real server-backed campaign source; demo vouchers are not public offers. */}
 
       {/* 8. B2B Wholesale & Enterprise Sourcing Hub */}
       <section id="b2b" className="py-12 md:py-20 border-b border-line bg-gradient-to-r from-slate-900 via-navy to-slate-900 text-white scroll-mt-28">
@@ -1301,97 +1148,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 9. Video Stories & Customer Unboxings (Interactive Video Reels) */}
-      <section id="reels" className="py-12 md:py-16 border-b border-line bg-surface scroll-mt-28">
-        <div className="noormexa-container space-y-8">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-black text-xs border border-purple-500/20">
-              <Video size={14} />
-              <span>{text.videoStoriesSection.badge}</span>
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">{text.videoStoriesSection.title}</h2>
-            <p className="text-xs sm:text-sm text-muted">{text.videoStoriesSection.subtitle}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {videoStories.map((story, idx) => (
-              <div
-                key={story.id}
-                onClick={() => setSelectedReelIndex(idx)}
-                className="group rounded-3xl overflow-hidden bg-surface border border-line hover:border-orange-500/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
-                  <Image
-                    src={story.posterImage}
-                    alt={story.productNameAr}
-                    fill
-                    loading="lazy"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    referrerPolicy="no-referrer"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                  
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform border-2 border-white/40">
-                      <Play size={22} className="fill-white ms-0.5" />
-                    </div>
-                  </div>
-
-                  {/* Rating Badge */}
-                  <div className="absolute top-3 end-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-xs text-white text-[11px] font-black flex items-center gap-1 border border-white/10">
-                    <Star size={12} className="fill-orange-400 text-orange-400" />
-                    <span dir="ltr">{story.rating.toFixed(1)}</span>
-                  </div>
-
-                  {/* Author & City */}
-                  <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between text-white text-xs font-bold">
-                    <div className="flex items-center gap-2 truncate">
-                      <Image
-                        src={story.authorAvatar}
-                        alt={story.author}
-                        width={24}
-                        height={24}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        className="w-6 h-6 rounded-full object-cover border border-white/40 shrink-0"
-                      />
-                      <span className="truncate">{story.author}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-300 font-mono bg-black/40 px-2 py-0.5 rounded-md">
-                      {story.views} {isAr ? "مشاهدة" : "views"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-5 space-y-3 bg-surface">
-                  <h3 className="font-black text-sm text-foreground line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors">
-                    {isAr ? story.titleAr : story.titleEn}
-                  </h3>
-
-                  <div className="flex items-center justify-between text-xs pt-3 border-t border-line">
-                    <span className="font-black text-orange-600 dark:text-orange-400 text-sm">
-                      {formatPrice(story.productPrice)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedReelIndex(idx);
-                      }}
-                      className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500 text-orange-600 dark:text-orange-400 hover:!text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                    >
-                      <Play size={12} className="fill-current" />
-                      <span>{isAr ? "تشغيل الفيديو والتقييم" : "Watch Video Review"}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Unverified demo customer testimonials are deliberately not displayed. */}
 
       {/* 10. The 6 Core Guarantees */}
       <section className="py-12 md:py-16 border-b border-line bg-surface-soft/60">

@@ -101,6 +101,8 @@ export default function CartPage() {
 
   const {
     cartItems,
+    catalogStatus,
+    refreshCatalog,
     removeFromCart,
     updateCartQuantity,
     clearCart,
@@ -134,6 +136,26 @@ export default function CartPage() {
     removePromoCode();
     setPromoMessage(null);
   };
+
+  if (catalogStatus !== "ready") {
+    return (
+      <main className="noormexa-main py-16 text-center">
+        <div className="noormexa-container max-w-lg mx-auto space-y-5">
+          <ShoppingCart size={42} className="mx-auto text-muted" />
+          <h1 className="text-xl font-black text-foreground">
+            {catalogStatus === "loading"
+              ? (language === "ar" ? "جارٍ التحقق من المنتجات والأسعار والمخزون..." : "Checking live prices and inventory...")
+              : (language === "ar" ? "تعذر التحقق من المنتجات حاليًا" : "Live inventory check is unavailable")}
+          </h1>
+          {catalogStatus === "error" && (
+            <button type="button" onClick={() => void refreshCatalog()} className="px-6 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">
+              {language === "ar" ? "إعادة المحاولة" : "Retry"}
+            </button>
+          )}
+        </div>
+      </main>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (

@@ -141,6 +141,7 @@ export default function CheckoutPage() {
 
   const {
     cartItems,
+    catalogStatus,
     cartSubtotal,
     calculatedDiscount,
     calculatedShipping,
@@ -889,6 +890,7 @@ export default function CheckoutPage() {
 
   const handleCompleteOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (catalogStatus !== "ready") return;
 
     if (cartItems.length === 0 && !completedOrder) {
       router.push("/cart");
@@ -1172,6 +1174,24 @@ export default function CheckoutPage() {
               </Link>
             </div>
           </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!completedOrder && catalogStatus !== "ready") {
+    return (
+      <main className="noormexa-main py-16 text-center">
+        <div className="noormexa-container space-y-4">
+          <Package size={42} className="mx-auto text-muted" />
+          <h1 className="font-black text-xl text-foreground">
+            {catalogStatus === "loading"
+              ? (language === "ar" ? "جارٍ التحقق من توفر المنتجات..." : "Verifying available inventory...")
+              : (language === "ar" ? "تعذر التحقق من بيانات المنتجات، لا يمكن إتمام الطلب الآن." : "Inventory unavailable. Checkout is temporarily disabled.")}
+          </h1>
+          <Link href="/cart" className="inline-block py-3 px-6 rounded-xl bg-orange-500 text-white font-bold text-sm">
+            {language === "ar" ? "الرجوع للسلة" : "Back to Cart"}
+          </Link>
         </div>
       </main>
     );
