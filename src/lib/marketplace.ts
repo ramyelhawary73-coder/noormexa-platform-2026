@@ -54,14 +54,15 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 export async function getProductsByCategorySlug(slug: string): Promise<Product[]> {
   const category = await getCategoryBySlug(slug);
   if (!category) return [];
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("category_id", category.id)
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
-  if (error || !data) return [];
-  return data as Product[];
+
+  // A category page is a public store surface, not a seller's private workspace.
+  // Reuse the same approved-store, in-stock, positive-price source as the rest
+  // of the marketplace, even if the caller is an authenticated store manager.
+  const { loadPublicCatalog } = await import("@/lib/publicCatalog");
+  const { products } = await loadPublicCatalog();
+  return products.filter((product) =>
+    product.category_id === category.id || product.category_slug === category.slug
+  );
 }
 
 export async function getStoreBySlug(slug: string): Promise<PublicStore | null> {
