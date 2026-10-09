@@ -32,7 +32,7 @@ import type {
 } from "@/types/marketplace";
 import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
 import { generateInitialDemoOrders } from "@/data/initialOrders";
-import { supabase } from "@/lib/supabaseClient";
+import { storeCloudServices, supabase } from "@/lib/supabaseClient";
 import { loadPublicCatalog } from "@/lib/publicCatalog";
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
