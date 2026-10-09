@@ -89,6 +89,7 @@ No changes to Platform Super Admin, Platform Admin, RLS, Auth configuration, sec
 ## Phase A update — official editorial content and public news surfaces
 
 - The site's four original demo sales campaigns (`post-1` through `post-4`) are not commercially verified and are excluded from proposed post import.
+- The old `INITIAL_MARKETING_POSTS` fixture is now explicitly an empty exported array in `MarketplaceContext`: fake promotional claims cannot reappear through that old constant.
 - Four independent, concise NOORMEXA editorial news entries are prepared with IDs `noormexa-official-news-2026-01` through `04`. All belong to `store-noormexa-official` and have no coupon, featured product, fake inventory, manufactured social counts or reused stock photography.
 - Home: `src/components/landing/OfficialStoreUpdates.tsx` reads only published rows from Supabase, scoped to the official store. It does not render local demo content, including when the database is empty.
 - Store: `/store/[slug]` displays posts as official updates, not automatic active discounts, and does not display unverifiable view/like counts.
