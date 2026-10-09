@@ -16,7 +16,7 @@ const checks = [
   ["no invented category inventory counts", !homepage.includes('count: "128+ منتج"')],
   ["homepage new icon resolved", homepage.includes("  Megaphone,")],
 
-  ["admin orders read from Supabase", admin.includes('supabase.from("orders").select("*")')],
+  ["admin orders read from Supabase", admin.includes('supabase.from("orders").select("*", { count: "exact" })')],
   ["admin never uses context demo order data", !/const\s*\{[^}]*\borders\b[^}]*\}\s*=\s*useMarketplace\(/s.test(admin)],
   ["no fake analytics insights", !admin.includes("42.6%") && !admin.includes("1,482") && !admin.includes("NOORMEXA2026")],
   ["no fabricated growth or promotion ROI", !admin.includes("18.4%") && !admin.includes("12.8x") && !admin.includes("48200")],
