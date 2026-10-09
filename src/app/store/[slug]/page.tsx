@@ -72,11 +72,16 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
   // only; browser localStorage and demo fixtures never decide public visibility.
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setLoadError(false);
-    setStore(null);
-    setStoreProducts([]);
-    setStorePosts([]);
+    // Invalidate the previous storefront after setup, and guard against
+    // out-of-order route changes with the existing cancellation flag.
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setLoading(true);
+      setLoadError(false);
+      setStore(null);
+      setStoreProducts([]);
+      setStorePosts([]);
+    });
 
     void loadPublicStorefront(slug)
       .then(({ storefront, error }) => {
