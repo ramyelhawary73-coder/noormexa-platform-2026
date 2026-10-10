@@ -15,7 +15,7 @@ export type ProductEditorDraft = {
   price: string;
   originalPrice: string;
   stock: string;
-  status: "active" | "hidden";
+  status: "active" | "hidden" | "out_of_stock";
   freeShipping: boolean;
 };
 
@@ -33,7 +33,7 @@ export function initialProductDraft(
     price: String(product?.price ?? 0),
     originalPrice: product?.original_price == null ? "" : String(product.original_price),
     stock: String(product?.stock ?? 0),
-    status: product?.status === "hidden" || product?.status === "out_of_stock" ? "hidden" : "active",
+    status: product?.status ?? "active",
     freeShipping: product?.free_shipping ?? false,
   };
 }
