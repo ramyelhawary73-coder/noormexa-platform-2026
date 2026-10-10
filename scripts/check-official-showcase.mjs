@@ -39,7 +39,7 @@ const conditions=[
  ["detail has no cart checkout for preview", files.product.includes("if (!product || !isProductPurchasable(product)) return;")],
  ["seller product editor updates exact store", files.dashboard.includes("persistUpdateProduct(editingProduct.id, { ...payload }, currentStore.id)")],
  ["seller post editor updates exact store", files.dashboard.includes("updateSellerMarketingPost(editingPost.id, { ...edits }, currentStore.id)")],
- ["seller can hide/show products", files.dashboard.includes('setNewProdStatus(e.target.value as "active" | "hidden")')],
+ ["seller can hide/show products", files.dashboard.includes("<ProductEditorModal") && read("src/components/seller/ProductEditorModal.tsx").includes('update("status", status)')],
  ["seller can publish/draft posts", files.dashboard.includes('setPostStatus(e.target.value as "published" | "draft")')],
  ["server checkout uses DB RPC", files.checkout.includes('create_checkout_orders_secure')],
  ["SQL importer is review-only", !files.importer.includes("@supabase/supabase-js") && files.importer.includes("ON CONFLICT (id) DO NOTHING")],

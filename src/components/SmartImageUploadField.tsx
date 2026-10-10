@@ -13,6 +13,7 @@ interface SmartImageUploadFieldProps {
   isAr?: boolean;
   placeholder?: string;
   helperText?: string;
+  collapsibleUrl?: boolean;
 }
 
 export default function SmartImageUploadField({
@@ -24,8 +25,10 @@ export default function SmartImageUploadField({
   isAr = true,
   placeholder,
   helperText,
+  collapsibleUrl = false,
 }: SmartImageUploadFieldProps) {
   const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [showUrl, setShowUrl] = useState(!collapsibleUrl);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,9 +127,16 @@ export default function SmartImageUploadField({
         )}
 
         {/* URL Input & Controls */}
-        <div className="flex-1 flex flex-col justify-between space-y-2">
+        <div className="min-w-0 flex-1 flex flex-col justify-between space-y-2">
           <div className="space-y-1">
-            <input
+            {collapsibleUrl && (
+              <button type="button" onClick={() => setShowUrl((prev) => !prev)}
+                className="text-xs font-bold text-gold hover:text-gold-strong">
+                {showUrl ? (isAr ? "إخفاء رابط الصورة" : "Hide image URL") :
+                  (isAr ? "تعديل رابط الصورة" : "Edit image URL")}
+              </button>
+            )}
+            {showUrl && <input
               type="text"
               value={value}
               onChange={(e) => onChange(e.target.value)}
@@ -136,8 +146,9 @@ export default function SmartImageUploadField({
                   ? "أدخل رابط الصورة أو ارفع ملفاً من جهازك..."
                   : "Enter image URL or upload from device...")
               }
-              className="w-full p-2.5 rounded-xl bg-surface border border-line text-xs focus:outline-none focus:border-gold font-sans"
-            />
+              dir="ltr"
+              className="w-full min-w-0 truncate p-2.5 rounded-xl bg-surface border border-line text-xs focus:outline-none focus:border-gold font-sans"
+            />}
             {helperText && <p className="text-[10px] text-muted">{helperText}</p>}
           </div>
 

@@ -53,6 +53,8 @@ import {
 } from "@/lib/sellerWorkspace";
 import type { Order, Shipment, CurrencyCode, Product, MarketingPost } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
+import ProductEditorModal from "@/components/seller/ProductEditorModal";
+import type { ProductEditorDraft } from "@/lib/productEditorRules";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import StoreLogisticsHub from "@/components/shipping/StoreLogisticsHub";
 import { adaptMarketplaceToLogisticsShipment } from "@/lib/shippingService";
@@ -118,8 +120,6 @@ export default function SellerDashboardPage() {
     carriers,
     formatPrice,
     currencies,
-    convertPrice,
-    convertFromCurrencyToEGP,
     requestStorePayout,
   } = useMarketplace();
 
@@ -360,7 +360,6 @@ export default function SellerDashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingPost, setEditingPost] = useState<MarketingPost | null>(null);
-  const [newProdStatus, setNewProdStatus] = useState<"active" | "hidden">("active");
   const [postStatus, setPostStatus] = useState<"published" | "draft">("published");
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [showAddMarketingModal, setShowAddMarketingModal] = useState(false);
@@ -377,21 +376,6 @@ export default function SellerDashboardPage() {
 
   // Marketing Tab Filter
   const [marketingStatusFilter, setMarketingStatusFilter] = useState<string>("all");
-
-  // New Product Form State
-  const [newProdName, setNewProdName] = useState("");
-  const [newProdNameEn, setNewProdNameEn] = useState("");
-  const [newProdCat, setNewProdCat] = useState(categories[0]?.id || "cat-1");
-  const [newProdCurrency, setNewProdCurrency] = useState<CurrencyCode>(
-    currentStore.currency || currentStore.base_currency || "SAR"
-  );
-  const [newProdPrice, setNewProdPrice] = useState("0");
-  const [newProdOriginalPrice, setNewProdOriginalPrice] = useState("");
-  const [newProdStock, setNewProdStock] = useState("0");
-  const [newProdImageUrl, setNewProdImageUrl] = useState("");
-  const [newProdDesc, setNewProdDesc] = useState("");
-  const [newProdFreeShip, setNewProdFreeShip] = useState(false);
-  const [newProdFeatured, setNewProdFeatured] = useState(false);
 
   // New Marketing Post Form State
   const [postTitle, setPostTitle] = useState("");
@@ -440,7 +424,6 @@ export default function SellerDashboardPage() {
       setProfileCity(currentStore.city || "");
       const baseCur = currentStore.currency || currentStore.base_currency || "SAR";
       setProfileCurrency(baseCur);
-      setNewProdCurrency(baseCur);
       setProfileEmail(currentStore.contact_email || "");
       setProfilePhone(currentStore.contact_phone || "");
       setProfileIban(currentStore.iban || "");
@@ -705,27 +688,13 @@ export default function SellerDashboardPage() {
 
   // Seller forms reuse one editor for both create and update.
   const openCreateProduct = () => {
+    if (!canManageCatalog || !currentStore.id) return;
     setEditingProduct(null);
-    setNewProdName(""); setNewProdNameEn("");
-    setNewProdDesc(""); setNewProdPrice("0"); setNewProdOriginalPrice("");
-    setNewProdStock("0"); setNewProdImageUrl("");
-    setNewProdStatus("active"); setNewProdFreeShip(false);
-    setNewProdCurrency("EGP");
-    setNewProdCat(categories[0]?.id ?? "");
     setShowAddModal(true);
   };
   const openEditProduct = (item: Product) => {
-    if (!canManageCatalog || item.store_id !== currentStore.id) return;
+    if (!canManageCatalog || !currentStore.id || item.store_id !== currentStore.id) return;
     setEditingProduct(item);
-    setNewProdName(item.name); setNewProdNameEn(item.name_en ?? "");
-    setNewProdDesc(item.description ?? ""); setNewProdPrice(String(item.price));
-    setNewProdOriginalPrice(item.original_price ? String(item.original_price) : "");
-    setNewProdStock(String(item.stock)); setNewProdImageUrl(item.image_url ?? "");
-    setNewProdStatus(item.status === "active" ? "active" : "hidden");
-    setNewProdFreeShip(Boolean(item.free_shipping));
-    setNewProdCurrency("EGP"); // DB prices are stored in EGP; never silently reprice an edit.
-    const category = categories.find((entry) => entry.slug === item.category_slug || entry.id === item.category_id);
-    setNewProdCat(category?.id ?? "");
     setShowAddModal(true);
   };
   const openCreatePost = () => {
@@ -749,54 +718,42 @@ export default function SellerDashboardPage() {
   };
 
   // Handlers
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!canManageCatalog || !currentStore.id) return;
-    const price = convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency);
-    const stock = Number(newProdStock);
-    const original = newProdOriginalPrice.trim()
-      ? convertFromCurrencyToEGP(Number(newProdOriginalPrice), newProdCurrency) : null;
-    if (!newProdName.trim() || !Number.isFinite(price) || price < 0 ||
-        !Number.isInteger(stock) || stock < 0 || (original !== null && (!Number.isFinite(original) || original < 0))) {
-      showToast(isAr ? "أدخل سعرًا ومخزونًا صالحين." : "Enter valid price and stock.");
-      return;
+  const saveProduct = async (draft: ProductEditorDraft): Promise<{ success: boolean; error?: string }> => {
+    if (!canManageCatalog || !currentStore.id || (editingProduct && editingProduct.store_id !== currentStore.id)) {
+      return { success: false, error: isAr ? "ليس لديك صلاحية تعديل هذا المنتج." : "Unauthorized product update." };
     }
-    if (newProdStatus === "active" && price > 0 && stock > 0 &&
-        !window.confirm(isAr ? "السعر والمخزون مؤكدان؛ هذا المنتج سيصبح متاحًا للشراء فورًا. تأكيد؟" :
-          "Confirmed price and stock make this product immediately purchasable. Continue?")) return;
-    const category = categories.find((c) => c.id === newProdCat);
+    const category = categories.find((item) => item.id === draft.categoryId);
+    if (!category) return { success: false, error: isAr ? "اختر تصنيفًا صحيحًا." : "Choose a valid category." };
+    // Production stores product prices in EGP. No implicit currency conversion.
     const payload = {
-      name: newProdName.trim(),
-      name_en: newProdNameEn.trim() || null,
-      description: newProdDesc.trim(),
-      category_id: category?.id ?? null,
-      category_slug: category?.slug ?? null,
-      price,
-      original_price: original,
-      stock,
-      image_url: newProdImageUrl.trim() || null,
-      free_shipping: newProdFreeShip,
-      status: newProdStatus,
+      name: draft.name.trim(),
+      name_en: draft.nameEn.trim() || null,
+      description: draft.description.trim(),
+      description_en: draft.descriptionEn.trim() || null,
+      category_id: category.id,
+      category_slug: category.slug,
+      image_url: draft.imageUrl.trim() || null,
+      price: Number(draft.price),
+      original_price: draft.originalPrice.trim() ? Number(draft.originalPrice) : null,
+      stock: Number(draft.stock),
+      status: draft.status,
+      free_shipping: draft.freeShipping,
     } as const;
+
     if (editingProduct) {
       const { product, error } = await persistUpdateProduct(editingProduct.id, { ...payload }, currentStore.id);
-      if (!product) {
-        showToast(error || (isAr ? "تعذر تعديل المنتج." : "Product update failed."));
-        return;
-      }
-      setProducts((prev) => prev.map((p) => p.id === product.id ? product : p));
+      if (!product) return { success: false, error: error || (isAr ? "تعذر تحديث المنتج." : "Product update failed.") };
+      setProducts((prev) => prev.map((item) => item.id === product.id ? product : item));
     } else {
-      const { product, error } = await persistProduct({
-        ...payload, store_id: currentStore.id,
-      });
-      if (!product) {
-        showToast(error || (isAr ? "تعذر إضافة المنتج." : "Product save failed."));
-        return;
-      }
+      const { product, error } = await persistProduct({ ...payload, store_id: currentStore.id });
+      if (!product) return { success: false, error: error || (isAr ? "تعذر إضافة المنتج." : "Product create failed.") };
       setProducts((prev) => [product, ...prev]);
     }
-    setShowAddModal(false); setEditingProduct(null);
+
+    setShowAddModal(false);
+    setEditingProduct(null);
     showToast(isAr ? "تم حفظ المنتج في قاعدة البيانات." : "Product saved in database.");
+    return { success: true };
   };
 
   const handleCreateMarketingPost = async (e: React.FormEvent) => {
@@ -2496,217 +2453,17 @@ export default function SellerDashboardPage() {
         </div>
       )}
 
-      {/* Modal 3: Add New Product */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-surface rounded-3xl border border-line shadow-2xl p-6 max-h-[90vh] overflow-y-auto space-y-6 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-line pb-3">
-              <div className="flex items-center gap-2 font-black text-foreground text-base">
-                <Plus size={18} className="text-gold" />
-                <span>{editingProduct ? (isAr ? "تعديل المنتج" : "Edit Product") : (isAr ? "إضافة منتج" : "Add Product")}</span>
-              </div>
-              <button type="button" onClick={() => setShowAddModal(false)} className="text-muted hover:text-foreground">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateProduct} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "اسم المنتج (عربي) *" : "Product Name (Arabic) *"}</label>
-                  <input
-                    type="text"
-                    required
-                    value={newProdName}
-                    onChange={(e) => setNewProdName(e.target.value)}
-                    placeholder="مثال: ساعة يد رجالية فاخرة..."
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "اسم المنتج (إنجليزي)" : "Product Name (English)"}</label>
-                  <input
-                    type="text"
-                    value={newProdNameEn}
-                    onChange={(e) => setNewProdNameEn(e.target.value)}
-                    placeholder="e.g. Luxury Automatic Watch..."
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "القسم والتصنيف *" : "Category *"}</label>
-                  <select
-                    value={newProdCat}
-                    onChange={(e) => setNewProdCat(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {isAr ? c.name_ar : c.name_en}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "حالة ظهور المنتج" : "Product Visibility"}</label>
-                  <select value={newProdStatus} onChange={(e) => setNewProdStatus(e.target.value as "active" | "hidden")}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line">
-                    <option value="active">{isAr ? "ظاهر في الكتالوج (الشراء يتطلب سعرًا ومخزونًا)" : "Visible (sale requires real price and stock)"}</option>
-                    <option value="hidden">{isAr ? "مخفي" : "Hidden"}</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "الكمية المتاحة بالمخزون *" : "Stock Quantity *"}</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={newProdStock}
-                    onChange={(e) => setNewProdStock(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground flex items-center justify-between">
-                    <span>{isAr ? "عملة تسعير المنتج *" : "Pricing Currency *"}</span>
-                    <span className="text-[10px] text-amber-600 dark:text-gold font-normal">{isAr ? "تحويل فوري لكافة المشترين" : "Live auto-conversion"}</span>
-                  </label>
-                  <select
-                    value={newProdCurrency}
-                    onChange={(e) => setNewProdCurrency(e.target.value as CurrencyCode)}
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold font-bold text-xs"
-                  >
-                    {Object.entries(currencies).map(([code, info]) => (
-                      <option key={code} value={code}>
-                        {code === "MAD" ? "🇲🇦 " : code === "SAR" ? "🇸🇦 " : code === "EGP" ? "🇪🇬 " : code === "AED" ? "🇦🇪 " : code === "QAR" ? "🇶🇦 " : code === "KWD" ? "🇰🇼 " : code === "USD" ? "🇺🇸 " : "🇪🇺 "}
-                        {info.symbolAr} - {isAr ? info.nameAr : info.nameEn} ({code})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">
-                    {isAr ? `السعر (${newProdCurrency}) — 0 للعرض فقط *` : `Price (${newProdCurrency}) — 0 means preview *`}
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="any"
-                    value={newProdPrice}
-                    onChange={(e) => setNewProdPrice(e.target.value)}
-                    placeholder="250"
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">
-                    {isAr ? `السعر قبل الخصم (${newProdCurrency})` : `Original Price (${newProdCurrency})`}
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={newProdOriginalPrice}
-                    onChange={(e) => setNewProdOriginalPrice(e.target.value)}
-                    placeholder="320"
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
-
-                {Number(newProdPrice) > 0 && (
-                  <div className="sm:col-span-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-gold flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <span className="font-bold">
-                      {isAr ? "معاينة تحويل العملة للمشترين حول العالم:" : "Global buyers auto-conversion preview:"}
-                    </span>
-                    <div className="flex flex-wrap items-center gap-2 font-mono font-bold text-[11px]">
-                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
-                        ≈ {convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency)} EGP (ج.م)
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
-                        • {convertPrice(convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency), "MAD")} MAD (د.م)
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
-                        • {convertPrice(convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency), "SAR")} SAR (ر.س)
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-surface border border-line">
-                        • ${convertPrice(convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency), "USD")} USD
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="sm:col-span-2 space-y-1">
-                  <SmartImageUploadField
-                    label={isAr ? "الصورة الرئيسية للمنتج (المعرض الأولي)" : "Primary Product Image"}
-                    value={newProdImageUrl}
-                    onChange={setNewProdImageUrl}
-                    aspectRatio="1:1"
-                    isAr={isAr}
-                    required={!editingProduct}
-                    helperText={isAr ? "نسبة العرض المثالية للمنتجات 1:1 مربع بدقة 800x800 أو أعلى، مع إمكانية تحسين التباين والسطوع وقص الحواف الذكي" : "Ideal 1:1 square ratio with smart auto-centering, clarity boost, and overlay options"}
-                  />
-                </div>
-
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="font-bold text-foreground">{isAr ? "الوصف التفصيلي للمنتج *" : "Description *"}</label>
-                  <textarea
-                    rows={3}
-                    required
-                    value={newProdDesc}
-                    onChange={(e) => setNewProdDesc(e.target.value)}
-                    placeholder="اكتب مواصفات وتفاصيل المنتج الفاخر..."
-                    className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
-                  />
-                </div>
-
-                <div className="sm:col-span-2 flex flex-wrap gap-4 pt-2">
-                  <label className="flex items-center gap-2 cursor-pointer font-bold text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={newProdFreeShip}
-                      onChange={(e) => setNewProdFreeShip(e.target.checked)}
-                      className="accent-[#d4af37]"
-                    />
-                    <span>{isAr ? "توفير شحن مجاني لهذا المنتج" : "Free Shipping"}</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer font-bold text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={newProdFeatured}
-                      onChange={(e) => setNewProdFeatured(e.target.checked)}
-                      disabled
-                      className="accent-[#d4af37]"
-                    />
-                    <span>{isAr ? "ميزة إبراز المنتجات غير متاحة بعد" : "Featured setting unavailable yet"}</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-5 py-2.5 rounded-xl border border-line text-muted hover:text-foreground font-bold text-xs"
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
-                >
-                  {editingProduct ? (isAr ? "حفظ تعديل المنتج" : "Save Changes") : (isAr ? "حفظ المنتج" : "Save Product")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {/* Premium product editor: per-store and per-product isolated draft. */}
+      {showAddModal && canManageCatalog && currentStore.id && (
+        <ProductEditorModal
+          key={`${currentStore.id}:${editingProduct?.id ?? "new"}`}
+          product={editingProduct}
+          categories={categories}
+          storeName={currentStore.name}
+          isAr={isAr}
+          onClose={() => { setShowAddModal(false); setEditingProduct(null); }}
+          onSave={saveProduct}
+        />
       )}
 
       {/* Modal 4: Request Payout */}
