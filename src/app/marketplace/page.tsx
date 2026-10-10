@@ -1,3 +1,4 @@
+import { isOfficialShowcaseProduct, isProductPurchasable } from "@/lib/productAvailability";
 "use client";
 
 import { useState, useMemo, useEffect, useSyncExternalStore, Suspense } from "react";
@@ -687,6 +688,7 @@ function MarketplaceContent() {
   const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isProductPurchasable(product)) return;
     addToCart(product, 1);
     setAddedItemMap((prev) => ({ ...prev, [product.id]: true }));
     setTimeout(() => {
@@ -1485,16 +1487,16 @@ function MarketplaceContent() {
                         <div className="pt-1.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-t border-line/60 mt-1 sm:mt-2">
                           <div>
                             <span className="text-sm sm:text-base font-extrabold text-foreground tracking-tight">
-                              {formatPrice(product.price)}
+                              {isOfficialShowcaseProduct(product) ? (language === "ar" ? "السعر قيد التأكيد" : "Price pending") : formatPrice(product.price)}
                             </span>
-                            {product.original_price && product.original_price > product.price && (
+                            {!isOfficialShowcaseProduct(product) && product.original_price && product.original_price > product.price && (
                               <span className="block sm:inline sm:ms-1.5 text-[10px] sm:text-xs text-muted line-through">
                                 {formatPrice(product.original_price)}
                               </span>
                             )}
                           </div>
                           <span className="text-[9px] sm:text-[10px] text-muted font-medium">
-                            {product.stock > 0 ? `${product.stock} ${language === "ar" ? "متاح" : "left"}` : text.outOfStock}
+                            {isOfficialShowcaseProduct(product) ? (language === "ar" ? "كتالوج فقط" : "Catalog preview") : product.stock > 0 ? `${product.stock} ${language === "ar" ? "متاح" : "left"}` : text.outOfStock}
                           </span>
                         </div>
                       </div>
@@ -1503,7 +1505,7 @@ function MarketplaceContent() {
                       <div className="pt-2 sm:pt-3">
                         <button
                           type="button"
-                          disabled={product.stock <= 0}
+                          disabled={!isProductPurchasable(product)}
                           onClick={(e) => handleQuickAdd(product, e)}
                           className={`w-full py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs shrink-0 whitespace-nowrap min-h-[38px] sm:min-h-[40px] touch-manipulation active:scale-95 cursor-pointer ${
                             isAdded
@@ -1521,7 +1523,7 @@ function MarketplaceContent() {
                           ) : (
                             <>
                               <Tag size={12} className="shrink-0" />
-                              <span>{product.stock > 0 ? text.quickAdd : text.outOfStock}</span>
+                              <span>{isOfficialShowcaseProduct(product) ? (language === "ar" ? "للعرض فقط" : "Preview only") : product.stock > 0 ? text.quickAdd : text.outOfStock}</span>
                             </>
                           )}
                         </button>

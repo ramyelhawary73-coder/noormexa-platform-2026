@@ -1,3 +1,4 @@
+import { isOfficialShowcaseProduct, isProductPurchasable } from "@/lib/productAvailability";
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
@@ -644,6 +645,7 @@ export default function HomePage() {
   };
 
   const handleQuickAdd = (product: (typeof products)[number]) => {
+    if (!isProductPurchasable(product)) return;
     addToCart(product, 1);
     setAddedProductId(product.id);
     setTimeout(() => {
@@ -936,7 +938,7 @@ export default function HomePage() {
                 {isAr ? "منتجات من المتاجر المعتمدة" : "Products from Approved Stores"}
               </h2>
               <p className="text-xs sm:text-sm text-muted">
-                {isAr ? "المعروض هنا مرتبط بمنتجات نشطة ومخزون فعلي في قاعدة البيانات." : "Listings come from live, in-stock inventory at approved stores."}
+                {isAr ? "منتجات جاهزة للبيع أو كتالوج المتجر الرسمي قيد مراجعة السعر والمخزون." : "Sellable products and official preview listings awaiting verified price and stock."}
               </p>
             </div>
             <Link href="/marketplace" className="px-5 py-3 bg-orange-500 text-white font-bold text-xs rounded-xl hover:bg-orange-600">
@@ -947,7 +949,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {products.slice(0, 4).map((prod) => {
                 const store = stores.find((s) => s.id === prod.store_id);
-                const discount = prod.original_price && prod.original_price > prod.price
+                const discount = !isOfficialShowcaseProduct(prod) && prod.original_price && prod.original_price > prod.price
                   ? Math.round(100 * (prod.original_price - prod.price) / prod.original_price)
                   : 0;
                 return (
@@ -963,10 +965,10 @@ export default function HomePage() {
                     <div className="p-4 space-y-3">
                       <p className="text-xs text-muted">{store?.name || prod.store_name}</p>
                       <Link href={`/product/${prod.id}`} className="block text-sm font-bold text-foreground line-clamp-2">{prod.name}</Link>
-                      <p className="font-black text-foreground">{formatPrice(prod.price)}</p>
-                      <button type="button" onClick={() => handleQuickAdd(prod)}
+                      <p className="font-black text-foreground">{isOfficialShowcaseProduct(prod) ? (isAr ? "السعر قيد التأكيد" : "Price pending") : formatPrice(prod.price)}</p>
+                      <button type="button" disabled={!isProductPurchasable(prod)} onClick={() => handleQuickAdd(prod)}
                         className="w-full rounded-xl bg-orange-500 py-2.5 text-xs text-white font-bold hover:bg-orange-600">
-                        {addedProductId === prod.id ? (isAr ? "تمت الإضافة" : "Added") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
+                        {isOfficialShowcaseProduct(prod) ? (isAr ? "كتالوج للعرض" : "Preview only") : addedProductId === prod.id ? (isAr ? "تمت الإضافة" : "Added") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
                       </button>
                     </div>
                   </article>

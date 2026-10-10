@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { Product, Store } from "@/types/marketplace";
 import type { PublicStore } from "@/lib/marketplace";
+import { isPublicProduct } from "@/lib/productAvailability";
 
 export type PublicCatalog = { products: Product[]; stores: Store[] };
 
@@ -13,8 +14,6 @@ export async function loadPublicCatalog(): Promise<PublicCatalog> {
       .from("products")
       .select("*")
       .eq("status", "active")
-      .gt("stock", 0)
-      .gt("price", 0)
       .order("created_at", { ascending: false }),
   ]);
 
@@ -39,11 +38,7 @@ export async function loadPublicCatalog(): Promise<PublicCatalog> {
   const products = ((liveProducts.data ?? []) as Product[])
     .filter((p) =>
       approvedIds.has(p.store_id) &&
-      p.status === "active" &&
-      Number.isFinite(Number(p.price)) &&
-      Number(p.price) > 0 &&
-      Number.isFinite(Number(p.stock)) &&
-      Number(p.stock) > 0
+      isPublicProduct(p)
     )
     .map((p) => ({
       ...p,
