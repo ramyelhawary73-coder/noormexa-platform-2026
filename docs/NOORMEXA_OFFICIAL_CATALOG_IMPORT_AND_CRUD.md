@@ -47,3 +47,19 @@
 - Approval gates: GitHub CI, Vercel Preview, role-specific RLS E2E, real desktop/mobile interaction, explicit separate Merge, then post-merge Production verification. No automatic Product DB updates.
 
 The Master Store Operations roadmap currently exists on open Draft PR #10, not on main; the Stage 2 handoff is separately documented here and should be reconciled with that roadmap only after approval, without changing PR #10.
+
+## Stage 2B — Premium Editor UX Refinement (2026-10-10)
+
+**Visual Root Cause:** P0 used `max-w-5xl`, `md:max-h-[92dvh]` and a full `h-[100dvh]` sheet; its oversized form gutters, tabs, large headings and textareas made the editor read as a full-screen administrative page rather than a focused product editor (confirmed by user Production screenshot).
+
+**Scope:** `fix/noormexa-premium-editor-responsive-ux` based on verified Production `main` SHA `cf7065100fdb94c7774aacbf8ed842fbfae38740`.
+
+- Desktop editor uses an explicit scoped CSS module bounded at **780px wide and 680px tall**, with a separate content column capped at **690px**.
+- Mobile `<=767px` uses a bottom-anchored sheet of at most **88dvh**, with notch/home-indicator safe-area padding and internally scrollable inputs, not an edge-to-edge fullscreen sheet.
+- Header, tab navigation and footer remain visible while only the fields scroll. Tab row is horizontally scrollable on small screens; body page scroll locks while editing.
+- Input padding, headings, gutters, descriptions and status cards are condensed without removing any of the four editor sections.
+- Design remains on the NOORMEXA color tokens; no new branding, media, fonts, assets or external libraries.
+- Product `onSave`, RLS/tenant checks, draft preservation, unsaved close prompts and sale confirmation logic are intentionally unchanged.
+- Test script `scripts/test-premium-product-editor.mjs` now asserts responsive bounds, safe-area, separated scrolling and continued save/tenant safeguards. CI watches the new CSS module.
+
+**Verification gates:** run exact-HEAD GitHub CI (TS rules / TypeScript / ESLint / Next.js build), Vercel Preview Ready, manual keyboard/RTL and desktop/mobile viewport inspection before any merge. No database edits, SQL, Production deployment or PR #9/#10 changes authorized.
