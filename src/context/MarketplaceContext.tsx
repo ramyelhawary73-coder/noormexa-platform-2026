@@ -30,8 +30,7 @@ import type {
   CarrierStatus,
   ShipmentStatus,
 } from "@/types/marketplace";
-import { INITIAL_CARRIERS, INITIAL_SHIPMENTS, getShippingQuotes } from "@/data/logistics";
-import { generateInitialDemoOrders } from "@/data/initialOrders";
+import { INITIAL_CARRIERS, getShippingQuotes } from "@/data/logistics";
 import { storeCloudServices, supabase } from "@/lib/supabaseClient";
 import { loadPublicCatalog } from "@/lib/publicCatalog";
 
@@ -1634,13 +1633,13 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [products, setProductsState] = useState<Product[]>([]);
   const [catalogStatus, setCatalogStatus] = useState<"loading" | "ready" | "error">("loading");
   const [marketingPosts, setMarketingPostsState] = useState<MarketingPost[]>([]);
-  const [payouts, setPayoutsState] = useState<StorePayout[]>(INITIAL_PAYOUTS);
+  const [payouts, setPayoutsState] = useState<StorePayout[]>([]);
   const [wishlist, setWishlistState] = useState<string[]>([]);
   const [cartItems, setCartItemsState] = useState<CartItem[]>([]);
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [orders, setOrdersState] = useState<Order[]>([]);
   const [carriers, setCarriersState] = useState<ShippingCarrier[]>(INITIAL_CARRIERS);
-  const [shipments, setShipmentsState] = useState<Shipment[]>(INITIAL_SHIPMENTS);
+  const [shipments, setShipmentsState] = useState<Shipment[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   // Read initial local storage safely
@@ -1692,35 +1691,9 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
         const savedActiveStore = window.localStorage.getItem(STORAGE_KEYS.CURRENT_STORE);
         if (savedActiveStore) setCurrentStoreIdState(savedActiveStore);
 
-        const savedPayouts = window.localStorage.getItem(STORAGE_KEYS.PAYOUTS);
-        if (savedPayouts) {
-          const parsed = JSON.parse(savedPayouts);
-          if (Array.isArray(parsed) && parsed.length > 0) setPayoutsState(parsed);
-        }
-
-        const savedOrders = window.localStorage.getItem(STORAGE_KEYS.ORDERS);
-        if (savedOrders) {
-          const parsed = JSON.parse(savedOrders);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setOrdersState(parsed);
-          } else {
-            setOrdersState(generateInitialDemoOrders());
-          }
-        } else {
-          setOrdersState(generateInitialDemoOrders());
-        }
-
-        const savedCarriers = window.localStorage.getItem(STORAGE_KEYS.CARRIERS);
-        if (savedCarriers) {
-          const parsed = JSON.parse(savedCarriers);
-          if (Array.isArray(parsed) && parsed.length > 0) setCarriersState(parsed);
-        }
-
-        const savedShipments = window.localStorage.getItem(STORAGE_KEYS.SHIPMENTS);
-        if (savedShipments) {
-          const parsed = JSON.parse(savedShipments);
-          if (Array.isArray(parsed) && parsed.length > 0) setShipmentsState(parsed);
-        }
+        // Legacy browser orders, shipments and payouts are not real business
+        // records and must never be rehydrated as production authority.
+        // Their old keys remain untouched for non-destructive migration review.
       } catch (err) {
         console.error("Failed to load saved marketplace state:", err);
       } finally {
@@ -1743,10 +1716,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(wishlist));
       window.localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
       window.localStorage.setItem(STORAGE_KEYS.CURRENT_STORE, currentStoreId);
-      window.localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(payouts));
-      window.localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
       window.localStorage.setItem(STORAGE_KEYS.CARRIERS, JSON.stringify(carriers));
-      window.localStorage.setItem(STORAGE_KEYS.SHIPMENTS, JSON.stringify(shipments));
       if (appliedPromo) {
         window.localStorage.setItem(STORAGE_KEYS.PROMO, JSON.stringify(appliedPromo));
       } else {
