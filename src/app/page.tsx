@@ -1,5 +1,5 @@
-import { isOfficialShowcaseProduct, isProductPurchasable } from "@/lib/productAvailability";
 "use client";
+import { isOfficialShowcaseProduct, isProductPurchasable } from "@/lib/productAvailability";
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
