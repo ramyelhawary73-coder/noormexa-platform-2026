@@ -18,6 +18,7 @@ import {
   Megaphone,
   Navigation,
   Plus,
+  Pencil,
   Printer,
   Search,
   Settings,
@@ -384,7 +385,7 @@ export default function SellerDashboardPage() {
   const [newProdCurrency, setNewProdCurrency] = useState<CurrencyCode>(
     currentStore.currency || currentStore.base_currency || "SAR"
   );
-  const [newProdPrice, setNewProdPrice] = useState("");
+  const [newProdPrice, setNewProdPrice] = useState("0");
   const [newProdOriginalPrice, setNewProdOriginalPrice] = useState("");
   const [newProdStock, setNewProdStock] = useState("0");
   const [newProdImageUrl, setNewProdImageUrl] = useState("");
@@ -706,7 +707,7 @@ export default function SellerDashboardPage() {
   const openCreateProduct = () => {
     setEditingProduct(null);
     setNewProdName(""); setNewProdNameEn("");
-    setNewProdDesc(""); setNewProdPrice(""); setNewProdOriginalPrice("");
+    setNewProdDesc(""); setNewProdPrice("0"); setNewProdOriginalPrice("");
     setNewProdStock("0"); setNewProdImageUrl("");
     setNewProdStatus("active"); setNewProdFreeShip(false);
     setNewProdCurrency("EGP");
@@ -1201,7 +1202,7 @@ export default function SellerDashboardPage() {
             {canManageMarketing && (
               <button
                 type="button"
-                onClick={() => setShowAddMarketingModal(true)}
+                onClick={openCreatePost}
                 className="px-3 sm:px-4 py-2.5 rounded-xl border border-line bg-surface hover:bg-surface-soft text-foreground font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
               >
                 <Megaphone size={15} className="text-amber-500" />
@@ -1212,7 +1213,7 @@ export default function SellerDashboardPage() {
             {canManageCatalog && (
               <button
                 type="button"
-                onClick={() => setShowAddModal(true)}
+                onClick={openCreateProduct}
                 className="px-3 sm:px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm transition-all shrink-0 whitespace-nowrap min-h-[42px] touch-manipulation active:scale-95"
               >
                 <Plus size={16} />
@@ -1403,7 +1404,7 @@ export default function SellerDashboardPage() {
               {canManageCatalog && (
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(true)}
+                  onClick={openCreateProduct}
                   className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
                 >
                   <Plus size={16} />
@@ -1449,7 +1450,7 @@ export default function SellerDashboardPage() {
                 {canManageCatalog && (
                   <button
                     type="button"
-                    onClick={() => setShowAddModal(true)}
+                    onClick={openCreateProduct}
                     className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5 touch-manipulation active:scale-95"
                   >
                     <Plus size={14} />
@@ -1814,7 +1815,7 @@ export default function SellerDashboardPage() {
               {canManageMarketing && (
                 <button
                   type="button"
-                  onClick={() => setShowAddMarketingModal(true)}
+                  onClick={openCreatePost}
                   className="px-5 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center gap-2 shadow-xs transition-all"
                 >
                   <Plus size={16} />
@@ -1879,7 +1880,7 @@ export default function SellerDashboardPage() {
                 {canManageMarketing && (
                   <button
                     type="button"
-                    onClick={() => setShowAddMarketingModal(true)}
+                    onClick={openCreatePost}
                     className="px-4 py-2 rounded-xl bg-gold text-navy font-bold text-xs inline-flex items-center gap-1.5"
                   >
                     <Plus size={14} />
@@ -2349,7 +2350,7 @@ export default function SellerDashboardPage() {
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2 font-black text-foreground text-base">
                 <Megaphone size={18} className="text-gold" />
-                <span>{isAr ? "إنشاء منشور تسويقي وعرض ترويجي" : "New Marketing & Promo Post"}</span>
+                <span>{editingPost ? (isAr ? "تعديل المنشور" : "Edit Post") : (isAr ? "إضافة منشور" : "New Marketing Post")}</span>
               </div>
               <button type="button" onClick={() => setShowAddMarketingModal(false)} className="text-muted hover:text-foreground">
                 <X size={20} />
@@ -2436,6 +2437,14 @@ export default function SellerDashboardPage() {
                 </select>
               </div>
 
+              <div className="space-y-1">
+                <label className="font-bold text-foreground">{isAr ? "ظهور المنشور" : "Post Visibility"}</label>
+                <select value={postStatus} onChange={(e) => setPostStatus(e.target.value as "published" | "draft")}
+                  className="w-full p-3 rounded-xl bg-surface-soft border border-line">
+                  <option value="published">{isAr ? "منشور" : "Published"}</option>
+                  <option value="draft">{isAr ? "مسودة مخفية" : "Private Draft"}</option>
+                </select>
+              </div>
               <div className="pt-1">
                 <label className="flex items-center gap-2 cursor-pointer font-bold text-foreground">
                   <input
@@ -2460,7 +2469,7 @@ export default function SellerDashboardPage() {
                   type="submit"
                   className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
                 >
-                  {isAr ? "نشر المنشور الترويجي" : "Publish Campaign"}
+                  {editingPost ? (isAr ? "حفظ تعديل المنشور" : "Save Changes") : (isAr ? "حفظ المنشور" : "Save Post")}
                 </button>
               </div>
             </form>
@@ -2475,7 +2484,7 @@ export default function SellerDashboardPage() {
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2 font-black text-foreground text-base">
                 <Plus size={18} className="text-gold" />
-                <span>{isAr ? "إضافة منتج جديد لكتالوج المتجر" : "Add Product to Store Catalog"}</span>
+                <span>{editingProduct ? (isAr ? "تعديل المنتج" : "Edit Product") : (isAr ? "إضافة منتج" : "Add Product")}</span>
               </div>
               <button type="button" onClick={() => setShowAddModal(false)} className="text-muted hover:text-foreground">
                 <X size={20} />
@@ -2523,11 +2532,19 @@ export default function SellerDashboardPage() {
                 </div>
 
                 <div className="space-y-1">
+                  <label className="font-bold text-foreground">{isAr ? "حالة ظهور المنتج" : "Product Visibility"}</label>
+                  <select value={newProdStatus} onChange={(e) => setNewProdStatus(e.target.value as "active" | "hidden")}
+                    className="w-full p-3 rounded-xl bg-surface-soft border border-line">
+                    <option value="active">{isAr ? "ظاهر في الكتالوج (الشراء يتطلب سعرًا ومخزونًا)" : "Visible (sale requires real price and stock)"}</option>
+                    <option value="hidden">{isAr ? "مخفي" : "Hidden"}</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
                   <label className="font-bold text-foreground">{isAr ? "الكمية المتاحة بالمخزون *" : "Stock Quantity *"}</label>
                   <input
                     type="number"
                     required
-                    min="1"
+                    min="0"
                     value={newProdStock}
                     onChange={(e) => setNewProdStock(e.target.value)}
                     className="w-full p-3 rounded-xl bg-surface-soft border border-line focus:outline-none focus:border-gold"
@@ -2555,12 +2572,12 @@ export default function SellerDashboardPage() {
 
                 <div className="space-y-1">
                   <label className="font-bold text-foreground">
-                    {isAr ? `السعر المطلوب (${newProdCurrency}) *` : `Price (${newProdCurrency}) *`}
+                    {isAr ? `السعر (${newProdCurrency}) — 0 للعرض فقط *` : `Price (${newProdCurrency}) — 0 means preview *`}
                   </label>
                   <input
                     type="number"
                     required
-                    min="1"
+                    min="0"
                     step="any"
                     value={newProdPrice}
                     onChange={(e) => setNewProdPrice(e.target.value)}
@@ -2645,9 +2662,10 @@ export default function SellerDashboardPage() {
                       type="checkbox"
                       checked={newProdFeatured}
                       onChange={(e) => setNewProdFeatured(e.target.checked)}
+                      disabled
                       className="accent-[#d4af37]"
                     />
-                    <span>{isAr ? "إبراز كمنتج مميز (Featured)" : "Mark as Featured"}</span>
+                    <span>{isAr ? "ميزة إبراز المنتجات غير متاحة بعد" : "Featured setting unavailable yet"}</span>
                   </label>
                 </div>
               </div>
@@ -2664,7 +2682,7 @@ export default function SellerDashboardPage() {
                   type="submit"
                   className="px-6 py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs shadow-xs transition-all"
                 >
-                  {isAr ? "حفظ ونشر المنتج" : "Save & Publish"}
+                  {editingProduct ? (isAr ? "حفظ تعديل المنتج" : "Save Changes") : (isAr ? "حفظ المنتج" : "Save Product")}
                 </button>
               </div>
             </form>
