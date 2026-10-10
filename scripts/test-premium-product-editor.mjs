@@ -34,6 +34,14 @@ assert.equal(isLegacyPreviewDescription("وصف مفصل كتبه المستخد
 assert.equal(isDraftSellable(draft), false);
 assert.equal(requiresSaleConfirmation(draft, original), false);
 assert.equal(validateProductDraft(draft, original, categories), null);
+const soldOut = { ...original, status: "out_of_stock", stock: 0 };
+const soldOutDraft = initialProductDraft(soldOut, "electronics");
+assert.equal(soldOutDraft.status, "out_of_stock", "sold-out status must not turn into hidden when editing");
+assert.equal(isDraftSellable(soldOutDraft), false);
+assert.equal(validateProductDraft(soldOutDraft, soldOut, categories), null);
+assert.equal(requiresSaleConfirmation(soldOutDraft, soldOut), false);
+const soldOutReactivate = { ...soldOutDraft, status: "active", price: "1200", stock: "7" };
+assert.equal(requiresSaleConfirmation(soldOutReactivate, soldOut), true, "reactivated sale must be confirmed");
 const candidate = { ...draft, price: "1250", stock: "3" };
 assert.equal(isDraftSellable(candidate), true);
 assert.equal(requiresSaleConfirmation(candidate, original), true);
@@ -65,6 +73,8 @@ const ui = readFileSync(new URL("../src/components/seller/ProductEditorModal.tsx
 const dashboard = readFileSync(new URL("../src/app/seller/dashboard/page.tsx", import.meta.url), "utf8");
 const db = readFileSync(new URL("../src/lib/marketplace.ts", import.meta.url), "utf8");
 assert(ui.includes("savingGuard.current"), "guards repeated saves");
+assert(ui.includes('["active", "hidden", "out_of_stock"]'), "editor preserves all existing status options");
+assert(ui.includes('if (product && !dirty) { onClose(); return; }'), "editor does not send an unchanged product to Supabase");
 assert(ui.includes("beforeunload"), "protect unsaved browser navigation");
 assert(ui.includes("Discard them") && ui.includes("Unsaved changes"), "warn on close");
 assert(ui.includes("verifiedSale") && ui.includes("window.confirm"), "explicit sale approval");
