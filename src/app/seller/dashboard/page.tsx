@@ -35,6 +35,7 @@ import { useMarketplace } from "@/context/MarketplaceContext";
 import { useAuth } from "@/context/AuthContext";
 import {
   createProduct as persistProduct,
+  updateProduct as persistUpdateProduct,
   deleteProduct as persistDeleteProduct,
   getMyStorePrivateSettings,
   getMyTenantStores,
@@ -49,7 +50,7 @@ import {
   updateSellerOrderStatus,
   updateSellerShipmentStatus,
 } from "@/lib/sellerWorkspace";
-import type { Order, Shipment, CurrencyCode } from "@/types/marketplace";
+import type { Order, Shipment, CurrencyCode, Product, MarketingPost } from "@/types/marketplace";
 import SmartImageUploadField from "@/components/SmartImageUploadField";
 import PrintableWaybill from "@/components/shipping/PrintableWaybill";
 import StoreLogisticsHub from "@/components/shipping/StoreLogisticsHub";
@@ -356,6 +357,10 @@ export default function SellerDashboardPage() {
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingPost, setEditingPost] = useState<MarketingPost | null>(null);
+  const [newProdStatus, setNewProdStatus] = useState<"active" | "hidden">("active");
+  const [postStatus, setPostStatus] = useState<"published" | "draft">("published");
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [showAddMarketingModal, setShowAddMarketingModal] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
@@ -381,12 +386,10 @@ export default function SellerDashboardPage() {
   );
   const [newProdPrice, setNewProdPrice] = useState("");
   const [newProdOriginalPrice, setNewProdOriginalPrice] = useState("");
-  const [newProdStock, setNewProdStock] = useState("15");
-  const [newProdImageUrl, setNewProdImageUrl] = useState(
-    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80"
-  );
+  const [newProdStock, setNewProdStock] = useState("0");
+  const [newProdImageUrl, setNewProdImageUrl] = useState("");
   const [newProdDesc, setNewProdDesc] = useState("");
-  const [newProdFreeShip, setNewProdFreeShip] = useState(true);
+  const [newProdFreeShip, setNewProdFreeShip] = useState(false);
   const [newProdFeatured, setNewProdFeatured] = useState(false);
 
   // New Marketing Post Form State
@@ -699,97 +702,145 @@ export default function SellerDashboardPage() {
     setTimeout(() => setNotification(null), 3500);
   };
 
+  // Seller forms reuse one editor for both create and update.
+  const openCreateProduct = () => {
+    setEditingProduct(null);
+    setNewProdName(""); setNewProdNameEn("");
+    setNewProdDesc(""); setNewProdPrice(""); setNewProdOriginalPrice("");
+    setNewProdStock("0"); setNewProdImageUrl("");
+    setNewProdStatus("active"); setNewProdFreeShip(false);
+    setNewProdCurrency("EGP");
+    setNewProdCat(categories[0]?.id ?? "");
+    setShowAddModal(true);
+  };
+  const openEditProduct = (item: Product) => {
+    if (!canManageCatalog || item.store_id !== currentStore.id) return;
+    setEditingProduct(item);
+    setNewProdName(item.name); setNewProdNameEn(item.name_en ?? "");
+    setNewProdDesc(item.description ?? ""); setNewProdPrice(String(item.price));
+    setNewProdOriginalPrice(item.original_price ? String(item.original_price) : "");
+    setNewProdStock(String(item.stock)); setNewProdImageUrl(item.image_url ?? "");
+    setNewProdStatus(item.status === "active" ? "active" : "hidden");
+    setNewProdFreeShip(Boolean(item.free_shipping));
+    setNewProdCurrency("EGP"); // DB prices are stored in EGP; never silently reprice an edit.
+    const category = categories.find((entry) => entry.slug === item.category_slug || entry.id === item.category_id);
+    setNewProdCat(category?.id ?? "");
+    setShowAddModal(true);
+  };
+  const openCreatePost = () => {
+    setEditingPost(null);
+    setPostTitle(""); setPostContent(""); setPostImageUrl("");
+    setPostPromoCode(""); setPostDiscount(""); setPostFeaturedProdId("");
+    setPostIsPinned(false); setPostStatus("published");
+    setShowAddMarketingModal(true);
+  };
+  const openEditPost = (post: MarketingPost) => {
+    if (!canManageMarketing || post.store_id !== currentStore.id) return;
+    setEditingPost(post);
+    setPostTitle(post.title); setPostContent(post.content);
+    setPostImageUrl(post.image_url ?? "");
+    setPostPromoCode(post.promo_code ?? "");
+    setPostDiscount(post.discount_percent ? String(post.discount_percent) : "");
+    setPostFeaturedProdId(post.featured_product_id ?? "");
+    setPostIsPinned(Boolean(post.is_pinned));
+    setPostStatus(post.status === "published" ? "published" : "draft");
+    setShowAddMarketingModal(true);
+  };
+
   // Handlers
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canManageCatalog || !currentStore.id) return;
-
-    const enteredPrice = Number(newProdPrice);
-    const priceInEgp = convertFromCurrencyToEGP(enteredPrice, newProdCurrency);
-
-    const { product, error } = await persistProduct({
-      store_id: currentStore.id,
-      category_id: newProdCat || null,
-      name: newProdName.trim(),
-      description: newProdDesc.trim(),
-      price: priceInEgp,
-      image_url: newProdImageUrl || null,
-      stock: Number(newProdStock),
-    });
-
-    if (!product) {
-      showToast(
-        error ||
-          (isAr
-            ? "تعذر حفظ المنتج في قاعدة البيانات."
-            : "Product could not be saved to the database.")
-      );
+    const price = convertFromCurrencyToEGP(Number(newProdPrice), newProdCurrency);
+    const stock = Number(newProdStock);
+    const original = newProdOriginalPrice.trim()
+      ? convertFromCurrencyToEGP(Number(newProdOriginalPrice), newProdCurrency) : null;
+    if (!newProdName.trim() || !Number.isFinite(price) || price < 0 ||
+        !Number.isInteger(stock) || stock < 0 || (original !== null && (!Number.isFinite(original) || original < 0))) {
+      showToast(isAr ? "أدخل سعرًا ومخزونًا صالحين." : "Enter valid price and stock.");
       return;
     }
-
-    setProducts((previous) => [product, ...previous]);
-    setShowAddModal(false);
-    showToast(
-      isAr
-        ? "تم حفظ المنتج في قاعدة البيانات بنجاح."
-        : "Product saved to the database."
-    );
-
-    setNewProdName("");
-    setNewProdNameEn("");
-    setNewProdPrice("");
-    setNewProdOriginalPrice("");
-    setNewProdDesc("");
+    if (newProdStatus === "active" && price > 0 && stock > 0 &&
+        !window.confirm(isAr ? "السعر والمخزون مؤكدان؛ هذا المنتج سيصبح متاحًا للشراء فورًا. تأكيد؟" :
+          "Confirmed price and stock make this product immediately purchasable. Continue?")) return;
+    const category = categories.find((c) => c.id === newProdCat);
+    const payload = {
+      name: newProdName.trim(),
+      name_en: newProdNameEn.trim() || null,
+      description: newProdDesc.trim(),
+      category_id: category?.id ?? null,
+      category_slug: category?.slug ?? null,
+      price,
+      original_price: original,
+      stock,
+      image_url: newProdImageUrl.trim() || null,
+      free_shipping: newProdFreeShip,
+      status: newProdStatus,
+    } as const;
+    if (editingProduct) {
+      const { product, error } = await persistUpdateProduct(editingProduct.id, { ...payload }, currentStore.id);
+      if (!product) {
+        showToast(error || (isAr ? "تعذر تعديل المنتج." : "Product update failed."));
+        return;
+      }
+      setProducts((prev) => prev.map((p) => p.id === product.id ? product : p));
+    } else {
+      const { product, error } = await persistProduct({
+        ...payload, store_id: currentStore.id,
+      });
+      if (!product) {
+        showToast(error || (isAr ? "تعذر إضافة المنتج." : "Product save failed."));
+        return;
+      }
+      setProducts((prev) => [product, ...prev]);
+    }
+    setShowAddModal(false); setEditingProduct(null);
+    showToast(isAr ? "تم حفظ المنتج في قاعدة البيانات." : "Product saved in database.");
   };
 
   const handleCreateMarketingPost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canManageMarketing || !currentStore.id) return;
-
-    const { post, error } = await createSellerMarketingPost({
-      store_id: currentStore.id,
-      store_name: currentStore.name,
-      store_logo: currentStore.logo_url || undefined,
-      title: postTitle.trim(),
-      content: postContent.trim(),
-      image_url: postImageUrl || undefined,
-      promo_code: postPromoCode ? postPromoCode.toUpperCase().trim() : undefined,
-      discount_percent: postDiscount ? Number(postDiscount) : undefined,
-      featured_product_id: postFeaturedProdId || undefined,
+    if (!canManageMarketing || !currentStore.id || !postTitle.trim() || !postContent.trim()) return;
+    const edits = {
+      title: postTitle.trim(), content: postContent.trim(),
+      image_url: postImageUrl.trim() || null,
+      promo_code: postPromoCode.trim().toUpperCase() || null,
+      discount_percent: postDiscount ? Number(postDiscount) : null,
+      featured_product_id: postFeaturedProdId || null,
       is_pinned: postIsPinned,
-      status: "published",
-    });
-
-    if (!post) {
-      showToast(
-        error ||
-          (isAr
-            ? "تعذر حفظ المنشور في قاعدة البيانات."
-            : "Marketing post could not be saved to the database.")
-      );
-      return;
+      status: postStatus,
+    } as const;
+    if (editingPost) {
+      const ok = await updateSellerMarketingPost(editingPost.id, { ...edits }, currentStore.id);
+      if (!ok) { showToast(isAr ? "تعذر تعديل المنشور." : "Post update failed."); return; }
+      setMarketingPosts((prev) => prev.map((p) => p.id === editingPost.id ? {
+        ...p,...edits,image_url:edits.image_url ?? undefined,
+        promo_code:edits.promo_code ?? undefined,
+        discount_percent:edits.discount_percent ?? undefined,
+        featured_product_id:edits.featured_product_id ?? undefined,
+      } : p));
+    } else {
+      const { post, error } = await createSellerMarketingPost({
+        store_id: currentStore.id,store_name:currentStore.name,
+        store_logo:currentStore.logo_url || undefined,
+        title:edits.title,content:edits.content,
+        image_url:edits.image_url ?? undefined,
+        promo_code:edits.promo_code ?? undefined,
+        discount_percent:edits.discount_percent ?? undefined,
+        featured_product_id:edits.featured_product_id ?? undefined,
+        is_pinned:edits.is_pinned,status:edits.status,
+      });
+      if (!post) { showToast(error || (isAr ? "تعذر حفظ المنشور." : "Post save failed.")); return; }
+      setMarketingPosts((prev) => [post, ...prev]);
     }
-
-    setMarketingPosts((previous) => [post, ...previous]);
-    setShowAddMarketingModal(false);
-    showToast(
-      isAr
-        ? "تم حفظ المنشور التسويقي في قاعدة البيانات."
-        : "Marketing post saved to the database."
-    );
-
-    setPostTitle("");
-    setPostContent("");
-    setPostPromoCode("");
-    setPostDiscount("");
-    setPostFeaturedProdId("");
-    setPostIsPinned(false);
+    setShowAddMarketingModal(false); setEditingPost(null);
+    showToast(isAr ? "تم حفظ المنشور في قاعدة البيانات." : "Post saved in database.");
   };
 
   const handleDeleteProduct = async (productId: string) => {
     if (!canManageCatalog) return;
 
-    const ok = await persistDeleteProduct(productId);
+    const ok = await persistDeleteProduct(productId, currentStore.id);
     if (!ok) {
       showToast(
         isAr
@@ -841,7 +892,7 @@ export default function SellerDashboardPage() {
     const nextPinned = !post.is_pinned;
     const ok = await updateSellerMarketingPost(post.id, {
       is_pinned: nextPinned,
-    });
+    }, currentStore.id);
 
     if (!ok) {
       showToast(
@@ -871,7 +922,7 @@ export default function SellerDashboardPage() {
   const handleDeleteMarketingPost = async (postId: string) => {
     if (!canManageMarketing) return;
 
-    const ok = await deleteSellerMarketingPost(postId);
+    const ok = await deleteSellerMarketingPost(postId, currentStore.id);
     if (!ok) {
       showToast(
         isAr
