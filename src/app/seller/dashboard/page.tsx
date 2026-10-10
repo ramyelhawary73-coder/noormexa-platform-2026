@@ -119,6 +119,7 @@ export default function SellerDashboardPage() {
     payouts,
     carriers,
     formatPrice,
+    currencies,
     requestStorePayout,
   } = useMarketplace();
 
@@ -423,7 +424,6 @@ export default function SellerDashboardPage() {
       setProfileCity(currentStore.city || "");
       const baseCur = currentStore.currency || currentStore.base_currency || "SAR";
       setProfileCurrency(baseCur);
-      setNewProdCurrency(baseCur);
       setProfileEmail(currentStore.contact_email || "");
       setProfilePhone(currentStore.contact_phone || "");
       setProfileIban(currentStore.iban || "");
