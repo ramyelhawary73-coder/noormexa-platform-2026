@@ -489,6 +489,11 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
+                    {isOfficialShowcaseProduct(prod) && (
+                      <span className="absolute bottom-2 right-2 rounded-md bg-surface/90 px-2 py-1 text-[10px] font-bold text-foreground">
+                        {isAr ? "صورة توضيحية — العرض فقط" : "Illustrative image — preview"}
+                      </span>
+                    )}
                     {isProductPurchasable(prod) && prod.free_shipping && (
                       <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px] shadow-xs">
                         {isAr ? "شحن مجاني" : "Free Ship"}
