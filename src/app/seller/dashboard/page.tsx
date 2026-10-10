@@ -1521,6 +1521,13 @@ export default function SellerDashboardPage() {
                             <Eye size={15} />
                           </Link>
                           {canManageCatalog && (
+                            <button type="button" onClick={() => openEditProduct(p)}
+                              title={isAr ? "تعديل المنتج" : "Edit Product"}
+                              className="p-2 rounded-lg border border-line hover:border-gold text-muted hover:text-gold">
+                              <Pencil size={15} />
+                            </button>
+                          )}
+                          {canManageCatalog && (
                             <button
                               type="button"
                               onClick={() => {
@@ -1617,6 +1624,13 @@ export default function SellerDashboardPage() {
                               >
                                 <Eye size={14} />
                               </Link>
+                              {canManageCatalog && (
+                                <button type="button" onClick={() => openEditProduct(p)}
+                                  title={isAr ? "تعديل المنتج" : "Edit Product"}
+                                  className="p-2 rounded-lg border border-line hover:border-gold text-muted hover:text-gold">
+                                  <Pencil size={14} />
+                                </button>
+                              )}
                               {canManageCatalog && (
                                 <button
                                   type="button"
@@ -1931,7 +1945,7 @@ export default function SellerDashboardPage() {
                       {post.featured_product_id && (
                         <div className="p-2.5 rounded-xl bg-surface border border-line flex items-center justify-between gap-3 text-xs">
                           <span className="font-bold text-foreground truncate">
-                            {products.find((p) => p.id === post.featured_product_id)?.name || isAr ? "منتج ترويجي مرتبط" : "Featured Product"}
+                            {products.find((p) => p.id === post.featured_product_id)?.name || (isAr ? "منتج ترويجي مرتبط" : "Featured Product")}
                           </span>
                           <span className="text-gold font-black shrink-0">
                             {formatPrice(products.find((p) => p.id === post.featured_product_id)?.price || 0)}
@@ -1945,7 +1959,7 @@ export default function SellerDashboardPage() {
                       <div className="flex items-center gap-4 text-muted text-[11px]">
                         <span className="flex items-center gap-1">
                           <Eye size={13} />
-                          <span>{post.views_count || 1} {isAr ? "مشاهدة" : "views"}</span>
+                          <span>{post.views_count ?? 0} {isAr ? "مشاهدة" : "views"}</span>
                         </span>
                         <span className="flex items-center gap-1 text-rose-500">
                           <Heart size={13} className="fill-rose-500 text-rose-500" />
@@ -1955,6 +1969,11 @@ export default function SellerDashboardPage() {
 
                       {canManageMarketing && (
                         <div className="flex items-center gap-2">
+                          <button type="button" onClick={() => openEditPost(post)}
+                            className="p-1.5 rounded-lg border border-line hover:border-gold text-muted hover:text-gold"
+                            title={isAr ? "تعديل المنشور" : "Edit Post"}>
+                            <Pencil size={14} />
+                          </button>
                           <button
                             type="button"
                             onClick={() => {
@@ -2390,7 +2409,7 @@ export default function SellerDashboardPage() {
                   onChange={setPostImageUrl}
                   aspectRatio="16:9"
                   isAr={isAr}
-                  required
+                  required={!editingPost}
                   helperText={isAr ? "يدعم الرفع المباشر والقص التلقائي بدقة 16:9 أو 1200x675 وإضافة شارات التوثيق والخصومات" : "Supports direct upload, smart auto-crop (16:9), and luxury overlay badges"}
                 />
               </div>
@@ -2629,7 +2648,7 @@ export default function SellerDashboardPage() {
                     onChange={setNewProdImageUrl}
                     aspectRatio="1:1"
                     isAr={isAr}
-                    required
+                    required={!editingProduct}
                     helperText={isAr ? "نسبة العرض المثالية للمنتجات 1:1 مربع بدقة 800x800 أو أعلى، مع إمكانية تحسين التباين والسطوع وقص الحواف الذكي" : "Ideal 1:1 square ratio with smart auto-centering, clarity boost, and overlay options"}
                   />
                 </div>
