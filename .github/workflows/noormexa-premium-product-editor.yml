@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - src/components/seller/ProductEditorModal.tsx
+      - src/components/seller/ProductEditorModal.module.css
       - src/components/SmartImageUploadField.tsx
       - src/lib/productEditorRules.ts
       - src/lib/marketplace.ts
