@@ -801,11 +801,11 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!availableGateways.some((gateway) => gateway.key === selectedGateway)) {
-      setSelectedGateway("cod");
-    }
-  }, [availableGateways, selectedGateway]);
+  // Derive a safe active payment choice during render instead of synchronizing
+  // state in an effect. Checkout and the selector must use the same choice.
+  const effectiveGateway: PaymentGatewayKey = availableGateways.some(
+    (gateway) => gateway.key === selectedGateway
+  ) ? selectedGateway : "cod";
 
   // Resolve country data and divisions for cascading region/city picker
   const currentCountryData = useMemo(() => {
@@ -949,7 +949,7 @@ export default function CheckoutPage() {
           })),
           shipping: finalAddress,
           shippingSpeed,
-          paymentMethod: selectedGateway,
+          paymentMethod: effectiveGateway,
           promoCode: appliedPromo?.code ?? null,
           checkoutReference,
         }),
@@ -972,7 +972,7 @@ export default function CheckoutPage() {
 
       const orders = checkoutPayload.orders;
 
-      if (selectedGateway === "cod") {
+      if (effectiveGateway === "cod") {
         setCompletedOrder(orders[0]);
         setCompletedOrderCount(orders.length);
         clearCart();
@@ -980,7 +980,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      const provider = selectedGateway === "stripe" ? "stripe" : "paymob";
+      const provider = effectiveGateway === "stripe" ? "stripe" : "paymob";
       const paymentResponse = await fetch("/api/payment/create", {
         method: "POST",
         headers: {
@@ -1847,7 +1847,7 @@ export default function CheckoutPage() {
 
               <div className="space-y-3">
                 {availableGateways.map((gw) => {
-                  const active = selectedGateway === gw.key;
+                  const active = effectiveGateway === gw.key;
                   return (
                     <button
                       key={gw.key}

@@ -1,0 +1,40 @@
+name: NOORMEXA React Hooks Baseline Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - src/app/admin/page.tsx
+      - src/app/admin/team/page.tsx
+      - src/app/checkout/page.tsx
+      - src/app/marketplace/**
+      - src/app/store/**
+      - src/app/seller/**
+      - src/context/MarketplaceContext.tsx
+      - .github/workflows/noormexa-hooks-validation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: ESLint
+        if: ${{ !cancelled() }}
+        run: npm run lint
+      - name: Next build
+        if: ${{ !cancelled() }}
+        run: npm run build

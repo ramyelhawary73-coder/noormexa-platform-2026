@@ -203,7 +203,13 @@ export default function SuperAdminPage() {
   }, []);
 
   useEffect(() => {
-    void loadAdminStores();
+    let cancelled = false;
+    // The existing loader uses RLS; delay its initial loading-state update
+    // until after effect setup to prevent a cascading render.
+    void Promise.resolve().then(() => {
+      if (!cancelled) void loadAdminStores();
+    });
+    return () => { cancelled = true; };
   }, [loadAdminStores]);
 
   const updateStoreStatusItem = useCallback(async (
