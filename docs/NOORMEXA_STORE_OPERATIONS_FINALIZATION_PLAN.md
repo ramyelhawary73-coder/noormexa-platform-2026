@@ -1,7 +1,7 @@
 # NOORMEXA — Store Operations & Multi-Team Master Roadmap
 
-**Updated:** 2026-10-09  
-**Status:** Work Package A1 in implementation review; no production deployment or database changes authorized.  
+**Updated:** 2026-10-10  
+**Status:** Work Package A1 rebased via merge commit onto PR #11's merged `main`; automated checks pass; Preview browser and role acceptance remain open. No A1 production deployment, database changes or merge authorized.  
 **Source:** latest `main` at start of A1: `ae968f093a9f3d8fc533de7edad02f7407107ff9`.  
 **Implementation branch:** `fix/noormexa-a1-production-commercial-truth`.  
 **Supabase:** `qiqvmsjjgwdsievkrhly`. **Official store:** `store-noormexa-official` / `noormexa-flagship-direct`.  
@@ -16,6 +16,7 @@ No direct edits to `main`, production DB changes, RLS/Authentication/SMTP/secret
 
 - PR #7 — Official Store Recovery: merged; public canonical and legacy official URLs now resolve from Supabase according to merged implementation. Browser acceptance is still required.
 - PR #8 — Marketplace Catalog Authority P0: merged as `ae968f093a9f3d8fc533de7edad02f7407107ff9`. Catalog now uses approved, sellable, positive-price/stock DB inventory; legacy cart is reconciled against current inventory. Full browser acceptance is outstanding.
+- PR #11 — React Hooks Lint Baseline: **MERGED** into `main` on 2026-10-10, merge SHA `4540cc2a0b6d1aa33036fc72aac605c1b7788517`. TypeScript / full ESLint / Next build passed, deployment status succeeded; interactive browser role tests remain pending.
 - PR #9 — Merchant Email Invitations: **OPEN DRAFT**, not merged. Based on former catalog feature branch; must be reviewed/rebased or retargeted safely on current `main`, retested and accepted separately. Do not discard its code.
 - Documentation branch `docs/noormexa-store-operations-finalization-plan` exists at `4dec69be0a85525a6c705f729472b7fee67a6936`; it describes an older state (before 4 official posts and before catalog repair). Preserve branch unchanged as historical source; this document becomes the canonical roadmap after approval and merge.
 - Production read-only check (2026-10-09): one approved official store; 0 products; 4 published official `marketing_posts`; 0 orders; 0 shipments; 3 active official members (owner/manager/editor). All principal business tables inspected have RLS enabled.
@@ -34,7 +35,7 @@ No direct edits to `main`, production DB changes, RLS/Authentication/SMTP/secret
 - [x] `node scripts/check-production-commercial-truth.mjs`: 18/18 assertions passed (GitHub Actions run `37985604510`).
 - [x] `npx tsc --noEmit`: passed in run `37985604510`.
 - [x] `npm run build`: passed in run `37985604510`; Vercel Preview also reported Ready for code SHA `c26ce6d41cb0371f4b9fb0e106b6b2425fba6c74`.
-- [ ] `npm run lint`: **FAILED** in run `37985604510`, due to React Hooks `set-state-in-effect` errors also present on original `main` (admin, checkout, storefront, seller and MarketplaceContext). Do not mark A1 as lint-clean; separate baseline cleanup decision required.
+- [x] `npm run lint`: passed on the reconciled A1 branch after PR #11 was merged (GitHub Actions runs `38024426868` and `38024426814`). Historical A1 run `37985604510` failed on inherited hook errors before PR #11; those are no longer a release blocker.
 - [ ] Browser role tests/Preview inspection remain outstanding. Vercel project is under `ramyelhawary73-coders-projects`, not the connected Vercel team, so only GitHub's deployment status/Preview link could be verified.
 - [ ] Verify Preview desktop/mobile, public empty/error/catalog states, old cached cart, restricted admin reads; review final diff, receive user's acceptance.
 - [ ] Separate merge approval, production smoke check, no regression.
@@ -95,7 +96,17 @@ No direct edits to `main`, production DB changes, RLS/Authentication/SMTP/secret
 - GitHub Actions: https://github.com/ramyelhawary73-coder/noormexa-platform-2026/actions/runs/37985604510
 - Preview reported Ready: https://noormexa-platform-202-git-bf3d8e-ramyelhawary73-coders-projects.vercel.app
 - Repo `main` remained `ae968f093a9f3d8fc533de7edad02f7407107ff9` during A1. PR #9 remains separate and open.
-- **Gate remains blocked:** Full ESLint fails on inherited baseline violations, no browser E2E/tenant-role acceptance, and no confirmed direct Vercel inspection. No merge or production release authorized.
+- **Historical gate:** On 2026-10-09, Full ESLint failed on inherited baseline violations, and there was no browser E2E or Vercel inspection. See the updated 2026-10-10 validation below; do not interpret this historical record as the latest check.
+
+## A1 revalidation after PR #11 merge — 2026-10-10
+
+- Source `main`: `4540cc2a0b6d1aa33036fc72aac605c1b7788517` (PR #11, React Hooks baseline). Preserved all its changes through a two-parent merge into the PR #10 branch.
+- A1 integration commit: `b3b24651f6d98413b76306ea3f75d0da2f64d231`, before this documentation-only follow-up. Compared against `main`, only seven A1-related files differ; no React Hooks regression was overwritten.
+- **Commercial Authority Regression, TypeScript, Full ESLint, Next.js Build**: all passed for integration commit in both GitHub Actions runs:
+  - https://github.com/ramyelhawary73-coder/noormexa-platform-2026/actions/runs/38024426868
+  - https://github.com/ramyelhawary73-coder/noormexa-platform-2026/actions/runs/38024426814
+- Vercel deployment for integration commit: **Success / Preview Ready** according to GitHub Vercel status. Preview: https://noormexa-platform-202-git-bf3d8e-ramyelhawary73-coders-projects.vercel.app ; not independently browsed.
+- **Remaining approval gates:** user-led browser acceptance on desktop/mobile; sign-in, Platform Admin/Super Admin RLS views, seller store switch/roles, stale cart and checkout negative paths; final CI and Preview status at the exact approved PR head after any further commits; explicit merge authorization. No A1 Production deployment or Supabase change has occurred.
 
 ## Work-package and PR discipline
 
