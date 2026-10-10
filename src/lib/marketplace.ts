@@ -350,7 +350,7 @@ export async function createProduct(payload: {
   category_slug?: string | null;
   original_price?: number | null;
   free_shipping?: boolean;
-  status?: "active" | "hidden";
+  status?: "active" | "hidden" | "out_of_stock";
 }): Promise<{ product: Product | null; error: string | null }> {
   // A zero-price/zero-stock official showcase is visible but never orderable.
   // A hidden item stays private to authorized store staff.
