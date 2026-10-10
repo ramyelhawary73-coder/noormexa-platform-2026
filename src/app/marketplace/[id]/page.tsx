@@ -470,6 +470,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </h1>
             </div>
 
+            {isOfficialShowcaseProduct(product) && (
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                {language === "ar" ? "للعرض فقط: الصورة توضيحية، والسعر والمخزون غير مؤكدين." : "Preview only: illustrative image; actual price and stock are unconfirmed."}
+              </p>
+            )}
+
             {/* Price section */}
             <div className="p-4 rounded-2xl bg-surface-soft border border-line flex items-baseline justify-between">
               <div>
