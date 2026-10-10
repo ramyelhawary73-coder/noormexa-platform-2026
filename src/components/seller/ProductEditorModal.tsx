@@ -24,15 +24,15 @@ type Props = {
 export default function ProductEditorModal({
   product, categories, storeName, isAr, onClose, onSave,
 }: Props) {
-  const baseline = useRef(initialProductDraft(product, categories[0]?.id ?? ""));
-  const [draft, setDraft] = useState<ProductEditorDraft>(() => baseline.current);
+  const [baseline] = useState(() => initialProductDraft(product, categories[0]?.id ?? ""));
+  const [draft, setDraft] = useState<ProductEditorDraft>(baseline);
   const [tab, setTab] = useState<Tab>("basic");
   const [issue, setIssue] = useState<ProductEditorIssue | null>(null);
   const [remoteError, setRemoteError] = useState("");
   const [verifiedSale, setVerifiedSale] = useState(false);
   const [saving, setSaving] = useState(false);
   const savingGuard = useRef(false);
-  const dirty = JSON.stringify(draft) !== JSON.stringify(baseline.current);
+  const dirty = JSON.stringify(draft) !== JSON.stringify(baseline);
   const sellable = isDraftSellable(draft);
   const saleConfirmationRequired = requiresSaleConfirmation(draft, product);
   const legacyAr = isLegacyPreviewDescription(draft.description);
@@ -58,7 +58,7 @@ export default function ProductEditorModal({
       if (event.key === "Escape") {
         event.stopPropagation();
         if (savingGuard.current) return;
-        if (JSON.stringify(draft) !== JSON.stringify(baseline.current) &&
+        if (JSON.stringify(draft) !== JSON.stringify(baseline) &&
             !window.confirm(isAr ? "التعديلات غير محفوظة. هل تريد الخروج؟" : "Discard unsaved changes?")) return;
         onClose();
       }
