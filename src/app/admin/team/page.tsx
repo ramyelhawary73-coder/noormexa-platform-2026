@@ -103,9 +103,16 @@ export default function OfficialStoreTeamPage() {
   }, []);
 
   useEffect(() => {
-    setError(null);
-    void loadPlatformAdmins();
-    void loadTeam();
+    // Do not synchronously cascade admin/team loading state from setup.
+    // The existing RPCs remain the server-side permission boundary.
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setError(null);
+      void loadPlatformAdmins();
+      void loadTeam();
+    });
+    return () => { cancelled = true; };
   }, [loadPlatformAdmins, loadTeam]);
 
   const handleGrantPlatformAdmin = async (event: FormEvent) => {
