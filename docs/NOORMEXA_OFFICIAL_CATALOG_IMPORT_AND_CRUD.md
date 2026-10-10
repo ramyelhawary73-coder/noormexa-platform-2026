@@ -3,7 +3,7 @@
 **Work package:** P0 Official Showcase Recovery.  
 **Base:** main `4540cc2a0b6d1aa33036fc72aac605c1b7788517`.  
 **Branch:** `feat/noormexa-official-preview-catalog-crud`.  
-**Status:** staging only, Production import / merge require separately requested approval.
+**Status (historical Stage 1):** PR #12 merged into main on 2026-10-10; authorized Production import completed with 36 preview-only products. Stage 2 Premium Product Editor is under review on an independent branch; no Stage 2 Production changes authorized.
 
 ## Staged catalog
 - All 36 original product IDs and names are preserved in `data/official-preview-catalog.json` and assigned to `store-noormexa-official`.
@@ -31,3 +31,19 @@
 - [ ] Separate approval for Production data INSERT; separate approval for Merge.
 
 **Known limitation:** Until the reviewed import is applied to an authorized Supabase environment, a Preview connected to the existing empty Production database will also show zero official products. A successful Vercel Preview deploy alone does not seed data.
+
+## Stage 2 — Premium Product Editor & Catalog Activation P0 (2026-10-10)
+
+- New implementation: `src/components/seller/ProductEditorModal.tsx`, `src/lib/productEditorRules.ts`.
+- A four-section desktop/mobile editor replaces the cramped single-sheet modal; header/footer stay visible, form content scrolls independently, RTL/LTR is respected.
+- Existing product IDs, images, Arabic/English descriptions and other persisted fields remain unchanged unless an authorized merchant explicitly edits and saves.
+- All 36 imported catalog previews retain their legacy description in Production until users make corrections; no automated SQL or mass text replacement.
+- Sale activation is blocked in the editor while either old preview placeholder remains, price/stock are invalid, the image is missing, or compare-at price is misleading.
+- A merchant confirms genuine price, stock, image rights, and copy before enabling immediate checkout. Visibility `hidden` versus `active` is retained; zero price/stock stay preview-only.
+- Duplicate save requests are blocked, dirty-form close/navigation emits a warning, English descriptions can be edited, existing image URL can be collapsed without changing the image.
+- Product writes remain backed by Supabase session/RLS and scoped to current `store_id`; no new database RLS/permissions/migration, Auth, SMTP, Secrets or Production mutations.
+- Automated smoke tests exercise the **actual TS rules** via `node scripts/test-premium-product-editor.mjs`; check full TS, lint, build in CI.
+- Security limitation: client editor confirmation can be bypassed by an authorized user calling Supabase directly; enforcing description and release approval for all database writes would require a separately approved database/RPC policy design. Do not claim it is a server-enforced publishing workflow.
+- Approval gates: GitHub CI, Vercel Preview, role-specific RLS E2E, real desktop/mobile interaction, explicit separate Merge, then post-merge Production verification. No automatic Product DB updates.
+
+The Master Store Operations roadmap currently exists on open Draft PR #10, not on main; the Stage 2 handoff is separately documented here and should be reconciled with that roadmap only after approval, without changing PR #10.
