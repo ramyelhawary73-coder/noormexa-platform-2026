@@ -1,3 +1,4 @@
+import { isOfficialShowcaseProduct, isProductPurchasable, isPublicProduct } from "@/lib/productAvailability";
 "use client";
 
 import { useState, useMemo, useSyncExternalStore, use, useEffect } from "react";
@@ -142,8 +143,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         .select("*")
         .eq("id", productId)
         .eq("status", "active")
-        .gt("stock", 0)
-        .gt("price", 0)
         .maybeSingle();
 
       if (error) {
@@ -164,7 +163,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         setLookup({
           loading: false,
           strict,
-          product: publicStore ? (data as Product) : null,
+          product: publicStore && data && isPublicProduct(data as Product) ? (data as Product) : null,
           store: publicStore,
           error: false,
         });
@@ -286,6 +285,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   };
 
   const handleAddToCart = () => {
+    if (!product || !isProductPurchasable(product)) return;
     addToCart(
       { ...product, price: calculatedPrice },
       quantity,
@@ -297,6 +297,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   };
 
   const handleBuyNow = () => {
+    if (!product || !isProductPurchasable(product)) return;
     handleAddToCart();
     router.push("/checkout");
   };
@@ -474,9 +475,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div>
                 <div className="flex items-baseline gap-3">
                   <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-                    {formatPrice(calculatedPrice)}
+                    {isOfficialShowcaseProduct(product) ? (language === "ar" ? "السعر قيد التأكيد" : "Price pending") : formatPrice(calculatedPrice)}
                   </span>
-                  {product.original_price && product.original_price > calculatedPrice && (
+                  {!isOfficialShowcaseProduct(product) && product.original_price && product.original_price > calculatedPrice && (
                     <span className="text-sm text-muted line-through font-medium">
                       {formatPrice(product.original_price)}
                     </span>
@@ -494,7 +495,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                   product.stock > 0 ? "bg-emerald-600/10 text-emerald-600" : "bg-red-500/10 text-red-500"
                 }`}>
-                  {product.stock > 0 ? `${product.stock} ${text.stockAvailable}` : text.outOfStock}
+                  {isOfficialShowcaseProduct(product) ? (language === "ar" ? "كتالوج للعرض فقط — الشراء غير متاح" : "Preview catalog — not for sale") : product.stock > 0 ? `${product.stock} ${text.stockAvailable}` : text.outOfStock}
                 </span>
               </div>
             </div>
@@ -575,7 +576,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div className="text-end">
                 <span className="text-[11px] text-muted block">{text.subtotal}</span>
                 <span className="text-lg font-black text-foreground text-gold">
-                  {formatPrice(calculatedPrice * quantity)}
+                  {isOfficialShowcaseProduct(product) ? (language === "ar" ? "السعر غير متاح" : "Price pending") : formatPrice(calculatedPrice * quantity)}
                 </span>
               </div>
             </div>
@@ -585,7 +586,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
-                  disabled={product.stock <= 0}
+                  disabled={!isProductPurchasable(product)}
                   onClick={handleAddToCart}
                   className="w-full py-3.5 px-6 rounded-2xl bg-surface border-2 border-orange-500 text-foreground hover:bg-orange-500/10 font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -597,7 +598,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
                 <button
                   type="button"
-                  disabled={product.stock <= 0}
+                  disabled={!isProductPurchasable(product)}
                   onClick={handleBuyNow}
                   className="w-full py-3.5 px-6 rounded-2xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-orange-500/25 active:scale-98 cursor-pointer border border-orange-400/40 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -837,7 +838,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     />
                   </div>
                   <h4 className="font-bold text-xs text-foreground line-clamp-2">{rel.name}</h4>
-                  <div className="font-black text-sm text-gold">{formatPrice(rel.price)}</div>
+                  <div className="font-black text-sm text-gold">{isOfficialShowcaseProduct(rel) ? (language === "ar" ? "للعرض" : "Preview") : formatPrice(rel.price)}</div>
                 </Link>
               ))}
             </div>
@@ -850,14 +851,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         <div className="min-w-0">
           <span className="text-[10px] text-muted block leading-tight">{text.subtotal}</span>
           <span className="text-base font-black text-gold truncate block">
-            {formatPrice(calculatedPrice * quantity)}
+            {isOfficialShowcaseProduct(product) ? (language === "ar" ? "السعر غير متاح" : "Price pending") : formatPrice(calculatedPrice * quantity)}
           </span>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            disabled={product.stock <= 0}
+            disabled={!isProductPurchasable(product)}
             onClick={handleAddToCart}
             className="h-11 px-3.5 rounded-xl border border-orange-500 text-orange-600 dark:text-orange-400 bg-surface flex items-center justify-center gap-1.5 text-xs font-black shadow-xs active:scale-95 disabled:opacity-50"
             aria-label={text.addToCart}
@@ -868,7 +869,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           <button
             type="button"
-            disabled={product.stock <= 0}
+            disabled={!isProductPurchasable(product)}
             onClick={handleBuyNow}
             className="h-11 px-4 rounded-xl !bg-gradient-to-r !from-orange-500 !to-amber-500 hover:!from-orange-600 hover:!to-amber-600 !text-white flex items-center justify-center gap-1.5 text-xs font-black shadow-md shadow-orange-500/30 active:scale-95 disabled:opacity-50 cursor-pointer"
           >
