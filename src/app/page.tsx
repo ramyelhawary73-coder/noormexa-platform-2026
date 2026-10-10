@@ -956,6 +956,11 @@ export default function HomePage() {
                   <article key={prod.id} className="rounded-3xl bg-surface border border-line overflow-hidden shadow-xs">
                     <Link href={`/product/${prod.id}`} className="block relative aspect-square">
                       <ProductImage src={prod.image_url} alt={prod.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover" />
+                      {isOfficialShowcaseProduct(prod) && (
+                        <span className="absolute bottom-3 start-3 rounded-lg bg-surface/90 px-2 py-1 text-xs font-bold text-foreground">
+                          {isAr ? "صورة توضيحية" : "Illustrative image"}
+                        </span>
+                      )}
                       {discount > 0 && (
                         <span className="absolute top-3 start-3 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold">
                           {discount}% {isAr ? "توفير" : "OFF"}
