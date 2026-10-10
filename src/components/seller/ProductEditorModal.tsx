@@ -77,6 +77,7 @@ export default function ProductEditorModal({
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (savingGuard.current) return;
+    if (product && !dirty) { onClose(); return; }
     const validation = validateProductDraft(draft, product, new Set(categories.map((c) => c.id)));
     if (validation) { setIssue(validation); setTab(validation.tab); return; }
     if (saleConfirmationRequired && !verifiedSale) {
@@ -126,6 +127,7 @@ export default function ProductEditorModal({
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${sellable ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}>
                 {sellable ? (isAr ? "جاهز للبيع" : "Sellable") : draft.status === "hidden"
                   ? (isAr ? "مخفي" : "Hidden")
+                  : draft.status === "out_of_stock" ? (isAr ? "نفد المخزون" : "Out of stock")
                   : (isAr ? "كتالوج للعرض" : "Preview only")}
               </span>
             </div>
@@ -239,17 +241,19 @@ export default function ProductEditorModal({
                   <p className="text-xs text-muted">{isAr ? "إخفاء المنتج يمنع ظهوره العام؛ إظهاره بسعر أو مخزون صفر يجعله للعرض فقط." :
                     "Hidden products are private; visible zero-price or zero-stock items are preview only."}</p></div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {(["active", "hidden"] as const).map((status) => (
+                  {(["active", "hidden", "out_of_stock"] as const).map((status) => (
                     <button key={status} type="button" onClick={() => update("status", status)}
                       aria-pressed={draft.status === status}
                       className={`rounded-2xl border p-4 text-start transition-colors ${draft.status === status
                         ? "border-gold bg-gold/10" : "border-line bg-surface-soft hover:border-gold/50"}`}>
                       <div className="flex items-center gap-2 text-sm font-black">{status === "active" ? <Eye size={18}/> : <Package size={18}/>}
-                        {status === "active" ? (isAr ? "ظاهر في المتجر" : "Visible") : (isAr ? "مخفي عن الزوار" : "Hidden")}
+                        {status === "active" ? (isAr ? "ظاهر في المتجر" : "Visible") : status === "hidden"
+                          ? (isAr ? "مخفي عن الزوار" : "Hidden") : (isAr ? "نفد من المخزون" : "Out of stock")}
                       </div>
                       <p className="mt-2 text-xs text-muted">{status === "active"
                         ? (isAr ? "للبيع فقط عند اعتماد السعر والمخزون والوصف." : "Checkout only after verified price, stock and copy.")
-                        : (isAr ? "محفوظ في لوحة الإدارة ولا يظهر للعامة." : "Visible to staff only.")}</p>
+                        : status === "hidden" ? (isAr ? "محفوظ في لوحة الإدارة ولا يظهر للعامة." : "Visible to staff only.")
+                        : (isAr ? "احتفظ بحالة نفاد المخزون حتى تقرر إتاحته مجددًا." : "Keep this sold-out status until you intentionally reactivate it.")}</p>
                     </button>
                   ))}
                 </div>
