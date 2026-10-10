@@ -1,4 +1,5 @@
 "use client";
+import { isOfficialShowcaseProduct, isProductPurchasable } from "@/lib/productAvailability";
 
 import { use, useState, useSyncExternalStore, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -126,6 +127,7 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
   }, [storeProducts, searchQuery, selectedCategory, sortBy]);
 
   const handleAddToCart = (product: Product) => {
+    if (!isProductPurchasable(product)) return;
     addToCart(product, 1);
     setAddedAlert(isAr ? `تمت إضافة "${product.name}" إلى السلة` : `Added "${product.name}" to cart`);
     setTimeout(() => setAddedAlert(null), 2500);
@@ -379,8 +381,8 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               <ShieldCheck size={18} />
             </span>
             <div className="text-xs">
-              <div className="font-bold text-foreground">{isAr ? "منتجات أصلية 100%" : "100% Authentic"}</div>
-              <div className="text-muted text-[11px]">{isAr ? "مفحوصة ومعتمدة من منصة نورميكسا" : "Inspected by NOORMEXA"}</div>
+              <div className="font-bold text-foreground">{isAr ? "كتالوج المتجر الرسمي" : "Official Store Catalog"}</div>
+              <div className="text-muted text-[11px]">{isAr ? "تتم مراجعة بيانات البيع أولًا" : "Details reviewed before sale"}</div>
             </div>
           </div>
 
@@ -389,8 +391,8 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               <Truck size={18} />
             </span>
             <div className="text-xs">
-              <div className="font-bold text-foreground">{isAr ? "شحن آمن وسريع" : "Express Shipping"}</div>
-              <div className="text-muted text-[11px]">{isAr ? "توصيل وتتبع حي حتى باب المنزل" : "Live door-to-door tracking"}</div>
+              <div className="font-bold text-foreground">{isAr ? "الشحن حسب المنتج والوجهة" : "Shipping depends on product"}</div>
+              <div className="text-muted text-[11px]">{isAr ? "تظهر الخيارات بعد اعتماد المنتج" : "After stock confirmation"}</div>
             </div>
           </div>
 
@@ -399,8 +401,8 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
               <Sparkles size={18} />
             </span>
             <div className="text-xs">
-              <div className="font-bold text-foreground">{isAr ? "ضمان استرجاع 14 يوم" : "14-Day Free Returns"}</div>
-              <div className="text-muted text-[11px]">{isAr ? "حماية كاملة لأموال المشتري" : "Buyer payment protection"}</div>
+              <div className="font-bold text-foreground">{isAr ? "شروط الاسترجاع حسب المنتج" : "Product Return Terms"}</div>
+              <div className="text-muted text-[11px]">{isAr ? "تُعرض قبل إتمام الطلب" : "Shown before checkout"}</div>
             </div>
           </div>
         </div>
@@ -487,13 +489,18 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
-                    {prod.free_shipping && (
+                    {isOfficialShowcaseProduct(prod) && (
+                      <span className="absolute bottom-2 right-2 rounded-md bg-surface/90 px-2 py-1 text-[10px] font-bold text-foreground">
+                        {isAr ? "صورة توضيحية — العرض فقط" : "Illustrative image — preview"}
+                      </span>
+                    )}
+                    {isProductPurchasable(prod) && prod.free_shipping && (
                       <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px] shadow-xs">
                         {isAr ? "شحن مجاني" : "Free Ship"}
                       </span>
                     )}
 
-                    {prod.original_price && prod.original_price > prod.price && (
+                    {!isOfficialShowcaseProduct(prod) && prod.original_price && prod.original_price > prod.price && (
                       <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-red-500 text-white font-black text-[10px] shadow-xs">
                         -{Math.round(((prod.original_price - prod.price) / prod.original_price) * 100)}%
                       </span>
@@ -508,9 +515,9 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
 
                     <div className="flex items-baseline gap-2 pt-1">
                       <span className="font-black text-sm text-amber-600 dark:text-gold">
-                        {formatPrice(prod.price)}
+                        {isOfficialShowcaseProduct(prod) ? (isAr ? "السعر قيد التأكيد" : "Price pending") : formatPrice(prod.price)}
                       </span>
-                      {prod.original_price && (
+                      {!isOfficialShowcaseProduct(prod) && prod.original_price && (
                         <span className="line-through text-muted text-xs">
                           {formatPrice(prod.original_price)}
                         </span>
@@ -523,10 +530,11 @@ export default function StorePage({ params }: { params: Promise<{ slug: string }
                   <button
                     type="button"
                     onClick={() => handleAddToCart(prod)}
+                    disabled={!isProductPurchasable(prod)}
                     className="w-full py-2.5 rounded-xl bg-gold text-navy hover:bg-gold-strong font-black text-xs flex items-center justify-center gap-2 shadow-xs transition-all"
                   >
                     <ShoppingBag size={14} />
-                    <span>{isAr ? "إضافة للسلة" : "Add to Cart"}</span>
+                    <span>{isOfficialShowcaseProduct(prod) ? (isAr ? "كتالوج للعرض فقط" : "Preview only") : (isAr ? "إضافة للسلة" : "Add to Cart")}</span>
                   </button>
                 </div>
               </div>

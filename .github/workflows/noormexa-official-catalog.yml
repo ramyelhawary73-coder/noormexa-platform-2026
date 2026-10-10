@@ -1,0 +1,49 @@
+name: NOORMEXA Official Catalog & CRUD
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - data/official-preview-catalog.json
+      - scripts/**
+      - src/lib/productAvailability.ts
+      - src/lib/publicCatalog.ts
+      - src/lib/publicStorefront.ts
+      - src/lib/marketplace.ts
+      - src/lib/sellerWorkspace.ts
+      - src/app/page.tsx
+      - src/app/store/**
+      - src/app/marketplace/**
+      - src/app/seller/dashboard/page.tsx
+      - .github/workflows/noormexa-official-catalog.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Staged Import Dry-run
+        run: node scripts/prepare-official-preview-import.mjs
+      - name: Catalog and CRUD Safety Regression
+        if: ${{ !cancelled() }}
+        run: node scripts/check-official-showcase.mjs
+      - name: TypeScript
+        if: ${{ !cancelled() }}
+        run: npx tsc --noEmit
+      - name: ESLint
+        if: ${{ !cancelled() }}
+        run: npm run lint
+      - name: Next.js Build
+        if: ${{ !cancelled() }}
+        run: npm run build

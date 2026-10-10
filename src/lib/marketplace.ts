@@ -345,10 +345,20 @@ export async function createProduct(payload: {
   price: number;
   image_url: string | null;
   stock: number;
+  name_en?: string | null;
+  original_price?: number | null;
+  free_shipping?: boolean;
+  status?: "active" | "hidden";
 }): Promise<{ product: Product | null; error: string | null }> {
+  // A zero-price/zero-stock official showcase is visible but never orderable.
+  // A hidden item stays private to authorized store staff.
+  if (!Number.isFinite(payload.price) || payload.price < 0 ||
+      !Number.isInteger(payload.stock) || payload.stock < 0) {
+    return { product: null, error: "سعر أو مخزون غير صالح" };
+  }
   const { data, error } = await supabase
     .from("products")
-    .insert({ ...payload, status: "active" })
+    .insert({ ...payload, status: payload.status ?? "hidden" })
     .select()
     .single();
   if (error || !data) return { product: null, error: error?.message ?? "تعذر إضافة المنتج" };
@@ -363,9 +373,11 @@ export async function updateProductStatus(
   return !error;
 }
 
-export async function deleteProduct(productId: string): Promise<boolean> {
-  const { error } = await supabase.from("products").delete().eq("id", productId);
-  return !error;
+export async function deleteProduct(productId: string, storeId?: string): Promise<boolean> {
+  let query = supabase.from("products").delete().eq("id", productId);
+  if (storeId) query = query.eq("store_id", storeId);
+  const { data, error } = await query.select("id");
+  return !error && (data?.length ?? 0) === 1;
 }
 
 export async function uploadProductImage(
@@ -633,14 +645,26 @@ export async function updateProduct(
   productId: string,
   updates: {
     name?: string;
+    name_en?: string | null;
     description?: string | null;
     price?: number;
+    original_price?: number | null;
     stock?: number;
     category_id?: string | null;
+    category_slug?: string | null;
     image_url?: string | null;
-  }
+    free_shipping?: boolean;
+    status?: "active" | "hidden" | "out_of_stock";
+  },
+  storeId?: string
 ): Promise<{ product: Product | null; error: string | null }> {
-  const { data, error } = await supabase.from("products").update(updates).eq("id", productId).select().single();
+  if ((updates.price !== undefined && (!Number.isFinite(updates.price) || updates.price < 0)) ||
+      (updates.stock !== undefined && (!Number.isInteger(updates.stock) || updates.stock < 0))) {
+    return { product: null, error: "سعر أو مخزون غير صالح" };
+  }
+  let query = supabase.from("products").update(updates).eq("id", productId);
+  if (storeId) query = query.eq("store_id", storeId);
+  const { data, error } = await query.select().single();
   if (error || !data) return { product: null, error: error?.message ?? "تعذر تحديث المنتج" };
   return { product: data as Product, error: null };
 }

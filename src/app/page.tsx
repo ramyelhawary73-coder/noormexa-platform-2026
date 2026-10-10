@@ -1,4 +1,5 @@
 "use client";
+import { isOfficialShowcaseProduct, isProductPurchasable } from "@/lib/productAvailability";
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
@@ -644,6 +645,7 @@ export default function HomePage() {
   };
 
   const handleQuickAdd = (product: (typeof products)[number]) => {
+    if (!isProductPurchasable(product)) return;
     addToCart(product, 1);
     setAddedProductId(product.id);
     setTimeout(() => {
@@ -936,7 +938,7 @@ export default function HomePage() {
                 {isAr ? "منتجات من المتاجر المعتمدة" : "Products from Approved Stores"}
               </h2>
               <p className="text-xs sm:text-sm text-muted">
-                {isAr ? "المعروض هنا مرتبط بمنتجات نشطة ومخزون فعلي في قاعدة البيانات." : "Listings come from live, in-stock inventory at approved stores."}
+                {isAr ? "منتجات جاهزة للبيع أو كتالوج المتجر الرسمي قيد مراجعة السعر والمخزون." : "Sellable products and official preview listings awaiting verified price and stock."}
               </p>
             </div>
             <Link href="/marketplace" className="px-5 py-3 bg-orange-500 text-white font-bold text-xs rounded-xl hover:bg-orange-600">
@@ -947,13 +949,18 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {products.slice(0, 4).map((prod) => {
                 const store = stores.find((s) => s.id === prod.store_id);
-                const discount = prod.original_price && prod.original_price > prod.price
+                const discount = !isOfficialShowcaseProduct(prod) && prod.original_price && prod.original_price > prod.price
                   ? Math.round(100 * (prod.original_price - prod.price) / prod.original_price)
                   : 0;
                 return (
                   <article key={prod.id} className="rounded-3xl bg-surface border border-line overflow-hidden shadow-xs">
                     <Link href={`/product/${prod.id}`} className="block relative aspect-square">
                       <ProductImage src={prod.image_url} alt={prod.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover" />
+                      {isOfficialShowcaseProduct(prod) && (
+                        <span className="absolute bottom-3 start-3 rounded-lg bg-surface/90 px-2 py-1 text-xs font-bold text-foreground">
+                          {isAr ? "صورة توضيحية" : "Illustrative image"}
+                        </span>
+                      )}
                       {discount > 0 && (
                         <span className="absolute top-3 start-3 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold">
                           {discount}% {isAr ? "توفير" : "OFF"}
@@ -963,10 +970,10 @@ export default function HomePage() {
                     <div className="p-4 space-y-3">
                       <p className="text-xs text-muted">{store?.name || prod.store_name}</p>
                       <Link href={`/product/${prod.id}`} className="block text-sm font-bold text-foreground line-clamp-2">{prod.name}</Link>
-                      <p className="font-black text-foreground">{formatPrice(prod.price)}</p>
-                      <button type="button" onClick={() => handleQuickAdd(prod)}
+                      <p className="font-black text-foreground">{isOfficialShowcaseProduct(prod) ? (isAr ? "السعر قيد التأكيد" : "Price pending") : formatPrice(prod.price)}</p>
+                      <button type="button" disabled={!isProductPurchasable(prod)} onClick={() => handleQuickAdd(prod)}
                         className="w-full rounded-xl bg-orange-500 py-2.5 text-xs text-white font-bold hover:bg-orange-600">
-                        {addedProductId === prod.id ? (isAr ? "تمت الإضافة" : "Added") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
+                        {isOfficialShowcaseProduct(prod) ? (isAr ? "كتالوج للعرض" : "Preview only") : addedProductId === prod.id ? (isAr ? "تمت الإضافة" : "Added") : (isAr ? "إضافة إلى السلة" : "Add to Cart")}
                       </button>
                     </div>
                   </article>

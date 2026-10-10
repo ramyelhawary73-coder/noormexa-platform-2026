@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { PublicStore } from "@/lib/marketplace";
 import type { Product, MarketingPost } from "@/types/marketplace";
+import { isPublicProduct } from "@/lib/productAvailability";
 
 // These aliases are navigation compatibility only; the database remains the authority.
 const OFFICIAL_STORE_ID = "store-noormexa-official";
@@ -64,7 +65,7 @@ export async function loadPublicStorefront(routeSlug: string): Promise<PublicSto
   return {
     storefront: {
       store,
-      products: (productsResult.data ?? []) as Product[],
+      products: ((productsResult.data ?? []) as Product[]).filter(isPublicProduct),
       posts: (postsResult.data ?? []) as MarketingPost[],
     },
     error: null,
