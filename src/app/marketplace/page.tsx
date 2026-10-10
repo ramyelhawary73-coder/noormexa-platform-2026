@@ -1445,6 +1445,11 @@ function MarketplaceContent() {
                           )}
                         </div>
 
+                        {isOfficialShowcaseProduct(product) && (
+                          <span className="absolute bottom-2 start-2 rounded-md bg-surface/90 px-2 py-1 text-[10px] font-bold text-foreground">
+                            {language === "ar" ? "صورة توضيحية" : "Illustrative image"}
+                          </span>
+                        )}
                         {/* Wishlist Toggle Button */}
                         <button
                           type="button"
