@@ -202,21 +202,29 @@ export async function createSellerMarketingPost(
 
 export async function updateSellerMarketingPost(
   postId: string,
-  updates: Partial<Pick<MarketingPost, "title" | "content" | "image_url" | "promo_code" | "discount_percent" | "featured_product_id" | "is_pinned" | "status">>
+  updates: {
+    title?: string;
+    content?: string;
+    image_url?: string | null;
+    promo_code?: string | null;
+    discount_percent?: number | null;
+    featured_product_id?: string | null;
+    is_pinned?: boolean;
+    status?: MarketingPost["status"];
+  },
+  storeId?: string
 ): Promise<boolean> {
-  const { error } = await supabase
-    .from("marketing_posts")
-    .update(updates)
-    .eq("id", postId);
-  return !error;
+  let query = supabase.from("marketing_posts").update(updates).eq("id", postId);
+  if (storeId) query = query.eq("store_id", storeId);
+  const { data, error } = await query.select("id");
+  return !error && (data?.length ?? 0) === 1;
 }
 
-export async function deleteSellerMarketingPost(postId: string): Promise<boolean> {
-  const { error } = await supabase
-    .from("marketing_posts")
-    .delete()
-    .eq("id", postId);
-  return !error;
+export async function deleteSellerMarketingPost(postId: string, storeId?: string): Promise<boolean> {
+  let query = supabase.from("marketing_posts").delete().eq("id", postId);
+  if (storeId) query = query.eq("store_id", storeId);
+  const { data, error } = await query.select("id");
+  return !error && (data?.length ?? 0) === 1;
 }
 
 export async function updateSellerOrderStatus(
