@@ -346,6 +346,8 @@ export async function createProduct(payload: {
   image_url: string | null;
   stock: number;
   name_en?: string | null;
+  description_en?: string | null;
+  category_slug?: string | null;
   original_price?: number | null;
   free_shipping?: boolean;
   status?: "active" | "hidden";
@@ -647,6 +649,7 @@ export async function updateProduct(
     name?: string;
     name_en?: string | null;
     description?: string | null;
+    description_en?: string | null;
     price?: number;
     original_price?: number | null;
     stock?: number;
